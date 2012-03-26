@@ -77,7 +77,8 @@
       {$DEFINE SUPPORTS_INLINE}
     {$IFEND}
 
-  {$DEFINE USE_FASTMM4}
+  {-$DEFINE USE_FASTMM4}
+
   {$ELSE}
     Delphi Version not supported!!!
   {$ENDIF}
