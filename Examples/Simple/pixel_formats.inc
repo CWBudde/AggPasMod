@@ -11,7 +11,7 @@ const
 
 {$ELSE}
 {$IFDEF AGG_BGR24}
-  , AggPixelFormatRgb;
+  , AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas';
 
 const
   CPixFormat = pfBgr24;
@@ -24,7 +24,7 @@ const
 
 {$ELSE}
 {$IFDEF AGG_Rgb24}
-  , AggPixelFormatRgb;
+  , AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas';
 
 const
   CPixFormat = pfRgb24;
@@ -35,7 +35,7 @@ const
 
 {$ELSE}
 {$IFDEF AGG_BGRA32}
-  , AggPixelFormatRgba;
+  , AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas';
 
 const
   CPixFormat = pfBgra32;
@@ -47,7 +47,7 @@ const
 
 {$ELSE}
 {$IFDEF AGG_RgbA32}
-  , AggPixelFormatRgba;
+  , AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas';
 
 const
   CPixFormat = pfRgba32;
@@ -59,7 +59,7 @@ const
 
 {$ELSE}
 {$IFDEF AGG_ARGB32}
-  , AggPixelFormatRgba;
+  , AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas';
 
 const
   CPixFormat = pfArgb32;
@@ -71,7 +71,7 @@ const
 
 {$ELSE}
 {$IFDEF AGGABGR32}
-  , AggPixelFormatRgba;
+  , AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas';
 
 const
   CPixFormat = Pix_formatABGR32;
@@ -83,7 +83,7 @@ const
 
 {$ELSE}
 {$IFDEF AGG_Rgb555}
-  , AggPixelFormatRgb_packed;
+  , AggPixelFormatRgb_packed in '..\..\Source\AggPixelFormatRgb_packed.pas';
 
 const
   CPixFormat = pfRgb555;
@@ -96,7 +96,7 @@ const
 
 {$ELSE}
 {$IFDEF AGG_Rgb565}
-  , AggPixelFormatRgb_packed;
+  , AggPixelFormatRgb_packed in '..\..\Source\AggPixelFormatRgb_packed.pas';
 
 const
   CPixFormat = pfRgb565;

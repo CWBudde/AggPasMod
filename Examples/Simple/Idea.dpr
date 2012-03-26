@@ -23,26 +23,26 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggCheckBoxControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanLinePacked,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRenderScanLines,
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggGammaFunctions,
-  AggPathStorage,
-  AggTransAffine,
-  AggConvStroke,
-  AggConvTransform,
-  AggVertexSource
+  AggGammaFunctions in '..\..\Source\AggGammaFunctions.pas',
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggVertexSource in '..\..\Source\AggVertexSource.pas'
 {$I Pixel_Formats.inc}
 
 const

@@ -16,38 +16,38 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
-  AggMath,
-  AggColor,
-  AggArray,
+  AggBasics in '..\..\Source\AggBasics.pas',
+  AggMath in '..\..\Source\AggMath.pas',
+  AggColor in '..\..\Source\AggColor.pas',
+  AggArray in '..\..\Source\AggArray.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggCheckBoxControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
 
-  AggRasterizerOutlineAA,
-  AggRenderingBufferDynaRow,
-  AggRendererBase,
-  AggRenderingBuffer,
-  AggRenderScanLines,
-  AggRendererScanLine,
-  AggRasterizerScanLineAA,
-  AggScanlineUnpacked,
+  AggRasterizerOutlineAA in '..\..\Source\AggRasterizerOutlineAA.pas',
+  AggRenderingBufferDynaRow in '..\..\Source\AggRenderingBufferDynaRow.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
 
-  AggPixelFormat,
-  AggPixelFormatRgb,
-  AggPixelFormatRgba,
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
+  AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
 
-  AggTransAffine,
-  AggConvStroke,
-  AggConvTransform,
-  AggBoundingRect,
-  AggSpanAllocator,
-  AggSpanGradient,
-  AggSpanInterpolatorLinear,
-  AggEllipse,
-  AggGsvText,
-  AggQuadratureOscillator;
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggBoundingRect in '..\..\Source\AggBoundingRect.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggSpanGradient in '..\..\Source\AggSpanGradient.pas',
+  AggSpanInterpolatorLinear in '..\..\Source\AggSpanInterpolatorLinear.pas',
+  AggEllipse in '..\..\Source\AggEllipse.pas',
+  AggGsvText in '..\..\Source\AggGsvText.pas',
+  AggQuadratureOscillator in '..\..\Source\AggQuadratureOscillator.pas';
 
 const
   CFlipY = True;

@@ -23,29 +23,29 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggCheckBoxControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggRasterizerOutlineAA,
-  AggScanLine,
-  AggScanLinePacked,
-  AggGammaFunctions,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggRasterizerOutlineAA in '..\..\Source\AggRasterizerOutlineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
+  AggGammaFunctions in '..\..\Source\AggGammaFunctions.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRendererOutlineAA,
-  AggRenderScanLines,
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRendererOutlineAA in '..\..\Source\AggRendererOutlineAA.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggPathStorage,
-  AggBoundingRect,
-  AggTransAffine,
-  AggConvStroke,
-  AggConvTransform,
-  AggVertexSource,
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggBoundingRect in '..\..\Source\AggBoundingRect.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggVertexSource in '..\..\Source\AggVertexSource.pas',
   AggParseLion
 
 {$I Pixel_Formats.inc}

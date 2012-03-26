@@ -13,28 +13,28 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatRgb,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggCheckBoxControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRasterizerScanLineAA,
-  AggScanLinePacked,
-  AggRenderScanLines,
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggGammaFunctions,
-  AggGammaLUT,
-  AggEllipse,
-  AggRoundedRect,
-  AggConvStroke,
-  AggVertexSource;
+  AggGammaFunctions in '..\..\Source\AggGammaFunctions.pas',
+  AggGammaLUT in '..\..\Source\AggGammaLUT.pas',
+  AggEllipse in '..\..\Source\AggEllipse.pas',
+  AggRoundedRect in '..\..\Source\AggRoundedRect.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggVertexSource in '..\..\Source\AggVertexSource.pas';
 
 const
   CFlipY = True;

@@ -13,32 +13,32 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
-  AggMath,
-  AggPixelFormatRgba,
+  AggBasics in '..\..\Source\AggBasics.pas',
+  AggMath in '..\..\Source\AggMath.pas',
+  AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
 
-  AggControl,
-  AggRadioBoxControl,
-  AggCheckBoxControl,
-  AggSliderControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggRadioBoxControl in '..\..\Source\Controls\AggRadioBoxControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanLinePacked,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
 
-  AggRenderingBuffer,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRenderScanLines,
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggPathStorage,
-  AggTransAffine,
-  AggConvStroke,
-  AggConvTransform,
-  AggConvSmoothPoly,
-  AggSpanAllocator,
-  AggSpanPattern,
-  AggSpanPatternRgba
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggConvSmoothPoly in '..\..\Source\AggConvSmoothPoly.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggSpanPattern in '..\..\Source\AggSpanPattern.pas',
+  AggSpanPatternRgba in '..\..\Source\AggSpanPatternRgba.pas'
 
 {$I Pixel_Formats.inc}
 {$Q-}

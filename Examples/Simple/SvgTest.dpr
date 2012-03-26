@@ -12,33 +12,33 @@ uses
   SysUtils,
 
   AggPlatformSupport, // please add the path to this file manually
+  AggFileUtils, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatRgba,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
 
-  AggControl,
-  AggSliderControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
 
-  AggRenderingBuffer,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanLinePacked,
-  AggRenderScanLines,
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggTransAffine,
-  AggGammaFunctions,
-  AggGsvText,
-  AggConvStroke,
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggGammaFunctions in '..\..\Source\AggGammaFunctions.pas',
+  AggGsvText in '..\..\Source\AggGsvText.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
 
-  AggSvgParser,
-  AggSvgPathRenderer,
-  AggSvgException,
-  AggFileUtils;
+  AggSvgParser in '..\..\Source\Svg\AggSvgParser.pas',
+  AggSvgPathRenderer in '..\..\Source\Svg\AggSvgPathRenderer.pas',
+  AggSvgException in '..\..\Source\Svg\AggSvgException.pas';
 
 const
   CFlipY = False;

@@ -12,30 +12,30 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
-  AggColor,
+  AggBasics in '..\..\Source\AggBasics.pas',
+  AggColor in '..\..\Source\AggColor.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggRadioBoxControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggRadioBoxControl in '..\..\Source\Controls\AggRadioBoxControl.pas',
 
-  AggRenderingBuffer,
-  AggRasterizerScanLineAA,
-  AggScanlineUnpacked,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRenderScanLines,
-  AggRoundedRect,
-  AggPixelFormat,
-  AggPixelFormatRgba,
-  AggSpanAllocator,
-  AggSpanGradient,
-  AggGsvText,
-  AggSpanInterpolatorLinear,
-  AggArray,
-  AggTransAffine,
-  AggEllipse,
-  AggConvTransform;
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
+  AggRoundedRect in '..\..\Source\AggRoundedRect.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggSpanGradient in '..\..\Source\AggSpanGradient.pas',
+  AggGsvText in '..\..\Source\AggGsvText.pas',
+  AggSpanInterpolatorLinear in '..\..\Source\AggSpanInterpolatorLinear.pas',
+  AggArray in '..\..\Source\AggArray.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggEllipse in '..\..\Source\AggEllipse.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas';
 
 const
   CFlipY = True;

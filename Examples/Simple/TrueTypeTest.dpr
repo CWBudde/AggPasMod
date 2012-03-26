@@ -14,36 +14,36 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatRgb,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggCheckBoxControl,
-  AggRadioBoxControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
+  AggRadioBoxControl in '..\..\Source\Controls\AggRadioBoxControl.pas',
 
-  AggRenderingBuffer,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRendererPrimitives,
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanlineUnpacked,
-  AggScanLineBin,
-  AggRenderScanLines,
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRendererPrimitives in '..\..\Source\AggRendererPrimitives.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLineBin in '..\..\Source\AggScanLineBin.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggTransAffine,
-  AggCurves,
-  AggConvCurve,
-  AggConvContour,
-  AggGammaLUT,
-  AggGammaFunctions,
-  AggFontEngine,
-  AggFontWin32TrueType,
-  AggFontCacheManager;
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggCurves in '..\..\Source\AggCurves.pas',
+  AggConvCurve in '..\..\Source\AggConvCurve.pas',
+  AggConvContour in '..\..\Source\AggConvContour.pas',
+  AggGammaLUT in '..\..\Source\AggGammaLUT.pas',
+  AggGammaFunctions in '..\..\Source\AggGammaFunctions.pas',
+  AggFontEngine in '..\..\Source\AggFontEngine.pas',
+  AggFontWin32TrueType in '..\..\Source\AggFontWin32TrueType.pas',
+  AggFontCacheManager in '..\..\Source\AggFontCacheManager.pas';
 
 const
   CFlipY = True;

@@ -13,31 +13,32 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggCheckBoxControl,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
 
-  AggRenderingBuffer,
-  AggRasterizerScanLineAA,
-  AggScanlineUnpacked,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggSpanAllocator,
-  AggSpanGradient,
-  AggGammaLUT,
-  AggSpanInterpolatorLinear,
-  AggPixelFormat,
-  AggPixelFormatRgb,
-  AggColor,
-  AggTransAffine,
-  AggRenderScanLines,
-  AggEllipse,
-  AggConvStroke,
-  AggConvTransform,
-  AggGsvText,
-  AggGradientLut;
+  AggControl in '..\..\Source\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
+
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggSpanGradient in '..\..\Source\AggSpanGradient.pas',
+  AggGammaLUT in '..\..\Source\AggGammaLUT.pas',
+  AggSpanInterpolatorLinear in '..\..\Source\AggSpanInterpolatorLinear.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
+  AggEllipse in '..\..\Source\AggEllipse.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggGsvText in '..\..\Source\AggGsvText.pas',
+  AggGradientLut in '..\..\Source\AggGradientLut.pas';
 
 const
   CFlipY = True;

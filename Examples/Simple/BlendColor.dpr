@@ -60,35 +60,36 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 {$IFNDEF AGG_PF8}
-  AggPixelFormatGray,
+  AggPixelFormatGray in '..\..\Source\AggPixelFormatGray.pas',
 {$ENDIF}
 {$IFNDEF AGG_PF32}
-  AggPixelFormatRgba,
+  AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
 {$ENDIF}
-  AggArray,
-  AggPlatformSupport,
-  AggControl,
-  AggSliderControl,
-  AggRadioBoxControl,
-  AggCheckBoxControl,
-  AggPolygonControl,
-  AggRendererBase,
-  AggRenderingBuffer,
-  AggRasterizerScanLineAA,
-  AggConvCurve,
-  AggConvContour,
-  AggConvStroke,
-  AggConvTransform,
-  AggGsvText,
-  AggScanLinePacked,
-  AggRendererScanLine,
-  AggBoundingRect,
-  AggTransPerspective,
-  AggBlur,
-  AggPathStorage,
-  AggTransAffine
+  AggArray in '..\..\Source\AggArray.pas',
+
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggRadioBoxControl in '..\..\Source\Controls\AggRadioBoxControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
+  AggPolygonControl in '..\..\Source\Controls\AggPolygonControl.pas',
+
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggConvCurve in '..\..\Source\AggConvCurve.pas',
+  AggConvContour in '..\..\Source\AggConvContour.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggGsvText in '..\..\Source\AggGsvText.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggBoundingRect in '..\..\Source\AggBoundingRect.pas',
+  AggTransPerspective in '..\..\Source\AggTransPerspective.pas',
+  AggBlur in '..\..\Source\AggBlur.pas',
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas'
 
 {$I Pixel_Formats.inc}
 

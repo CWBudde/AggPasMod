@@ -22,27 +22,27 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggCheckBoxControl,
-  AggRadioBoxControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
+  AggRadioBoxControl in '..\..\Source\Controls\AggRadioBoxControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanLinePacked,
-  AggScanlineUnpacked,
-  AggScanLineBin,
-  AggScanLineBooleanAlgebra,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLineBin in '..\..\Source\AggScanLineBin.pas',
+  AggScanLineBooleanAlgebra in '..\..\Source\AggScanLineBooleanAlgebra.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRenderScanLines,
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggPathStorage,
-  AggEllipse,
-  AggGammaFunctions,
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggEllipse in '..\..\Source\AggEllipse.pas',
+  AggGammaFunctions in '..\..\Source\AggGammaFunctions.pas',
   AggInteractivePolygon
 
 {$I Pixel_Formats.inc}

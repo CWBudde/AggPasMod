@@ -13,36 +13,36 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggRadioBoxControl,
-  AggCheckBoxControl,
-  AggPolygonControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggRadioBoxControl in '..\..\Source\Controls\AggRadioBoxControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
+  AggPolygonControl in '..\..\Source\Controls\AggPolygonControl.pas',
 
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatRgb,
-  AggPixelFormatRgba,
-  AggPixelFormatGray,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
+  AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
+  AggPixelFormatGray in '..\..\Source\AggPixelFormatGray.pas',
 
-  AggRendererBase,
-  AggRenderingBuffer,
-  AggRasterizerScanLineAA,
-  AggConvCurve,
-  AggConvContour,
-  AggConvStroke,
-  AggConvTransform,
-  AggScanLinePacked,
-  AggRenderScanLines,
-  AggRendererScanLine,
-  AggBoundingRect,
-  AggTransPerspective,
-  AggPathStorage,
-  AggTransAffine,
-  AggGsvText,
-  AggBlur;
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggConvCurve in '..\..\Source\AggConvCurve.pas',
+  AggConvContour in '..\..\Source\AggConvContour.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggBoundingRect in '..\..\Source\AggBoundingRect.pas',
+  AggTransPerspective in '..\..\Source\AggTransPerspective.pas',
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggGsvText in '..\..\Source\AggGsvText.pas',
+  AggBlur in '..\..\Source\AggBlur.pas';
 
 const
   CFlipY = True;

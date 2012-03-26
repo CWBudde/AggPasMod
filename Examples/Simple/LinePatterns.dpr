@@ -14,32 +14,32 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatRgb,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggBezierControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggBezierControl in '..\..\Source\Controls\AggBezierControl.pas',
 
-  AggRenderingBuffer,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRendererOutlineAA,
-  AggRendererOutlineImage,
-  AggRasterizerScanLineAA,
-  AggRasterizerOutlineAA,
-  AggScanLine,
-  AggScanLinePacked,
-  AggRenderScanLines,
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRendererOutlineAA in '..\..\Source\AggRendererOutlineAA.pas',
+  AggRendererOutlineImage in '..\..\Source\AggRendererOutlineImage.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggRasterizerOutlineAA in '..\..\Source\AggRasterizerOutlineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggPatternFiltersRgba,
-  AggConvStroke,
-  AggConvTransform,
-  AggConvClipPolyline,
-  AggVertexSource;
+  AggPatternFiltersRgba in '..\..\Source\AggPatternFiltersRgba.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggConvClipPolyline in '..\..\Source\AggConvClipPolyline.pas',
+  AggVertexSource in '..\..\Source\AggVertexSource.pas';
 
 const
   CFlipY = True;

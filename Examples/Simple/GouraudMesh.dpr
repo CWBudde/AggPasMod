@@ -13,28 +13,28 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
-  AggColor,
-  AggArray,
-  AggMath,
-  AggMathStroke,
+  AggBasics in '..\..\Source\AggBasics.pas',
+  AggColor in '..\..\Source\AggColor.pas',
+  AggArray in '..\..\Source\AggArray.pas',
+  AggMath in '..\..\Source\AggMath.pas',
+  AggMathStroke in '..\..\Source\AggMathStroke.pas',
 
-  AggControl,
-  AggRendererBase,
-  AggRenderingBuffer,
-  AggConvTransform,
-  AggConvStroke,
-  AggScanlineUnpacked,
-  AggScanLineBin,
-  AggRendererScanLine,
-  AggRasterizerScanLineAA,
-  AggSpanAllocator,
-  AggSpanGouraudRgba,
-  AggGammaLUT,
-  AggPixelFormat,
-  AggPixelFormatRgba,
-  AggRasterizerCompoundAA,
-  AggGsvText;
+  AggControl in '..\..\Source\AggControl.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLineBin in '..\..\Source\AggScanLineBin.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggSpanGouraudRgba in '..\..\Source\AggSpanGouraudRgba.pas',
+  AggGammaLUT in '..\..\Source\AggGammaLUT.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
+  AggRasterizerCompoundAA in '..\..\Source\AggRasterizerCompoundAA.pas',
+  AggGsvText in '..\..\Source\AggGsvText.pas';
 
 const
   CFlipY = True;

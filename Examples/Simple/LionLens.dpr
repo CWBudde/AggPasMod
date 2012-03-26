@@ -22,25 +22,25 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggControl,
-  AggSliderControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanLinePacked,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRenderScanLines,
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggPathStorage,
-  AggBoundingRect,
-  AggTransAffine,
-  AggTransWarpMagnifier,
-  AggConvTransform,
-  AggConvSegmentator,
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggBoundingRect in '..\..\Source\AggBoundingRect.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggTransWarpMagnifier in '..\..\Source\AggTransWarpMagnifier.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggConvSegmentator in '..\..\Source\AggConvSegmentator.pas',
   AggParseLion
 
 {$I Pixel_Formats.inc}

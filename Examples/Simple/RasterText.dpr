@@ -12,26 +12,26 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatRgb,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
 
-  AggRenderingBuffer,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRasterizerScanLineAA,
-  AggScanlineUnpacked,
-  AggRenderScanLines,
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggSpanAllocator,
-  AggSpanGradient,
-  AggSpanInterpolatorLinear,
-  AggEmbeddedRasterFonts,
-  AggGlyphRasterBin,
-  AggRendererRasterText,
-  AggTransAffine;
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggSpanGradient in '..\..\Source\AggSpanGradient.pas',
+  AggSpanInterpolatorLinear in '..\..\Source\AggSpanInterpolatorLinear.pas',
+  AggEmbeddedRasterFonts in '..\..\Source\AggEmbeddedRasterFonts.pas',
+  AggGlyphRasterBin in '..\..\Source\AggGlyphRasterBin.pas',
+  AggRendererRasterText in '..\..\Source\AggRendererRasterText.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas';
 
 const
   CFlipY = True;

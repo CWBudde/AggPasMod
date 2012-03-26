@@ -13,36 +13,36 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatRgb,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggRadioBoxControl,
-  AggCheckBoxControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggRadioBoxControl in '..\..\Source\Controls\AggRadioBoxControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
 
-  AggRenderingBuffer,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanlineUnpacked,
-  AggScanLinePacked,
-  AggRenderScanLines,
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggEllipse,
-  AggTransAffine,
-  AggConvTransform,
-  AggConvStroke,
-  AggSpanAllocator,
-  AggSpanInterpolatorLinear,
-  AggSpanImageFilter,
-  AggSpanImageFilterRgb,
-  AggImageFilters,
-  AggPathStorage;
+  AggEllipse in '..\..\Source\AggEllipse.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggSpanInterpolatorLinear in '..\..\Source\AggSpanInterpolatorLinear.pas',
+  AggSpanImageFilter in '..\..\Source\AggSpanImageFilter.pas',
+  AggSpanImageFilterRgb in '..\..\Source\AggSpanImageFilterRgb.pas',
+  AggImageFilters in '..\..\Source\AggImageFilters.pas',
+  AggPathStorage in '..\..\Source\AggPathStorage.pas';
 
 const
   CFlipY = True;

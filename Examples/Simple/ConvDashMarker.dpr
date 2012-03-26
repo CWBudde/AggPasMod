@@ -13,35 +13,35 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatRgb,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggRadioBoxControl,
-  AggCheckBoxControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggRadioBoxControl in '..\..\Source\Controls\AggRadioBoxControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanlineUnpacked,
-  AggRenderScanLines,
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggConvStroke,
-  AggConvDash,
-  AggConvCurve,
-  AggConvContour,
-  AggConvSmoothPoly,
-  AggConvMarker,
-  AggArrowHead,
-  AggVcgenMarkersTerm,
-  AggMath,
-  AggMathStroke,
-  AggPathStorage;
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggConvDash in '..\..\Source\AggConvDash.pas',
+  AggConvCurve in '..\..\Source\AggConvCurve.pas',
+  AggConvContour in '..\..\Source\AggConvContour.pas',
+  AggConvSmoothPoly in '..\..\Source\AggConvSmoothPoly.pas',
+  AggConvMarker in '..\..\Source\AggConvMarker.pas',
+  AggArrowHead in '..\..\Source\AggArrowHead.pas',
+  AggVcgenMarkersTerm in '..\..\Source\AggVcgenMarkersTerm.pas',
+  AggMath in '..\..\Source\AggMath.pas',
+  AggMathStroke in '..\..\Source\AggMathStroke.pas',
+  AggPathStorage in '..\..\Source\AggPathStorage.pas';
 
 const
   CFlipY = True;

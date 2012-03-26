@@ -22,28 +22,28 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggControl,
-  AggRadioBoxControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggRadioBoxControl in '..\..\Source\Controls\AggRadioBoxControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanLinePacked,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRenderScanLines,
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggPathStorage,
-  AggBoundingRect,
-  AggTransAffine,
-  AggTransBilinear,
-  AggTransPerspective,
-  AggConvTransform,
-  AggConvStroke,
-  AggConvClipPolygon,
-  AggEllipse,
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggBoundingRect in '..\..\Source\AggBoundingRect.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggTransBilinear in '..\..\Source\AggTransBilinear.pas',
+  AggTransPerspective in '..\..\Source\AggTransPerspective.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggConvClipPolygon in '..\..\Source\AggConvClipPolygon.pas',
+  AggEllipse in '..\..\Source\AggEllipse.pas',
   AggInteractivePolygon,
   AggParseLion
 {$I Pixel_Formats.inc}

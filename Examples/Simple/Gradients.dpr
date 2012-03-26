@@ -27,29 +27,29 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggControl,
-  AggSplineControl,
-  AggRadioBoxControl,
-  AggGammaControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSplineControl in '..\..\Source\Controls\AggSplineControl.pas',
+  AggRadioBoxControl in '..\..\Source\Controls\AggRadioBoxControl.pas',
+  AggGammaControl in '..\..\Source\Controls\AggGammaControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanlineUnpacked,
-  AggScanLinePacked,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRenderScanLines,
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggArray,
-  AggConvTransform,
-  AggSpanGradient,
-  AggSpanInterpolatorLinear,
-  AggSpanAllocator,
-  AggTransAffine,
-  AggEllipse
+  AggArray in '..\..\Source\AggArray.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggSpanGradient in '..\..\Source\AggSpanGradient.pas',
+  AggSpanInterpolatorLinear in '..\..\Source\AggSpanInterpolatorLinear.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggEllipse in '..\..\Source\AggEllipse.pas'
 {$I Pixel_Formats.inc}
 
 const

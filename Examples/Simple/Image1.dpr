@@ -13,32 +13,32 @@ uses
   SysUtils,
 
   AggPlatformSupport, // please add the path to this file manually
+  AggFileUtils, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggControl,
-  AggSliderControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanlineUnpacked,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
 
-  AggRenderingBuffer,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRenderScanLines,
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggEllipse,
-  AggTransAffine,
-  AggConvTransform,
-  AggSpanAllocator,
-  AggSpanInterpolatorLinear,
-  AggSpanImageFilter,
-  AggSpanImageFilterRgb,
-  AggSpanImageFilterRgba,
-  AggSpanImageFilterGray,
-  AggImageFilters,
-  AggFileUtils
+  AggEllipse in '..\..\Source\AggEllipse.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggSpanInterpolatorLinear in '..\..\Source\AggSpanInterpolatorLinear.pas',
+  AggSpanImageFilter in '..\..\Source\AggSpanImageFilter.pas',
+  AggSpanImageFilterRgb in '..\..\Source\AggSpanImageFilterRgb.pas',
+  AggSpanImageFilterRgba in '..\..\Source\AggSpanImageFilterRgba.pas',
+  AggSpanImageFilterGray in '..\..\Source\AggSpanImageFilterGray.pas',
+  AggImageFilters in '..\..\Source\AggImageFilters.pas'
 {$I Pixel_Formats.inc}
 
 const

@@ -26,26 +26,26 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
-  AggMath,
+  AggBasics in '..\..\Source\AggBasics.pas',
+  AggMath in '..\..\Source\AggMath.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggScaleControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggScaleControl in '..\..\Source\Controls\AggScaleControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanLinePacked,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRenderScanLines,
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggBSpline,
-  AggEllipse,
-  AggConvTransform,
-  AggTransAffine,
-  AggGsvText
+  AggBSpline in '..\..\Source\AggBSpline.pas',
+  AggEllipse in '..\..\Source\AggEllipse.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggGsvText in '..\..\Source\AggGsvText.pas'
 
 {$I Pixel_Formats.inc }
 

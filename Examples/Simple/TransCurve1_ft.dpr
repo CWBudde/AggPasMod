@@ -22,30 +22,30 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggControl,
-  AggCheckBoxControl,
-  AggSliderControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanLinePacked,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
 
-  AggRenderingBuffer,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRenderScanLines,
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggConvCurve,
-  AggConvTransform,
-  AggConvBSpline,
-  AggConvSegmentator,
-  AggConvStroke,
-  AggFontEngine,
-  AggFontFreeType,
-  AggFontCacheManager,
-  AggTransSinglePath,
+  AggConvCurve in '..\..\Source\AggConvCurve.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggConvBSpline in '..\..\Source\AggConvBSpline.pas',
+  AggConvSegmentator in '..\..\Source\AggConvSegmentator.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggFontEngine in '..\..\Source\AggFontEngine.pas',
+  AggFontFreeType in '..\..\Source\AggFontFreeType.pas',
+  AggFontCacheManager in '..\..\Source\AggFontCacheManager.pas',
+  AggTransSinglePath in '..\..\Source\AggTransSinglePath.pas',
   AggInteractivePolygon
 {$I Pixel_Formats.inc}
 

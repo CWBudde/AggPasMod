@@ -23,25 +23,25 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggControl,
-  AggGammaControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggGammaControl in '..\..\Source\Controls\AggGammaControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanLinePacked,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRenderScanLines,
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggGsvText,
-  AggConvStroke,
-  AggConvTransform,
-  AggPathStorage,
-  AggEllipse,
-  AggTransAffine
+  AggGsvText in '..\..\Source\AggGsvText.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggEllipse in '..\..\Source\AggEllipse.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas'
 
 {$I Pixel_Formats.inc}
 

@@ -13,41 +13,41 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatRgb,
-  AggPixelFormatGray,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
+  AggPixelFormatGray in '..\..\Source\AggPixelFormatGray.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggCheckBoxControl,
-  AggRadioBoxControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
+  AggRadioBoxControl in '..\..\Source\Controls\AggRadioBoxControl.pas',
 
-  AggRenderingBuffer,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRendererPrimitives,
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanLinePacked,
-  AggRenderScanLines,
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRendererPrimitives in '..\..\Source\AggRendererPrimitives.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggConvCurve,
-  AggConvStroke,
-  AggConvTransform,
-  AggGsvText,
-  AggPixelFormatAlphaMaskAdaptor,
-  AggAlphaMaskUnpacked8,
-  AggVertexSource,
-  AggPathStorage,
-  AggTransAffine,
-  AggMathStroke,
-  AggSpiral,
+  AggConvCurve in '..\..\Source\AggConvCurve.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggGsvText in '..\..\Source\AggGsvText.pas',
+  AggPixelFormatAlphaMaskAdaptor in '..\..\Source\AggPixelFormatAlphaMaskAdaptor.pas',
+  AggAlphaMaskUnpacked8 in '..\..\Source\AggAlphaMaskUnpacked8.pas',
+  AggVertexSource in '..\..\Source\AggVertexSource.pas',
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggMathStroke in '..\..\Source\AggMathStroke.pas',
+  AggSpiral in '..\..\Source\AggSpiral.pas',
 
-  AggMakeGreatBritainPolygon,
-  AggMakeArrows;
+  AggMakeGreatBritainPolygon in 'AggMakeGreatBritainPolygon.pas',
+  AggMakeArrows in 'AggMakeArrows.pas';
 
 const
   CFlipY = True;

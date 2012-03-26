@@ -23,28 +23,28 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggControl,
-  AggSliderControl,
+  AggControl in '..\..\Source\AggControl.pas',
+  AggSliderControl in '..\..\Source\AggSliderControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanlineUnpacked,
-  AggScanLinePacked,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRenderScanLines,
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggMath,
-  AggDdaLine,
-  AggSpanAllocator,
-  AggSpanGouraudRgba,
-  AggSpanGouraudGray,
-  AggSpanSolid,
-  AggVertexSource,
-  AggGammaFunctions
+  AggMath in '..\..\Source\AggMath.pas',
+  AggDdaLine in '..\..\Source\AggDdaLine.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggSpanGouraudRgba in '..\..\Source\AggSpanGouraudRgba.pas',
+  AggSpanGouraudGray in '..\..\Source\AggSpanGouraudGray.pas',
+  AggSpanSolid in '..\..\Source\AggSpanSolid.pas',
+  AggVertexSource in '..\..\Source\AggVertexSource.pas',
+  AggGammaFunctions in '..\..\Source\AggGammaFunctions.pas'
 
 {$I Pixel_Formats.inc }
 

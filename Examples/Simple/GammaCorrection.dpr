@@ -17,24 +17,24 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggControl,
-  AggSliderControl,
+  AggControl in '..\..\Source\AggControl.pas',
+  AggSliderControl in '..\..\Source\AggSliderControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanlineUnpacked,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRenderScanLines,
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggGammaLUT,
-  AggGammaFunctions,
-  AggPathStorage,
-  AggConvStroke,
-  AggEllipse
+  AggGammaLUT in '..\..\Source\AggGammaLUT.pas',
+  AggGammaFunctions in '..\..\Source\AggGammaFunctions.pas',
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggEllipse in '..\..\Source\AggEllipse.pas'
 {$I Pixel_Formats.inc }
 
 const

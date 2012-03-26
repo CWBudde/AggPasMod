@@ -13,36 +13,36 @@ uses
   SysUtils,
 
   AggPlatformSupport, // please add the path to this file manually
+  AggFileUtils, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatRgba,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
 
-  AggControl,
-  AggRadioBoxControl,
-  AggSliderControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggRadioBoxControl in '..\..\Source\Controls\AggRadioBoxControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
 
-  AggRenderingBuffer,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanlineUnpacked,
-  AggRenderScanLines,
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggMath,
-  AggArray,
-  AggEllipse,
-  AggConvStroke,
-  AggTransAffine,
-  AggRoundedRect,
-  AggSpanGradient,
-  AggSpanAllocator,
-  AggGsvText,
-  AggSpanInterpolatorLinear,
-  AggFileUtils;
+  AggMath in '..\..\Source\AggMath.pas',
+  AggArray in '..\..\Source\AggArray.pas',
+  AggEllipse in '..\..\Source\AggEllipse.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggRoundedRect in '..\..\Source\AggRoundedRect.pas',
+  AggSpanGradient in '..\..\Source\AggSpanGradient.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggGsvText in '..\..\Source\AggGsvText.pas',
+  AggSpanInterpolatorLinear in '..\..\Source\AggSpanInterpolatorLinear.pas';
 
 const
   CFlipY = True;

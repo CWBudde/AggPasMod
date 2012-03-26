@@ -14,26 +14,26 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
-  AggMath,
+  AggBasics in '..\..\Source\AggBasics.pas',
+  AggMath in '..\..\Source\AggMath.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggCheckBoxControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggRasterizerOutline,
-  AggScanLine,
-  AggScanLinePacked,
-  AggScanLineBin,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggRasterizerOutline in '..\..\Source\AggRasterizerOutline.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
+  AggScanLineBin in '..\..\Source\AggScanLineBin.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRendererPrimitives,
-  AggRenderScanLines,
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRendererPrimitives in '..\..\Source\AggRendererPrimitives.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggPathStorage,
-  AggGammaFunctions
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggGammaFunctions in '..\..\Source\AggGammaFunctions.pas'
 {$I Pixel_Formats.inc}
 
 const

@@ -14,17 +14,17 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
-  AggRenderingBuffer,
-  AggColor,
+  AggBasics in '..\..\Source\AggBasics.pas',
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggColor in '..\..\Source\AggColor.pas',
 
-  AggPixelFormat,
-  AggPixelFormatRgba,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRasterizerScanLineAA,
-  AggScanLinePacked,
-  AggRenderScanLines;
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas';
 
 const
   SzWindowClass = 'PURE_API';

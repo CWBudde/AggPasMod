@@ -12,31 +12,30 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
-  AggColor,
-  AggArray,
+  AggBasics in '..\..\Source\AggBasics.pas',
+  AggColor in '..\..\Source\AggColor.pas',
+  AggArray in '..\..\Source\AggArray.pas',
 
-  AggControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
 
-  AggSliderControl,
-  AggCheckBoxControl,
-
-  AggEllipse,
-  AggGammaLUT,
-  AggRendererBase,
-  AggRenderingBuffer,
-  AggRasterizerScanLineAA,
-  AggRasterizerCompoundAA,
-  AggConvCurve,
-  AggConvStroke,
-  AggScanlineUnpacked,
-  AggRendererScanLine,
-  AggSpanAllocator,
-  AggPixelFormat,
-  AggPixelFormatRgba,
-  AggPathStorage,
-  AggTransAffine,
-  AggConvTransform;
+  AggEllipse in '..\..\Source\AggEllipse.pas',
+  AggGammaLUT in '..\..\Source\AggGammaLUT.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggRasterizerCompoundAA in '..\..\Source\AggRasterizerCompoundAA.pas',
+  AggConvCurve in '..\..\Source\AggConvCurve.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas';
 
 const
   CFlipY = True;

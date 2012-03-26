@@ -12,21 +12,21 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggSliderControl,
+  AggSliderControl in '..\..\Source\AggSliderControl.pas',
 
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatGray,
-  AggPixelFormatRgb,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRasterizerScanLineAA,
-  AggScanLinePacked,
-  AggRenderScanLines,
-  AggControl,
-  AggEllipse;
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatGray in '..\..\Source\AggPixelFormatGray.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
+  AggControl in '..\..\Source\AggControl.pas',
+  AggEllipse in '..\..\Source\AggEllipse.pas';
 
 const
   CFlipY = True;

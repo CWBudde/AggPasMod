@@ -12,36 +12,36 @@ uses
   SysUtils,
 
   AggPlatformSupport, // please add the path to this file manually
+  AggFileUtils, // please add the path to this file manually
 
-  AggBasics,
-  AggArray,
+  AggBasics in '..\..\Source\AggBasics.pas',
+  AggArray in '..\..\Source\AggArray.pas',
 
-  AggColor,
-  AggRenderingBuffer,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
 
-  AggTransViewport,
-  AggPathStorage,
-  AggConvTransform,
-  AggConvCurve,
-  AggConvStroke,
-  AggGsvText,
-  AggScanlineUnpacked,
-  AggScanLineBin,
-  AggRendererScanLine,
-  AggRasterizerOutlineAA,
-  AggRasterizerScanLineAA,
-  AggSpanAllocator,
-  AggGammaLUT,
-  AggPixelFormat,
-  AggPixelFormatRgba,
-  AggBoundingRect,
-  AggVertexSource,
-  AggTransAffine,
-  AggMath,
-  AggMathStroke,
-  AggRendererBase,
-  AggRenderScanLines,
-  AggFileUtils;
+  AggTransViewport in '..\..\Source\AggTransViewport.pas',
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggConvCurve in '..\..\Source\AggConvCurve.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggGsvText in '..\..\Source\AggGsvText.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLineBin in '..\..\Source\AggScanLineBin.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerOutlineAA in '..\..\Source\AggRasterizerOutlineAA.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggGammaLUT in '..\..\Source\AggGammaLUT.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
+  AggBoundingRect in '..\..\Source\AggBoundingRect.pas',
+  AggVertexSource in '..\..\Source\AggVertexSource.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggMath in '..\..\Source\AggMath.pas',
+  AggMathStroke in '..\..\Source\AggMathStroke.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas';
 
 const
   CFlipY = False;

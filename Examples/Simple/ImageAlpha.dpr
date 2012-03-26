@@ -13,32 +13,32 @@ uses
   SysUtils,
 
   AggPlatformSupport, // please add the path to this file manually
+  AggFileUtils, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatRgb,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
 
-  AggControl,
-  AggSplineControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSplineControl in '..\..\Source\Controls\AggSplineControl.pas',
 
-  AggRenderingBuffer,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanlineUnpacked,
-  AggRenderScanLines,
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggEllipse,
-  AggTransAffine,
-  AggConvTransform,
-  AggSpanImageFilterRgb,
-  AggSpanInterpolatorLinear,
-  AggSpanConverter,
-  AggSpanAllocator,
-  AggFileUtils;
+  AggEllipse in '..\..\Source\AggEllipse.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggSpanImageFilterRgb in '..\..\Source\AggSpanImageFilterRgb.pas',
+  AggSpanInterpolatorLinear in '..\..\Source\AggSpanInterpolatorLinear.pas',
+  AggSpanConverter in '..\..\Source\AggSpanConverter.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas';
 
 const
   CFlipY = True;

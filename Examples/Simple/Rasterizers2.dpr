@@ -26,34 +26,34 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggControl,
-  AggSliderControl,
-  AggCheckBoxControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggRasterizerOutline,
-  AggRasterizerOutlineAA,
-  AggScanLine,
-  AggScanLinePacked,
-  AggSpiral,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggRasterizerOutline in '..\..\Source\AggRasterizerOutline.pas',
+  AggRasterizerOutlineAA in '..\..\Source\AggRasterizerOutlineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
+  AggSpiral in '..\..\Source\AggSpiral.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRendererPrimitives,
-  AggRendererOutlineAA,
-  AggRendererOutlineImage,
-  AggRenderScanLines,
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRendererPrimitives in '..\..\Source\AggRendererPrimitives.pas',
+  AggRendererOutlineAA in '..\..\Source\AggRendererOutlineAA.pas',
+  AggRendererOutlineImage in '..\..\Source\AggRendererOutlineImage.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggGsvText,
-  AggConvStroke,
-  AggConvTransform,
-  AggVertexSource,
-  AggMathStroke,
-  AggTransAffine,
-  AggPatternFiltersRgba,
-  AggGammaFunctions
+  AggGsvText in '..\..\Source\AggGsvText.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggVertexSource in '..\..\Source\AggVertexSource.pas',
+  AggMathStroke in '..\..\Source\AggMathStroke.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggPatternFiltersRgba in '..\..\Source\AggPatternFiltersRgba.pas',
+  AggGammaFunctions in '..\..\Source\AggGammaFunctions.pas'
 {$I Pixel_Formats.inc}
 
 const

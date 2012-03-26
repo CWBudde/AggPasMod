@@ -13,38 +13,38 @@ uses
   SysUtils,
 
   AggPlatformSupport, // please add the path to this file manually
+  AggFileUtils, // please add the path to this file manually
 
-  AggBasics,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatRgb,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
 
-  AggControl,
-  AggRadioBoxControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggRadioBoxControl in '..\..\Source\Controls\AggRadioBoxControl.pas',
 
-  AggRenderingBuffer,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanlineUnpacked,
-  AggRenderScanLines,
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggPathStorage,
-  AggConvTransform,
-  AggTransAffine,
-  AggTransBilinear,
-  AggTransPerspective,
-  AggSpanPattern,
-  AggSpanAllocator,
-  AggImageFilters,
-  AggSpanInterpolatorLinear,
-  AggSpanInterpolatorTrans,
-  AggSpanImageFilter,
-  AggSpanPatternFilterRgb,
-  AggInteractivePolygon,
-  AggFileUtils;
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggTransBilinear in '..\..\Source\AggTransBilinear.pas',
+  AggTransPerspective in '..\..\Source\AggTransPerspective.pas',
+  AggSpanPattern in '..\..\Source\AggSpanPattern.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggImageFilters in '..\..\Source\AggImageFilters.pas',
+  AggSpanInterpolatorLinear in '..\..\Source\AggSpanInterpolatorLinear.pas',
+  AggSpanInterpolatorTrans in '..\..\Source\AggSpanInterpolatorTrans.pas',
+  AggSpanImageFilter in '..\..\Source\AggSpanImageFilter.pas',
+  AggSpanPatternFilterRgb in '..\..\Source\AggSpanPatternFilterRgb.pas',
+  AggInteractivePolygon;
 
 const
   CFlipY = True;

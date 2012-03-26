@@ -23,40 +23,40 @@ uses
 
   AggPlatformSupport, // please add the path to this file manually
 
-  AggBasics,
-  AggArray,
+  AggBasics in '..\..\Source\AggBasics.pas',
+  AggArray in '..\..\Source\AggArray.pas',
 {$IFNDEF AGG_GRAY8}
-  AggPixelFormatGray,
+  AggPixelFormatGray in '..\..\Source\AggPixelFormatGray.pas',
 {$ENDIF}
-  AggPixelFormatAlphaMaskAdaptor,
+  AggPixelFormatAlphaMaskAdaptor in '..\..\Source\AggPixelFormatAlphaMaskAdaptor.pas',
 
-  AggControl,
-  AggSliderControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
 
-  AggRasterizerScanLineAA,
-  AggRasterizerOutlineAA,
-  AggScanLine,
-  AggScanlineUnpacked,
-  AggScanLinePacked,
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggRasterizerOutlineAA in '..\..\Source\AggRasterizerOutlineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
 
-  AggRenderingBuffer,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRendererOutlineAA,
-  AggRendererPrimitives,
-  AggRendererMarkers,
-  AggRenderScanLines,
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRendererOutlineAA in '..\..\Source\AggRendererOutlineAA.pas',
+  AggRendererPrimitives in '..\..\Source\AggRendererPrimitives.pas',
+  AggRendererMarkers in '..\..\Source\AggRendererMarkers.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggAlphaMaskUnpacked8,
-  AggPathStorage,
-  AggBoundingRect,
-  AggTransAffine,
-  AggConvTransform,
-  AggEllipse,
-  AggSpanGradient,
-  AggSpanAllocator,
-  AggSpanInterpolatorLinear,
-  AggParseLion
+  AggAlphaMaskUnpacked8 in '..\..\Source\AggAlphaMaskUnpacked8.pas',
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggBoundingRect in '..\..\Source\AggBoundingRect.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggEllipse in '..\..\Source\AggEllipse.pas',
+  AggSpanGradient in '..\..\Source\AggSpanGradient.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggSpanInterpolatorLinear in '..\..\Source\AggSpanInterpolatorLinear.pas',
+  AggParseLion in 'AggParseLion.pas'
 
 {$I Pixel_Formats.inc}
 
