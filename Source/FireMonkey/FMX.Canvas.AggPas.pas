@@ -21,6 +21,20 @@ unit FMX.Canvas.AggPas;
 //  warranty, and with no claim as to its suitability for any purpose.        //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//  FMX.Canvas.AggPas is a backend replacement for Firemonkey implemented     //
+//  in software using AggPasMod.                                              //
+//                                                                            //
+//  It is not optimized for a good performance and still an alpha proof-of-   //
+//  concept.                                                                  //
+//                                                                            //
+//  This unit may contain code fragments from the VPR backend written by      //
+//  Mattias Andersson (see https://sourceforge.net/projects/vpr/)             //
+//                                                                            //
+//  It may also contain traces of code fragments from the original backends   //
+//  by Embarcardero                                                           //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
 
 interface
 
