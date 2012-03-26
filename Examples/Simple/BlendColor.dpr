@@ -57,6 +57,9 @@ uses
   FastMM4,
 {$ENDIF}
   SysUtils,
+
+  AggPlatformSupport, // please add the path to this file manually
+
   AggBasics,
 {$IFNDEF AGG_PF8}
   AggPixelFormatGray,

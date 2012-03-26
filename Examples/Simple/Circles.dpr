@@ -23,9 +23,11 @@ uses
   FastMM4,
   {$ENDIF}
   SysUtils,
+
+  AggPlatformSupport, // please add the path to this file manually
+
   AggBasics,
   AggMath,
-  AggPlatformSupport,
 
   AggControl,
   AggSliderControl,

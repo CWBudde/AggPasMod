@@ -13,8 +13,9 @@ uses
   SysUtils,
   Windows,
 
+  AggPlatformSupport, // please add the path to this file manually
+
   AggBasics,
-  AggPlatformSupport,
 
   AggColor,
   AggPixelFormat,

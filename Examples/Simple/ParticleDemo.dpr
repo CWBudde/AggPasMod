@@ -14,12 +14,13 @@ uses
   SysUtils,
   Math,
 
+  AggPlatformSupport, // please add the path to this file manually
+
   AggBasics,
   AggMath,
   AggColor,
   AggArray,
 
-  AggPlatformSupport,
   AggControl,
   AggSliderControl,
   AggCheckBoxControl,

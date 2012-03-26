@@ -10,11 +10,12 @@ uses
   FastMM4,
   {$ENDIF}
 
+  AggPlatformSupport, // please add the path to this file manually
+
   AggBasics,
   AggColor,
   AggArray,
 
-  AggPlatformSupport,
   AggControl,
 
   AggSliderControl,

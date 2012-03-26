@@ -21,8 +21,9 @@ uses
   {$ENDIF}
   Windows,
 
+  AggPlatformSupport, // please add the path to this file manually
+
   AggBasics,
-  AggPlatformSupport,
 
   AggControl,
   AggCheckBoxControl,

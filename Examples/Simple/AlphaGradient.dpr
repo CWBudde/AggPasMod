@@ -10,33 +10,35 @@ uses
   FastMM4,
   {$ENDIF}
   Math,
+
+  AggPlatformSupport, // please add the path to this file manually
+
   AggBasics,
-  AggPlatformSupport,
 
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatRgb,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
 
-  AggControl,
-  AggSplineControl,
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSplineControl in '..\..\Source\Controls\AggSplineControl.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanlineUnpacked,
-  AggRenderScanLines,
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
-  AggArray,
-  AggSpanGradient,
-  AggSpanGradientAlpha,
-  AggSpanInterpolatorLinear,
-  AggSpanConverter,
-  AggSpanAllocator,
-  AggEllipse,
-  AggVcgenStroke,
-  AggTransAffine,
-  AggMath;
+  AggArray in '..\..\Source\AggArray.pas',
+  AggSpanGradient in '..\..\Source\AggSpanGradient.pas',
+  AggSpanGradientAlpha in '..\..\Source\AggSpanGradientAlpha.pas',
+  AggSpanInterpolatorLinear in '..\..\Source\AggSpanInterpolatorLinear.pas',
+  AggSpanConverter in '..\..\Source\AggSpanConverter.pas',
+  AggSpanAllocator in '..\..\Source\AggSpanAllocator.pas',
+  AggEllipse in '..\..\Source\AggEllipse.pas',
+  AggVcgenStroke in '..\..\Source\AggVcgenStroke.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggMath in '..\..\Source\AggMath.pas';
 
 const
   CFlipY = True;

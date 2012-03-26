@@ -21,9 +21,10 @@ uses
   {$ENDIF}
   Math,
 
+  AggPlatformSupport, // please add the path to this file manually
+
   AggBasics,
   AggArray,
-  AggPlatformSupport,
 {$IFNDEF AGG_GRAY8}
   AggPixelFormatGray,
 {$ENDIF}

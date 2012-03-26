@@ -11,12 +11,13 @@ uses
   {$ENDIF}
   SysUtils,
 
+  AggPlatformSupport, // please add the path to this file manually
+
   AggBasics,
   AggColor,
   AggArray,
   AggMath,
   AggMathStroke,
-  AggPlatformSupport,
 
   AggControl,
   AggRendererBase,

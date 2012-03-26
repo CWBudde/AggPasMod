@@ -10,10 +10,12 @@ uses
   FastMM4,
   {$ENDIF}
   SysUtils,
-  AggBasics,
-  AggPlatformSupport,
-  AggControl,
 
+  AggPlatformSupport, // please add the path to this file manually
+
+  AggBasics,
+
+  AggControl,
   AggSliderControl,
   AggCheckBoxControl,
 

@@ -12,8 +12,9 @@ uses
   {$ENDIF}
   SysUtils,
 
+  AggPlatformSupport, // please add the path to this file manually
+
   AggBasics,
-  AggPlatformSupport,
 
   AggColor,
   AggPixelFormat,

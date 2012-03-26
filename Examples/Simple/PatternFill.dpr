@@ -11,9 +11,10 @@ uses
   FastMM4,
   {$ENDIF}
 
+  AggPlatformSupport, // please add the path to this file manually
+
   AggBasics,
   AggMath,
-  AggPlatformSupport,
   AggPixelFormatRgba,
 
   AggControl,

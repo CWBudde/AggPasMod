@@ -11,8 +11,9 @@ uses
   {$ENDIF}
   Math,
 
+  AggPlatformSupport, // please add the path to this file manually
+
   AggBasics,
-  AggPlatformSupport,
 
   AggColor,
   AggPixelFormat,

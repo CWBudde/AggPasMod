@@ -9,30 +9,32 @@ uses
   {$IFDEF USE_FASTMM4}
   FastMM4,
   {$ENDIF}
-  AggBasics,
-  AggPlatformSupport,
-  AggMath,
 
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatRgb,
+  AggPlatformSupport, // please add the path to this file manually
 
-  AggControl,
-  AggSliderControl,
-  AggCheckBoxControl,
+  AggBasics in '..\..\Source\AggBasics.pas',
+  AggMath in '..\..\Source\AggMath.pas',
 
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanLinePacked,
-  AggScanlineUnpacked,
-  AggRenderScanLines,
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
 
-  AggGammaFunctions,
-  AggConvStroke,
-  AggPathStorage,
-  AggVertexSource;
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
+  AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
+
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
+
+  AggGammaFunctions in '..\..\Source\AggGammaFunctions.pas',
+  AggConvStroke in '..\..\Source\AggConvStroke.pas',
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggVertexSource in '..\..\Source\AggVertexSource.pas';
 
 const
   CFlipY = True;

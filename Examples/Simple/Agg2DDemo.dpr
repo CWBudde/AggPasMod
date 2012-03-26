@@ -10,12 +10,14 @@ uses
   FastMM4,
   {$ENDIF}
   SysUtils,
-  AggBasics,
-  AggTransAffine,
-  AggPixelFormat,
-  AggPlatformSupport,
-  AggFileUtils,
-  Agg2D;
+
+  AggPlatformSupport, // please add the path to this file manually
+  AggFileUtils, // please add the path to this file manually
+
+  AggBasics in '..\..\Source\AggBasics.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  Agg2D in '..\..\Source\Agg2D.pas';
 
 {-$DEFINE ViewportOptionAnisotropic}
 {-$DEFINE FontCacheRaster}

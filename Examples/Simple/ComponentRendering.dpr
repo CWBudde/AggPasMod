@@ -9,8 +9,10 @@ uses
   {$IFDEF USE_FASTMM4}
   FastMM4,
   {$ENDIF}
+
+  AggPlatformSupport, // please add the path to this file manually
+
   AggBasics,
-  AggPlatformSupport,
 
   AggSliderControl,
 

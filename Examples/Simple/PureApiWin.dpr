@@ -12,6 +12,8 @@ uses
   Windows,
   Messages,
 
+  AggPlatformSupport, // please add the path to this file manually
+
   AggBasics,
   AggRenderingBuffer,
   AggColor,

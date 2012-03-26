@@ -15,9 +15,10 @@ uses
   SysUtils,
   Math,
 
+  AggPlatformSupport, // please add the path to this file manually
+
   AggBasics,
   AggMath,
-  AggPlatformSupport,
 
   AggColor,
   AggPixelFormat,

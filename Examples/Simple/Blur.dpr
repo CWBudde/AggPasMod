@@ -11,10 +11,11 @@ uses
   {$ENDIF}
   SysUtils,
 
-  AggBasics,
-  AggPlatformSupport,
-  AggControl,
+  AggPlatformSupport, // please add the path to this file manually
 
+  AggBasics,
+
+  AggControl,
   AggSliderControl,
   AggRadioBoxControl,
   AggCheckBoxControl,

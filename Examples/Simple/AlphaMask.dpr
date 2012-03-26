@@ -11,29 +11,31 @@ uses
   {$ENDIF}
   Math,
 
-  AggBasics,
-  AggPlatformSupport,
-  AggColor,
-  AggPixelFormat,
-  AggPixelFormatRgb,
-  AggPixelFormatGray,
+  AggPlatformSupport, // please add the path to this file manually
 
-  AggRenderingBuffer,
-  AggRendererBase,
-  AggRendererScanLine,
-  AggRasterizerScanLineAA,
-  AggScanLine,
-  AggScanlineUnpacked,
-  AggScanLinePacked,
-  AggRenderScanLines,
+  AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggEllipse,
-  AggPathStorage,
-  AggConvTransform,
-  AggBoundingRect,
-  AggAlphaMaskUnpacked8,
-  AggTransAffine,
-  AggParseLion;
+  AggColor in '..\..\Source\AggColor.pas',
+  AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
+  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
+  AggPixelFormatGray in '..\..\Source\AggPixelFormatGray.pas',
+
+  AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
+  AggRendererBase in '..\..\Source\AggRendererBase.pas',
+  AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
+  AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
+  AggScanLine in '..\..\Source\AggScanLine.pas',
+  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
+  AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
+
+  AggEllipse in '..\..\Source\AggEllipse.pas',
+  AggPathStorage in '..\..\Source\AggPathStorage.pas',
+  AggConvTransform in '..\..\Source\AggConvTransform.pas',
+  AggBoundingRect in '..\..\Source\AggBoundingRect.pas',
+  AggAlphaMaskUnpacked8 in '..\..\Source\AggAlphaMaskUnpacked8.pas',
+  AggTransAffine in '..\..\Source\AggTransAffine.pas',
+  AggParseLion in 'AggParseLion.pas';
 
 const
   CFlipY = True;
