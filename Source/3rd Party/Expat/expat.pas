@@ -40,6 +40,7 @@ interface
 
 uses
   Expat_basics,
+  Expat_external,
   Xmltok,
   Xmlrole;
 
@@ -47,7 +48,6 @@ uses
 
 
 type
-{$I expat_external.inc }
   XML_Parser = ^XML_ParserStruct;
 
   XML_Bool = Int8u;
