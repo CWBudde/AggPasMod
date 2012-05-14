@@ -6,23 +6,15 @@ program SvgTest;
 {$I AggCompiler.inc}
 
 uses
-  {$IFDEF USE_FASTMM4}
-  FastMM4,
-  {$ENDIF}
   SysUtils,
-
-  AggPlatformSupport, // please add the path to this file manually
-  AggFileUtils, // please add the path to this file manually
-
+  AggPlatformSupport,
+  AggFileUtils,
   AggBasics in '..\..\Source\AggBasics.pas',
-
   AggColor in '..\..\Source\AggColor.pas',
   AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
   AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
-
   AggControl in '..\..\Source\Controls\AggControl.pas',
   AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
-
   AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
   AggRendererBase in '..\..\Source\AggRendererBase.pas',
   AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
@@ -30,15 +22,18 @@ uses
   AggScanLine in '..\..\Source\AggScanLine.pas',
   AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
   AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
-
   AggTransAffine in '..\..\Source\AggTransAffine.pas',
   AggGammaFunctions in '..\..\Source\AggGammaFunctions.pas',
   AggGsvText in '..\..\Source\AggGsvText.pas',
   AggConvStroke in '..\..\Source\AggConvStroke.pas',
-
   AggSvgParser in '..\..\Source\Svg\AggSvgParser.pas',
   AggSvgPathRenderer in '..\..\Source\Svg\AggSvgPathRenderer.pas',
-  AggSvgException in '..\..\Source\Svg\AggSvgException.pas';
+  AggSvgException in '..\..\Source\Svg\AggSvgException.pas',
+  expat in '..\..\Source\3rd Party\Expat\expat.pas',
+  expat_basics in '..\..\Source\3rd Party\Expat\expat_basics.pas',
+  expat_external in '..\..\Source\3rd Party\Expat\expat_external.pas',
+  xmlrole in '..\..\Source\3rd Party\Expat\xmlrole.pas',
+  xmltok in '..\..\Source\3rd Party\Expat\xmltok.pas';
 
 const
   CFlipY = False;
@@ -87,15 +82,12 @@ begin
   FSliderRotate := TAggControlSlider.Create(256 + 5, 5 + 15, 512 - 5, 11 + 15,
     not FlipY);
 
-  FMin.X := 0.0;
-  FMin.Y := 0.0;
-  FMax.X := 0.0;
-  FMax.Y := 0.0;
+  FMin := PointDouble(0, 0);
+  FMax := PointDouble(0, 0);
+  FDelta := PointDouble(0, 0);
 
   FX := 0.0;
   FY := 0.0;
-  FDelta.X := 0.0;
-  FDelta.Y := 0.0;
 
   FDragFlag := False;
 
@@ -133,7 +125,7 @@ begin
   inherited
 end;
 
-procedure TAggApplication.ParseSvg;
+procedure TAggApplication.ParseSvg(FileName: ShortString);
 var
   P: TParser;
 begin
@@ -185,8 +177,8 @@ begin
     Mtx := TAggTransAffine.Create;
 
     // Render
-    Gmpw.Create(FSliderGamma.Value);
-    Ras.Gamma(@Gmpw);
+    Gmpw :=  TAggGammaPower.Create(FSliderGamma.Value);
+    Ras.Gamma(Gmpw);
 
     Mtx.Translate((FMin.X + FMax.X) * -0.5, (FMin.Y + FMax.Y) * -0.5);
     Mtx.Scale(FSliderScale.Value);
@@ -198,15 +190,15 @@ begin
 
     StartTimer;
 
-    FPath.Render(Ras, Sl, Ren, @Mtx, RendererBase.GetClipBox^, 1.0);
+    FPath.Render(Ras, Sl, Ren, Mtx, RendererBase.GetClipBox^, 1.0);
 
     Tm := GetElapsedTime;
 
     VertexCount := FPath.GetVertexCount;
 
     // Render the controls
-    Gmno.Create;
-    Ras.Gamma(@Gmno);
+    Gmno := TAggGammaNone.Create;
+    Ras.Gamma(Gmno);
 
     RenderControl(Ras, Sl, Ren, FSliderExpand);
     RenderControl(Ras, Sl, Ren, FSliderGamma);
