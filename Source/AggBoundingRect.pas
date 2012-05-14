@@ -187,9 +187,7 @@ function BoundingRectInteger(Vs: TAggVertexSource; Ul: TCardinalList;
   Start, Num: Cardinal; X1, Y1, X2, Y2: PDouble): Boolean;
 var
   I, Cmd: Cardinal;
-
   X, Y: Double;
-
   First: Boolean;
 begin
   First := True;
@@ -203,7 +201,7 @@ begin
 
   while I < Num do
   begin
-    Vs.Rewind(Ul.ArrayOperator(Start + I));
+    Vs.Rewind(Ul[Start + I]);
 
     Cmd := Vs.Vertex(@X, @Y);
 

@@ -24,7 +24,7 @@ unit AggSvgParser;
 
 interface
 
-{$DEFINE EXPAT_WRAPPER}
+{-$DEFINE EXPAT_WRAPPER}
 {$I AggCompiler.inc}
 
 uses
@@ -60,7 +60,7 @@ type
     constructor Create(Path: TPathRenderer);
     destructor Destroy; override;
 
-    procedure Parse(Fname: ShortString);
+    procedure Parse(FileName: ShortString);
     function Title: PAnsiChar;
 
     // XML event handlers
@@ -80,10 +80,10 @@ type
     function ParseSkewY(Str: PAnsiChar): Cardinal;
 
     function ParseAttr(Name, Value: PAnsiChar): Boolean; overload;
-    function ParseNameValue(Nv_start, Nv_end: PAnsiChar): Boolean;
+    function ParseNameValue(NameValueStart, NameValueStop: PAnsiChar): Boolean;
 
-    procedure CopyName(Start, End_: PAnsiChar);
-    procedure CopyValue(Start, End_: PAnsiChar);
+    procedure CopyName(Start, Stop: PAnsiChar);
+    procedure CopyValue(Start, Stop: PAnsiChar);
   end;
 
 procedure StartElement(Data: Pointer; El: PAnsiChar; Attr: PPAnsiChar);
@@ -275,7 +275,7 @@ procedure StartElement(Data: Pointer; El: PAnsiChar; Attr: PPAnsiChar);
 var
   This: TParser;
 begin
-  This := TParser(Data);
+  This := TParser(Data^);
 
   if CompareStr(AnsiString(El), 'title') = 0 then
     This.FTitleFlag := True
@@ -315,7 +315,7 @@ procedure EndElement(Data: Pointer; El: PAnsiChar);
 var
   This: TParser;
 begin
-  This := TParser(Data);
+  This := TParser(Data^);
 
   if CompareStr(AnsiString(El), 'title') = 0 then
     This.FTitleFlag := False
@@ -335,7 +335,7 @@ procedure Content(Data: Pointer; S: PAnsiChar; Len: Integer);
 var
   This: TParser;
 begin
-  This := TParser(Data);
+  This := TParser(Data^);
 
   // FTitleFlag signals that the <title> tag is being parsed now.
   // The following code concatenates the pieces of content of the <title> tag.
@@ -508,7 +508,7 @@ end;
 function ParseTransformArgs(Str: PAnsiChar; Args: PDouble;
   Max_na: Cardinal; Na: PCardinal): Cardinal;
 var
-  Ptr, End_: PAnsiChar;
+  Ptr, Stop: PAnsiChar;
   PtrDouble : PDouble;
   Value: Double;
 begin
@@ -521,15 +521,15 @@ begin
   if Ptr^ = #0 then
     raise TSvgException.Create('ParseTransformArgs: Invalid syntax');
 
-  End_ := Ptr;
+  Stop := Ptr;
 
-  while (End_^ <> #0) and (End_^ <> ')') do
-    Inc(PtrComp(End_));
+  while (Stop^ <> #0) and (Stop^ <> ')') do
+    Inc(PtrComp(Stop));
 
-  if End_^ = #0 then
+  if Stop^ = #0 then
     raise TSvgException.Create('ParseTransformArgs: Invalid syntax');
 
-  while PtrComp(Ptr) < PtrComp(End_) do
+  while PtrComp(Ptr) < PtrComp(Stop) do
     if IsNumeric(Ptr^) then
     begin
       if Na^ >= Max_na then
@@ -541,13 +541,13 @@ begin
 
       Inc(Na^);
 
-      while (PtrComp(Ptr) < PtrComp(End_)) and IsNumeric(Ptr^) do
+      while (PtrComp(Ptr) < PtrComp(Stop)) and IsNumeric(Ptr^) do
         Inc(PtrComp(Ptr));
     end
     else
       Inc(PtrComp(Ptr));
 
-  Result := Cardinal(PtrComp(End_) - PtrComp(Str));
+  Result := Cardinal(PtrComp(Stop) - PtrComp(Str));
 end;
 
 
@@ -588,7 +588,7 @@ begin
   inherited;
 end;
 
-procedure TParser.Parse(Fname: ShortString);
+procedure TParser.Parse(FileName: ShortString);
 var
   P : XML_Parser;
   Af: TApiFile;
@@ -605,14 +605,14 @@ begin
   XML_SetElementHandler(P, @StartElement, @EndElement);
   XML_SetCharacterDataHandler(P, @Content);
 
-  Fname := Fname + #0;
+  FileName := FileName + #0;
 
-  Dec(Byte(Fname[0]));
+  Dec(Byte(FileName[0]));
 
-  if not ApiOpenFile(Af, Fname) then
+  if not ApiOpenFile(Af, FileName) then
   begin
     XML_ParserFree(P);
-    raise TSvgException.Create(Format('Couldn''t open file %s', [Fname[1]]));
+    raise TSvgException.Create(Format('Couldn''t open file %s', [FileName[1]]));
   end;
 
   Done := False;
@@ -674,12 +674,10 @@ begin
   end;
 end;
 
-procedure TParser.ParsePath;
+procedure TParser.ParsePath(Attr: PPAnsiChar);
 var
   I: Integer;
-
   Tmp: array [0..3] of PAnsiChar;
-
 begin
   I := 0;
 
@@ -696,7 +694,6 @@ begin
         SizeOf(PAnsiChar))^);
 
       FPath.ParsePath(FTokenizer);
-
     end
     else
     begin
@@ -885,7 +882,7 @@ end;
 
 procedure TParser.ParseStyle;
 var
-  Nv_start, Nv_end: PAnsiChar;
+  NameValueStart, NameValueStop: PAnsiChar;
 begin
   while Str^ <> #0 do
   begin
@@ -893,21 +890,21 @@ begin
     while (Str^ <> #0) and (Str^ = ' ') do
       Inc(PtrComp(Str));
 
-    Nv_start := Str;
+    NameValueStart := Str;
 
     while (Str^ <> #0) and (Str^ <> ';') do
       Inc(PtrComp(Str));
 
-    Nv_end := Str;
+    NameValueStop := Str;
 
     // Right Trim
-    while (PtrComp(Nv_end) > PtrComp(Nv_start)) and
-      ((Nv_end^ = ';') or (Nv_end^ = ' ')) do
-      Dec(PtrComp(Nv_end));
+    while (PtrComp(NameValueStop) > PtrComp(NameValueStart)) and
+      ((NameValueStop^ = ';') or (NameValueStop^ = ' ')) do
+      Dec(PtrComp(NameValueStop));
 
-    Inc(PtrComp(Nv_end));
+    Inc(PtrComp(NameValueStop));
 
-    ParseNameValue(Nv_start, Nv_end);
+    ParseNameValue(NameValueStart, NameValueStop);
 
     if Str^ <> #0 then
       Inc(PtrComp(Str));
@@ -1160,25 +1157,25 @@ function TParser.ParseNameValue;
 var
   Str, Val: PAnsiChar;
 begin
-  Str := Nv_start;
+  Str := NameValueStart;
 
-  while (PtrComp(Str) < PtrComp(Nv_end)) and (Str^ <> ':') do
+  while (PtrComp(Str) < PtrComp(NameValueStop)) and (Str^ <> ':') do
     Inc(PtrComp(Str));
 
   Val := Str;
 
   // Right Trim
-  while (PtrComp(Str) > PtrComp(Nv_start)) and ((Str^ = ':') or (Str^ = ' ')) do
+  while (PtrComp(Str) > PtrComp(NameValueStart)) and ((Str^ = ':') or (Str^ = ' ')) do
     Dec(PtrComp(Str));
 
   Inc(PtrComp(Str));
 
-  CopyName(Nv_start, Str);
+  CopyName(NameValueStart, Str);
 
-  while (PtrComp(Val) < PtrComp(Nv_end)) and ((Val^ = ':') or (Val^ = ' ')) do
+  while (PtrComp(Val) < PtrComp(NameValueStop)) and ((Val^ = ':') or (Val^ = ' ')) do
     Inc(PtrComp(Val));
 
-  CopyValue(Val, Nv_end);
+  CopyValue(Val, NameValueStop);
 
   Result := ParseAttr(PAnsiChar(FAttrName),
     PAnsiChar(FAttrValue));
@@ -1188,7 +1185,7 @@ procedure TParser.CopyName;
 var
   Len: Cardinal;
 begin
-  Len := PtrComp(End_) - PtrComp(Start);
+  Len := PtrComp(Stop) - PtrComp(Start);
 
   if (FAttrNameLen = 0) or (Len > FAttrNameLen) then
   begin
@@ -1211,7 +1208,7 @@ procedure TParser.CopyValue;
 var
   Len: Cardinal;
 begin
-  Len := PtrComp(End_) - PtrComp(Start);
+  Len := PtrComp(Stop) - PtrComp(Start);
 
   if (FAttrValueLen = 0) or (Len > FAttrValueLen) then
   begin

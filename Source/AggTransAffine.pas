@@ -590,11 +590,24 @@ procedure TAggTransAffine.PreMultiply(M: TAggTransAffine);
 var
   T: TAggTransAffine;
 begin
-  T.AssignAll(M);
+  Transform := @M.Transform;
+  Transform2x2 := @M.Transform2x2;
+  InverseTransform := @M.InverseTransform;
+  Multiply(M);
 
-  T.Multiply(Self);
+(*
+  T := TAggTransAffine.Create;
+  try
 
-  Assign(@T);
+    T.AssignAll(M);
+
+    T.Multiply(Self);
+
+    Assign(T);
+  finally
+    T.Free;
+  end;
+*)
 end;
 
 procedure TAggTransAffine.MultiplyInv(M: TAggTransAffine);

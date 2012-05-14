@@ -293,8 +293,10 @@ type
   end;
 
   TCardinalList = class
+  protected
+    function GetItem(Index: Cardinal): Cardinal; virtual; abstract;
   public
-    function ArrayOperator(Idx: Cardinal): Cardinal; virtual; abstract;
+    property Item[Index: Cardinal]: Cardinal read GetItem; default;
   end;
 
 function AggGetMem(out Buf: Pointer; Sz: Cardinal): Boolean;

@@ -109,6 +109,8 @@ type
     // Private
     function GetCurrentAttributes: PPathAttributesRecord;
     function GetTransform: TAggTransAffine;
+  protected
+    function GetItem(Index: Cardinal): Cardinal; override;
   public
     constructor Create;
     destructor Destroy; override;
@@ -169,7 +171,6 @@ type
     // Expand all polygons
     procedure Expand(Value: Double);
 
-    function ArrayOperator(Idx: Cardinal): Cardinal; virtual;
     procedure BoundingRect(X1, Y1, X2, Y2: PDouble);
 
     // Rendering. One can specify two additional parameters:
@@ -310,7 +311,7 @@ begin
   FAttrStorage.Add(@Attr);
 end;
 
-procedure TPathRenderer.ParsePath;
+procedure TPathRenderer.ParsePath(Tok: TPathTokenizer);
 var
   Arg: array [0..9] of Double;
   I  : Cardinal;
@@ -648,20 +649,23 @@ begin
   FCurvedTransContour.Width := Value;
 end;
 
-function TPathRenderer.ArrayOperator;
+function TPathRenderer.GetItem(Index: Cardinal): Cardinal;
 begin
-  FTransform.AssignAll(@PPathAttributesRecord(FAttrStorage[Idx]).FTransform);
+  FTransform.AssignAll(@PPathAttributesRecord(FAttrStorage[Index]).FTransform);
 
-  Result := PPathAttributesRecord(FAttrStorage[Idx]).Index;
+  Result := PPathAttributesRecord(FAttrStorage[Index]).Index;
 end;
 
-procedure TPathRenderer.BoundingRect;
+procedure TPathRenderer.BoundingRect(X1, Y1, X2, Y2: PDouble);
 var
   Trans: TAggConvTransform;
 begin
   Trans := TAggConvTransform.Create(FStorage, FTransform);
-
-  BoundingRectInteger(Trans, @Self, 0, FAttrStorage.Size, X1, Y1, X2, Y2);
+  try
+    BoundingRectInteger(Trans, Self, 0, FAttrStorage.Size, X1, Y1, X2, Y2);
+  finally
+    Trans.Free;
+  end;
 end;
 
 procedure TPathRenderer.Render(Ras: TAggRasterizerScanLine;
