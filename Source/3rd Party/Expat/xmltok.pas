@@ -159,36 +159,36 @@ type
     LineNumber, ColumnNumber: TXmlSize;
   end;
 
-  ATTRIBUTE_ptr = ^ATTRIBUTE;
-  ATTRIBUTE = record
+  PAttribute = ^TAttribute;
+  TAttribute = record
     Name, ValuePtr, ValueEnd: PAnsiChar;
     Normalized: AnsiChar;
   end;
 
-  ENCODING_ptr_ptr = ^ENCODING_ptr;
-  ENCODING_ptr = ^ENCODING;
+  PPEncoding = ^PEncoding;
+  PEncoding = ^TEncoding;
 
-  SCANNER = function(P1: ENCODING_ptr; P2, P3: PAnsiChar; P4: PPAnsiChar): Integer;
+  SCANNER = function(P1: PEncoding; P2, P3: PAnsiChar; P4: PPAnsiChar): Integer;
 
-  ENCODING = record
+  TEncoding = record
     Scanners: array [0..XML_N_STATES - 1] of SCANNER;
     LiteralScanners: array [0..XML_N_LITERAL_TYPES - 1] of SCANNER;
 
-    SameName: function(P1: ENCODING_ptr; P2, P3: PAnsiChar): Integer;
-    NameMatchesAscii: function(P1: ENCODING_ptr; P2, P3, P4: PAnsiChar): Integer;
-    NameLength: function(P1: ENCODING_ptr; P2: PAnsiChar): Integer;
-    SkipS: function(P1: ENCODING_ptr; P2: PAnsiChar): PAnsiChar;
-    GetAtts: function(Enc: ENCODING_ptr; Ptr: PAnsiChar; AttsMax: Integer;
-      Atts: ATTRIBUTE_ptr): Integer;
-    CharRefNumber: function(Enc: ENCODING_ptr; Ptr: PAnsiChar): Integer;
-    PredefinedEntityName: function(P1: ENCODING_ptr; P2, P3: PAnsiChar): Integer;
-    UpdatePosition: procedure(P1: ENCODING_ptr; Ptr, Stop: PAnsiChar;
+    SameName: function(P1: PEncoding; P2, P3: PAnsiChar): Integer;
+    NameMatchesAscii: function(P1: PEncoding; P2, P3, P4: PAnsiChar): Integer;
+    NameLength: function(P1: PEncoding; P2: PAnsiChar): Integer;
+    SkipS: function(P1: PEncoding; P2: PAnsiChar): PAnsiChar;
+    GetAtts: function(Enc: PEncoding; Ptr: PAnsiChar; AttsMax: Integer;
+      Atts: PAttribute): Integer;
+    CharRefNumber: function(Enc: PEncoding; Ptr: PAnsiChar): Integer;
+    PredefinedEntityName: function(P1: PEncoding; P2, P3: PAnsiChar): Integer;
+    UpdatePosition: procedure(P1: PEncoding; Ptr, Stop: PAnsiChar;
       P4: PPosition);
-    IsPublicId: function(Enc: ENCODING_ptr; Ptr, Stop: PAnsiChar;
+    IsPublicId: function(Enc: PEncoding; Ptr, Stop: PAnsiChar;
       BadPtr: PPAnsiChar): Integer;
-    Utf8Convert: procedure(Enc: ENCODING_ptr; FromP: PPAnsiChar;
+    Utf8Convert: procedure(Enc: PEncoding; FromP: PPAnsiChar;
       FromLim: PAnsiChar; ToP: PPAnsiChar; ToLim: PAnsiChar);
-    Utf16Convert: procedure(Enc: ENCODING_ptr; FromP: PPAnsiChar;
+    Utf16Convert: procedure(Enc: PEncoding; FromP: PPAnsiChar;
       FromLim: PAnsiChar; ToP: PPWord; ToLim: PWord);
 
     MinBytesPerChar: Integer;
@@ -199,31 +199,31 @@ type
   INIT_ENCODING_ptr = ^INIT_ENCODING;
 
   INIT_ENCODING = record
-    InitEnc: ENCODING;
-    EncPtr: ENCODING_ptr_ptr;
+    InitEnc: TEncoding;
+    EncPtr: PPEncoding;
   end;
 
   { GLOBAL PROCEDURES }
-function XmlInitEncoding(P: INIT_ENCODING_ptr; EncPtr: ENCODING_ptr_ptr;
+function XmlInitEncoding(P: INIT_ENCODING_ptr; EncPtr: PPEncoding;
   Name: PAnsiChar): Integer;
-function XmlInitEncodingNS(P: INIT_ENCODING_ptr; EncPtr: ENCODING_ptr_ptr;
+function XmlInitEncodingNS(P: INIT_ENCODING_ptr; EncPtr: PPEncoding;
   Name: PAnsiChar): Integer;
 
-function XmlGetInternalEncoding: ENCODING_ptr;
-function XmlGetInternalEncodingNS: ENCODING_ptr;
+function XmlGetInternalEncoding: PEncoding;
+function XmlGetInternalEncodingNS: PEncoding;
 
-function XmlTok_(Enc: ENCODING_ptr; State: Integer; Ptr, Stop: PAnsiChar;
+function XmlTok_(Enc: PEncoding; State: Integer; Ptr, Stop: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
-function XmlPrologTok(Enc: ENCODING_ptr; Ptr, Stop: PAnsiChar;
+function XmlPrologTok(Enc: PEncoding; Ptr, Stop: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
-function XmlContentTok(Enc: ENCODING_ptr; Ptr, Stop: PAnsiChar;
+function XmlContentTok(Enc: PEncoding; Ptr, Stop: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
-function XmlIsPublicId(Enc: ENCODING_ptr; Ptr, Stop: PAnsiChar;
+function XmlIsPublicId(Enc: PEncoding; Ptr, Stop: PAnsiChar;
   BadPtr: PPAnsiChar): Integer;
 
-procedure XmlUtf8Convert(Enc: ENCODING_ptr; FromP: PPAnsiChar;
+procedure XmlUtf8Convert(Enc: PEncoding; FromP: PPAnsiChar;
   FromLim: PAnsiChar; ToP: PPAnsiChar; ToLim: PAnsiChar);
-procedure XmlUtf16Convert(Enc: ENCODING_ptr; FromP: PPAnsiChar;
+procedure XmlUtf16Convert(Enc: PEncoding; FromP: PPAnsiChar;
   FromLim: PAnsiChar; ToP: PPWord; ToLim: PWord);
 
 function XmlUtf8Encode(CharNumber: Integer; Buf: PAnsiChar): Integer;
@@ -231,37 +231,37 @@ function XmlUtf16Encode(CharNumber: Integer; Buf: PWord): Integer;
 
 { This is used for performing a 2nd-level tokenization on the content
   of a literal that has already been returned by XmlTok. }
-function XmlLiteralTok(Enc: ENCODING_ptr; LiteralType: Integer; Ptr, Stop: PAnsiChar;
+function XmlLiteralTok(Enc: PEncoding; LiteralType: Integer; Ptr, Stop: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
-function XmlAttributeValueTok(Enc: ENCODING_ptr; Ptr, Stop: PAnsiChar;
+function XmlAttributeValueTok(Enc: PEncoding; Ptr, Stop: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
-function XmlEntityValueTok(Enc: ENCODING_ptr; Ptr, Stop: PAnsiChar;
+function XmlEntityValueTok(Enc: PEncoding; Ptr, Stop: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
-function XmlSameName(Enc: ENCODING_ptr; Ptr1, Ptr2: PAnsiChar): Integer;
-function XmlNameMatchesAscii(Enc: ENCODING_ptr;
+function XmlSameName(Enc: PEncoding; Ptr1, Ptr2: PAnsiChar): Integer;
+function XmlNameMatchesAscii(Enc: PEncoding;
   Ptr1, End1, Ptr2: PAnsiChar): Integer;
-function XmlNameLength(Enc: ENCODING_ptr; Ptr: PAnsiChar): Integer;
-function XmlGetAttributes(Enc: ENCODING_ptr; Ptr: PAnsiChar; AttsMax: Integer;
-  Atts: ATTRIBUTE_ptr): Integer;
-function XmlCharRefNumber(Enc: ENCODING_ptr; Ptr: PAnsiChar): Integer;
-function XmlPredefinedEntityName(Enc: ENCODING_ptr; Ptr, Stop: PAnsiChar): Integer;
+function XmlNameLength(Enc: PEncoding; Ptr: PAnsiChar): Integer;
+function XmlGetAttributes(Enc: PEncoding; Ptr: PAnsiChar; AttsMax: Integer;
+  Atts: PAttribute): Integer;
+function XmlCharRefNumber(Enc: PEncoding; Ptr: PAnsiChar): Integer;
+function XmlPredefinedEntityName(Enc: PEncoding; Ptr, Stop: PAnsiChar): Integer;
 
-function XmlParseXmlDecl(IsGeneralTextEntity: Integer; Enc: ENCODING_ptr;
+function XmlParseXmlDecl(IsGeneralTextEntity: Integer; Enc: PEncoding;
   Ptr, Stop: PAnsiChar; BadPtr, VersionPtr, VersionEndPtr, EncodingNamePtr
-  : PPAnsiChar; NamedEncodingPtr: ENCODING_ptr_ptr;
+  : PPAnsiChar; NamedEncodingPtr: PPEncoding;
   StandalonePtr: PInteger): Integer;
 
-function XmlParseXmlDeclNS(IsGeneralTextEntity: Integer; Enc: ENCODING_ptr;
+function XmlParseXmlDeclNS(IsGeneralTextEntity: Integer; Enc: PEncoding;
   Ptr, Stop: PAnsiChar; BadPtr, VersionPtr, VersionEndPtr, EncodingNamePtr
-  : PPAnsiChar; NamedEncodingPtr: ENCODING_ptr_ptr;
+  : PPAnsiChar; NamedEncodingPtr: PPEncoding;
   StandalonePtr: PInteger): Integer;
 
 implementation
 
 
 type
-  EncodingFinder_func = function(Enc: ENCODING_ptr; Ptr, Stop: PAnsiChar)
-    : ENCODING_ptr;
+  EncodingFinder_func = function(Enc: PEncoding; Ptr, Stop: PAnsiChar)
+    : PEncoding;
 
 const
 
@@ -280,7 +280,7 @@ const
 
   KW_no: array [0..2] of AnsiChar = (ASCII_nl, ASCII_ol, #0);
 
-function MINBPC(Enc: ENCODING_ptr): Integer;
+function MINBPC(Enc: PEncoding): Integer;
 begin
 {$IFDEF XML_MIN_SIZE }
   Result := Enc.MinBytesPerChar;
@@ -289,7 +289,7 @@ begin
 {$ENDIF}
 end;
 
-procedure Utf8_toUtf8(Enc: ENCODING_ptr; FromP: PPAnsiChar; FromLim: PAnsiChar;
+procedure Utf8_toUtf8(Enc: PEncoding; FromP: PPAnsiChar; FromLim: PAnsiChar;
   ToP: PPAnsiChar; ToLim: PAnsiChar);
 var
   To_, From: PAnsiChar;
@@ -324,55 +324,55 @@ begin
   ToP^ := To_;
 end;
 
-procedure Utf8_toUtf16(Enc: ENCODING_ptr; FromP: PPAnsiChar;
+procedure Utf8_toUtf16(Enc: PEncoding; FromP: PPAnsiChar;
   FromLim: PAnsiChar; ToP: PPWord; ToLim: PWord);
 begin
 end;
 
-function Sb_byteType(Enc: ENCODING_ptr; P: PAnsiChar): Integer;
+function Sb_byteType(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 end;
 
-function IsNever(Enc: ENCODING_ptr; P: PAnsiChar): Integer;
+function IsNever(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
   Result := 0;
 end;
 
-function Sb_byteToAscii(Enc: ENCODING_ptr; P: PAnsiChar): Integer;
+function Sb_byteToAscii(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
   Result := Integer(P^);
 end;
 
-function Sb_charMatches(Enc: ENCODING_ptr; P: PAnsiChar; C: Integer): Integer;
+function Sb_charMatches(Enc: PEncoding; P: PAnsiChar; C: Integer): Integer;
 begin
   Result := Integer(Int(P^) = C);
 end;
 
-function Utf8_isName2(Enc: ENCODING_ptr; P: PAnsiChar): Integer;
+function Utf8_isName2(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 end;
 
-function Utf8_isName3(Enc: ENCODING_ptr; P: PAnsiChar): Integer;
+function Utf8_isName3(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 end;
 
-function Utf8_isNmstrt2(Enc: ENCODING_ptr; P: PAnsiChar): Integer;
+function Utf8_isNmstrt2(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 end;
 
-function Utf8_isNmstrt3(Enc: ENCODING_ptr; P: PAnsiChar): Integer;
+function Utf8_isNmstrt3(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 end;
 
-function Utf8_isInvalid2(Enc: ENCODING_ptr; P: PAnsiChar): Integer;
+function Utf8_isInvalid2(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 end;
 
-function Utf8_isInvalid3(Enc: ENCODING_ptr; P: PAnsiChar): Integer;
+function Utf8_isInvalid3(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 end;
 
-function Utf8_isInvalid4(Enc: ENCODING_ptr; P: PAnsiChar): Integer;
+function Utf8_isInvalid4(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 end;
 
@@ -380,25 +380,25 @@ type
   PNormalEncoding = ^TNormalEncoding;
 
   TNormalEncoding = record
-    Enc: ENCODING;
+    Enc: TEncoding;
     Type_: array [0..255] of Int8u;
 
 {$IFDEF XML_MIN_SIZE}
-    ByteType: function(P1: ENCODING_ptr; P2: PAnsiChar): Integer;
-    IsNameMin: function(P1: ENCODING_ptr; P2: PAnsiChar): Integer;
-    IsNmstrtMin: function(P1: ENCODING_ptr; P2: PAnsiChar): Integer;
-    ByteToAscii: function(P1: ENCODING_ptr; P2: PAnsiChar): Integer;
-    CharMatches: function(P1: ENCODING_ptr; P2: PAnsiChar; P3: Integer): Integer;
+    ByteType: function(P1: PEncoding; P2: PAnsiChar): Integer;
+    IsNameMin: function(P1: PEncoding; P2: PAnsiChar): Integer;
+    IsNmstrtMin: function(P1: PEncoding; P2: PAnsiChar): Integer;
+    ByteToAscii: function(P1: PEncoding; P2: PAnsiChar): Integer;
+    CharMatches: function(P1: PEncoding; P2: PAnsiChar; P3: Integer): Integer;
 {$ENDIF}
-    IsName2: function(P1: ENCODING_ptr; P2: PAnsiChar): Integer;
-    IsName3: function(P1: ENCODING_ptr; P2: PAnsiChar): Integer;
-    IsName4: function(P1: ENCODING_ptr; P2: PAnsiChar): Integer;
-    IsNmstrt2: function(P1: ENCODING_ptr; P2: PAnsiChar): Integer;
-    IsNmstrt3: function(P1: ENCODING_ptr; P2: PAnsiChar): Integer;
-    IsNmstrt4: function(P1: ENCODING_ptr; P2: PAnsiChar): Integer;
-    IsInvalid2: function(P1: ENCODING_ptr; P2: PAnsiChar): Integer;
-    IsInvalid3: function(P1: ENCODING_ptr; P2: PAnsiChar): Integer;
-    IsInvalid4: function(P1: ENCODING_ptr; P2: PAnsiChar): Integer;
+    IsName2: function(P1: PEncoding; P2: PAnsiChar): Integer;
+    IsName3: function(P1: PEncoding; P2: PAnsiChar): Integer;
+    IsName4: function(P1: PEncoding; P2: PAnsiChar): Integer;
+    IsNmstrt2: function(P1: PEncoding; P2: PAnsiChar): Integer;
+    IsNmstrt3: function(P1: PEncoding; P2: PAnsiChar): Integer;
+    IsNmstrt4: function(P1: PEncoding; P2: PAnsiChar): Integer;
+    IsInvalid2: function(P1: PEncoding; P2: PAnsiChar): Integer;
+    IsInvalid3: function(P1: PEncoding; P2: PAnsiChar): Integer;
+    IsInvalid4: function(P1: PEncoding; P2: PAnsiChar): Integer;
 
   end;
 
@@ -443,7 +443,7 @@ const
 
   BT_COLON_ = BT_NMSTRT;
 
-function BYTE_TYPE(Enc: ENCODING_ptr; P: PAnsiChar): Integer;
+function BYTE_TYPE(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 {$IFDEF XML_MIN_SIZE }
   Result := PNormalEncoding(Enc).ByteType(Enc, P);
@@ -452,7 +452,7 @@ begin
 {$ENDIF}
 end;
 
-function BYTETo_ASCII(Enc: ENCODING_ptr; P: PAnsiChar): Integer;
+function BYTETo_ASCII(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 {$IFDEF XML_MIN_SIZE }
   Result := PNormalEncoding(Enc).ByteToAscii(Enc, P);
@@ -461,7 +461,7 @@ begin
 {$ENDIF}
 end;
 
-function CHAR_MATCHES(Enc: ENCODING_ptr; P: PAnsiChar; C: Integer): Integer;
+function CHAR_MATCHES(Enc: PEncoding; P: PAnsiChar; C: Integer): Integer;
 begin
 {$IFDEF XML_MIN_SIZE }
   Result := PNormalEncoding(Enc).CharMatches(Enc, P, C);
@@ -470,7 +470,7 @@ begin
 {$ENDIF}
 end;
 
-function IS_NAME_CHAR(Enc: ENCODING_ptr; P: PAnsiChar; N: Integer): Integer;
+function IS_NAME_CHAR(Enc: PEncoding; P: PAnsiChar; N: Integer): Integer;
 begin
   case N of
     2:
@@ -482,7 +482,7 @@ begin
   end;
 end;
 
-function IS_NMSTRT_CHAR(Enc: ENCODING_ptr; P: PAnsiChar; N: Integer): Integer;
+function IS_NMSTRT_CHAR(Enc: PEncoding; P: PAnsiChar; N: Integer): Integer;
 begin
   case N of
     2:
@@ -494,7 +494,7 @@ begin
   end;
 end;
 
-function IS_INVALID_CHAR(Enc: ENCODING_ptr; P: PAnsiChar; N: Integer): Integer;
+function IS_INVALID_CHAR(Enc: PEncoding; P: PAnsiChar; N: Integer): Integer;
 begin
   case N of
     2:
@@ -506,7 +506,7 @@ begin
   end;
 end;
 
-function IS_NAME_CHAR_MINBPC(Enc: ENCODING_ptr; P: PAnsiChar): Integer;
+function IS_NAME_CHAR_MINBPC(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 {$IFDEF XML_MIN_SIZE }
   Result := PNormalEncoding(Enc).IsNameMin(Enc, P);
@@ -515,7 +515,7 @@ begin
 {$ENDIF}
 end;
 
-function IS_NMSTRT_CHAR_MINBPC(Enc: ENCODING_ptr; P: PAnsiChar): Integer;
+function IS_NMSTRT_CHAR_MINBPC(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 {$IFDEF XML_MIN_SIZE }
   Result := PNormalEncoding(Enc).IsNmstrtMin(Enc, P);
@@ -739,7 +739,7 @@ begin
   Result := 1;
 end;
 
-procedure InitUpdatePosition(Enc: ENCODING_ptr; Ptr, Stop: PAnsiChar;
+procedure InitUpdatePosition(Enc: PEncoding; Ptr, Stop: PAnsiChar;
   Pos: PPosition);
 begin
 end;
@@ -777,15 +777,15 @@ begin
   end;
 end;
 
-{ This is what detects the encoding.  encodingTable maps from
-  encoding indices to encodings; int8u(enc.initEnc.isUtf16 ) is the index of
-  the external (protocol) specified encoding; state is
+{ This is what detects the TEncoding.  encodingTable maps from
+  TEncoding indices to encodings; int8u(enc.initEnc.isUtf16 ) is the index of
+  the external (protocol) specified TEncoding; state is
   XML_CONTENT_STATE if we're parsing an external text entity, and
   XML_PROLOG_STATE otherwise. }
-function InitScan(EncodingTable: ENCODING_ptr_ptr; Enc: INIT_ENCODING_ptr;
+function InitScan(EncodingTable: PPEncoding; Enc: INIT_ENCODING_ptr;
   State: Integer; Ptr, Stop: PAnsiChar; NextTokPtr: PPAnsiChar): Integer;
 var
-  EncPtr: ENCODING_ptr_ptr;
+  EncPtr: PPEncoding;
 
   E: Integer;
 
@@ -851,8 +851,8 @@ begin
         else
         begin
           NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + 2);
-          EncPtr^ := ENCODING_ptr_ptr(PtrComp(EncodingTable) + UTF_16BE_ENC *
-            SizeOf(ENCODING_ptr))^;
+          EncPtr^ := PPEncoding(PtrComp(EncodingTable) + UTF_16BE_ENC *
+            SizeOf(PEncoding))^;
 
           Result := XML_TOK_BOM;
 
@@ -866,8 +866,8 @@ begin
         then
         else
         begin
-          EncPtr^ := ENCODING_ptr_ptr(PtrComp(EncodingTable) + UTF_16LE_ENC *
-            SizeOf(ENCODING_ptr))^;
+          EncPtr^ := PPEncoding(PtrComp(EncodingTable) + UTF_16LE_ENC *
+            SizeOf(PEncoding))^;
           Result := XmlTok_(EncPtr^, State, Ptr, Stop, NextTokPtr);
 
           Exit;
@@ -879,8 +879,8 @@ begin
         else
         begin
           NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + 2);
-          EncPtr^ := ENCODING_ptr_ptr(PtrComp(EncodingTable) + UTF_16LE_ENC *
-            SizeOf(ENCODING_ptr))^;
+          EncPtr^ := PPEncoding(PtrComp(EncodingTable) + UTF_16LE_ENC *
+            SizeOf(PEncoding))^;
 
           Result := XML_TOK_BOM;
 
@@ -914,8 +914,8 @@ begin
           if PByte(PtrComp(Ptr) + 2)^ = $BF then
           begin
             NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + 3);
-            EncPtr^ := ENCODING_ptr_ptr(PtrComp(EncodingTable) + UTF_8_ENC *
-              SizeOf(ENCODING_ptr))^;
+            EncPtr^ := PPEncoding(PtrComp(EncodingTable) + UTF_8_ENC *
+              SizeOf(PEncoding))^;
 
             Result := XML_TOK_BOM;
 
@@ -935,8 +935,8 @@ begin
         then
           goto _esc;
 
-        EncPtr^ := ENCODING_ptr_ptr(PtrComp(EncodingTable) + UTF_16BE_ENC *
-          SizeOf(ENCODING_ptr))^;
+        EncPtr^ := PPEncoding(PtrComp(EncodingTable) + UTF_16BE_ENC *
+          SizeOf(PEncoding))^;
         Result := XmlTok_(EncPtr^, State, Ptr, Stop, NextTokPtr);
 
         Exit;
@@ -945,8 +945,8 @@ begin
         { We could recover here in the case:
           - parsing an external entity
           - second byte is 0
-          - no externally specified encoding
-          - no encoding declaration
+          - no externally specified TEncoding
+          - no TEncoding declaration
           by assuming UTF-16LE.  But we don't, because this would mean when
           presented just with a single byte, we couldn't reliably determine
           whether we needed further bytes. }
@@ -955,19 +955,19 @@ begin
           if State = XML_CONTENT_STATE then
             goto _esc;
 
-          EncPtr^ := ENCODING_ptr_ptr(PtrComp(EncodingTable) + UTF_16LE_ENC *
-            SizeOf(ENCODING_ptr))^;
+          EncPtr^ := PPEncoding(PtrComp(EncodingTable) + UTF_16LE_ENC *
+            SizeOf(PEncoding))^;
           Result := XmlTok_(EncPtr^, State, Ptr, Stop, NextTokPtr);
         end;
     end;
 
 _esc:
-  EncPtr^ := ENCODING_ptr_ptr(PtrComp(EncodingTable) + INIT_ENC_INDEX(Enc) *
-    SizeOf(ENCODING_ptr))^;
+  EncPtr^ := PPEncoding(PtrComp(EncodingTable) + INIT_ENC_INDEX(Enc) *
+    SizeOf(PEncoding))^;
   Result := XmlTok_(EncPtr^, State, Ptr, Stop, NextTokPtr);
 end;
 
-function ToAscii(Enc: ENCODING_ptr; Ptr, Stop: PAnsiChar): Integer;
+function ToAscii(Enc: PEncoding; Ptr, Stop: PAnsiChar): Integer;
 var
   Buf: array [0..0] of AnsiChar;
   P: PAnsiChar;
@@ -995,7 +995,7 @@ end;
 
 { Return 1 if there's just optional white space or there's an S
   folLowed by name=val. }
-function ParsePseudoAttribute(Enc: ENCODING_ptr; Ptr, Stop: PAnsiChar;
+function ParsePseudoAttribute(Enc: PEncoding; Ptr, Stop: PAnsiChar;
   NamePtr, NameEndPtr, ValPtr, NextTokPtr: PPAnsiChar): Integer;
 var
   C: Integer;
@@ -1145,9 +1145,9 @@ end;
 
 { doParseXmlDecl }
 function DoParseXmlDecl(EncodingFinder: EncodingFinder_func;
-  IsGeneralTextEntity: Integer; Enc: ENCODING_ptr; Ptr, Stop: PAnsiChar;
+  IsGeneralTextEntity: Integer; Enc: PEncoding; Ptr, Stop: PAnsiChar;
   BadPtr, VersionPtr, VersionEndPtr, EncodingName: PPAnsiChar;
-  Encoding: ENCODING_ptr_ptr; Standalone: PInteger): Integer;
+  TEncoding: PPEncoding; Standalone: PInteger): Integer;
 var
   Val, Name, NameEnd: PAnsiChar;
 
@@ -1230,8 +1230,8 @@ begin
     if EncodingName <> nil then
       EncodingName^ := Val;
 
-    if Encoding <> nil then
-      Encoding^ := EncodingFinder(Enc, Val,
+    if TEncoding <> nil then
+      TEncoding^ := EncodingFinder(Enc, Val,
         PAnsiChar(PtrComp(Ptr) - Enc.MinBytesPerChar));
 
     if ParsePseudoAttribute(Enc, Ptr, Stop, @name, @NameEnd, @Val, @Ptr) = 0

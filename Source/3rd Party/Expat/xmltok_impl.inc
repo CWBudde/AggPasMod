@@ -45,12 +45,12 @@
 {$Q-}
 {$R-}
 
-function Normal_scanRef(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_scanRef(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
 end;
 
-function Normal_scanAtts(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_scanAtts(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 var
 {$IFDEF XML_NS}
@@ -681,7 +681,7 @@ begin
 end;
 
 { ptr points to character following "</" }
-function Normal_scanEndTag(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_scanEndTag(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 label
   _bt0, _bt1;
@@ -951,7 +951,7 @@ begin
 end;
 
 { ptr points to character following "<!-" }
-function Normal_scanComment(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_scanComment(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
   if Ptr <> End_ then
@@ -1110,12 +1110,12 @@ begin
 
 end;
 
-function Normal_scanCdataSection(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_scanCdataSection(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
 end;
 
-function Normal_checkPiTarget(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_checkPiTarget(Enc: PEncoding; Ptr, End_: PAnsiChar;
   TokPtr: PInteger): Integer;
 var
   Upper: Integer;
@@ -1195,7 +1195,7 @@ begin
 end;
 
 { ptr points to character following "<?" }
-function Normal_scanPi(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_scanPi(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 var
   Tok: Integer;
@@ -1571,7 +1571,7 @@ begin
 end;
 
 { ptr points to character following "<" }
-function Normal_scanLt(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_scanLt(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 {$IFDEF XML_NS}
 var
@@ -2100,7 +2100,7 @@ begin
 end;
 
 { ptr points to character following "<!" }
-function Normal_scanDecl(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_scanDecl(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 label
   _fall0;
@@ -2199,17 +2199,17 @@ begin
 end;
 
 { ptr points to character following "%" }
-function ScanPercent(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function ScanPercent(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
 end;
 
-function ScanPoundName(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function ScanPoundName(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
 end;
 
-function Normal_scanLit(Open: Integer; Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_scanLit(Open: Integer; Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 var
   T: Integer;
@@ -2339,7 +2339,7 @@ begin
   Result := XML_TOK_PARTIAL;
 end;
 
-function Normal_prologTok(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_prologTok(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 var
   Tok: Integer;
@@ -3027,7 +3027,7 @@ begin
   Result := -Tok;
 end;
 
-function Normal_contentTok(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_contentTok(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 var
   N: Size_t;
@@ -3325,17 +3325,17 @@ _break2:
   Result := XML_TOK_DATA_CHARS;
 end;
 
-function Normal_cdataSectionTok(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_cdataSectionTok(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
 end;
 
-function Normal_ignoreSectionTok(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_ignoreSectionTok(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
 end;
 
-function Normal_attributeValueTok(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_attributeValueTok(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 var
   Start: PAnsiChar;
@@ -3463,16 +3463,16 @@ begin
   Result := XML_TOK_DATA_CHARS;
 end;
 
-function Normal_entityValueTok(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_entityValueTok(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
 end;
 
-function Normal_sameName(Enc: ENCODING_ptr; Ptr1, Ptr2: PAnsiChar): Integer;
+function Normal_sameName(Enc: PEncoding; Ptr1, Ptr2: PAnsiChar): Integer;
 begin
 end;
 
-function Normal_nameMatchesAscii(Enc: ENCODING_ptr;
+function Normal_nameMatchesAscii(Enc: PEncoding;
   Ptr1, End1, Ptr2: PAnsiChar): Integer;
 begin
   while Ptr2^ <> #0 do
@@ -3498,7 +3498,7 @@ begin
   Result := Integer(Ptr1 = End1);
 end;
 
-function Normal_nameLength(Enc: ENCODING_ptr; Ptr: PAnsiChar): Integer;
+function Normal_nameLength(Enc: PEncoding; Ptr: PAnsiChar): Integer;
 var
   Start: PAnsiChar;
 
@@ -3534,15 +3534,15 @@ begin
 
 end;
 
-function Normal_skipS(Enc: ENCODING_ptr; Ptr: PAnsiChar): PAnsiChar;
+function Normal_skipS(Enc: PEncoding; Ptr: PAnsiChar): PAnsiChar;
 begin
 end;
 
 { This must only be called for a well-formed start-tag or empty
   element tag.  Returns the number of attributes.  Pointers to the
   first attsMax attributes are stored in atts. }
-function Normal_getAtts(Enc: ENCODING_ptr; Ptr: PAnsiChar; AttsMax: Integer;
-  Atts: ATTRIBUTE_ptr): Integer;
+function Normal_getAtts(Enc: PEncoding; Ptr: PAnsiChar; AttsMax: Integer;
+  Atts: PAttribute): Integer;
 type
   State_enum = (Other, InName, InValue);
 
@@ -3565,9 +3565,9 @@ begin
           begin
             if NAtts < AttsMax then
             begin
-              ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
+              PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
                 ^.Name := Ptr;
-              ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
+              PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
                 ^.Normalized := #1;
             end;
 
@@ -3583,9 +3583,9 @@ begin
           begin
             if NAtts < AttsMax then
             begin
-              ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
+              PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
                 ^.Name := Ptr;
-              ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
+              PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
                 ^.Normalized := #1;
             end;
 
@@ -3601,9 +3601,9 @@ begin
           begin
             if NAtts < AttsMax then
             begin
-              ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
+              PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
                 ^.Name := Ptr;
-              ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
+              PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
                 ^.Normalized := #1;
             end;
 
@@ -3618,9 +3618,9 @@ begin
         begin
           if NAtts < AttsMax then
           begin
-            ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
+            PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
               ^.Name := Ptr;
-            ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
+            PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
               ^.Normalized := #1;
           end;
 
@@ -3631,7 +3631,7 @@ begin
         if State <> InValue then
         begin
           if NAtts < AttsMax then
-            ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))^.ValuePtr
+            PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))^.ValuePtr
               := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
 
           State := InValue;
@@ -3642,7 +3642,7 @@ begin
           State := Other;
 
           if NAtts < AttsMax then
-            ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
+            PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
               ^.ValueEnd := Ptr;
 
           Inc(NAtts);
@@ -3652,7 +3652,7 @@ begin
         if State <> InValue then
         begin
           if NAtts < AttsMax then
-            ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))^.ValuePtr
+            PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))^.ValuePtr
               := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
 
           State := InValue;
@@ -3663,7 +3663,7 @@ begin
           State := Other;
 
           if NAtts < AttsMax then
-            ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
+            PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
               ^.ValueEnd := Ptr;
 
           Inc(NAtts);
@@ -3671,21 +3671,21 @@ begin
 
       BT_AMP:
         if NAtts < AttsMax then
-          ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
+          PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
             ^.Normalized := #0;
 
       BT_S:
         if State = InName then
           State := Other
         else if (State = InValue) and (NAtts < AttsMax) and
-          (ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))^.Normalized
+          (PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))^.Normalized
           <> #0) and
-          ((Ptr = ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
+          ((Ptr = PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
           ^.ValuePtr) or (BYTETo_ASCII(Enc, Ptr) <> Integer(ASCII_SPACE)) or
           (BYTETo_ASCII(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)))
           = Integer(ASCII_SPACE)) or
           (BYTE_TYPE(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc))) = Open)) then
-          ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
+          PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
             ^.Normalized := #0;
 
       BT_CR, BT_LF:
@@ -3694,7 +3694,7 @@ begin
         if State = InName then
           State := Other
         else if (State = InValue) and (NAtts < AttsMax) then
-          ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
+          PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
             ^.Normalized := #0;
 
       BT_GT, BT_SOL:
@@ -3712,16 +3712,16 @@ begin
   { not reached }
 end;
 
-function Normal_charRefNumber(Enc: ENCODING_ptr; Ptr: PAnsiChar): Integer;
+function Normal_charRefNumber(Enc: PEncoding; Ptr: PAnsiChar): Integer;
 begin
 end;
 
-function Normal_predefinedEntityName(Enc: ENCODING_ptr;
+function Normal_predefinedEntityName(Enc: PEncoding;
   Ptr, End_: PAnsiChar): Integer;
 begin
 end;
 
-procedure Normal_updatePosition(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+procedure Normal_updatePosition(Enc: PEncoding; Ptr, End_: PAnsiChar;
   Pos: PPosition);
 begin
   while Ptr <> End_ do
@@ -3762,7 +3762,7 @@ begin
   end;
 end;
 
-function Normal_isPublicId(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+function Normal_isPublicId(Enc: PEncoding; Ptr, End_: PAnsiChar;
   BadPtr: PPAnsiChar): Integer;
 label
   _else;

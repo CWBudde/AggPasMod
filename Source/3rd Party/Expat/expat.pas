@@ -117,7 +117,7 @@ type
   TXmlElementDeclHandler = procedure(UserData: Pointer; Name: PXmlChar;
     Model: PXmlContent);
 
-  { The Attlist declaration handler is called for *each* attribute. So
+  { The Attlist declaration handler is called for *each* TAttribute. So
     a single Attlist declaration with multiple attributes declared will
     generate multiple calls to this handler. The "default" parameter
     may be NULL in the case of the "#IMPLIED" or "#REQUIRED"
@@ -222,8 +222,8 @@ type
   { When namespace processing is enabled, these are called once for
     each namespace declaration. The call to the start and end element
     handlers occur between the calls to the start and end namespace
-    declaration handlers. For an xmlns attribute, TPrefix will be
-    NULL.  For an xmlns="" attribute, uri will be NULL. }
+    declaration handlers. For an xmlns TAttribute, TPrefix will be
+    NULL.  For an xmlns="" TAttribute, uri will be NULL. }
   TXmlStartNamespaceDeclHandler = procedure(UserData: Pointer;
     TPrefix, Uri: PXmlChar);
   TXmlEndNamespaceDeclHandler = procedure(UserData: Pointer;
@@ -626,9 +626,9 @@ type
     EntityDeclHandler: TXmlEntityDeclHandler;
     XmlDeclHandler: TXmlXmlDeclHandler;
 
-    Encoding: ENCODING_ptr;
+    Encoding: PEncoding;
     InitEncoding: INIT_ENCODING;
-    InternalEncoding: ENCODING_ptr;
+    InternalEncoding: PEncoding;
     ProtocolEncodingName: PXmlChar;
 
     M_ns, M_ns_Triplets: TXmlBool;
@@ -669,7 +669,7 @@ type
 
     AttsSize, AttsAlloc, M_nsAttsAlloc, M_nSpecifiedAtts, IdAttIndex: Integer;
 
-    Atts: ATTRIBUTE_ptr;
+    Atts: PAttribute;
     M_nsAtts: NS_ATT_ptr;
 
     M_nsAttsVersion: Cardinal;
@@ -765,22 +765,22 @@ implementation
 {$Q-}
 {$R-}
 
-function PoolStoreString(Pool: PStringPool; Enc: ENCODING_ptr;
+function PoolStoreString(Pool: PStringPool; Enc: PEncoding;
   Ptr, Stop: PAnsiChar): PXmlChar; forward;
 procedure PoolFinish(Pool: PStringPool); forward;
 procedure PoolClear(Pool: PStringPool); forward;
 procedure PoolDestroy(Pool: PStringPool); forward;
 function PoolAppendChar(Pool: PStringPool; C: AnsiChar): Integer; forward;
 
-function ReportProcessingInstruction(Parser: TXmlParser; Enc: ENCODING_ptr;
+function ReportProcessingInstruction(Parser: TXmlParser; Enc: PEncoding;
   Start, Stop: PAnsiChar): Integer; forward;
-function ReportComment(Parser: TXmlParser; Enc: ENCODING_ptr;
+function ReportComment(Parser: TXmlParser; Enc: PEncoding;
   Start, Stop: PAnsiChar): Integer; forward;
 
-function GetAttributeId(Parser: TXmlParser; Enc: ENCODING_ptr;
+function GetAttributeId(Parser: TXmlParser; Enc: PEncoding;
   Start, Stop: PAnsiChar): PAttributeID; forward;
 
-function StoreAttributeValue(Parser: TXmlParser; Enc: ENCODING_ptr;
+function StoreAttributeValue(Parser: TXmlParser; Enc: PEncoding;
   IsCdata: TXmlBool; Ptr, Stop: PAnsiChar; Pool: PStringPool)
   : TXmlError; forward;
 
@@ -855,7 +855,7 @@ begin
 {$ENDIF}
 end;
 
-function MUSRasterizerConverterERT(Enc: ENCODING_ptr; S: PAnsiChar): Integer;
+function MUSRasterizerConverterERT(Enc: PEncoding; S: PAnsiChar): Integer;
 begin
 {$IFDEF XML_UNICODE}
   Result := Integer(not Boolean(Enc.IsUtf16) or Boolean(Int32u(S) and 1));
@@ -897,7 +897,7 @@ begin
   Result := (N + (Sz - 1)) and not (Sz - 1);
 end;
 
-procedure XmlConvert(Enc: ENCODING_ptr; FromP, FromLim, ToP, ToLim: Pointer);
+procedure XmlConvert(Enc: PEncoding; FromP, FromLim, ToP, ToLim: Pointer);
 begin
 {$IFDEF XML_UNICODE}
   XmlUtf16Convert(Enc, FromP, FromLim, ToP, ToLim);
@@ -1091,7 +1091,7 @@ begin
     Result := HandleUnknownEncoding(Parser, Parser.ProtocolEncodingName);
 end;
 
-procedure ReportDefault(Parser: TXmlParser; Enc: ENCODING_ptr;
+procedure ReportDefault(Parser: TXmlParser; Enc: PEncoding;
   Start, Stop: PAnsiChar);
 begin
 end;
@@ -1105,7 +1105,7 @@ function ProcessXmlDecl(Parser: TXmlParser; IsGeneralTextEntity: Integer;
 var
   EncodingName, Version, Versionend: PAnsiChar;
   StoredEncName, Storedversion: PXmlChar;
-  NewEncoding: ENCODING_ptr;
+  NewEncoding: PEncoding;
   Standalone, Ok: Integer;
   Result_: TXmlError;
 begin
@@ -1402,7 +1402,7 @@ begin
   Result := CXmlTrue;
 end;
 
-function PoolAppend(Pool: PStringPool; Enc: ENCODING_ptr;
+function PoolAppend(Pool: PStringPool; Enc: PEncoding;
   Ptr, Stop: PAnsiChar): PXmlChar;
 begin
   if (Pool.Ptr = nil) and (PoolGrow(Pool) = 0) then
@@ -1425,7 +1425,7 @@ begin
   Result := Pool.Start;
 end;
 
-function PoolStoreString(Pool: PStringPool; Enc: ENCODING_ptr;
+function PoolStoreString(Pool: PStringPool; Enc: PEncoding;
   Ptr, Stop: PAnsiChar): PXmlChar;
 begin
   if PoolAppend(Pool, Enc, Ptr, Stop) = nil then
@@ -1855,7 +1855,7 @@ end;
   - default attributes
   - process namespace declarations (check and report them)
   - generate namespace aware element name (URI, TPrefix) }
-function StoreAtts(Parser: TXmlParser; Enc: ENCODING_ptr; AttStr: PAnsiChar;
+function StoreAtts(Parser: TXmlParser; Enc: PEncoding; AttStr: PAnsiChar;
   TagNamePtr: PTagName; BindingsPtr: PPBinding): TXmlError;
 var
   TDocTypeDeclaration: PDocTypeDeclaration;
@@ -1940,14 +1940,14 @@ begin
     Parser.AttsSize := N + NDefaultAtts + INIT_ATTS_SIZE;
 
     if not Parser.Mem.Realloc_fcn(Pointer(Parser.Atts), Parser.AttsAlloc,
-      Parser.AttsSize * SizeOf(ATTRIBUTE)) then
+      Parser.AttsSize * SizeOf(TAttribute)) then
     begin
       Result := xeNoMemory;
 
       Exit;
     end
     else
-      Parser.AttsAlloc := Parser.AttsSize * SizeOf(ATTRIBUTE);
+      Parser.AttsAlloc := Parser.AttsSize * SizeOf(TAttribute);
 
     if N > OldAttsSize then
       XmlGetAttributes(Enc, Pointer(AttStr), N, Parser.Atts);
@@ -1961,10 +1961,10 @@ begin
   begin
     { add the name and value to the attribute list }
     AttId := GetAttributeId(Parser, Enc,
-      Pointer(ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I * SizeOf(ATTRIBUTE))
-      ^.Name), Pointer(PtrComp(ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I *
-      SizeOf(ATTRIBUTE))^.Name) + XmlNameLength(Enc,
-      ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I * SizeOf(ATTRIBUTE))^.Name)));
+      Pointer(PAttribute(PtrComp(Parser.Atts) + I * SizeOf(TAttribute))
+      ^.Name), Pointer(PtrComp(PAttribute(PtrComp(Parser.Atts) + I *
+      SizeOf(TAttribute))^.Name) + XmlNameLength(Enc,
+      PAttribute(PtrComp(Parser.Atts) + I * SizeOf(TAttribute))^.Name)));
 
     if AttId = nil then
     begin
@@ -1981,8 +1981,8 @@ begin
     begin
       if Enc = Parser.Encoding then
         Parser.EventPtr :=
-          Pointer(ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I *
-          SizeOf(ATTRIBUTE))^.Name);
+          Pointer(PAttribute(PtrComp(Parser.Atts) + I *
+          SizeOf(TAttribute))^.Name);
 
       Result := xeDuplicateAttribute;
 
@@ -1996,7 +1996,7 @@ begin
 
     Inc(AttIndex);
 
-    if ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I * SizeOf(ATTRIBUTE))
+    if PAttribute(PtrComp(Parser.Atts) + I * SizeOf(TAttribute))
       ^.Normalized = #0 then
     begin
       IsCdata := CXmlTrue;
@@ -2023,9 +2023,9 @@ begin
 
       { normalize the attribute value }
       Result_ := StoreAttributeValue(Parser, Enc, IsCdata,
-        Pointer(ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I * SizeOf(ATTRIBUTE))
-        ^.ValuePtr), Pointer(ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I *
-        SizeOf(ATTRIBUTE))^.ValueEnd), @Parser.TempPool);
+        Pointer(PAttribute(PtrComp(Parser.Atts) + I * SizeOf(TAttribute))
+        ^.ValuePtr), Pointer(PAttribute(PtrComp(Parser.Atts) + I *
+        SizeOf(TAttribute))^.ValueEnd), @Parser.TempPool);
 
       if Result_ <> TXmlError(0) then
       begin
@@ -2044,9 +2044,9 @@ begin
       { the value did not need normalizing }
       PPXmlChar(PtrComp(AppAtts) + AttIndex * SizeOf(PXmlChar))^ :=
         PoolStoreString(@Parser.TempPool, Enc,
-        Pointer(ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I * SizeOf(ATTRIBUTE))
-        ^.ValuePtr), Pointer(ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I *
-        SizeOf(ATTRIBUTE))^.ValueEnd));
+        Pointer(PAttribute(PtrComp(Parser.Atts) + I * SizeOf(TAttribute))
+        ^.ValuePtr), Pointer(PAttribute(PtrComp(Parser.Atts) + I *
+        SizeOf(TAttribute))^.ValueEnd));
 
       if PPXmlChar(PtrComp(AppAtts) + AttIndex * SizeOf(PXmlChar))^ = nil
       then
@@ -2676,7 +2676,7 @@ end;
 { doCdataSection {.. }
 { startPtr gets set to non-null if the section is closed, and to null if
   the section is not yet closed. }
-function DoCdataSection(Parser: TXmlParser; Enc: ENCODING_ptr;
+function DoCdataSection(Parser: TXmlParser; Enc: PEncoding;
   StartPtr: PPAnsiChar; Stop: PAnsiChar; NextPtr: PPAnsiChar;
   HaveMore: TXmlBool): TXmlError;
 begin
@@ -2691,7 +2691,7 @@ begin
 end;
 
 { doContent }
-function DoContent(Parser: TXmlParser; StartTagLevel: Integer; Enc: ENCODING_ptr;
+function DoContent(Parser: TXmlParser; StartTagLevel: Integer; Enc: PEncoding;
   S, Stop: PAnsiChar; NextPtr: PPAnsiChar; HaveMore: TXmlBool): TXmlError;
 var
   TDocTypeDeclaration: PDocTypeDeclaration;
@@ -3469,12 +3469,12 @@ begin
   Result := Result_;
 end;
 
-function GetElementType(Parser: TXmlParser; Enc: ENCODING_ptr;
+function GetElementType(Parser: TXmlParser; Enc: PEncoding;
   Ptr, Stop: PAnsiChar): PElementType;
 begin
 end;
 
-function GetAttributeId(Parser: TXmlParser; Enc: ENCODING_ptr;
+function GetAttributeId(Parser: TXmlParser; Enc: PEncoding;
   Start, Stop: PAnsiChar): PAttributeID;
 var
   TDocTypeDeclaration: PDocTypeDeclaration;
@@ -3594,7 +3594,7 @@ begin
   Result := 0;
 end;
 
-function AppendAttributeValue(Parser: TXmlParser; Enc: ENCODING_ptr;
+function AppendAttributeValue(Parser: TXmlParser; Enc: PEncoding;
   IsCdata: TXmlBool; Ptr, Stop: PAnsiChar; Pool: PStringPool): TXmlError;
 var
   TDocTypeDeclaration: PDocTypeDeclaration;
@@ -3863,7 +3863,7 @@ begin
   { not reached }
 end;
 
-function StoreAttributeValue(Parser: TXmlParser; Enc: ENCODING_ptr;
+function StoreAttributeValue(Parser: TXmlParser; Enc: PEncoding;
   IsCdata: TXmlBool; Ptr, Stop: PAnsiChar; Pool: PStringPool): TXmlError;
 var
   Result_: TXmlError;
@@ -3891,14 +3891,14 @@ begin
   Result := xeNone;
 end;
 
-function StoreEntityValue(Parser: TXmlParser; Enc: ENCODING_ptr;
+function StoreEntityValue(Parser: TXmlParser; Enc: PEncoding;
   Start, Stop: PAnsiChar): TXmlError;
 begin
 end;
 
 { startPtr gets set to non-null is the section is closed, and to null
   if the section is not yet closed. }
-function DoIgnoreSection(Parser: TXmlParser; Enc: ENCODING_ptr;
+function DoIgnoreSection(Parser: TXmlParser; Enc: PEncoding;
   StartPtr: PPAnsiChar; Stop: PAnsiChar; NextPtr: PPAnsiChar;
   HaveMore: TXmlBool): TXmlError;
 begin
@@ -3919,7 +3919,7 @@ function Build_model(Parser: TXmlParser): PXmlContent;
 begin
 end;
 
-function ReportProcessingInstruction(Parser: TXmlParser; Enc: ENCODING_ptr;
+function ReportProcessingInstruction(Parser: TXmlParser; Enc: PEncoding;
   Start, Stop: PAnsiChar): Integer;
 begin
 end;
@@ -3928,7 +3928,7 @@ procedure NormalizeLines(S: PXmlChar);
 begin
 end;
 
-function ReportComment(Parser: TXmlParser; Enc: ENCODING_ptr;
+function ReportComment(Parser: TXmlParser; Enc: PEncoding;
   Start, Stop: PAnsiChar): Integer;
 var
   Data: PXmlChar;
@@ -3963,7 +3963,7 @@ begin
   Result := 1;
 end;
 
-function DoProlog(Parser: TXmlParser; Enc: ENCODING_ptr; S, Stop: PAnsiChar;
+function DoProlog(Parser: TXmlParser; Enc: PEncoding; S, Stop: PAnsiChar;
   Tok: Integer; Next: PAnsiChar; NextPtr: PPAnsiChar; HaveMore: TXmlBool)
   : TXmlError;
 const
@@ -5810,7 +5810,7 @@ begin
   Parser.M_nsAttsAlloc := 0;
 
   Parser.Mem.Malloc_fcn(Pointer(Parser.Atts),
-    Parser.AttsSize * SizeOf(ATTRIBUTE));
+    Parser.AttsSize * SizeOf(TAttribute));
 
   if Parser.Atts = nil then
   begin
@@ -5821,7 +5821,7 @@ begin
     Exit;
   end
   else
-    Parser.AttsAlloc := Parser.AttsSize * SizeOf(ATTRIBUTE);
+    Parser.AttsAlloc := Parser.AttsSize * SizeOf(TAttribute);
 
   Parser.Mem.Malloc_fcn(Pointer(Parser.DataBuf),
     INIT_DATA_BUF_SIZE * SizeOf(TXmlChar));
