@@ -52,7 +52,6 @@ uses
 type
   PPWord = ^PWord;
 
-{ CONSTANTS DEFINITION }
 const
   { The following token may be returned by XmlContentTok }
   XML_TOK_TRAILING_RSQB = -5; { ] or ]] at the end of the scan; might be
@@ -158,7 +157,7 @@ type
 
   POSITION = record
     { first line and first column are 0 not 1 }
-    LineNumber, ColumnNumber: XML_Size;
+    LineNumber, ColumnNumber: TXmlSize;
 
   end;
 

@@ -38,7 +38,7 @@ unit expat_basics;
 interface
 
 {$I expat_mode.inc }
-{ GLOBAL PROCEDURES }
+
 function Expat_getmem(var Ptr: Pointer; Sz: Integer): Boolean;
 function Expat_realloc(var Ptr: Pointer; Old, Sz: Integer): Boolean;
 function Expat_freemem(var Ptr: Pointer; Sz: Integer): Boolean;
@@ -51,15 +51,12 @@ procedure NoP;
 // number is negative. We have to be compatible with c++ implementation,
 // thus instead of directly using SHR we emulate c++ solution.
 function ShrInt8(I, Shift: Shortint): Shortint;
-function ShrInt16(I, Shift: Smallint): Smallint;
+function ShrInt16(I, Shift: SmallInt): SmallInt;
 function ShrInt32(I, Shift: Longint): Longint;
 
 implementation
 
-
-
-{ EXPAT_GETMEM }
-function Expat_getmem;
+function Expat_getmem(var Ptr: Pointer; Sz: Integer): Boolean;
 begin
   Result := False;
   try
@@ -70,8 +67,7 @@ begin
   end;
 end;
 
-{ EXPAT_REALLOC }
-function Expat_realloc;
+function Expat_realloc(var Ptr: Pointer; Old, Sz: Integer): Boolean;
 var
   Nb : Pointer;
   Max: Integer;
@@ -94,8 +90,7 @@ begin
     Result := False;
 end;
 
-{ EXPAT_FREEMEM }
-function Expat_freemem;
+function Expat_freemem(var Ptr: Pointer; Sz: Integer): Boolean;
 begin
   if Ptr = nil then
     Result := True
@@ -112,13 +107,11 @@ begin
     end;
 end;
 
-{ NOP }
 procedure NoP;
 begin
 end;
 
-{ SHR_INT8 }
-function ShrInt8;
+function ShrInt8(I, Shift: Shortint): Shortint;
 begin
 {$IFDEF EXPAT_CPU_386 }
   asm
@@ -143,8 +136,7 @@ begin
 {$ENDIF }
 end;
 
-{ SHR_INT16 }
-function ShrInt16;
+function ShrInt16(I, Shift: SmallInt): SmallInt;
 begin
 {$IFDEF EXPAT_CPU_386 }
   asm
@@ -168,8 +160,7 @@ begin
 {$ENDIF }
 end;
 
-{ SHR_INT32 }
-function ShrInt32;
+function ShrInt32(I, Shift: Longint): Longint;
 begin
 {$IFDEF EXPAT_CPU_386 }
   asm

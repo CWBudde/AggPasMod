@@ -56,7 +56,7 @@ type
   {$ENDIF }
 
   (* General Character Types *)
-  Char8 = Char;
+  Char8 = AnsiChar;
   Char16 = Int16u;
   Char32 = Int32u;
 
@@ -82,65 +82,66 @@ type
   Int16_ptr = ^Int16;
   Int16_ptr_ptr = ^Int16_ptr;
 
-  TInt16uAccessptr = ^Int16u;
-  TInt16uAccessptr_ptr = ^TInt16uAccessptr;
+  PInt16uAccess = ^Int16u;
+  PPInt16uAccess = ^PInt16uAccess;
 
-  TInt32Accessptr = ^Int32;
-  TInt32Accessptr_ptr = ^TInt32Accessptr;
+  PInt32Access = ^Int32;
+  PPInt32Accessptr = ^PInt32Access;
 
-  TInt32uAccessptr = ^Int32u;
-  TInt32uAccessptr_ptr = ^TInt32uAccessptr;
+  PInt32uAccess = ^Int32u;
+  PPInt32uAccess = ^PInt32uAccess;
 
-  Int64_ptr = ^Int64;
-  Int64_ptr_ptr = ^Int64_ptr;
+  PInt64 = ^Int64;
+  PPInt64 = ^PInt64;
 
-  TInt64uAccessptr = ^Int64u;
-  TInt64uAccessptr_ptr = ^TInt64uAccessptr;
+  PInt64uAccess = ^Int64u;
+  PPInt64uAccess = ^PInt64uAccess;
 
-  Char8_ptr = ^Char8;
-  Char8_ptr_ptr = ^Char8_ptr;
+  PChar8 = ^Char8;
+  PPChar8 = ^PChar8;
 
-  Char16_ptr = ^Char16;
-  Char16_ptr_ptr = ^Char16_ptr;
+  PChar16 = ^Char16;
+  PPChar16 = ^PChar16;
 
-  Char32_ptr = ^Char32;
-  Char32_ptr_ptr = ^Char32_ptr;
+  PChar32 = ^Char32;
+  PPChar32 = ^PChar32;
 
   PInt = ^Int;
-  PInt_ptr = ^PInt;
+  PPInt = ^PInt;
 
   PCardinal = ^Cardinal;
-  PCardinal_ptr = ^PCardinal;
+  PPCardinal = ^PCardinal;
 
   PPAnsiChar = ^PAnsiChar;
 
   (* Expat Types *)
-  {$IFDEF XML_UNICODE } // Information is UTF-16 encoded.
+  {$IFDEF XML_UNICODE }
 
   {$IFDEF XML_UNICODE_WCHAR_T }
-  XML_Char = Int16u;
-  XML_LChar = Int16u;
+  // Information is UTF-16 encoded.
+  TXmlChar = Int16u;
+  TXmlLChar = Int16u;
   {$ELSE }
-  XML_Char = Word;
-  XML_LChar = AnsiChar;
+  // Information is UTF-8 encoded.
+  TXmlChar = Word;
+  TXmlLChar = AnsiChar;
   {$ENDIF }
 
-  {$ELSE }              // Information is UTF-8 encoded.
-
-  XML_Char = AnsiChar;
-  XML_LChar = AnsiChar;
+  {$ELSE }
+  TXmlChar = AnsiChar;
+  TXmlLChar = AnsiChar;
   {$ENDIF }
 
-  XML_PAnsiChar = ^XML_Char;
-  XML_LPAnsiChar = ^XML_LChar;
-  XML_PPAnsiChar = ^XML_PAnsiChar;
+  PXmlChar = ^TXmlChar;
+  PXmlLChar = ^TXmlLChar;
+  PPXmlChar = ^PXmlChar;
 
   {$IFDEF XML_LARGE_SIZE } // Use large integers for file/stream positions.
-  XML_Index = Int64;
-  XML_Size = Int64u;
+  TXmlIndex = Int64;
+  TXmlSize = Int64u;
   {$ELSE }
-  XML_Index = Longint;
-  XML_Size = Longword;
+  TXmlIndex = LongInt;
+  TXmlSize = LongWord;
   {$ENDIF }
 
 implementation

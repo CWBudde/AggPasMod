@@ -134,7 +134,6 @@ begin
           end;
 
           Inc(PtrComp(Ptr), 3);
-
         end;
 
       BT_LEAD4:
@@ -144,7 +143,6 @@ begin
             Result := XML_TOK_PARTIAL_CHAR;
 
             Exit;
-
           end;
 
           if IS_NAME_CHAR(Enc, Ptr, 4) = 0 then
@@ -158,7 +156,6 @@ begin
           end;
 
           Inc(PtrComp(Ptr), 4);
-
         end;
 
       { CHECK_NAME_CASES #define }
@@ -173,7 +170,6 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           HadColon := 1;
@@ -185,7 +181,6 @@ begin
             Result := XML_TOK_PARTIAL;
 
             Exit;
-
           end;
 
           case BYTE_TYPE(Enc, Ptr) of
@@ -236,7 +231,6 @@ begin
                   Result := XML_TOK_PARTIAL_CHAR;
 
                   Exit;
-
                 end;
 
                 if not IS_NMSTRT_CHAR(Enc, Ptr, 3) = 0 then
@@ -244,11 +238,9 @@ begin
                   NextTokPtr^ := Ptr;
 
                   Result := XML_TOK_INVALID;
-
                 end;
 
                 Inc(PtrComp(Ptr), 3);
-
               end;
 
             BT_LEAD4:
@@ -258,7 +250,6 @@ begin
                   Result := XML_TOK_PARTIAL_CHAR;
 
                   Exit;
-
                 end;
 
                 if not IS_NMSTRT_CHAR(Enc, Ptr, 4) = 0 then
@@ -266,11 +257,9 @@ begin
                   NextTokPtr^ := Ptr;
 
                   Result := XML_TOK_INVALID;
-
                 end;
 
                 Inc(PtrComp(Ptr), 4);
-
               end;
 
             { CHECK_NMSTRT_CASES #define }
@@ -282,11 +271,8 @@ begin
               Result := XML_TOK_INVALID;
 
               Exit;
-
             end;
-
           end;
-
         end;
 
 {$ENDIF }
@@ -4054,31 +4040,24 @@ begin
           Result := NAtts;
 
           Exit;
-
         end;
-
     end;
 
     Inc(PtrComp(Ptr), MINBPC(Enc));
-
   until False;
 
   { not reached }
-
 end;
 
-{ normal_charRefNumber {.. }
 function Normal_charRefNumber(Enc: ENCODING_ptr; Ptr: PAnsiChar): Integer;
 begin
 end;
 
-{ normal_predefinedEntityName {.. }
 function Normal_predefinedEntityName(Enc: ENCODING_ptr;
   Ptr, End_: PAnsiChar): Integer;
 begin
 end;
 
-{ normal_updatePosition }
 procedure Normal_updatePosition(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   Pos: POSITION_ptr);
 begin
@@ -4096,7 +4075,7 @@ begin
 
       BT_LF:
         begin
-          Pos.ColumnNumber := XML_Size(-1);
+          Pos.ColumnNumber := TXmlSize(-1);
 
           Inc(Pos.LineNumber);
           Inc(PtrComp(Ptr), MINBPC(Enc));
@@ -4111,22 +4090,17 @@ begin
           if (Ptr <> End_) and (BYTE_TYPE(Enc, Ptr) = BT_LF) then
             Inc(PtrComp(Ptr), MINBPC(Enc));
 
-          Pos.ColumnNumber := XML_Size(-1);
-
+          Pos.ColumnNumber := TXmlSize(-1);
         end;
-
     else
       Inc(PtrComp(Ptr), MINBPC(Enc));
 
     end;
 
     Inc(Pos.ColumnNumber);
-
   end;
-
 end;
 
-{ normal_isPublicId }
 function Normal_isPublicId(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   BadPtr: PPAnsiChar): Integer;
 label

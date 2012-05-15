@@ -590,7 +590,7 @@ end;
 
 procedure TParser.Parse(FileName: ShortString);
 var
-  P : XML_Parser;
+  P : TXmlParser;
   Af: TApiFile;
   Ts: PAnsiChar;
   Done: Boolean;
@@ -622,13 +622,13 @@ begin
 
     Done := Len < CAggBufferSize;
 
-    if XML_Parse(P, Pointer(FBuffer), Len, Integer(Done)) = XML_STATUS_ERROR then
+    if XML_Parse(P, Pointer(FBuffer), Len, Integer(Done)) = xsError then
     begin
       ApiCloseFile(Af);
       XML_ParserFree(P);
 
       raise TSvgException.Create(Format('%s at line %d'#13, [Cardinal(
-        XML_ErrorString(XML_Error(XML_GetErrorCode(P)))),
+        XML_ErrorString(TXmlError(XML_GetErrorCode(P)))),
         XML_GetCurrentLineNumber(P)]));
     end;
 
