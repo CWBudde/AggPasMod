@@ -53,7 +53,7 @@ type
   Int64u = Qword;
   {$ELSE }
   Int64u = System.Int64;
-  {$ENDIF }
+  {$ENDIF}
 
   (* General Character Types *)
   Char8 = AnsiChar;
@@ -66,21 +66,21 @@ type
   Size_t = Int32u;
 
   (* Pascal Pointer Computation Type *)
-  {$IFDEF CPU64 }
+  {$IFDEF CPU64}
   PtrComp = System.Int64;
   {$ELSE }
   PtrComp = Integer;
-  {$ENDIF }
+  {$ENDIF}
 
   (* Type Pointers *)
-  Int8_ptr = ^Int8;
-  Int8_ptr_ptr = ^Int8_ptr;
+  PInt8 = ^Int8;
+  PPInt8 = ^PInt8;
 
-  Int8u_ptr = ^Int8u;
-  Int8u_ptr_ptr = ^Int8u_ptr;
+  PInt8u = ^Int8u;
+  PPInt8u = ^PInt8u;
 
-  Int16_ptr = ^Int16;
-  Int16_ptr_ptr = ^Int16_ptr;
+  PInt16 = ^Int16;
+  PPInt16 = ^PInt16;
 
   PInt16uAccess = ^Int16u;
   PPInt16uAccess = ^PInt16uAccess;
@@ -125,12 +125,12 @@ type
   // Information is UTF-8 encoded.
   TXmlChar = Word;
   TXmlLChar = AnsiChar;
-  {$ENDIF }
+  {$ENDIF}
 
   {$ELSE }
   TXmlChar = AnsiChar;
   TXmlLChar = AnsiChar;
-  {$ENDIF }
+  {$ENDIF}
 
   PXmlChar = ^TXmlChar;
   PXmlLChar = ^TXmlLChar;
@@ -142,7 +142,7 @@ type
   {$ELSE }
   TXmlIndex = LongInt;
   TXmlSize = LongWord;
-  {$ENDIF }
+  {$ENDIF}
 
 implementation
 

@@ -28,83 +28,70 @@
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{ xmltok_ns.inc }
 const
 {$IFDEF XML_NS}
- encodingsNS : array[0..6 ] of ENCODING_ptr = (
-  @latin1_encoding_ns.enc  ,
-  @ascii_encoding_ns.enc   ,
-  @utf8_encoding_ns.enc    ,
-  @big2_encoding_ns.enc    ,
-  @big2_encoding_ns.enc    ,
-  @little2_encoding_ns.enc ,
-  @utf8_encoding_ns.enc    ); { NO_ENC }
+  EncodingsNS: array [0 .. 6] of ENCODING_ptr = (@Latin1_encoding_ns.Enc,
+    @Ascii_encoding_ns.Enc, @Utf8_encoding_ns.Enc, @Big2_encoding_ns.Enc,
+    @Big2_encoding_ns.Enc, @Little2_encoding_ns.Enc, @Utf8_encoding_ns.Enc);
+  { NO_ENC }
 {$ENDIF}
+  Encodings: array [0 .. 6] of ENCODING_ptr = (@Latin1_encoding.Enc,
+    @Ascii_encoding.Enc, @Utf8_encoding.Enc, @Big2_encoding.Enc,
+    @Big2_encoding.Enc, @Little2_encoding.Enc, @Utf8_encoding.Enc); { NO_ENC }
 
- encodings : array[0..6 ] of ENCODING_ptr = (
-  @latin1_encoding.enc  ,
-  @ascii_encoding.enc   ,
-  @utf8_encoding.enc    ,
-  @big2_encoding.enc    ,
-  @big2_encoding.enc    ,
-  @little2_encoding.enc ,
-  @utf8_encoding.enc    ); { NO_ENC }
-
-{ initScanProlog }
-function initScanProlog(enc : ENCODING_ptr; ptr ,end_ : PAnsiChar; nextTokPtr : PPAnsiChar ) : Integer;
+function InitScanProlog(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+  NextTokPtr: PPAnsiChar): Integer;
 begin
-  Result := InitScan(@encodings ,INIT_ENCODING_ptr(enc ) ,XML_PROLOG_STATE ,ptr ,end_ ,nextTokPtr );
+  Result := InitScan(@Encodings, INIT_ENCODING_ptr(Enc), XML_PROLOG_STATE, Ptr,
+    End_, NextTokPtr);
 end;
 
-{ initScanContent {..}
-function initScanContent(enc : ENCODING_ptr; ptr ,end_ : PAnsiChar; nextTokPtr : PPAnsiChar ) : Integer;
+function InitScanContent(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
+  NextTokPtr: PPAnsiChar): Integer;
 begin
 end;
 
-{ XMLINITENCODING }
-function XmlInitEncoding;
+function XmlInitEncoding(P: INIT_ENCODING_ptr; EncPtr: ENCODING_ptr_ptr;
+  Name: PAnsiChar): Integer;
 var
-  i : Integer;
+  I: Integer;
 begin
-  i := GetEncodingIndex(name );
+  I := GetEncodingIndex(name);
 
-  if i = UNKNOWN_ENC then
+  if I = UNKNOWN_ENC then
   begin
     Result := 0;
     Exit;
-   end;
+  end;
 
-  SET_INIT_ENC_INDEX(p ,i );
+  SET_INIT_ENC_INDEX(P, I);
 
-  p.initEnc.scanners[XML_PROLOG_STATE  ]:=@initScanProlog;
-  p.initEnc.scanners[XML_CONTENT_STATE ]:=@initScanContent;
+  P.InitEnc.Scanners[XML_PROLOG_STATE] := @InitScanProlog;
+  P.InitEnc.Scanners[XML_CONTENT_STATE] := @InitScanContent;
 
-  p.initEnc.updatePosition:=@initUpdatePosition;
+  P.InitEnc.UpdatePosition := @InitUpdatePosition;
 
-  p.encPtr:=encPtr;
-  encPtr^ :=@p.initEnc;
+  P.EncPtr := EncPtr;
+  EncPtr^ := @P.InitEnc;
 
   Result := 1;
 end;
 
-{ XMLINITENCODINGNS }
-function XmlInitEncodingNS;
+function XmlInitEncodingNS(P: INIT_ENCODING_ptr; EncPtr: ENCODING_ptr_ptr;
+  Name: PAnsiChar): Integer;
 begin
 end;
 
-{ XmlGetUtf8InternalEncoding }
-function XmlGetUtf8InternalEncoding : ENCODING_ptr;
+function XmlGetUtf8InternalEncoding: ENCODING_ptr;
 begin
-  Result := @internal_utf8_encoding.enc;
+  Result := @Internal_utf8_encoding.Enc;
 end;
 
-{ XmlGetUtf16InternalEncoding {..}
-function XmlGetUtf16InternalEncoding : ENCODING_ptr;
+function XmlGetUtf16InternalEncoding: ENCODING_ptr;
 begin
 end;
 
-{ XMLGETINTERNALENCODING }
-function XmlGetInternalEncoding;
+function XmlGetInternalEncoding: ENCODING_ptr;
 begin
 {$IFDEF XML_UNICODE }
   Result := XmlGetUtf16InternalEncoding;
@@ -113,18 +100,15 @@ begin
 {$ENDIF}
 end;
 
-{ XmlGetUtf8InternalEncodingNS {..}
-function XmlGetUtf8InternalEncodingNS : ENCODING_ptr;
+function XmlGetUtf8InternalEncodingNS: ENCODING_ptr;
 begin
 end;
 
-{ XmlGetUtf16InternalEncodingNS {..}
-function XmlGetUtf16InternalEncodingNS : ENCODING_ptr;
+function XmlGetUtf16InternalEncodingNS: ENCODING_ptr;
 begin
 end;
 
-{ XMLGETINTERNALENCODINGNS }
-function XmlGetInternalEncodingNS;
+function XmlGetInternalEncodingNS: ENCODING_ptr;
 begin
 {$IFDEF XML_UNICODE}
   Result := XmlGetUtf16InternalEncodingNS;
@@ -133,24 +117,16 @@ begin
 {$ENDIF}
 end;
 
-{ findEncoding {..}
-function findEncoding(enc : ENCODING_ptr; ptr ,end_ : PAnsiChar ) : ENCODING_ptr;
+function FindEncoding(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar): ENCODING_ptr;
 begin
 end;
 
-{ XMLPARSEXMLDECL }
-function XmlParseXmlDecl;
+function XmlParseXmlDecl(IsGeneralTextEntity: Integer; Enc: ENCODING_ptr;
+  Ptr, Stop: PAnsiChar; BadPtr, VersionPtr, VersionEndPtr,
+  EncodingNamePtr: PPAnsiChar; NamedEncodingPtr: ENCODING_ptr_ptr;
+  StandalonePtr: PInteger): Integer;
 begin
-  Result := doParseXmlDecl(
-   @findEncoding ,
-   isGeneralTextEntity ,
-   enc ,ptr ,end_ ,
-   badPtr ,
-   versionPtr ,
-   versionEndPtr ,
-   encodingNamePtr ,
-   namedEncodingPtr ,
-   standalonePtr );
-
+  Result := DoParseXmlDecl(@FindEncoding, IsGeneralTextEntity, Enc, Ptr, Stop,
+    BadPtr, VersionPtr, VersionEndPtr, EncodingNamePtr, NamedEncodingPtr,
+    StandalonePtr);
 end;
-

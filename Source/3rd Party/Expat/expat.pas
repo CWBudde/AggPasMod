@@ -554,7 +554,7 @@ type
     ParamEntityRead: TXmlBool;
     ParamEntities: THashTable;
 
-{$ENDIF }
+{$ENDIF}
     DefaultPrefix: TPrefix;
 
     { === scaffolding for building content model === }
@@ -675,7 +675,7 @@ type
     M_nsAttsVersion: Cardinal;
     M_nsAttsPower: Int8u;
 
-    Position: POSITION;
+    Position: TPosition;
     TempPool, Temp2Pool: TStringPool;
 
     GroupConnector: PAnsiChar;
@@ -690,7 +690,7 @@ type
     IsParamEntity, UseForeignDTD: TXmlBool;
 
     ParamEntityParsing: TXmlParamEntityParsing;
-{$ENDIF }
+{$ENDIF}
   end;
 
 const
@@ -804,17 +804,16 @@ const
   INIT_POWER = 6;
 
 type
-  IPPAnsiChar = ^IPAnsiChar;
-  IPAnsiChar = ^ICHAR;
+  PPIntChar = ^PIntChar;
+  PIntChar = ^IntChar;
 
 {$IFDEF XML_UNICODE}
-  ICHAR = Int16u;
+  IntChar = Int16u;
 {$ELSE }
-  ICHAR = AnsiChar;
-{$ENDIF }
+  IntChar = AnsiChar;
+{$ENDIF}
 
   PHashTableIter = ^THashTableIter;
-
   THashTableIter = record
     P, Stop: PPNamed;
   end;
@@ -824,9 +823,9 @@ const
   XML_ENCODE_MAX = XML_UTF16_ENCODE_MAX;
 {$ELSE }
   XML_ENCODE_MAX = XML_UTF8_ENCODE_MAX;
-{$ENDIF }
+{$ENDIF}
 
-function MemCmp(P1, P2: Int8u_ptr; L: Integer): Integer;
+function MemCmp(P1, P2: PInt8u; L: Integer): Integer;
 begin
   while L > 0 do
   begin
@@ -853,7 +852,7 @@ begin
   Result := (H * $F4243) xor Int16u(C);
 {$ELSE }
   Result := (H * $F4243) xor Int8u(C);
-{$ENDIF }
+{$ENDIF}
 end;
 
 function MUSRasterizerConverterERT(Enc: ENCODING_ptr; S: PAnsiChar): Integer;
@@ -862,7 +861,7 @@ begin
   Result := Integer(not Boolean(Enc.IsUtf16) or Boolean(Int32u(S) and 1));
 {$ELSE }
   Result := Integer(not Boolean(Enc.IsUtf8));
-{$ENDIF }
+{$ENDIF}
 end;
 
 { For probing (after a collision) we need a step size relative prime
@@ -904,7 +903,7 @@ begin
   XmlUtf16Convert(Enc, FromP, FromLim, ToP, ToLim);
 {$ELSE }
   XmlUtf8Convert(Enc, FromP, FromLim, ToP, ToLim);
-{$ENDIF }
+{$ENDIF}
 end;
 
 function XmlEncode(CharNumber: Integer; Buf: Pointer): Integer;
@@ -913,7 +912,7 @@ begin
   Result := XmlUtf16Encode(CharNumber, Buf);
 {$ELSE }
   Result := XmlUtf8Encode(CharNumber, Buf);
-{$ENDIF }
+{$ENDIF}
 end;
 
 procedure PoolInit(Pool: PStringPool; Ms: PXmlMemoryHandlingSuite);
@@ -1003,7 +1002,7 @@ begin
 {$IFDEF XML_DTD}
   P.ParamEntityRead := CXmlFalse;
   HashTableInit(@P.ParamEntities, Ms);
-{$ENDIF }
+{$ENDIF}
 
   P.DefaultPrefix.Name := nil;
   P.DefaultPrefix.TBinding := nil;
@@ -1046,7 +1045,7 @@ begin
 
 {$IFDEF XML_DTD }
   HashTableDestroy(@P.ParamEntities);
-{$ENDIF }
+{$ENDIF}
 
   HashTableDestroy(@P.ElementTypes);
   HashTableDestroy(@P.AttributeIds);
@@ -1077,7 +1076,7 @@ begin
 {$IFDEF XML_UNICODE {..}
 {$ELSE }
   S := Pointer(Parser.ProtocolEncodingName);
-{$ENDIF }
+{$ENDIF}
 
   if Parser.M_ns <> 0 then
     Ok := XmlInitEncodingNS(@Parser.InitEncoding, @Parser.Encoding,
@@ -1148,7 +1147,7 @@ begin
     if Parser.ParamEntityParsing = pepUnlessStandalone
     then
       Parser.ParamEntityParsing := pepNever;
-{$ENDIF }
+{$ENDIF}
   end;
 
   if @Parser.XmlDeclHandler <> nil then
@@ -1414,7 +1413,7 @@ begin
   end;
 
   repeat
-    XmlConvert(Enc, @Ptr, Stop, IPPAnsiChar(@Pool.Ptr), IPAnsiChar(Pool.End_));
+    XmlConvert(Enc, @Ptr, Stop, PPIntChar(@Pool.Ptr), PIntChar(Pool.End_));
 
     if Ptr = Stop then
       Break;
@@ -2708,7 +2707,7 @@ var
   NoElmHandlers: TXmlBool;
   Name_: TTagName;
   Buf: array [0 .. XML_ENCODE_MAX - 1] of TXmlChar;
-  DataPtr: IPAnsiChar;
+  DataPtr: PIntChar;
 
 label
   _break;
@@ -3024,8 +3023,8 @@ begin
           ToPtr := PXmlChar(Tag.Buf);
 
           repeat
-            XmlConvert(Enc, @FromPtr, RawNameEnd, IPPAnsiChar(@ToPtr),
-              IPAnsiChar(PtrComp(Tag.BufEnd) - 1));
+            XmlConvert(Enc, @FromPtr, RawNameEnd, PPIntChar(@ToPtr),
+              PIntChar(PtrComp(Tag.BufEnd) - 1));
 
             ConvLen := (PtrComp(ToPtr) - PtrComp(Tag.Buf)) div SizeOf(TXmlChar);
 
@@ -3259,7 +3258,7 @@ begin
 
           if @Parser.CharacterDataHandler <> nil then
             Parser.CharacterDataHandler(Parser.HandlerArg, @Buf[0],
-              XmlEncode(N, IPAnsiChar(@Buf)))
+              XmlEncode(N, PIntChar(@Buf)))
           else if @Parser.DefaultHandler <> nil then
             ReportDefault(Parser, Enc, S, Next);
         end;
@@ -3337,14 +3336,14 @@ begin
           if @Parser.CharacterDataHandler <> nil then
             if MUSRasterizerConverterERT(Enc, S) <> 0 then
             begin
-              DataPtr := IPAnsiChar(Parser.DataBuf);
+              DataPtr := PIntChar(Parser.DataBuf);
 
               XmlConvert(Enc, @S, Stop, @DataPtr,
-                IPAnsiChar(Parser.DataBufEnd));
+                PIntChar(Parser.DataBufEnd));
 
               Parser.CharacterDataHandler(Parser.HandlerArg,
                 Parser.DataBuf, (PtrComp(DataPtr) - PtrComp(Parser.DataBuf))
-                div SizeOf(ICHAR));
+                div SizeOf(IntChar));
             end
             else
               Parser.CharacterDataHandler(Parser.HandlerArg,
@@ -3381,16 +3380,16 @@ begin
         if @Parser.CharacterDataHandler <> nil then
           if MUSRasterizerConverterERT(Enc, S) <> 0 then
             repeat
-              DataPtr := IPAnsiChar(Parser.DataBuf);
+              DataPtr := PIntChar(Parser.DataBuf);
 
               XmlConvert(Enc, @S, Next, @DataPtr,
-                IPAnsiChar(Parser.DataBufEnd));
+                PIntChar(Parser.DataBufEnd));
 
               EventEndPP^ := S;
 
               Parser.CharacterDataHandler(Parser.HandlerArg,
                 Parser.DataBuf, (PtrComp(DataPtr) - PtrComp(Parser.DataBuf))
-                div SizeOf(ICHAR));
+                div SizeOf(IntChar));
 
               if S = Next then
                 Break;
@@ -3660,7 +3659,7 @@ begin
           then
             goto _break;
 
-          N := XmlEncode(N, IPAnsiChar(Buf));
+          N := XmlEncode(N, PIntChar(Buf));
 
           if N = 0 then
           begin
@@ -3764,7 +3763,7 @@ begin
 {$IFDEF XML_DTD }
             CheckEntityDecl := AnsiChar((CheckEntityDecl <> #0) and
               (Parser.PrologState.DocumentEntity <> 0))
-{$ENDIF }
+{$ENDIF}
           end
           else { if pool = @tempPool: we are called from content }
             CheckEntityDecl := AnsiChar((TDocTypeDeclaration.HasParamEntityRefs = 0) or
@@ -3971,7 +3970,7 @@ const
 {$IFDEF XML_DTD }
   ExternalSubsetName: array [0 .. 1] of TXmlChar = ('#', #0);
 
-{$ENDIF }
+{$ENDIF}
   AtypeCDATA: array [0 .. 5] of TXmlChar = ('C', 'D', 'A', 'T', 'A', #0);
   AtypeID: array [0 .. 2] of TXmlChar = ('I', 'D', #0);
   AtypeIDREF: array [0 .. 5] of TXmlChar = ('I', 'D', 'R', 'E', 'F', #0);
@@ -4089,7 +4088,7 @@ begin
 
               Exit;
             end;
-{$ENDIF }
+{$ENDIF}
 
             Result := xeNoElements;
 
@@ -5727,7 +5726,7 @@ begin
   Parser.DeclAttributeIsCdata := CXmlFalse;
   Parser.DeclAttributeIsId := CXmlFalse;
 
-  FillChar(Parser.Position, SizeOf(POSITION), 0);
+  FillChar(Parser.Position, SizeOf(TPosition), 0);
 
   Parser.ErrorCode := xeNone;
 
@@ -6327,7 +6326,8 @@ begin
     parser->DocTypeDeclaration with the root parser, so we must not destroy it }
   if (Parser.IsParamEntity = 0) and (Parser.DocTypeDeclaration <> nil) then
 {$ELSE}
-  if Parser.DocTypeDeclaration <> nil then {$ENDIF }
+  if Parser.DocTypeDeclaration <> nil then
+{$ENDIF}
     DtdDestroy(Parser.DocTypeDeclaration, TXmlBool(Parser.ParentParser = nil),
       @Parser.Mem);
 

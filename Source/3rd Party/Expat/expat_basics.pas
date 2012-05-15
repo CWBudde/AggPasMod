@@ -120,8 +120,7 @@ begin
     sar     al ,cl
     mov     byte ptr [result ] ,al
   end;
-
-{$ENDIF }
+{$ENDIF}
 {$IFDEF EXPAT_CPU_PPC }
   asm
     lbz     r2,i
@@ -132,8 +131,7 @@ begin
     extsb   r2,r2
     stb     r2,result
   end;
-
-{$ENDIF }
+{$ENDIF}
 end;
 
 function ShrInt16(I, Shift: SmallInt): SmallInt;
@@ -146,7 +144,7 @@ begin
     mov     word ptr [result ] ,ax
   end;
 
-{$ENDIF }
+{$ENDIF}
 {$IFDEF EXPAT_CPU_PPC }
   asm
     lha     r2,i
@@ -156,8 +154,7 @@ begin
     sth     r2,result
 
   end;
-
-{$ENDIF }
+{$ENDIF}
 end;
 
 function ShrInt32(I, Shift: Longint): Longint;
@@ -170,7 +167,7 @@ begin
     mov     dword ptr [result ] ,eax
   end;
 
-{$ENDIF }
+{$ENDIF}
 {$IFDEF EXPAT_CPU_PPC }
   asm
     lwz     r3, i
@@ -178,8 +175,7 @@ begin
     sraw    r3, r3,r2
     stw     r3, result
   end;
-
-{$ENDIF }
+{$ENDIF}
 end;
 
 end.

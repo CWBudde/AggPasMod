@@ -45,30 +45,28 @@
 {$Q-}
 {$R-}
 
-{ normal_scanRef {.. }
 function Normal_scanRef(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
 end;
 
-{ normal_scanAtts }
 function Normal_scanAtts(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 var
-{$IFDEF XML_NS }
+{$IFDEF XML_NS}
   HadColon: Integer;
 
-{$ENDIF }
+{$ENDIF}
   T, Open, Tok: Integer;
 
 label
   _bt0, _bt1, _bte, Sol, Gt, _bt2;
 
 begin
-{$IFDEF XML_NS }
+{$IFDEF XML_NS}
   HadColon := 0;
 
-{$ENDIF }
+{$ENDIF}
   while Ptr <> End_ do
     case BYTE_TYPE(Enc, Ptr) of
       { #define CHECK_NAME_CASES }
@@ -160,7 +158,7 @@ begin
 
       { CHECK_NAME_CASES #define }
 
-{$IFDEF XML_NS }
+{$IFDEF XML_NS}
       BT_COLON:
         begin
           if HadColon <> 0 then
@@ -275,7 +273,7 @@ begin
           end;
         end;
 
-{$ENDIF }
+{$ENDIF}
       BT_S, BT_CR, BT_LF:
         begin
           repeat
@@ -315,10 +313,10 @@ begin
       BT_EQUALS:
       _bte:
         begin
-{$IFDEF XML_NS }
+{$IFDEF XML_NS}
           HadColon := 0;
 
-{$ENDIF }
+{$ENDIF}
           repeat
             Inc(PtrComp(Ptr), MINBPC(Enc));
 
@@ -682,7 +680,6 @@ begin
   Result := XML_TOK_PARTIAL;
 end;
 
-{ normal_scanEndTag }
 { ptr points to character following "</" }
 function Normal_scanEndTag(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
@@ -920,13 +917,13 @@ begin
 
         end;
 
-{$IFDEF XML_NS }
+{$IFDEF XML_NS}
       BT_COLON:
         { no need to check qname syntax here,
           since end-tag must match exactly }
         Inc(PtrComp(Ptr), MINBPC(Enc));
 
-{$ENDIF }
+{$ENDIF}
       BT_GT:
         begin
           NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
@@ -953,7 +950,6 @@ begin
 
 end;
 
-{ normal_scanComment }
 { ptr points to character following "<!-" }
 function Normal_scanComment(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
@@ -1114,13 +1110,11 @@ begin
 
 end;
 
-{ normal_scanCdataSection {.. }
 function Normal_scanCdataSection(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
 end;
 
-{ normal_checkPiTarget }
 function Normal_checkPiTarget(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   TokPtr: PInteger): Integer;
 var
@@ -1200,7 +1194,6 @@ begin
 
 end;
 
-{ normal_scanPi }
 { ptr points to character following "<?" }
 function Normal_scanPi(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
@@ -1249,7 +1242,6 @@ begin
           Result := XML_TOK_PARTIAL_CHAR;
 
           Exit;
-
         end;
 
         if not IS_NMSTRT_CHAR(Enc, Ptr, 2) = 0 then
@@ -1257,11 +1249,9 @@ begin
           NextTokPtr^ := Ptr;
 
           Result := XML_TOK_INVALID;
-
         end;
 
         Inc(PtrComp(Ptr), 2);
-
       end;
 
     BT_LEAD3:
@@ -1271,7 +1261,6 @@ begin
           Result := XML_TOK_PARTIAL_CHAR;
 
           Exit;
-
         end;
 
         if not IS_NMSTRT_CHAR(Enc, Ptr, 3) = 0 then
@@ -1279,11 +1268,9 @@ begin
           NextTokPtr^ := Ptr;
 
           Result := XML_TOK_INVALID;
-
         end;
 
         Inc(PtrComp(Ptr), 3);
-
       end;
 
     BT_LEAD4:
@@ -1293,7 +1280,6 @@ begin
           Result := XML_TOK_PARTIAL_CHAR;
 
           Exit;
-
         end;
 
         if not IS_NMSTRT_CHAR(Enc, Ptr, 4) = 0 then
@@ -1301,11 +1287,9 @@ begin
           NextTokPtr^ := Ptr;
 
           Result := XML_TOK_INVALID;
-
         end;
 
         Inc(PtrComp(Ptr), 4);
-
       end;
 
     { CHECK_NMSTRT_CASES #define }
@@ -1317,9 +1301,7 @@ begin
       Result := XML_TOK_INVALID;
 
       Exit;
-
     end;
-
   end;
 
   while Ptr <> End_ do
@@ -1373,7 +1355,6 @@ begin
             Result := XML_TOK_PARTIAL_CHAR;
 
             Exit;
-
           end;
 
           if IS_NAME_CHAR(Enc, Ptr, 3) = 0 then
@@ -1383,11 +1364,9 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), 3);
-
         end;
 
       BT_LEAD4:
@@ -1397,7 +1376,6 @@ begin
             Result := XML_TOK_PARTIAL_CHAR;
 
             Exit;
-
           end;
 
           if IS_NAME_CHAR(Enc, Ptr, 4) = 0 then
@@ -1407,11 +1385,9 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), 4);
-
         end;
 
       { CHECK_NAME_CASES #define }
@@ -1534,22 +1510,17 @@ begin
                     NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
 
                     Result := Tok;
-
                     Exit;
-
                   end;
-
                 end;
 
             else
               Inc(PtrComp(Ptr), MINBPC(Enc));
-
             end;
 
           Result := XML_TOK_PARTIAL;
 
           Exit;
-
         end;
 
       BT_QUEST:
@@ -1561,7 +1532,6 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), MINBPC(Enc));
@@ -1571,7 +1541,6 @@ begin
             Result := XML_TOK_PARTIAL;
 
             Exit;
-
           end;
 
           if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_GT)) <> 0 then
@@ -1581,12 +1550,10 @@ begin
             Result := Tok;
 
             Exit;
-
           end;
 
           { fall through }
           goto _else;
-
         end;
 
     else
@@ -1597,24 +1564,19 @@ begin
         Result := XML_TOK_INVALID;
 
         Exit;
-
       end;
-
     end;
 
   Result := XML_TOK_PARTIAL;
-
 end;
 
-{ normal_scanLt }
 { ptr points to character following "<" }
 function Normal_scanLt(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
-{$IFDEF XML_NS }
+{$IFDEF XML_NS}
 var
   HadColon: Integer;
-
-{$ENDIF }
+{$ENDIF}
 label
   _bt0, _bt1, _bt2, _bt3, Gt, Sol;
 
@@ -1624,7 +1586,6 @@ begin
     Result := XML_TOK_PARTIAL;
 
     Exit;
-
   end;
 
   case BYTE_TYPE(Enc, Ptr) of
@@ -1637,7 +1598,6 @@ begin
         Result := XML_TOK_INVALID;
 
         Exit;
-
       end
       else
         goto _bt0;
@@ -1653,7 +1613,6 @@ begin
           Result := XML_TOK_PARTIAL_CHAR;
 
           Exit;
-
         end;
 
         if not IS_NMSTRT_CHAR(Enc, Ptr, 2) = 0 then
@@ -1661,11 +1620,9 @@ begin
           NextTokPtr^ := Ptr;
 
           Result := XML_TOK_INVALID;
-
         end;
 
         Inc(PtrComp(Ptr), 2);
-
       end;
 
     BT_LEAD3:
@@ -1675,7 +1632,6 @@ begin
           Result := XML_TOK_PARTIAL_CHAR;
 
           Exit;
-
         end;
 
         if not IS_NMSTRT_CHAR(Enc, Ptr, 3) = 0 then
@@ -1683,11 +1639,9 @@ begin
           NextTokPtr^ := Ptr;
 
           Result := XML_TOK_INVALID;
-
         end;
 
         Inc(PtrComp(Ptr), 3);
-
       end;
 
     BT_LEAD4:
@@ -1697,7 +1651,6 @@ begin
           Result := XML_TOK_PARTIAL_CHAR;
 
           Exit;
-
         end;
 
         if not IS_NMSTRT_CHAR(Enc, Ptr, 4) = 0 then
@@ -1709,7 +1662,6 @@ begin
         end;
 
         Inc(PtrComp(Ptr), 4);
-
       end;
 
     { CHECK_NMSTRT_CASES #define }
@@ -1723,7 +1675,6 @@ begin
           Result := XML_TOK_PARTIAL;
 
           Exit;
-
         end;
 
         case BYTE_TYPE(Enc, Ptr) of
@@ -1733,7 +1684,6 @@ begin
                 PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)), End_, NextTokPtr);
 
               Exit;
-
             end;
 
           BT_LSQB:
@@ -1742,9 +1692,7 @@ begin
                 PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)), End_, NextTokPtr);
 
               Exit;
-
             end;
-
         end;
 
         NextTokPtr^ := Ptr;
@@ -1752,7 +1700,6 @@ begin
         Result := XML_TOK_INVALID;
 
         Exit;
-
       end;
 
     BT_QUEST:
@@ -1761,7 +1708,6 @@ begin
           End_, NextTokPtr);
 
         Exit;
-
       end;
 
     BT_SOL:
@@ -1770,7 +1716,6 @@ begin
           End_, NextTokPtr);
 
         Exit;
-
       end;
 
   else
@@ -1780,15 +1725,13 @@ begin
       Result := XML_TOK_INVALID;
 
       Exit;
-
     end;
-
   end;
 
-{$IFDEF XML_NS }
+{$IFDEF XML_NS}
   HadColon := 0;
 
-{$ENDIF }
+{$ENDIF}
   { we have a start-tag }
   while Ptr <> End_ do
     case BYTE_TYPE(Enc, Ptr) of
@@ -1801,7 +1744,6 @@ begin
           Result := XML_TOK_INVALID;
 
           Exit;
-
         end
         else
           goto _bt1;
@@ -1817,7 +1759,6 @@ begin
             Result := XML_TOK_PARTIAL_CHAR;
 
             Exit;
-
           end;
 
           if IS_NAME_CHAR(Enc, Ptr, 2) = 0 then
@@ -1827,11 +1768,9 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), 2);
-
         end;
 
       BT_LEAD3:
@@ -1841,7 +1780,6 @@ begin
             Result := XML_TOK_PARTIAL_CHAR;
 
             Exit;
-
           end;
 
           if IS_NAME_CHAR(Enc, Ptr, 3) = 0 then
@@ -1851,7 +1789,6 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), 3);
@@ -1865,7 +1802,6 @@ begin
             Result := XML_TOK_PARTIAL_CHAR;
 
             Exit;
-
           end;
 
           if IS_NAME_CHAR(Enc, Ptr, 4) = 0 then
@@ -1875,16 +1811,14 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), 4);
-
         end;
 
       { CHECK_NAME_CASES #define }
 
-{$IFDEF XML_NS }
+{$IFDEF XML_NS}
       BT_COLON:
         begin
           if HadColon <> 0 then
@@ -1894,7 +1828,6 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           HadColon := 1;
@@ -1906,7 +1839,6 @@ begin
             Result := XML_TOK_PARTIAL;
 
             Exit;
-
           end;
 
           case BYTE_TYPE(Enc, Ptr) of
@@ -1919,7 +1851,6 @@ begin
                 Result := XML_TOK_INVALID;
 
                 Exit;
-
               end
               else
                 goto _bt2;
@@ -1935,7 +1866,6 @@ begin
                   Result := XML_TOK_PARTIAL_CHAR;
 
                   Exit;
-
                 end;
 
                 if not IS_NMSTRT_CHAR(Enc, Ptr, 2) = 0 then
@@ -1943,11 +1873,9 @@ begin
                   NextTokPtr^ := Ptr;
 
                   Result := XML_TOK_INVALID;
-
                 end;
 
                 Inc(PtrComp(Ptr), 2);
-
               end;
 
             BT_LEAD3:
@@ -1957,7 +1885,6 @@ begin
                   Result := XML_TOK_PARTIAL_CHAR;
 
                   Exit;
-
                 end;
 
                 if not IS_NMSTRT_CHAR(Enc, Ptr, 3) = 0 then
@@ -1969,7 +1896,6 @@ begin
                 end;
 
                 Inc(PtrComp(Ptr), 3);
-
               end;
 
             BT_LEAD4:
@@ -1979,7 +1905,6 @@ begin
                   Result := XML_TOK_PARTIAL_CHAR;
 
                   Exit;
-
                 end;
 
                 if not IS_NMSTRT_CHAR(Enc, Ptr, 4) = 0 then
@@ -1987,11 +1912,9 @@ begin
                   NextTokPtr^ := Ptr;
 
                   Result := XML_TOK_INVALID;
-
                 end;
 
                 Inc(PtrComp(Ptr), 4);
-
               end;
 
             { CHECK_NMSTRT_CASES #define }
@@ -2003,14 +1926,11 @@ begin
               Result := XML_TOK_INVALID;
 
               Exit;
-
             end;
-
           end;
-
         end;
 
-{$ENDIF }
+{$ENDIF}
       BT_S, BT_CR, BT_LF:
         begin
           Inc(PtrComp(Ptr), MINBPC(Enc));
@@ -2027,7 +1947,6 @@ begin
                   Result := XML_TOK_INVALID;
 
                   Exit;
-
                 end
                 else
                   goto _bt3;
@@ -2043,7 +1962,6 @@ begin
                     Result := XML_TOK_PARTIAL_CHAR;
 
                     Exit;
-
                   end;
 
                   if not IS_NMSTRT_CHAR(Enc, Ptr, 2) = 0 then
@@ -2055,7 +1973,6 @@ begin
                   end;
 
                   Inc(PtrComp(Ptr), 2);
-
                 end;
 
               BT_LEAD3:
@@ -2065,7 +1982,6 @@ begin
                     Result := XML_TOK_PARTIAL_CHAR;
 
                     Exit;
-
                   end;
 
                   if not IS_NMSTRT_CHAR(Enc, Ptr, 3) = 0 then
@@ -2073,11 +1989,9 @@ begin
                     NextTokPtr^ := Ptr;
 
                     Result := XML_TOK_INVALID;
-
                   end;
 
                   Inc(PtrComp(Ptr), 3);
-
                 end;
 
               BT_LEAD4:
@@ -2087,7 +2001,6 @@ begin
                     Result := XML_TOK_PARTIAL_CHAR;
 
                     Exit;
-
                   end;
 
                   if not IS_NMSTRT_CHAR(Enc, Ptr, 4) = 0 then
@@ -2115,9 +2028,7 @@ begin
                   Inc(PtrComp(Ptr), MINBPC(Enc));
 
                   Continue;
-
                 end;
-
             else
               begin
                 NextTokPtr^ := Ptr;
@@ -2125,21 +2036,17 @@ begin
                 Result := XML_TOK_INVALID;
 
                 Exit;
-
               end;
-
             end;
 
             Result := Normal_scanAtts(Enc, Ptr, End_, NextTokPtr);
 
             Exit;
-
           end;
 
           Result := XML_TOK_PARTIAL;
 
           Exit;
-
         end;
 
       BT_GT:
@@ -2150,7 +2057,6 @@ begin
           Result := XML_TOK_START_TAG_NO_ATTS;
 
           Exit;
-
         end;
 
       BT_SOL:
@@ -2163,7 +2069,6 @@ begin
             Result := XML_TOK_PARTIAL;
 
             Exit;
-
           end;
 
           if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_GT)) = 0 then
@@ -2173,7 +2078,6 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
@@ -2181,9 +2085,7 @@ begin
           Result := XML_TOK_EMPTY_ELEMENT_NO_ATTS;
 
           Exit;
-
         end;
-
     else
       begin
         NextTokPtr^ := Ptr;
@@ -2191,16 +2093,12 @@ begin
         Result := XML_TOK_INVALID;
 
         Exit;
-
       end;
-
     end;
 
   Result := XML_TOK_PARTIAL;
-
 end;
 
-{ normal_scanDecl }
 { ptr points to character following "<!" }
 function Normal_scanDecl(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
@@ -2213,7 +2111,6 @@ begin
     Result := XML_TOK_PARTIAL;
 
     Exit;
-
   end;
 
   case BYTE_TYPE(Enc, Ptr) of
@@ -2223,7 +2120,6 @@ begin
           End_, NextTokPtr);
 
         Exit;
-
       end;
 
     BT_LSQB:
@@ -2233,7 +2129,6 @@ begin
         Result := XML_TOK_COND_SECT_OPEN;
 
         Exit;
-
       end;
 
     BT_NMSTRT, BT_HEX:
@@ -2246,9 +2141,7 @@ begin
       Result := XML_TOK_INVALID;
 
       Exit;
-
     end;
-
   end;
 
   while Ptr <> End_ do
@@ -2260,7 +2153,6 @@ begin
             Result := XML_TOK_PARTIAL;
 
             Exit;
-
           end;
 
           { don't alLow <!ENTITY% foo "whatever"> }
@@ -2272,9 +2164,7 @@ begin
                 Result := XML_TOK_INVALID;
 
                 Exit;
-
               end;
-
           end;
 
           { fall through }
@@ -2290,7 +2180,6 @@ begin
           Result := XML_TOK_DECL_OPEN;
 
           Exit;
-
         end;
 
       BT_NMSTRT, BT_HEX:
@@ -2303,29 +2192,23 @@ begin
         Result := XML_TOK_INVALID;
 
         Exit;
-
       end;
-
     end;
 
   Result := XML_TOK_PARTIAL;
-
 end;
 
-{ scanPercent {.. }
 { ptr points to character following "%" }
 function ScanPercent(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
 end;
 
-{ scanPoundName {.. }
 function ScanPoundName(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
 end;
 
-{ normal_scanLit }
 function Normal_scanLit(Open: Integer; Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 var
@@ -2348,7 +2231,6 @@ begin
             Result := XML_TOK_PARTIAL_CHAR;
 
             Exit;
-
           end;
 
           if IS_INVALID_CHAR(Enc, Ptr, 2) <> 0 then
@@ -2358,11 +2240,9 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), 2);
-
         end;
 
       BT_LEAD3:
@@ -2372,7 +2252,6 @@ begin
             Result := XML_TOK_PARTIAL_CHAR;
 
             Exit;
-
           end;
 
           if IS_INVALID_CHAR(Enc, Ptr, 3) <> 0 then
@@ -2382,11 +2261,9 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), 3);
-
         end;
 
       BT_LEAD4:
@@ -2396,7 +2273,6 @@ begin
             Result := XML_TOK_PARTIAL_CHAR;
 
             Exit;
-
           end;
 
           if IS_INVALID_CHAR(Enc, Ptr, 4) <> 0 then
@@ -2406,11 +2282,9 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), 4);
-
         end;
 
       BT_NONXML, BT_MALFORM, BT_TRAIL:
@@ -2420,7 +2294,6 @@ begin
           Result := XML_TOK_INVALID;
 
           Exit;
-
         end;
 
       { INVALID_CASES #define }
@@ -2437,7 +2310,6 @@ begin
             Result := -XML_TOK_LITERAL;
 
             Exit;
-
           end;
 
           NextTokPtr^ := Ptr;
@@ -2448,41 +2320,31 @@ begin
                 Result := XML_TOK_LITERAL;
 
                 Exit;
-
               end;
-
           else
             begin
               Result := XML_TOK_INVALID;
 
               Exit;
-
             end;
-
           end;
-
         end;
-
     else
       Inc(PtrComp(Ptr), MINBPC(Enc));
-
     end;
 
   _break:
   end;
 
   Result := XML_TOK_PARTIAL;
-
 end;
 
-{ normal_prologTok }
 function Normal_prologTok(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 var
   Tok: Integer;
 
   N: Size_t;
-
 label
   _bt_s, _else, _else2, _bt0, _bt1;
 
@@ -2492,7 +2354,6 @@ begin
     Result := XML_TOK_NONE;
 
     Exit;
-
   end;
 
   if MINBPC(Enc) > 1 then
@@ -2508,13 +2369,10 @@ begin
         Result := XML_TOK_PARTIAL;
 
         Exit;
-
       end;
 
       End_ := PAnsiChar(PtrComp(Ptr) + N);
-
     end;
-
   end;
 
   case BYTE_TYPE(Enc, Ptr) of
@@ -2522,18 +2380,14 @@ begin
       begin
         Result := Normal_scanLit(BT_QUOT, Enc,
           PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)), End_, NextTokPtr);
-
         Exit;
-
       end;
 
     BT_APOS:
       begin
         Result := Normal_scanLit(BT_APOS, Enc,
           PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)), End_, NextTokPtr);
-
         Exit;
-
       end;
 
     BT_LT:
@@ -2543,9 +2397,7 @@ begin
         if Ptr = End_ then
         begin
           Result := XML_TOK_PARTIAL;
-
           Exit;
-
         end;
 
         case BYTE_TYPE(Enc, Ptr) of
@@ -2553,18 +2405,14 @@ begin
             begin
               Result := Normal_scanDecl(Enc,
                 PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)), End_, NextTokPtr);
-
               Exit;
-
             end;
 
           BT_QUEST:
             begin
               Result := Normal_scanPi(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)
                 ), End_, NextTokPtr);
-
               Exit;
-
             end;
 
           BT_NMSTRT, BT_HEX, BT_NONASCII, BT_LEAD2, BT_LEAD3, BT_LEAD4:
@@ -2572,9 +2420,7 @@ begin
               NextTokPtr^ := PAnsiChar(PtrComp(Ptr) - MINBPC(Enc));
 
               Result := XML_TOK_INSTANCE_START;
-
               Exit;
-
             end;
 
         end;
@@ -2582,9 +2428,7 @@ begin
         NextTokPtr^ := Ptr;
 
         Result := XML_TOK_INVALID;
-
         Exit;
-
       end;
 
     BT_CR:
@@ -2594,9 +2438,7 @@ begin
 
         { indicate that this might be part of a CR/LF pair }
         Result := -XML_TOK_PROLOG_S;
-
         Exit;
-
       end
       else
         { fall through }
@@ -2626,9 +2468,7 @@ begin
               NextTokPtr^ := Ptr;
 
               Result := XML_TOK_PROLOG_S;
-
               Exit;
-
             end;
 
           end;
@@ -2638,18 +2478,14 @@ begin
         NextTokPtr^ := Ptr;
 
         Result := XML_TOK_PROLOG_S;
-
         Exit;
-
       end;
 
     BT_PERCNT:
       begin
         Result := ScanPercent(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)), End_,
           NextTokPtr);
-
         Exit;
-
       end;
 
     BT_COMMA:
@@ -2657,9 +2493,7 @@ begin
         NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
 
         Result := XML_TOK_COMMA;
-
         Exit;
-
       end;
 
     BT_LSQB:
@@ -2667,9 +2501,7 @@ begin
         NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
 
         Result := XML_TOK_OPEN_BRACKET;
-
         Exit;
-
       end;
 
     BT_RSQB:
@@ -2679,9 +2511,7 @@ begin
         if Ptr = End_ then
         begin
           Result := -XML_TOK_CLOSE_BRACKET;
-
           Exit;
-
         end;
 
         if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_RSQB)) <> 0 then
@@ -2689,9 +2519,7 @@ begin
           if PtrComp(Ptr) + MINBPC(Enc) = PtrComp(End_) then
           begin
             Result := XML_TOK_PARTIAL;
-
             Exit;
-
           end;
 
           if CHAR_MATCHES(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
@@ -2700,19 +2528,14 @@ begin
             NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + 2 * MINBPC(Enc));
 
             Result := XML_TOK_COND_SECT_CLOSE;
-
             Exit;
-
           end;
-
         end;
 
         NextTokPtr^ := Ptr;
 
         Result := XML_TOK_CLOSE_BRACKET;
-
         Exit;
-
       end;
 
     BT_LPAR:
@@ -2720,9 +2543,7 @@ begin
         NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
 
         Result := XML_TOK_OPEN_PAREN;
-
         Exit;
-
       end;
 
     BT_RPAR:
@@ -2732,9 +2553,7 @@ begin
         if Ptr = End_ then
         begin
           Result := -XML_TOK_CLOSE_PAREN;
-
           Exit;
-
         end;
 
         case BYTE_TYPE(Enc, Ptr) of
@@ -2743,9 +2562,7 @@ begin
               NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
 
               Result := XML_TOK_CLOSE_PAREN_ASTERISK;
-
               Exit;
-
             end;
 
           BT_QUEST:
@@ -2753,9 +2570,7 @@ begin
               NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
 
               Result := XML_TOK_CLOSE_PAREN_QUESTION;
-
               Exit;
-
             end;
 
           BT_PLUS:
@@ -2763,9 +2578,7 @@ begin
               NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
 
               Result := XML_TOK_CLOSE_PAREN_PLUS;
-
               Exit;
-
             end;
 
           BT_CR, BT_LF, BT_S, BT_GT, BT_COMMA, BT_VERBAR, BT_RPAR:
@@ -2773,19 +2586,14 @@ begin
               NextTokPtr^ := Ptr;
 
               Result := XML_TOK_CLOSE_PAREN;
-
               Exit;
-
             end;
-
         end;
 
         NextTokPtr^ := Ptr;
 
         Result := XML_TOK_INVALID;
-
         Exit;
-
       end;
 
     BT_VERBAR:
@@ -2795,7 +2603,6 @@ begin
         Result := XML_TOK_OR;
 
         Exit;
-
       end;
 
     BT_GT:
@@ -2805,7 +2612,6 @@ begin
         Result := XML_TOK_DECL_CLOSE;
 
         Exit;
-
       end;
 
     BT_NUM:
@@ -2814,7 +2620,6 @@ begin
           End_, NextTokPtr);
 
         Exit;
-
       end;
 
     BT_LEAD2:
@@ -2824,7 +2629,6 @@ begin
           Result := XML_TOK_PARTIAL_CHAR;
 
           Exit;
-
         end;
 
         if IS_NMSTRT_CHAR(Enc, Ptr, 2) <> 0 then
@@ -2832,14 +2636,12 @@ begin
           Inc(PtrComp(Ptr), 2);
 
           Tok := XML_TOK_NAME;
-
         end
         else if IS_NAME_CHAR(Enc, Ptr, 2) <> 0 then
         begin
           Inc(PtrComp(Ptr), 2);
 
           Tok := XML_TOK_NMTOKEN;
-
         end
         else
         begin
@@ -2848,9 +2650,7 @@ begin
           Result := XML_TOK_INVALID;
 
           Exit;
-
         end;
-
       end;
 
     BT_LEAD3:
@@ -2860,7 +2660,6 @@ begin
           Result := XML_TOK_PARTIAL_CHAR;
 
           Exit;
-
         end;
 
         if IS_NMSTRT_CHAR(Enc, Ptr, 3) <> 0 then
@@ -2868,14 +2667,12 @@ begin
           Inc(PtrComp(Ptr), 3);
 
           Tok := XML_TOK_NAME;
-
         end
         else if IS_NAME_CHAR(Enc, Ptr, 3) <> 0 then
         begin
           Inc(PtrComp(Ptr), 3);
 
           Tok := XML_TOK_NMTOKEN;
-
         end
         else
         begin
@@ -2884,9 +2681,7 @@ begin
           Result := XML_TOK_INVALID;
 
           Exit;
-
         end;
-
       end;
 
     BT_LEAD4:
@@ -2896,7 +2691,6 @@ begin
           Result := XML_TOK_PARTIAL_CHAR;
 
           Exit;
-
         end;
 
         if IS_NMSTRT_CHAR(Enc, Ptr, 4) <> 0 then
@@ -2904,14 +2698,12 @@ begin
           Inc(PtrComp(Ptr), 4);
 
           Tok := XML_TOK_NAME;
-
         end
         else if IS_NAME_CHAR(Enc, Ptr, 4) <> 0 then
         begin
           Inc(PtrComp(Ptr), 4);
 
           Tok := XML_TOK_NMTOKEN;
-
         end
         else
         begin
@@ -2920,9 +2712,7 @@ begin
           Result := XML_TOK_INVALID;
 
           Exit;
-
         end;
-
       end;
 
     BT_NMSTRT, BT_HEX:
@@ -2930,15 +2720,13 @@ begin
         Tok := XML_TOK_NAME;
 
         Inc(PtrComp(Ptr), MINBPC(Enc));
-
       end;
 
-    BT_DIGIT, BT_NAME, BT_MINUS {$IFDEF XML_NS } , BT_COLON: {$ELSE }: {$ENDIF }
+    BT_DIGIT, BT_NAME, BT_MINUS {$IFDEF XML_NS} , BT_COLON: {$ELSE }: {$ENDIF}
       begin
         Tok := XML_TOK_NMTOKEN;
 
         Inc(PtrComp(Ptr), MINBPC(Enc));
-
       end;
 
     BT_NONASCII:
@@ -2947,14 +2735,12 @@ begin
         Inc(PtrComp(Ptr), MINBPC(Enc));
 
         Tok := XML_TOK_NAME;
-
       end
       else if IS_NAME_CHAR_MINBPC(Enc, Ptr) <> 0 then
       begin
         Inc(PtrComp(Ptr), MINBPC(Enc));
 
         Tok := XML_TOK_NMTOKEN;
-
       end
       else
         { fall through }
@@ -2968,9 +2754,7 @@ begin
       Result := XML_TOK_INVALID;
 
       Exit;
-
     end;
-
   end;
 
   while Ptr <> End_ do
@@ -2984,7 +2768,6 @@ begin
           Result := XML_TOK_INVALID;
 
           Exit;
-
         end
         else
           goto _bt0;
@@ -3000,7 +2783,6 @@ begin
             Result := XML_TOK_PARTIAL_CHAR;
 
             Exit;
-
           end;
 
           if IS_NAME_CHAR(Enc, Ptr, 2) = 0 then
@@ -3010,11 +2792,9 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), 2);
-
         end;
 
       BT_LEAD3:
@@ -3024,7 +2804,6 @@ begin
             Result := XML_TOK_PARTIAL_CHAR;
 
             Exit;
-
           end;
 
           if IS_NAME_CHAR(Enc, Ptr, 3) = 0 then
@@ -3034,11 +2813,9 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), 3);
-
         end;
 
       BT_LEAD4:
@@ -3048,7 +2825,6 @@ begin
             Result := XML_TOK_PARTIAL_CHAR;
 
             Exit;
-
           end;
 
           if IS_NAME_CHAR(Enc, Ptr, 4) = 0 then
@@ -3058,11 +2834,9 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), 4);
-
         end;
 
       { CHECK_NAME_CASES #define }
@@ -3075,10 +2849,9 @@ begin
           Result := Tok;
 
           Exit;
-
         end;
 
-{$IFDEF XML_NS }
+{$IFDEF XML_NS}
       BT_COLON:
         begin
           Inc(PtrComp(Ptr), MINBPC(Enc));
@@ -3091,7 +2864,6 @@ begin
                   Result := XML_TOK_PARTIAL;
 
                   Exit;
-
                 end;
 
                 Tok := XML_TOK_PREFIXED_NAME;
@@ -3106,7 +2878,6 @@ begin
                       Result := XML_TOK_INVALID;
 
                       Exit;
-
                     end
                     else
                       goto _bt1;
@@ -3122,7 +2893,6 @@ begin
                         Result := XML_TOK_PARTIAL_CHAR;
 
                         Exit;
-
                       end;
 
                       if IS_NAME_CHAR(Enc, Ptr, 2) = 0 then
@@ -3132,11 +2902,9 @@ begin
                         Result := XML_TOK_INVALID;
 
                         Exit;
-
                       end;
 
                       Inc(PtrComp(Ptr), 2);
-
                     end;
 
                   BT_LEAD3:
@@ -3146,7 +2914,6 @@ begin
                         Result := XML_TOK_PARTIAL_CHAR;
 
                         Exit;
-
                       end;
 
                       if IS_NAME_CHAR(Enc, Ptr, 3) = 0 then
@@ -3156,11 +2923,9 @@ begin
                         Result := XML_TOK_INVALID;
 
                         Exit;
-
                       end;
 
                       Inc(PtrComp(Ptr), 3);
-
                     end;
 
                   BT_LEAD4:
@@ -3170,7 +2935,6 @@ begin
                         Result := XML_TOK_PARTIAL_CHAR;
 
                         Exit;
-
                       end;
 
                       if IS_NAME_CHAR(Enc, Ptr, 4) = 0 then
@@ -3180,30 +2944,23 @@ begin
                         Result := XML_TOK_INVALID;
 
                         Exit;
-
                       end;
 
                       Inc(PtrComp(Ptr), 4);
-
                     end;
 
                   { CHECK_NAME_CASES #define }
-
                 else
                   Tok := XML_TOK_NMTOKEN;
-
                 end;
-
               end;
 
             XML_TOK_PREFIXED_NAME:
               Tok := XML_TOK_NMTOKEN;
-
           end;
-
         end;
 
-{$ENDIF }
+{$ENDIF}
       BT_PLUS:
         begin
           if Tok = XML_TOK_NMTOKEN then
@@ -3213,7 +2970,6 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
@@ -3221,7 +2977,6 @@ begin
           Result := XML_TOK_NAME_PLUS;
 
           Exit;
-
         end;
 
       BT_AST:
@@ -3233,7 +2988,6 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
@@ -3241,7 +2995,6 @@ begin
           Result := XML_TOK_NAME_ASTERISK;
 
           Exit;
-
         end;
 
       BT_QUEST:
@@ -3253,7 +3006,6 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
@@ -3261,9 +3013,7 @@ begin
           Result := XML_TOK_NAME_QUESTION;
 
           Exit;
-
         end;
-
     else
       begin
         NextTokPtr^ := Ptr;
@@ -3271,16 +3021,12 @@ begin
         Result := XML_TOK_INVALID;
 
         Exit;
-
       end;
-
     end;
 
   Result := -Tok;
-
 end;
 
-{ normal_contentTok }
 function Normal_contentTok(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 var
@@ -3295,7 +3041,6 @@ begin
     Result := XML_TOK_NONE;
 
     Exit;
-
   end;
 
   if MINBPC(Enc) > 1 then
@@ -3311,13 +3056,10 @@ begin
         Result := XML_TOK_PARTIAL;
 
         Exit;
-
       end;
 
       End_ := PAnsiChar(PtrComp(Ptr) + N);
-
     end;
-
   end;
 
   case BYTE_TYPE(Enc, Ptr) of
@@ -3327,7 +3069,6 @@ begin
           End_, NextTokPtr);
 
         Exit;
-
       end;
 
     BT_AMP:
@@ -3336,7 +3077,6 @@ begin
           End_, NextTokPtr);
 
         Exit;
-
       end;
 
     BT_CR:
@@ -3348,7 +3088,6 @@ begin
           Result := XML_TOK_TRAILING_CR;
 
           Exit;
-
         end;
 
         if BYTE_TYPE(Enc, Ptr) = BT_LF then
@@ -3359,7 +3098,6 @@ begin
         Result := XML_TOK_DATA_NEWLINE;
 
         Exit;
-
       end;
 
     BT_LF:
@@ -3369,7 +3107,6 @@ begin
         Result := XML_TOK_DATA_NEWLINE;
 
         Exit;
-
       end;
 
     BT_RSQB:
@@ -3381,7 +3118,6 @@ begin
           Result := XML_TOK_TRAILING_RSQB;
 
           Exit;
-
         end;
 
         if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_RSQB)) = 0 then
@@ -3394,7 +3130,6 @@ begin
           Result := XML_TOK_TRAILING_RSQB;
 
           Exit;
-
         end;
 
         if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_GT)) = 0 then
@@ -3402,7 +3137,6 @@ begin
           Dec(PtrComp(Ptr), MINBPC(Enc));
 
           goto _break;
-
         end;
 
         NextTokPtr^ := Ptr;
@@ -3410,7 +3144,6 @@ begin
         Result := XML_TOK_INVALID;
 
         Exit;
-
       end;
 
     { #define INVALID_CASES }
@@ -3421,7 +3154,6 @@ begin
           Result := XML_TOK_PARTIAL_CHAR;
 
           Exit;
-
         end;
 
         if IS_INVALID_CHAR(Enc, Ptr, 2) <> 0 then
@@ -3431,11 +3163,8 @@ begin
           Result := XML_TOK_INVALID;
 
           Exit;
-
         end;
-
         Inc(PtrComp(Ptr), 2);
-
       end;
 
     BT_LEAD3:
@@ -3445,7 +3174,6 @@ begin
           Result := XML_TOK_PARTIAL_CHAR;
 
           Exit;
-
         end;
 
         if IS_INVALID_CHAR(Enc, Ptr, 3) <> 0 then
@@ -3455,11 +3183,8 @@ begin
           Result := XML_TOK_INVALID;
 
           Exit;
-
         end;
-
         Inc(PtrComp(Ptr), 3);
-
       end;
 
     BT_LEAD4:
@@ -3469,7 +3194,6 @@ begin
           Result := XML_TOK_PARTIAL_CHAR;
 
           Exit;
-
         end;
 
         if IS_INVALID_CHAR(Enc, Ptr, 4) <> 0 then
@@ -3479,11 +3203,9 @@ begin
           Result := XML_TOK_INVALID;
 
           Exit;
-
         end;
 
         Inc(PtrComp(Ptr), 4);
-
       end;
 
     BT_NONXML, BT_MALFORM, BT_TRAIL:
@@ -3493,14 +3215,12 @@ begin
         Result := XML_TOK_INVALID;
 
         Exit;
-
       end;
 
     { INVALID_CASES #define }
 
   else
     Inc(PtrComp(Ptr), MINBPC(Enc));
-
   end;
 
 _break:
@@ -3516,11 +3236,9 @@ _break:
             Result := XML_TOK_DATA_CHARS;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), 2);
-
         end;
 
       BT_LEAD3:
@@ -3533,11 +3251,9 @@ _break:
             Result := XML_TOK_DATA_CHARS;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), 3);
-
         end;
 
       BT_LEAD4:
@@ -3550,11 +3266,9 @@ _break:
             Result := XML_TOK_DATA_CHARS;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), 4);
-
         end;
 
       BT_RSQB:
@@ -3567,7 +3281,6 @@ _break:
               Inc(PtrComp(Ptr), MINBPC(Enc));
 
               goto _break2;
-
             end;
 
             if PtrComp(Ptr) + 2 * MINBPC(Enc) <> PtrComp(End_) then
@@ -3578,7 +3291,6 @@ _break:
                 Inc(PtrComp(Ptr), MINBPC(Enc));
 
                 goto _break2;
-
               end;
 
               NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + 2 * MINBPC(Enc));
@@ -3586,14 +3298,11 @@ _break:
               Result := XML_TOK_INVALID;
 
               Exit;
-
             end;
-
           end;
 
           { fall through }
           goto _go0;
-
         end;
 
       BT_AMP, BT_LT, BT_NONXML, BT_MALFORM, BT_TRAIL, BT_CR, BT_LF:
@@ -3604,34 +3313,28 @@ _break:
           Result := XML_TOK_DATA_CHARS;
 
           Exit;
-
         end;
 
     else
       Inc(PtrComp(Ptr), MINBPC(Enc));
-
     end;
 
 _break2:
   NextTokPtr^ := Ptr;
 
   Result := XML_TOK_DATA_CHARS;
-
 end;
 
-{ normal_cdataSectionTok {.. }
 function Normal_cdataSectionTok(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
 end;
 
-{ normal_ignoreSectionTok {.. }
 function Normal_ignoreSectionTok(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
 end;
 
-{ normal_attributeValueTok }
 function Normal_attributeValueTok(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 var
@@ -3667,7 +3370,6 @@ begin
               End_, NextTokPtr);
 
             Exit;
-
           end;
 
           NextTokPtr^ := Ptr;
@@ -3675,7 +3377,6 @@ begin
           Result := XML_TOK_DATA_CHARS;
 
           Exit;
-
         end;
 
       BT_LT:
@@ -3686,7 +3387,6 @@ begin
           Result := XML_TOK_INVALID;
 
           Exit;
-
         end;
 
       BT_LF:
@@ -3698,7 +3398,6 @@ begin
             Result := XML_TOK_DATA_NEWLINE;
 
             Exit;
-
           end;
 
           NextTokPtr^ := Ptr;
@@ -3706,7 +3405,6 @@ begin
           Result := XML_TOK_DATA_CHARS;
 
           Exit;
-
         end;
 
       BT_CR:
@@ -3720,7 +3418,6 @@ begin
               Result := XML_TOK_TRAILING_CR;
 
               Exit;
-
             end;
 
             if BYTE_TYPE(Enc, Ptr) = BT_LF then
@@ -3731,7 +3428,6 @@ begin
             Result := XML_TOK_DATA_NEWLINE;
 
             Exit;
-
           end;
 
           NextTokPtr^ := Ptr;
@@ -3739,7 +3435,6 @@ begin
           Result := XML_TOK_DATA_CHARS;
 
           Exit;
-
         end;
 
       BT_S:
@@ -3751,7 +3446,6 @@ begin
             Result := XML_TOK_ATTRIBUTE_VALUE_S;
 
             Exit;
-
           end;
 
           NextTokPtr^ := Ptr;
@@ -3759,32 +3453,25 @@ begin
           Result := XML_TOK_DATA_CHARS;
 
           Exit;
-
         end;
-
     else
       Inc(PtrComp(Ptr), MINBPC(Enc));
-
     end;
 
   NextTokPtr^ := Ptr;
 
   Result := XML_TOK_DATA_CHARS;
-
 end;
 
-{ normal_entityValueTok {.. }
 function Normal_entityValueTok(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
 end;
 
-{ normal_sameName {.. }
 function Normal_sameName(Enc: ENCODING_ptr; Ptr1, Ptr2: PAnsiChar): Integer;
 begin
 end;
 
-{ normal_nameMatchesAscii }
 function Normal_nameMatchesAscii(Enc: ENCODING_ptr;
   Ptr1, End1, Ptr2: PAnsiChar): Integer;
 begin
@@ -3795,7 +3482,6 @@ begin
       Result := 0;
 
       Exit;
-
     end;
 
     if CHAR_MATCHES(Enc, Ptr1, Integer(Ptr2^)) = 0 then
@@ -3803,19 +3489,15 @@ begin
       Result := 0;
 
       Exit;
-
     end;
 
     Inc(PtrComp(Ptr1), MINBPC(Enc));
     Inc(PtrComp(Ptr2));
-
   end;
 
   Result := Integer(Ptr1 = End1);
-
 end;
 
-{ normal_nameLength }
 function Normal_nameLength(Enc: ENCODING_ptr; Ptr: PAnsiChar): Integer;
 var
   Start: PAnsiChar;
@@ -3834,7 +3516,7 @@ begin
       BT_LEAD4:
         Inc(PtrComp(Ptr), 4);
 
-      BT_NONASCII, BT_NMSTRT, {$IFDEF XML_NS }BT_COLON, {$ENDIF }
+      BT_NONASCII, BT_NMSTRT, {$IFDEF XML_NS}BT_COLON, {$ENDIF}
       BT_HEX, BT_DIGIT, BT_NAME, BT_MINUS:
         Inc(PtrComp(Ptr), MINBPC(Enc));
 
@@ -3852,12 +3534,10 @@ begin
 
 end;
 
-{ normal_skipS {.. }
 function Normal_skipS(Enc: ENCODING_ptr; Ptr: PAnsiChar): PAnsiChar;
 begin
 end;
 
-{ normal_getAtts }
 { This must only be called for a well-formed start-tag or empty
   element tag.  Returns the number of attributes.  Pointers to the
   first attsMax attributes are stored in atts. }
@@ -3868,9 +3548,7 @@ type
 
 var
   State: State_enum;
-
   NAtts, Open: Integer;
-
 begin
   State := InName;
   NAtts := 0;
@@ -3891,15 +3569,12 @@ begin
                 ^.Name := Ptr;
               ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
                 ^.Normalized := #1;
-
             end;
 
             State := InName;
-
           end;
 
           Inc(PtrComp(Ptr), 2 - MINBPC(Enc));
-
         end;
 
       BT_LEAD3:
@@ -3912,15 +3587,12 @@ begin
                 ^.Name := Ptr;
               ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
                 ^.Normalized := #1;
-
             end;
 
             State := InName;
-
           end;
 
           Inc(PtrComp(Ptr), 3 - MINBPC(Enc));
-
         end;
 
       BT_LEAD4:
@@ -3933,15 +3605,12 @@ begin
                 ^.Name := Ptr;
               ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
                 ^.Normalized := #1;
-
             end;
 
             State := InName;
-
           end;
 
           Inc(PtrComp(Ptr), 4 - MINBPC(Enc));
-
         end;
 
       BT_NONASCII, BT_NMSTRT, BT_HEX:
@@ -3953,11 +3622,9 @@ begin
               ^.Name := Ptr;
             ATTRIBUTE_ptr(PtrComp(Atts) + NAtts * SizeOf(ATTRIBUTE))
               ^.Normalized := #1;
-
           end;
 
           State := InName;
-
         end;
 
       BT_QUOT:
@@ -3969,7 +3636,6 @@ begin
 
           State := InValue;
           Open := BT_QUOT;
-
         end
         else if Open = BT_QUOT then
         begin
@@ -3980,7 +3646,6 @@ begin
               ^.ValueEnd := Ptr;
 
           Inc(NAtts);
-
         end;
 
       BT_APOS:
@@ -3992,7 +3657,6 @@ begin
 
           State := InValue;
           Open := BT_APOS;
-
         end
         else if Open = BT_APOS then
         begin
@@ -4003,7 +3667,6 @@ begin
               ^.ValueEnd := Ptr;
 
           Inc(NAtts);
-
         end;
 
       BT_AMP:
@@ -4059,7 +3722,7 @@ begin
 end;
 
 procedure Normal_updatePosition(Enc: ENCODING_ptr; Ptr, End_: PAnsiChar;
-  Pos: POSITION_ptr);
+  Pos: PPosition);
 begin
   while Ptr <> End_ do
   begin
@@ -4079,7 +3742,6 @@ begin
 
           Inc(Pos.LineNumber);
           Inc(PtrComp(Ptr), MINBPC(Enc));
-
         end;
 
       BT_CR:
@@ -4094,7 +3756,6 @@ begin
         end;
     else
       Inc(PtrComp(Ptr), MINBPC(Enc));
-
     end;
 
     Inc(Pos.ColumnNumber);
@@ -4120,7 +3781,6 @@ begin
           Result := 0;
 
           Exit;
-
         end;
 
       BT_NAME, BT_NMSTRT:
@@ -4130,7 +3790,7 @@ begin
 
       BT_DIGIT, BT_HEX, BT_MINUS, BT_APOS, BT_LPAR, BT_RPAR, BT_PLUS, BT_COMMA,
         BT_SOL, BT_EQUALS, BT_QUEST, BT_CR, BT_LF, BT_SEMI, BT_EXCL, BT_AST,
-        BT_PERCNT, BT_NUM {$IFDEF XML_NS } , BT_COLON: {$ELSE } : {$ENDIF }
+        BT_PERCNT, BT_NUM {$IFDEF XML_NS} , BT_COLON: {$ELSE} : {$ENDIF}
       else
       _else:
         case BYTETo_ASCII(Enc, Ptr) of
@@ -4142,17 +3802,12 @@ begin
             Result := 0;
 
             Exit;
-
           end;
-
         end;
-
     end;
 
     Inc(PtrComp(Ptr), MINBPC(Enc));
-
   end;
 
   Result := 1;
-
 end;
