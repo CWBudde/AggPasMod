@@ -44,7 +44,7 @@ uses
   Xmltok,
   Xmlrole;
 
-{$I expat_mode.inc }
+{$I expat_mode.inc}
 
 
 type
@@ -93,7 +93,7 @@ type
     XML_CQUANT_NONE, and the other fields will be zero or NULL.
     If type == XML_CTYPE_MIXED, then quant will be NONE or REP and
     numchildren will contain number of elements that may be mixed in
-    and children point to an array of XML_Content cells that will be
+    and children point to an array of TXmlContent cells that will be
     all of XML_CTYPE_NAME type with no quantification.
 
     If type == XML_CTYPE_NAME, then the name points to the name, and
@@ -102,10 +102,10 @@ type
 
     CHOICE and SEQ will have name NULL, the number of children in
     numchildren and children will point, recursively, to an array
-    of XML_Content cells.
+    of TXmlContent cells.
 
     The EMPTY, ANY, and MIXED types will only occur at top level. }
-  XML_Content_ptr = ^XML_Content;
+  XML_Content_ptr = ^TXmlContent;
 
   XML_cp = record
     Type_: XML_Content_Type;
@@ -117,12 +117,12 @@ type
 
   end;
 
-  XML_Content = XML_cp;
+  TXmlContent = XML_cp;
 
   { This is called for an element declaration. See above for
     description of the model argument. It's the caller's responsibility
     to free model when finished with it. }
-  XML_ElementDeclHandler = procedure(UserData: Pointer; Name: XML_PAnsiChar;
+  TXmlElementDeclHandler = procedure(UserData: Pointer; Name: XML_PAnsiChar;
     Model: XML_Content_ptr);
 
   { The Attlist declaration handler is called for *each* attribute. So
@@ -132,7 +132,7 @@ type
     keyword. The "isrequired" parameter will be true and the default
     value will be NULL in the case of "#REQUIRED". If "isrequired" is
     true and default is non-NULL, then this is a "#FIXED" default. }
-  XML_AttlistDeclHandler = procedure(UserData: Pointer;
+  TXmlAttlistDeclHandler = procedure(UserData: Pointer;
     Elname, Attname, Att_type, Dflt: XML_PAnsiChar; Isrequired: Integer);
 
   { The XML declaration handler is called for *both* XML declarations
@@ -142,14 +142,14 @@ type
     parameter will be -1, 0, or 1 indicating respectively that there
     was no standalone parameter in the declaration, that it was given
     as no, or that it was given as yes. }
-  XML_XmlDeclHandler = procedure(UserData: Pointer;
+  TXmlXmlDeclHandler = procedure(UserData: Pointer;
     Version, Encoding: XML_PAnsiChar; Standalone: Integer);
 
-  { This is called for entity declarations. The is_parameter_entity
-    argument will be non-zero if the entity is a parameter entity, zero
+  { This is called for TEntity declarations. The is_parameter_entity
+    argument will be non-zero if the TEntity is a parameter TEntity, zero
     otherwise.
 
-    For internal entities (<!ENTITY foo "bar">), value will
+    For internal entities (<!TEntity foo "bar">), value will
     be non-NULL and systemId, publicID, and notationName will be NULL.
     The value string is NOT nul-terminated; the length is provided in
     the value_length argument. Since it is legal to have zero-length
@@ -158,33 +158,33 @@ type
     For external entities, value will be NULL and systemId will be
     non-NULL. The publicId argument will be NULL unless a public
     identifier was provided. The notationName argument will have a
-    non-NULL value only for unparsed entity declarations.
+    non-NULL value only for unparsed TEntity declarations.
 
     Note that is_parameter_entity can't be changed to XML_Bool, since
     that would break binary compatibility. }
-  XML_EntityDeclHandler = procedure(UserData: Pointer; EntityName: XML_PAnsiChar;
+  TXmlEntityDeclHandler = procedure(UserData: Pointer; EntityName: XML_PAnsiChar;
     Is_parameter_entity: Integer; Value: XML_PAnsiChar; Value_length: Integer;
     Base, SystemId, PublicId, NotationName: XML_PAnsiChar);
 
   { atts is array of name/value pairs, terminated by 0;
     names and values are 0 terminated. }
-  XML_StartElementHandler = procedure(UserData: Pointer; Name: XML_PAnsiChar;
+  TXmlStartElementHandler = procedure(UserData: Pointer; Name: XML_PAnsiChar;
     Atts: XML_PPAnsiChar);
-  XML_EndElementHandler = procedure(UserData: Pointer; Name: XML_PAnsiChar);
+  TXmlEndElementHandler = procedure(UserData: Pointer; Name: XML_PAnsiChar);
 
   { s is not 0 terminated. }
-  XML_CharacterDataHandler = procedure(UserData: Pointer; S: XML_PAnsiChar;
+  TXmlCharacterDataHandler = procedure(UserData: Pointer; S: XML_PAnsiChar;
     Len: Integer);
 
   { target and data are 0 terminated }
-  XML_ProcessingInstructionHandler = procedure(UserData: Pointer;
+  TXmlProcessingInstructionHandler = procedure(UserData: Pointer;
     Target, Data: XML_PAnsiChar);
 
   { data is 0 terminated }
-  XML_CommentHandler = procedure(UserData: Pointer; Data: XML_PAnsiChar);
+  TXmlCommentHandler = procedure(UserData: Pointer; Data: XML_PAnsiChar);
 
-  XML_StartCdataSectionHandler = procedure(UserData: Pointer);
-  XML_EndCdataSectionHandler = procedure(UserData: Pointer);
+  TXmlStartCdataSectionHandler = procedure(UserData: Pointer);
+  TXmlEndCdataSectionHandler = procedure(UserData: Pointer);
 
   { This is called for any characters in the XML document for which
     there is no applicable handler.  This includes both characters that
@@ -198,64 +198,64 @@ type
     guarantees about how characters are divided between calls to the
     default handler: for example, a comment might be split between
     multiple calls. }
-  XML_DefaultHandler = procedure(UserData: Pointer; S: XML_PAnsiChar; Len: Integer);
+  TXmlDefaultHandler = procedure(UserData: Pointer; S: XML_PAnsiChar; Len: Integer);
 
   { This is called for the start of the DOCTYPE declaration, before
     any DTD or internal subset is parsed. }
-  XML_StartDoctypeDeclHandler = procedure(UserData: Pointer;
+  TXmlStartDoctypeDeclHandler = procedure(UserData: Pointer;
     DoctypeName, Sysid, Pubid: XML_PAnsiChar; HasInternal_subset: Integer);
 
   { This is called for the start of the DOCTYPE declaration when the
     closing > is encountered, but after processing any external
     subset. }
-  XML_EndDoctypeDeclHandler = procedure(UserData: Pointer);
+  TXmlEndDoctypeDeclHandler = procedure(UserData: Pointer);
 
   { OBSOLETE -- OBSOLETE -- OBSOLETE
     This handler has been superceded by the EntityDeclHandler above.
     It is provided here for backward compatibility.
 
-    This is called for a declaration of an unparsed (NDATA) entity.
+    This is called for a declaration of an unparsed (NDATA) TEntity.
     The base argument is whatever was set by XML_SetBase. The
     entityName, systemId and notationName arguments will never be
     NULL. The other arguments may be. }
-  XML_UnparsedEntityDeclHandler = procedure(UserData: Pointer;
+  TXmlUnparsedEntityDeclHandler = procedure(UserData: Pointer;
     EntityName, Base, SystemId, PublicId, NotationName: XML_PAnsiChar);
 
   { This is called for a declaration of notation.  The base argument is
     whatever was set by XML_SetBase. The notationName will never be
     NULL.  The other arguments can be. }
-  XML_NotationDeclHandler = procedure(UserData: Pointer;
+  TXmlNotationDeclHandler = procedure(UserData: Pointer;
     NotationName, Base, SystemId, PublicId: XML_PAnsiChar);
 
   { When namespace processing is enabled, these are called once for
     each namespace declaration. The call to the start and end element
     handlers occur between the calls to the start and end namespace
-    declaration handlers. For an xmlns attribute, prefix will be
+    declaration handlers. For an xmlns attribute, TPrefix will be
     NULL.  For an xmlns="" attribute, uri will be NULL. }
-  XML_StartNamespaceDeclHandler = procedure(UserData: Pointer;
-    Prefix, Uri: XML_PAnsiChar);
-  XML_EndNamespaceDeclHandler = procedure(UserData: Pointer;
-    Prefix: XML_PAnsiChar);
+  TXmlStartNamespaceDeclHandler = procedure(UserData: Pointer;
+    TPrefix, Uri: XML_PAnsiChar);
+  TXmlEndNamespaceDeclHandler = procedure(UserData: Pointer;
+    TPrefix: XML_PAnsiChar);
 
   { This is called if the document is not standalone, that is, it has an
-    external subset or a reference to a parameter entity, but does not
+    external subset or a reference to a parameter TEntity, but does not
     have standalone="yes". If this handler returns XML_STATUS_ERROR,
     then processing will not continue, and the parser will return a
     XML_ERROR_NOT_STANDALONE error.
-    If parameter entity parsing is enabled, then in addition to the
+    If parameter TEntity parsing is enabled, then in addition to the
     conditions above this handler will only be called if the referenced
-    entity was actually read. }
-  XML_NotStandaloneHandler = function(UserData: Pointer): Integer;
+    TEntity was actually read. }
+  TXmlNotStandaloneHandler = function(UserData: Pointer): Integer;
 
   { This is called for a reference to an external parsed general
-    entity.  The referenced entity is not automatically parsed.  The
+    TEntity.  The referenced TEntity is not automatically parsed.  The
     application can parse it immediately or later using
     XML_ExternalEntityParserCreate.
 
-    The parser argument is the parser parsing the entity containing the
+    The parser argument is the parser parsing the TEntity containing the
     reference; it can be passed as the parser argument to
     XML_ExternalEntityParserCreate.  The systemId argument is the
-    system identifier as specified in the entity declaration; it will
+    system identifier as specified in the TEntity declaration; it will
     not be NULL.
 
     The base argument is the system identifier that should be used as
@@ -263,39 +263,39 @@ type
     set by XML_SetBase; it may be NULL.
 
     The publicId argument is the public identifier as specified in the
-    entity declaration, or NULL if none was specified; the whitespace
+    TEntity declaration, or NULL if none was specified; the whitespace
     in the public identifier will have been normalized as required by
     the XML spec.
 
     The context argument specifies the parsing context in the format
     expected by the context argument to XML_ExternalEntityParserCreate;
     context is valid only until the handler returns, so if the
-    referenced entity is to be parsed later, it must be copied.
-    context is NULL only when the entity is a parameter entity.
+    referenced TEntity is to be parsed later, it must be copied.
+    context is NULL only when the TEntity is a parameter TEntity.
 
     The handler should return XML_STATUS_ERROR if processing should not
     continue because of a fatal error in the handling of the external
-    entity.  In this case the calling parser will return an
+    TEntity.  In this case the calling parser will return an
     XML_ERROR_EXTERNAL_ENTITY_HANDLING error.
 
     Note that unlike other handlers the first argument is the parser,
     not userData. }
-  XML_ExternalEntityRefHandler = function(Parser: XML_Parser;
+  TXmlExternalEntityRefHandler = function(Parser: XML_Parser;
     Context, Base, SystemId, PublicId: XML_PAnsiChar): Integer;
 
   { This is called in two situations:
-    1) An entity reference is encountered for which no declaration
+    1) An TEntity reference is encountered for which no declaration
     has been read *and* this is not an error.
-    2) An internal entity reference is read, but not expanded, because
+    2) An internal TEntity reference is read, but not expanded, because
     XML_SetDefaultHandler has been called.
     Note: skipped parameter entities in declarations and skipped general
     entities in attribute values cannot be reported, because
     the event would be out of sync with the reporting of the
     declarations or attribute values }
-  XML_SkippedEntityHandler = procedure(UserData: Pointer;
+  TXmlSkippedEntityHandler = procedure(UserData: Pointer;
     EntityName: XML_PAnsiChar; Is_parameter_entity: Integer);
 
-  (* This structure is filled in by the XML_UnknownEncodingHandler to
+  (* This structure is filled in by the TXmlUnknownEncodingHandler to
     provide information to the parser about encodings that are unknown
     to the parser.
 
@@ -346,9 +346,9 @@ type
 
     4. No Unicode character may be encoded by more than one distinct
     sequence of bytes. *)
-  XML_Encoding_ptr = ^XML_Encoding;
+  PXmlEncoding = ^TXmlEncoding;
 
-  XML_Encoding = record
+  TXmlEncoding = record
     Map: array [0..255] of Integer;
     Data: Pointer;
 
@@ -365,17 +365,17 @@ type
     the encoding declaration.
 
     If the callback can provide information about the encoding, it must
-    fill in the XML_Encoding structure, and return XML_STATUS_OK.
+    fill in the TXmlEncoding structure, and return XML_STATUS_OK.
     Otherwise it must return XML_STATUS_ERROR.
 
     If info does not describe a suitable encoding, then the parser will
     return an XML_UNKNOWN_ENCODING error. }
-  XML_UnknownEncodingHandler = function(EncodingHandlerData: Pointer;
-    Name: XML_PAnsiChar; Info: XML_Encoding_ptr): Integer;
+  TXmlUnknownEncodingHandler = function(EncodingHandlerData: Pointer;
+    Name: XML_PAnsiChar; Info: PXmlEncoding): Integer;
 
-  XML_Memory_Handling_Suite_ptr = ^XML_Memory_Handling_Suite;
+  PXmlMemoryHandlingSuite = ^TXmlMemoryHandlingSuite;
 
-  XML_Memory_Handling_Suite = record
+  TXmlMemoryHandlingSuite = record
     Malloc_fcn: function(var Ptr: Pointer; Sz: Integer): Boolean;
     Realloc_fcn: function(var Ptr: Pointer; Old, Sz: Integer): Boolean;
     Free_fcn: function(var Ptr: Pointer; Sz: Integer): Boolean;
@@ -383,28 +383,28 @@ type
 
   KEY = XML_PAnsiChar;
 
-  NAMED_ptr_ptr = ^NAMED_ptr;
-  NAMED_ptr = ^NAMED;
+  PPNamed = ^PNamed;
+  PNamed = ^TNamed;
 
-  NAMED = record
+  TNamed = record
     Name: KEY;
     Alloc: Integer;
   end;
 
-  HASH_TABLE_ptr = ^HASH_TABLE;
+  PHashTable = ^THashTable;
 
-  HASH_TABLE = record
-    V: NAMED_ptr_ptr;
+  THashTable = record
+    V: PPNamed;
     A: Integer;
 
     Power: Int8u;
     Size, Used: Size_t;
-    Mem: XML_Memory_Handling_Suite_ptr;
+    Mem: PXmlMemoryHandlingSuite;
   end;
 
-  ENTITY_ptr = ^ENTITY;
+  PEntity = ^TEntity;
 
-  ENTITY = record
+  TEntity = record
     Name: XML_PAnsiChar;
     Alloc: Integer;
 
@@ -417,21 +417,21 @@ type
     { true if declared in internal subset outside PE }
   end;
 
-  OPEN_INTERNAL_ENTITY_ptr = ^OPEN_INTERNAL_ENTITY;
+  POpenInternalEntity = ^TOpenInternalEntity;
 
-  OPEN_INTERNAL_ENTITY = record
+  TOpenInternalEntity = record
     InternalEventPtr, InternalEventEndPtr: PAnsiChar;
 
-    Next: OPEN_INTERNAL_ENTITY_ptr;
-    Entity: ENTITY_ptr;
+    Next: POpenInternalEntity;
+    TEntity: PEntity;
 
     StartTagLevel: Integer;
     BetweenDecl: XML_Bool; { WFC: PE Between Declarations }
   end;
 
-  CONTENT_SCAFFOLD_ptr = ^CONTENT_SCAFFOLD;
+  PContentScaffold = ^TContentScaffold;
 
-  CONTENT_SCAFFOLD = record
+  TContentScaffold = record
     Type_: XML_Content_Type;
     Quant: XML_Content_Quant;
     Name: XML_PAnsiChar;
@@ -439,44 +439,44 @@ type
     Firstchild, Lastchild, Childcnt, Nextsib: Integer;
   end;
 
-  PREFIX_ptr = ^PREFIX;
+  PPrefix = ^TPrefix;
 
-  ATTRIBUTE_ID_ptr = ^ATTRIBUTE_ID;
+  PAttributeID = ^TAttributeID;
 
-  ATTRIBUTE_ID = record
+  TAttributeID = record
     Name: XML_PAnsiChar;
     Alloc: Integer;
-    Prefix: PREFIX_ptr;
+    TPrefix: PPrefix;
 
     MaybeTokenized, Xmlns: XML_Bool;
   end;
 
-  DEFAULT_ATTRIBUTE_ptr = ^DEFAULT_ATTRIBUTE;
+  PDefaultAttribute = ^TDefaultAttribute;
 
-  DEFAULT_ATTRIBUTE = record
-    Id: ATTRIBUTE_ID_ptr;
+  TDefaultAttribute = record
+    Id: PAttributeID;
 
     IsCdata: XML_Bool;
     Value: XML_PAnsiChar;
   end;
 
-  ELEMENT_TYPE_ptr = ^ELEMENT_TYPE;
+  PElementType = ^TElementType;
 
-  ELEMENT_TYPE = record
+  TElementType = record
     Name: XML_PAnsiChar;
     Alloc: Integer;
-    Prefix: PREFIX_ptr;
-    IdAtt: ATTRIBUTE_ID_ptr;
+    TPrefix: PPrefix;
+    IdAtt: PAttributeID;
 
     NDefaultAtts, AllocDefaultAtts, DefaultAttsAlloc: Integer;
 
-    DefaultAtts: DEFAULT_ATTRIBUTE_ptr;
+    DefaultAtts: PDefaultAttribute;
   end;
 
-  TAG_NAME_ptr = ^TAG_NAME;
+  PTagName = ^TTagName;
 
-  TAG_NAME = record
-    Str, LocalPart, Prefix: XML_PAnsiChar;
+  TTagName = record
+    Str, LocalPart, TPrefix: XML_PAnsiChar;
     StrLen, UriLen, PrefixLen: Integer;
   end;
 
@@ -492,8 +492,8 @@ type
 
     A parser re-uses these structures, maintaining a list of allocated
     TAG objects in a free list. }
-  BINDING_ptr_ptr = ^BINDING_ptr;
-  BINDING_ptr = ^BINDING;
+  PPBinding = ^PBinding;
+  PBinding = ^TBinding;
 
   TAG_ptr = ^TAG;
 
@@ -503,30 +503,30 @@ type
 
     RawNameLength: Integer;
 
-    Name: TAG_NAME; { tagName in the API encoding }
+    Name: TTagName; { tagName in the API encoding }
 
     Buf, { buffer for name components }
     BufEnd: PAnsiChar; { end of the buffer }
     Alloc: Integer;
 
-    Bindings: BINDING_ptr;
+    Bindings: PBinding;
   end;
 
-  BINDING = record
-    Prefix: PREFIX_ptr;
+  TBinding = record
+    TPrefix: PPrefix;
 
-    NextTagBinding, PrevPrefixBinding: BINDING_ptr;
+    NextTagBinding, PrevPrefixBinding: PBinding;
 
-    AttId: ATTRIBUTE_ID_ptr;
+    AttId: PAttributeID;
     Uri: XML_PAnsiChar;
 
     UriLen, UriAlloc: Integer;
   end;
 
-  PREFIX = record
+  TPrefix = record
     Name: XML_PAnsiChar;
     Alloc: Integer;
-    Binding: BINDING_ptr;
+    TBinding: PBinding;
   end;
 
   NS_ATT_ptr = ^NS_ATT;
@@ -536,33 +536,33 @@ type
     UriName: XML_PAnsiChar;
   end;
 
-  BLOCK_ptr = ^BLOCK;
+  PBlock = ^TBlock;
 
-  BLOCK = record
-    Next: BLOCK_ptr;
+  TBlock = record
+    Next: PBlock;
     Size, Alloc: Integer;
 
     S: array [0..0] of XML_Char;
   end;
 
-  STRING_POOL_ptr = ^STRING_POOL;
+  PStringPool = ^TStringPool;
 
-  STRING_POOL = record
-    Blocks, FreeBlocks: BLOCK_ptr;
+  TStringPool = record
+    Blocks, FreeBlocks: PBlock;
 
     End_, Ptr, Start: XML_PAnsiChar;
 
-    Mem: XML_Memory_Handling_Suite_ptr;
+    Mem: PXmlMemoryHandlingSuite;
   end;
 
   DTD_ptr = ^DTD;
 
   DTD = record
-    GeneralEntities, ElementTypes, AttributeIds, Prefixes: HASH_TABLE;
+    GeneralEntities, ElementTypes, AttributeIds, Prefixes: THashTable;
 
-    Pool, EntityValuePool: STRING_POOL;
+    Pool, EntityValuePool: TStringPool;
 
-    { false once a parameter entity reference has been skipped }
+    { false once a parameter TEntity reference has been skipped }
     KeepProcessing: XML_Bool;
 
     { true once an internal or external PE reference has been encountered;
@@ -572,14 +572,14 @@ type
 {$IFDEF XML_DTD }
     { indicates if external PE has been read }
     ParamEntityRead: XML_Bool;
-    ParamEntities: HASH_TABLE;
+    ParamEntities: THashTable;
 
 {$ENDIF }
-    DefaultPrefix: PREFIX;
+    DefaultPrefix: TPrefix;
 
     { === scaffolding for building content model === }
     In_eldecl: XML_Bool;
-    Scaffold: CONTENT_SCAFFOLD_ptr;
+    Scaffold: PContentScaffold;
 
     ContentStringLen, ScaffSize, ScaffCount: Cardinal;
 
@@ -595,128 +595,127 @@ type
     FinalBuffer: XML_Bool;
   end;
 
-  Processor = function(Parser: XML_Parser; Start, End_: PAnsiChar;
+  TProcessor = function(Parser: XML_Parser; Start, End_: PAnsiChar;
     EndPtr: PPAnsiChar): XML_Error;
 
   XML_ParserStruct = record
-    M_userData, M_handlerArg: Pointer;
+    UserData, HandlerArg: Pointer;
 
-    M_buffer: PAnsiChar;
-    M_mem: XML_Memory_Handling_Suite;
+    Buffer: PAnsiChar;
+    Mem: TXmlMemoryHandlingSuite;
 
     { first character to be parsed }
-    M_bufferPtr: PAnsiChar;
+    BufferPtr: PAnsiChar;
 
     { past last character to be parsed }
-    M_bufferEnd: PAnsiChar;
+    BufferEnd: PAnsiChar;
 
     { allocated end of buffer }
-    M_bufferLim: PAnsiChar;
+    BufferLim: PAnsiChar;
 
     { the size of the allocated buffer }
-    M_bufferAloc: Integer;
+    BufferAloc: Integer;
 
-    M_parseEndByteIndex: XML_Index;
+    ParseEndByteIndex: XML_Index;
 
-    M_parseEndPtr: PAnsiChar;
-    M_dataBuf, M_dataBufEnd: XML_PAnsiChar;
+    ParseEndPtr: PAnsiChar;
+    DataBuf, DataBufEnd: XML_PAnsiChar;
 
     { XML Handlers }
-    FStartElementHandler: XML_StartElementHandler;
-    M_endElementHandler: XML_EndElementHandler;
-    M_characterDataHandler: XML_CharacterDataHandler;
-    M_processingInstructionHandler: XML_ProcessingInstructionHandler;
-    M_commentHandler: XML_CommentHandler;
-    FStartCdataSectionHandler: XML_StartCdataSectionHandler;
-    M_endCdataSectionHandler: XML_EndCdataSectionHandler;
-    M_defaultHandler: XML_DefaultHandler;
-    FStartDoctypeDeclHandler: XML_StartDoctypeDeclHandler;
-    M_endDoctypeDeclHandler: XML_EndDoctypeDeclHandler;
-    M_unparsedEntityDeclHandler: XML_UnparsedEntityDeclHandler;
-    M_notationDeclHandler: XML_NotationDeclHandler;
-    FStartNamespaceDeclHandler: XML_StartNamespaceDeclHandler;
-    M_endNamespaceDeclHandler: XML_EndNamespaceDeclHandler;
-    M_notStandaloneHandler: XML_NotStandaloneHandler;
-    M_externalEntityRefHandler: XML_ExternalEntityRefHandler;
-    M_externalEntityRefHandlerArg: XML_Parser;
-    M_skippedEntityHandler: XML_SkippedEntityHandler;
-    M_unknownEncodingHandler: XML_UnknownEncodingHandler;
-    M_elementDeclHandler: XML_ElementDeclHandler;
-    M_attlistDeclHandler: XML_AttlistDeclHandler;
-    M_entityDeclHandler: XML_EntityDeclHandler;
-    M_xmlDeclHandler: XML_XmlDeclHandler;
+    StartElementHandler: TXmlStartElementHandler;
+    EndElementHandler: TXmlEndElementHandler;
+    CharacterDataHandler: TXmlCharacterDataHandler;
+    ProcessingInstructionHandler: TXmlProcessingInstructionHandler;
+    CommentHandler: TXmlCommentHandler;
+    StartCdataSectionHandler: TXmlStartCdataSectionHandler;
+    EndCdataSectionHandler: TXmlEndCdataSectionHandler;
+    DefaultHandler: TXmlDefaultHandler;
+    StartDoctypeDeclHandler: TXmlStartDoctypeDeclHandler;
+    EndDoctypeDeclHandler: TXmlEndDoctypeDeclHandler;
+    UnparsedEntityDeclHandler: TXmlUnparsedEntityDeclHandler;
+    NotationDeclHandler: TXmlNotationDeclHandler;
+    StartNamespaceDeclHandler: TXmlStartNamespaceDeclHandler;
+    EndNamespaceDeclHandler: TXmlEndNamespaceDeclHandler;
+    NotStandaloneHandler: TXmlNotStandaloneHandler;
+    ExternalEntityRefHandler: TXmlExternalEntityRefHandler;
+    ExternalEntityRefHandlerArg: XML_Parser;
+    SkippedEntityHandler: TXmlSkippedEntityHandler;
+    UnknownEncodingHandler: TXmlUnknownEncodingHandler;
+    ElementDeclHandler: TXmlElementDeclHandler;
+    AttlistDeclHandler: TXmlAttlistDeclHandler;
+    EntityDeclHandler: TXmlEntityDeclHandler;
+    XmlDeclHandler: TXmlXmlDeclHandler;
 
-    M_encoding: ENCODING_ptr;
-    MInitEncoding: INIT_ENCODING;
-    MInternalEncoding: ENCODING_ptr;
-    M_protocolEncodingName: XML_PAnsiChar;
+    Encoding: ENCODING_ptr;
+    InitEncoding: INIT_ENCODING;
+    InternalEncoding: ENCODING_ptr;
+    ProtocolEncodingName: XML_PAnsiChar;
 
     M_ns, M_ns_triplets: XML_Bool;
 
-    M_unknownEncodingMem, M_unknownEncodingData,
-      M_unknownEncodingHandlerData: Pointer;
-    M_unknownEncodingAlloc: Integer;
+    UnknownEncodingMem, UnknownEncodingData,
+      UnknownEncodingHandlerData: Pointer;
+    UnknownEncodingAlloc: Integer;
 
-    M_unknownEncodingRelease: procedure(Void: Pointer);
+    UnknownEncodingRelease: procedure(Void: Pointer);
 
-    M_prologState: PROLOG_STATE;
-    M_processor: Processor;
-    M_errorCode: XML_Error;
-    M_eventPtr, M_eventEndPtr, M_positionPtr: PAnsiChar;
+    PrologState: PROLOG_STATE;
+    TProcessor: TProcessor;
+    ErrorCode: XML_Error;
+    EventPtr, EventEndPtr, PositionPtr: PAnsiChar;
 
-    M_openInternalEntities, M_freeInternalEntities: OPEN_INTERNAL_ENTITY_ptr;
+    OpenInternalEntities, FreeInternalEntities: POpenInternalEntity;
 
-    M_defaultExpandInternalEntities: XML_Bool;
+    DefaultExpandInternalEntities: XML_Bool;
 
-    M_tagLevel: Integer;
-    M_declEntity: ENTITY_ptr;
+    TagLevel: Integer;
+    DeclEntity: PEntity;
 
-    M_doctypeName, M_doctypeSysid, M_doctypePubid, M_declAttributeType,
-      M_declNotationName, M_declNotationPublicId: XML_PAnsiChar;
+    DoctypeName, DoctypeSysid, DoctypePubid, DeclAttributeType,
+      DeclNotationName, DeclNotationPublicId: XML_PAnsiChar;
 
-    M_declElementType: ELEMENT_TYPE_ptr;
-    M_declAttributeId: ATTRIBUTE_ID_ptr;
+    DeclElementType: PElementType;
+    DeclAttributeId: PAttributeID;
 
-    M_declAttributeIsCdata, M_declAttributeIsId: XML_Bool;
+    DeclAttributeIsCdata, DeclAttributeIsId: XML_Bool;
 
     M_dtd: DTD_ptr;
 
-    FCurBase: XML_PAnsiChar;
+    CurBase: XML_PAnsiChar;
 
-    M_tagStack, M_freeTagList: TAG_ptr;
+    TagStack, FreeTagList: TAG_ptr;
 
-    MInheritedBindings, M_freeBindingList: BINDING_ptr;
+    InheritedBindings, FreeBindingList: PBinding;
 
-    M_attsSize, M_attsAlloc, M_nsAttsAlloc, M_nSpecifiedAtts, M_idAttIndex: Integer;
+    AttsSize, AttsAlloc, M_nsAttsAlloc, M_nSpecifiedAtts, IdAttIndex: Integer;
 
-    M_atts: ATTRIBUTE_ptr;
+    Atts: ATTRIBUTE_ptr;
     M_nsAtts: NS_ATT_ptr;
 
     M_nsAttsVersion: Cardinal;
     M_nsAttsPower: Int8u;
 
-    M_position: POSITION;
-    M_tempPool, M_temp2Pool: STRING_POOL;
+    Position: POSITION;
+    TempPool, M_temp2Pool: TStringPool;
 
-    M_groupConnector: PAnsiChar;
-    M_groupSize, M_groupAlloc: Cardinal;
+    GroupConnector: PAnsiChar;
+    GroupSize, M_groupAlloc: Cardinal;
 
-    M_namespaceSeparator: XML_Char;
+    NamespaceSeparator: XML_Char;
 
-    M_parentParser: XML_Parser;
-    M_parsingStatus: XML_ParsingStatus;
+    ParentParser: XML_Parser;
+    ParsingStatus: XML_ParsingStatus;
 
 {$IFDEF XML_DTD }
-    M_isParamEntity, M_useForeignDTD: XML_Bool;
+    IsParamEntity, M_useForeignDTD: XML_Bool;
 
-    M_paramEntityParsing: XML_ParamEntityParsing;
-
+    ParamEntityParsing: XML_ParamEntityParsing;
 {$ENDIF }
   end;
 
 const
-  XML_TRUE = 1;
-  XML_FALSE = 0;
+  CXmlTrue = 1;
+  CXmlFalse = 0;
 
 { Constructs a new parser; encoding is the encoding specified by the
   external protocol or NIL if there is none specified. }
@@ -731,17 +730,17 @@ function XML_ParserCreate(const Encoding: XML_PAnsiChar): XML_Parser;
   All further memory operations used for the created parser will come from
   the given suite. }
 function XML_ParserCreate_MM(Encoding: XML_PAnsiChar;
-  Memsuite: XML_Memory_Handling_Suite_ptr; NamespaceSeparator: XML_PAnsiChar)
+  Memsuite: PXmlMemoryHandlingSuite; NamespaceSeparator: XML_PAnsiChar)
   : XML_Parser;
 
 { This value is passed as the userData argument to callbacks. }
 procedure XML_SetUserData(Parser: XML_Parser; UserData: Pointer);
 
 procedure XML_SetElementHandler(Parser: XML_Parser;
-  Start: XML_StartElementHandler; End_: XML_EndElementHandler);
+  Start: TXmlStartElementHandler; End_: TXmlEndElementHandler);
 
 procedure XML_SetCharacterDataHandler(Parser: XML_Parser;
-  Handler: XML_CharacterDataHandler);
+  Handler: TXmlCharacterDataHandler);
 
 { Parses some input. Returns XML_STATUS_ERROR if a fatal error is
   detected.  The last call to XML_Parse must have isFinal true; len
@@ -786,12 +785,12 @@ implementation
 {$Q-}
 {$R-}
 
-function PoolStoreString(Pool: STRING_POOL_ptr; Enc: ENCODING_ptr;
+function PoolStoreString(Pool: PStringPool; Enc: ENCODING_ptr;
   Ptr, Stop: PAnsiChar): XML_PAnsiChar; forward;
-procedure PoolFinish(Pool: STRING_POOL_ptr); forward;
-procedure PoolClear(Pool: STRING_POOL_ptr); forward;
-procedure PoolDestroy(Pool: STRING_POOL_ptr); forward;
-function PoolAppendChar(Pool: STRING_POOL_ptr; C: AnsiChar): Integer; forward;
+procedure PoolFinish(Pool: PStringPool); forward;
+procedure PoolClear(Pool: PStringPool); forward;
+procedure PoolDestroy(Pool: PStringPool); forward;
+function PoolAppendChar(Pool: PStringPool; C: AnsiChar): Integer; forward;
 
 function ReportProcessingInstruction(Parser: XML_Parser; Enc: ENCODING_ptr;
   Start, Stop: PAnsiChar): Integer; forward;
@@ -799,10 +798,10 @@ function ReportComment(Parser: XML_Parser; Enc: ENCODING_ptr;
   Start, Stop: PAnsiChar): Integer; forward;
 
 function GetAttributeId(Parser: XML_Parser; Enc: ENCODING_ptr;
-  Start, Stop: PAnsiChar): ATTRIBUTE_ID_ptr; forward;
+  Start, Stop: PAnsiChar): PAttributeID; forward;
 
 function StoreAttributeValue(Parser: XML_Parser; Enc: ENCODING_ptr;
-  IsCdata: XML_Bool; Ptr, Stop: PAnsiChar; Pool: STRING_POOL_ptr)
+  IsCdata: XML_Bool; Ptr, Stop: PAnsiChar; Pool: PStringPool)
   : XML_Error; forward;
 
 const
@@ -837,7 +836,7 @@ type
   PHashTableIter = ^THashTableIter;
 
   THashTableIter = record
-    P, Stop: NAMED_ptr_ptr;
+    P, Stop: PPNamed;
   end;
 
 const
@@ -937,7 +936,7 @@ begin
 {$ENDIF }
 end;
 
-procedure PoolInit(Pool: STRING_POOL_ptr; Ms: XML_Memory_Handling_Suite_ptr);
+procedure PoolInit(Pool: PStringPool; Ms: PXmlMemoryHandlingSuite);
 begin
   Pool.Blocks := nil;
   Pool.FreeBlocks := nil;
@@ -947,7 +946,7 @@ begin
   Pool.Mem := Ms;
 end;
 
-procedure HashTableDestroy(Table: HASH_TABLE_ptr);
+procedure HashTableDestroy(Table: PHashTable);
 var
   I: Size_t;
 begin
@@ -955,10 +954,10 @@ begin
 
   while I < Table.Size do
   begin
-    if NAMED_ptr_ptr(PtrComp(Table.V) + I * SizeOf(NAMED_ptr))^ <> nil then
-      Table.Mem.Free_fcn(Pointer(NAMED_ptr_ptr(PtrComp(Table.V) + I *
-        SizeOf(NAMED_ptr))^), NAMED_ptr_ptr(PtrComp(Table.V) + I *
-        SizeOf(NAMED_ptr))^^.Alloc);
+    if PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^ <> nil then
+      Table.Mem.Free_fcn(Pointer(PPNamed(PtrComp(Table.V) + I *
+        SizeOf(PNamed))^), PPNamed(PtrComp(Table.V) + I *
+        SizeOf(PNamed))^^.Alloc);
 
     Inc(I);
   end;
@@ -966,7 +965,7 @@ begin
   Table.Mem.Free_fcn(Pointer(Table.V), Table.A);
 end;
 
-procedure HashTableInit(P: HASH_TABLE_ptr; Ms: XML_Memory_Handling_Suite_ptr);
+procedure HashTableInit(P: PHashTable; Ms: PXmlMemoryHandlingSuite);
 begin
   P.Power := 0;
   P.Size := 0;
@@ -975,21 +974,21 @@ begin
   P.Mem := Ms;
 end;
 
-procedure HashTableIterInit(Iter: PHashTableIter; Table: HASH_TABLE_ptr);
+procedure HashTableIterInit(Iter: PHashTableIter; Table: PHashTable);
 begin
   Iter.P := Table.V;
-  Iter.Stop := NAMED_ptr_ptr(PtrComp(Iter.P) + Table.Size * SizeOf(NAMED_ptr));
+  Iter.Stop := PPNamed(PtrComp(Iter.P) + Table.Size * SizeOf(PNamed));
 end;
 
-function HashTableIterNext(Iter: PHashTableIter): NAMED_ptr;
+function HashTableIterNext(Iter: PHashTableIter): PNamed;
 var
-  Tem: NAMED_ptr;
+  Tem: PNamed;
 begin
   while Iter.P <> Iter.Stop do
   begin
     Tem := Iter.P^;
 
-    Inc(PtrComp(Iter.P), SizeOf(NAMED_ptr));
+    Inc(PtrComp(Iter.P), SizeOf(PNamed));
 
     if Tem <> nil then
     begin
@@ -1000,7 +999,7 @@ begin
   Result := nil;
 end;
 
-function DtdCreate(Ms: XML_Memory_Handling_Suite_ptr): DTD_ptr;
+function DtdCreate(Ms: PXmlMemoryHandlingSuite): DTD_ptr;
 var
   P: DTD_ptr;
 begin
@@ -1022,14 +1021,14 @@ begin
   HashTableInit(@P.Prefixes, Ms);
 
 {$IFDEF XML_DTD}
-  P.ParamEntityRead := XML_FALSE;
+  P.ParamEntityRead := CXmlFalse;
   HashTableInit(@P.ParamEntities, Ms);
 {$ENDIF }
 
   P.DefaultPrefix.Name := nil;
-  P.DefaultPrefix.Binding := nil;
+  P.DefaultPrefix.TBinding := nil;
 
-  P.In_eldecl := XML_FALSE;
+  P.In_eldecl := CXmlFalse;
   P.ScaffIndex := nil;
   P.ScaffAlloc := 0;
   P.Scaffold := nil;
@@ -1038,23 +1037,23 @@ begin
   P.ScaffCount := 0;
   P.ContentStringLen := 0;
 
-  P.KeepProcessing := XML_TRUE;
-  P.HasParamEntityRefs := XML_FALSE;
-  P.Standalone := XML_FALSE;
+  P.KeepProcessing := CXmlTrue;
+  P.HasParamEntityRefs := CXmlFalse;
+  P.Standalone := CXmlFalse;
 
   Result := P;
 end;
 
 procedure DtdDestroy(P: DTD_ptr; IsDocEntity: XML_Bool;
-  Ms: XML_Memory_Handling_Suite_ptr);
+  Ms: PXmlMemoryHandlingSuite);
 var
   Iter: THashTableIter;
-  E: ELEMENT_TYPE_ptr;
+  E: PElementType;
 begin
   HashTableIterInit(@Iter, @P.ElementTypes);
 
   repeat
-    E := ELEMENT_TYPE_ptr(HashTableIterNext(@Iter));
+    E := PElementType(HashTableIterNext(@Iter));
 
     if E = nil then
       Break;
@@ -1079,7 +1078,7 @@ begin
   if IsDocEntity <> 0 then
   begin
     Ms.Free_fcn(Pointer(P.ScaffIndex), P.ScaffAlloc);
-    Ms.Free_fcn(Pointer(P.Scaffold), SizeOf(CONTENT_SCAFFOLD));
+    Ms.Free_fcn(Pointer(P.Scaffold), SizeOf(TContentScaffold));
   end;
 
   Ms.Free_fcn(Pointer(P), SizeOf(DTD));
@@ -1097,20 +1096,20 @@ var
 begin
 {$IFDEF XML_UNICODE {..}
 {$ELSE }
-  S := Pointer(Parser.M_protocolEncodingName);
+  S := Pointer(Parser.ProtocolEncodingName);
 {$ENDIF }
 
   if Parser.M_ns <> 0 then
-    Ok := XmlInitEncodingNS(@Parser.MInitEncoding, @Parser.M_encoding,
+    Ok := XmlInitEncodingNS(@Parser.InitEncoding, @Parser.Encoding,
       Pointer(S))
   else
-    Ok := XmlInitEncoding(@Parser.MInitEncoding, @Parser.M_encoding,
+    Ok := XmlInitEncoding(@Parser.InitEncoding, @Parser.Encoding,
       Pointer(S));
 
   if Ok <> 0 then
     Result := XML_ERROR_NONE
   else
-    Result := HandleUnknownEncoding(Parser, Parser.M_protocolEncodingName);
+    Result := HandleUnknownEncoding(Parser, Parser.ProtocolEncodingName);
 end;
 
 procedure ReportDefault(Parser: XML_Parser; Enc: ENCODING_ptr;
@@ -1139,12 +1138,12 @@ begin
   Standalone := -1;
 
   if Parser.M_ns <> 0 then
-    Ok := XmlParseXmlDeclNS(IsGeneralTextEntity, Parser.M_encoding, Pointer(S),
-      Pointer(Next), @Parser.M_eventPtr, @Version, @Versionend, @EncodingName,
+    Ok := XmlParseXmlDeclNS(IsGeneralTextEntity, Parser.Encoding, Pointer(S),
+      Pointer(Next), @Parser.EventPtr, @Version, @Versionend, @EncodingName,
       @NewEncoding, @Standalone)
   else
-    Ok := XmlParseXmlDecl(IsGeneralTextEntity, Parser.M_encoding, Pointer(S),
-      Pointer(Next), @Parser.M_eventPtr, @Version, @Versionend, @EncodingName,
+    Ok := XmlParseXmlDecl(IsGeneralTextEntity, Parser.Encoding, Pointer(S),
+      Pointer(Next), @Parser.EventPtr, @Version, @Versionend, @EncodingName,
       @NewEncoding, @Standalone);
 
   if Ok = 0 then
@@ -1163,22 +1162,22 @@ begin
 
   if (IsGeneralTextEntity = 0) and (Standalone = 1) then
   begin
-    Parser.M_dtd.Standalone := XML_TRUE;
+    Parser.M_dtd.Standalone := CXmlTrue;
 
 {$IFDEF XML_DTD }
-    if Parser.M_paramEntityParsing = XML_PARAM_ENTITY_PARSING_UNLESS_STANDALONE
+    if Parser.ParamEntityParsing = XML_PARAM_ENTITY_PARSING_UNLESS_STANDALONE
     then
-      Parser.M_paramEntityParsing := XML_PARAM_ENTITY_PARSING_NEVER;
+      Parser.ParamEntityParsing := XML_PARAM_ENTITY_PARSING_NEVER;
 {$ENDIF }
   end;
 
-  if @Parser.M_xmlDeclHandler <> nil then
+  if @Parser.XmlDeclHandler <> nil then
   begin
     if EncodingName <> nil then
     begin
-      StoredEncName := PoolStoreString(@Parser.M_temp2Pool, Parser.M_encoding,
+      StoredEncName := PoolStoreString(@Parser.M_temp2Pool, Parser.Encoding,
         EncodingName, PAnsiChar(PtrComp(EncodingName) +
-        XmlNameLength(Parser.M_encoding, Pointer(EncodingName))));
+        XmlNameLength(Parser.Encoding, Pointer(EncodingName))));
 
       if StoredEncName = nil then
       begin
@@ -1192,9 +1191,9 @@ begin
 
     if Version <> nil then
     begin
-      Storedversion := PoolStoreString(@Parser.M_temp2Pool, Parser.M_encoding,
+      Storedversion := PoolStoreString(@Parser.M_temp2Pool, Parser.Encoding,
         Version, PAnsiChar(PtrComp(Versionend) -
-        Parser.M_encoding.MinBytesPerChar));
+        Parser.Encoding.MinBytesPerChar));
 
       if Storedversion = nil then
       begin
@@ -1204,34 +1203,34 @@ begin
       end;
     end;
 
-    Parser.M_xmlDeclHandler(Parser.M_handlerArg, Storedversion, StoredEncName,
+    Parser.XmlDeclHandler(Parser.HandlerArg, Storedversion, StoredEncName,
       Standalone);
   end
-  else if @Parser.M_defaultHandler <> nil then
-    ReportDefault(Parser, Parser.M_encoding, S, Next);
+  else if @Parser.DefaultHandler <> nil then
+    ReportDefault(Parser, Parser.Encoding, S, Next);
 
-  if Parser.M_protocolEncodingName = nil then
+  if Parser.ProtocolEncodingName = nil then
   begin
     if NewEncoding <> nil then
     begin
-      if NewEncoding.MinBytesPerChar <> Parser.M_encoding.MinBytesPerChar then
+      if NewEncoding.MinBytesPerChar <> Parser.Encoding.MinBytesPerChar then
       begin
-        Parser.M_eventPtr := EncodingName;
+        Parser.EventPtr := EncodingName;
 
         Result := XML_ERROR_INCORRECT_ENCODING;
 
         Exit;
       end;
 
-      Parser.M_encoding := NewEncoding;
+      Parser.Encoding := NewEncoding;
     end
     else if EncodingName <> nil then
     begin
       if StoredEncName = nil then
       begin
-        StoredEncName := PoolStoreString(@Parser.M_temp2Pool, Parser.M_encoding,
+        StoredEncName := PoolStoreString(@Parser.M_temp2Pool, Parser.Encoding,
           EncodingName, PAnsiChar(PtrComp(EncodingName) +
-          XmlNameLength(Parser.M_encoding, Pointer(EncodingName))));
+          XmlNameLength(Parser.Encoding, Pointer(EncodingName))));
 
         if StoredEncName = nil then
         begin
@@ -1246,7 +1245,7 @@ begin
       PoolClear(@Parser.M_temp2Pool);
 
       if Result_ = XML_ERROR_UNKNOWN_ENCODING then
-        Parser.M_eventPtr := EncodingName;
+        Parser.EventPtr := EncodingName;
 
       Result := Result_;
       Exit;
@@ -1259,9 +1258,9 @@ begin
   Result := XML_ERROR_NONE;
 end;
 
-procedure PoolClear(Pool: STRING_POOL_ptr);
+procedure PoolClear(Pool: PStringPool);
 var
-  P, Tem: BLOCK_ptr;
+  P, Tem: PBlock;
 begin
   if Pool.FreeBlocks = nil then
     Pool.FreeBlocks := Pool.Blocks
@@ -1285,9 +1284,9 @@ begin
   Pool.End_ := nil;
 end;
 
-procedure PoolDestroy(Pool: STRING_POOL_ptr);
+procedure PoolDestroy(Pool: PStringPool);
 var
-  P, Tem: BLOCK_ptr;
+  P, Tem: PBlock;
 begin
   P := Pool.Blocks;
 
@@ -1312,9 +1311,9 @@ begin
   end;
 end;
 
-function PoolGrow(Pool: STRING_POOL_ptr): XML_Bool;
+function PoolGrow(Pool: PStringPool): XML_Bool;
 var
-  Tem: BLOCK_ptr;
+  Tem: PBlock;
   BlockSize: Integer;
 begin
   if Pool.FreeBlocks <> nil then
@@ -1330,7 +1329,7 @@ begin
         SizeOf(XML_Char));
       Pool.Ptr := Pool.Start;
 
-      Result := XML_TRUE;
+      Result := CXmlTrue;
 
       Exit;
     end;
@@ -1352,7 +1351,7 @@ begin
       Pool.End_ := XML_PAnsiChar(PtrComp(Pool.Start) + Pool.Blocks.Size *
         SizeOf(XML_Char));
 
-      Result := XML_TRUE;
+      Result := CXmlTrue;
 
       Exit;
     end;
@@ -1364,16 +1363,16 @@ begin
       2 div SizeOf(XML_Char);
 
     Pool.Mem.Realloc_fcn(Pointer(Pool.Blocks), Pool.Blocks.Alloc,
-      (SizeOf(BLOCK_ptr) + SizeOf(Integer) * 2) + BlockSize * SizeOf(XML_Char));
+      (SizeOf(PBlock) + SizeOf(Integer) * 2) + BlockSize * SizeOf(XML_Char));
 
     if Pool.Blocks = nil then
     begin
-      Result := XML_FALSE;
+      Result := CXmlFalse;
 
       Exit;
     end
     else
-      Pool.Blocks.Alloc := (SizeOf(BLOCK_ptr) + SizeOf(Integer) * 2) + BlockSize *
+      Pool.Blocks.Alloc := (SizeOf(PBlock) + SizeOf(Integer) * 2) + BlockSize *
         SizeOf(XML_Char);
 
     Pool.Blocks.Size := BlockSize;
@@ -1394,18 +1393,18 @@ begin
     else
       BlockSize := BlockSize * 2;
 
-    Pool.Mem.Malloc_fcn(Pointer(Tem), (SizeOf(BLOCK_ptr) + SizeOf(Integer) * 2) +
+    Pool.Mem.Malloc_fcn(Pointer(Tem), (SizeOf(PBlock) + SizeOf(Integer) * 2) +
       BlockSize * SizeOf(XML_Char));
 
     if Tem = nil then
     begin
-      Result := XML_FALSE;
+      Result := CXmlFalse;
 
       Exit;
     end;
 
     Tem.Size := BlockSize;
-    Tem.Alloc := (SizeOf(BLOCK_ptr) + SizeOf(Integer) * 2) + BlockSize *
+    Tem.Alloc := (SizeOf(PBlock) + SizeOf(Integer) * 2) + BlockSize *
       SizeOf(XML_Char);
     Tem.Next := Pool.Blocks;
 
@@ -1421,10 +1420,10 @@ begin
     Pool.End_ := XML_PAnsiChar(PtrComp(@Tem.S) + BlockSize * SizeOf(XML_Char));
   end;
 
-  Result := XML_TRUE;
+  Result := CXmlTrue;
 end;
 
-function PoolAppend(Pool: STRING_POOL_ptr; Enc: ENCODING_ptr;
+function PoolAppend(Pool: PStringPool; Enc: ENCODING_ptr;
   Ptr, Stop: PAnsiChar): XML_PAnsiChar;
 begin
   if (Pool.Ptr = nil) and (PoolGrow(Pool) = 0) then
@@ -1447,7 +1446,7 @@ begin
   Result := Pool.Start;
 end;
 
-function PoolStoreString(Pool: STRING_POOL_ptr; Enc: ENCODING_ptr;
+function PoolStoreString(Pool: PStringPool; Enc: ENCODING_ptr;
   Ptr, Stop: PAnsiChar): XML_PAnsiChar;
 begin
   if PoolAppend(Pool, Enc, Ptr, Stop) = nil then
@@ -1469,7 +1468,7 @@ begin
   Result := Pool.Start;
 end;
 
-function PoolCopyString(Pool: STRING_POOL_ptr; S: XML_PAnsiChar): XML_PAnsiChar;
+function PoolCopyString(Pool: PStringPool; S: XML_PAnsiChar): XML_PAnsiChar;
 label
   _w0;
 
@@ -1494,42 +1493,42 @@ begin
   Result := S;
 end;
 
-function PoolAppendString(Pool: STRING_POOL_ptr; S: XML_PAnsiChar)
+function PoolAppendString(Pool: PStringPool; S: XML_PAnsiChar)
   : XML_PAnsiChar;
 begin
 end;
 
-function PoolStart(Pool: STRING_POOL_ptr): XML_PAnsiChar;
+function PoolStart(Pool: PStringPool): XML_PAnsiChar;
 begin
   Result := Pool.Start;
 end;
 
-function PoolLength(Pool: STRING_POOL_ptr): Integer;
+function PoolLength(Pool: PStringPool): Integer;
 begin
   Result := PtrComp(Pool.Ptr) - PtrComp(Pool.Start);
 end;
 
-procedure PoolChop(Pool: STRING_POOL_ptr);
+procedure PoolChop(Pool: PStringPool);
 begin
   Dec(PtrComp(Pool.Ptr), SizeOf(XML_Char));
 end;
 
-function PoolLastChar(Pool: STRING_POOL_ptr): XML_Char;
+function PoolLastChar(Pool: PStringPool): XML_Char;
 begin
   Result := XML_PAnsiChar(PtrComp(Pool.Ptr) - 1 * SizeOf(XML_Char))^;
 end;
 
-procedure PoolDiscard(Pool: STRING_POOL_ptr);
+procedure PoolDiscard(Pool: PStringPool);
 begin
   Pool.Ptr := Pool.Start;
 end;
 
-procedure PoolFinish(Pool: STRING_POOL_ptr);
+procedure PoolFinish(Pool: PStringPool);
 begin
   Pool.Start := Pool.Ptr;
 end;
 
-function PoolAppendChar(Pool: STRING_POOL_ptr; C: AnsiChar): Integer;
+function PoolAppendChar(Pool: PStringPool; C: AnsiChar): Integer;
 begin
   if (Pool.Ptr = Pool.End_) and (PoolGrow(Pool) = 0) then
     Result := 0
@@ -1549,7 +1548,7 @@ begin
   begin
     if S1^ = #0 then
     begin
-      Result := XML_TRUE;
+      Result := CXmlTrue;
 
       Exit;
     end;
@@ -1558,7 +1557,7 @@ begin
     Inc(PtrComp(S2), SizeOf(XML_Char));
   end;
 
-  Result := XML_FALSE;
+  Result := CXmlFalse;
 end;
 
 function Hash(S: KEY): Int32u;
@@ -1577,13 +1576,13 @@ begin
   Result := H;
 end;
 
-function Lookup(Table: HASH_TABLE_ptr; Name: KEY; CreateSize: Size_t)
-  : NAMED_ptr;
+function Lookup(Table: PHashTable; Name: KEY; CreateSize: Size_t)
+  : PNamed;
 var
   I, Tsize, NewSize, J: Size_t;
   H, Mask, NewMask, NewHash: Int32u;
   Step, NewPower: Int8u;
-  NewV: NAMED_ptr_ptr;
+  NewV: PPNamed;
 begin
   if Table.Size = 0 then
   begin
@@ -1599,7 +1598,7 @@ begin
     { table->size is a power of 2 }
     Table.Size := Size_t(1 shl INIT_POWER);
 
-    Tsize := Table.Size * SizeOf(NAMED_ptr);
+    Tsize := Table.Size * SizeOf(PNamed);
 
     Table.Mem.Malloc_fcn(Pointer(Table.V), Tsize);
 
@@ -1625,12 +1624,12 @@ begin
     Step := 0;
     I := H and Mask;
 
-    while NAMED_ptr_ptr(PtrComp(Table.V) + I * SizeOf(NAMED_ptr))^ <> nil do
+    while PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^ <> nil do
     begin
-      if Keyeq(name, NAMED_ptr_ptr(PtrComp(Table.V) + I * SizeOf(NAMED_ptr))
+      if Keyeq(name, PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))
         ^^.Name) <> 0 then
       begin
-        Result := NAMED_ptr_ptr(PtrComp(Table.V) + I * SizeOf(NAMED_ptr))^;
+        Result := PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^;
 
         Exit;
       end;
@@ -1657,7 +1656,7 @@ begin
       NewPower := Table.Power + 1;
       NewSize := Size_t(1 shl NewPower);
       NewMask := NewSize - 1;
-      Tsize := NewSize * SizeOf(NAMED_ptr);
+      Tsize := NewSize * SizeOf(PNamed);
 
       Table.Mem.Malloc_fcn(Pointer(NewV), Tsize);
 
@@ -1674,14 +1673,14 @@ begin
 
       while I < Table.Size do
       begin
-        if NAMED_ptr_ptr(PtrComp(Table.V) + I * SizeOf(NAMED_ptr))^ <> nil then
+        if PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^ <> nil then
         begin
-          NewHash := Hash(NAMED_ptr_ptr(PtrComp(Table.V) + I * SizeOf(NAMED_ptr)
+          NewHash := Hash(PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed)
             )^^.Name);
           J := NewHash and NewMask;
           Step := 0;
 
-          while NAMED_ptr_ptr(PtrComp(NewV) + J * SizeOf(NAMED_ptr))^ <> nil do
+          while PPNamed(PtrComp(NewV) + J * SizeOf(PNamed))^ <> nil do
           begin
             if Step = 0 then
               Step := PROBE_STEP(NewHash, NewMask, NewPower);
@@ -1692,8 +1691,8 @@ begin
               Dec(J, Step);
           end;
 
-          NAMED_ptr_ptr(PtrComp(NewV) + J * SizeOf(NAMED_ptr))^ :=
-            NAMED_ptr_ptr(PtrComp(Table.V) + I * SizeOf(NAMED_ptr))^;
+          PPNamed(PtrComp(NewV) + J * SizeOf(PNamed))^ :=
+            PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^;
         end;
 
         Inc(I);
@@ -1709,7 +1708,7 @@ begin
       I := H and NewMask;
       Step := 0;
 
-      while NAMED_ptr_ptr(PtrComp(Table.V) + I * SizeOf(NAMED_ptr))^ <> nil do
+      while PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^ <> nil do
       begin
         if Step = 0 then
           Step := PROBE_STEP(H, NewMask, NewPower);
@@ -1722,25 +1721,25 @@ begin
     end;
   end;
 
-  Table.Mem.Malloc_fcn(Pointer(NAMED_ptr_ptr(PtrComp(Table.V) + I *
-    SizeOf(NAMED_ptr))^), CreateSize);
+  Table.Mem.Malloc_fcn(Pointer(PPNamed(PtrComp(Table.V) + I *
+    SizeOf(PNamed))^), CreateSize);
 
-  if NAMED_ptr_ptr(PtrComp(Table.V) + I * SizeOf(NAMED_ptr))^ = nil then
+  if PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^ = nil then
   begin
     Result := nil;
 
     Exit;
   end;
 
-  FillChar(NAMED_ptr_ptr(PtrComp(Table.V) + I * SizeOf(NAMED_ptr))^^,
+  FillChar(PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^^,
     CreateSize, 0);
 
-  NAMED_ptr_ptr(PtrComp(Table.V) + I * SizeOf(NAMED_ptr))^^.Name := name;
-  NAMED_ptr_ptr(PtrComp(Table.V) + I * SizeOf(NAMED_ptr))^^.Alloc := CreateSize;
+  PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^^.Name := name;
+  PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^^.Alloc := CreateSize;
 
   Inc(Table.Used);
 
-  Result := NAMED_ptr_ptr(PtrComp(Table.V) + I * SizeOf(NAMED_ptr))^;
+  Result := PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^;
 end;
 
 procedure NormalizePublicId(PublicId: XML_PAnsiChar);
@@ -1782,14 +1781,14 @@ begin
 end;
 
 function SetElementTypePrefix(Parser: XML_Parser;
-  ElementType: ELEMENT_TYPE_ptr): Integer;
+  ElementType: PElementType): Integer;
 begin
 end;
 
-{ addBinding overwrites the value of prefix.binding without checking.
+{ addBinding overwrites the value of TPrefix.TBinding without checking.
   Therefore one must keep track of the old value outside of addBinding. }
-function AddBinding(Parser: XML_Parser; Prefix: PREFIX_ptr;
-  AttId: ATTRIBUTE_ID_ptr; Uri: XML_PAnsiChar; BindingsPtr: BINDING_ptr_ptr)
+function AddBinding(Parser: XML_Parser; TPrefix: PPrefix;
+  AttId: PAttributeID; Uri: XML_PAnsiChar; BindingsPtr: PPBinding)
   : XML_Error;
 begin
 end;
@@ -1804,7 +1803,7 @@ var
   BufSize, NameLen: Integer;
   RawNameBuf, Temp: PAnsiChar;
 begin
-  Tag := Parser.M_tagStack;
+  Tag := Parser.TagStack;
 
   while Tag <> nil do
   begin
@@ -1824,14 +1823,14 @@ begin
 
     if BufSize > PtrComp(Tag.BufEnd) - PtrComp(Tag.Buf) then
     begin
-      if Parser.M_mem.Realloc_fcn(Pointer(Tag.Buf), Tag.Alloc, BufSize) then
+      if Parser.Mem.Realloc_fcn(Pointer(Tag.Buf), Tag.Alloc, BufSize) then
         Temp := Tag.Buf
       else
         Temp := nil;
 
       if Temp = nil then
       begin
-        Result := XML_FALSE;
+        Result := CXmlFalse;
 
         Exit;
 
@@ -1864,7 +1863,7 @@ begin
 
   end;
 
-  Result := XML_TRUE;
+  Result := CXmlTrue;
 
 end;
 
@@ -1872,17 +1871,17 @@ end;
   Purpose:
   - normalize attributes
   - check attributes for well-formedness
-  - generate namespace aware attribute names (URI, prefix)
+  - generate namespace aware attribute names (URI, TPrefix)
   - build list of attributes for startElementHandler
   - default attributes
   - process namespace declarations (check and report them)
-  - generate namespace aware element name (URI, prefix) }
+  - generate namespace aware element name (URI, TPrefix) }
 function StoreAtts(Parser: XML_Parser; Enc: ENCODING_ptr; AttStr: PAnsiChar;
-  TagNamePtr: TAG_NAME_ptr; BindingsPtr: BINDING_ptr_ptr): XML_Error;
+  TagNamePtr: PTagName; BindingsPtr: PPBinding): XML_Error;
 var
   Dtd: DTD_ptr;
 
-  ElementType: ELEMENT_TYPE_ptr;
+  ElementType: PElementType;
 
   NDefaultAtts, AttIndex, PrefixLen, I, N, NPrefixes, OldAttsSize, J,
     NsAttsSize: Integer;
@@ -1897,15 +1896,15 @@ var
 
   C: XML_Char;
 
-  Binding, B: BINDING_ptr;
+  TBinding, B: PBinding;
 
-  AttId, Id: ATTRIBUTE_ID_ptr;
+  AttId, Id: PAttributeID;
 
   Result_: XML_Error;
 
   IsCdata: XML_Bool;
 
-  Da: DEFAULT_ATTRIBUTE_ptr;
+  Da: PDefaultAttribute;
 
   P: TAG_ptr;
 
@@ -1919,7 +1918,7 @@ begin
   NPrefixes := 0;
 
   { lookup the element type name }
-  ElementType := ELEMENT_TYPE_ptr(Lookup(@Dtd.ElementTypes, TagNamePtr.Str, 0));
+  ElementType := PElementType(Lookup(@Dtd.ElementTypes, TagNamePtr.Str, 0));
 
   if ElementType = nil then
   begin
@@ -1932,8 +1931,8 @@ begin
       Exit;
     end;
 
-    ElementType := ELEMENT_TYPE_ptr(Lookup(@Dtd.ElementTypes, name,
-      SizeOf(ELEMENT_TYPE)));
+    ElementType := PElementType(Lookup(@Dtd.ElementTypes, name,
+      SizeOf(TElementType)));
 
     if ElementType = nil then
     begin
@@ -1954,28 +1953,28 @@ begin
   NDefaultAtts := ElementType.NDefaultAtts;
 
   { get the attributes from the tokenizer }
-  N := XmlGetAttributes(Enc, Pointer(AttStr), Parser.M_attsSize, Parser.M_atts);
+  N := XmlGetAttributes(Enc, Pointer(AttStr), Parser.AttsSize, Parser.Atts);
 
-  if N + NDefaultAtts > Parser.M_attsSize then
+  if N + NDefaultAtts > Parser.AttsSize then
   begin
-    OldAttsSize := Parser.M_attsSize;
-    Parser.M_attsSize := N + NDefaultAtts + INIT_ATTS_SIZE;
+    OldAttsSize := Parser.AttsSize;
+    Parser.AttsSize := N + NDefaultAtts + INIT_ATTS_SIZE;
 
-    if not Parser.M_mem.Realloc_fcn(Pointer(Parser.M_atts), Parser.M_attsAlloc,
-      Parser.M_attsSize * SizeOf(ATTRIBUTE)) then
+    if not Parser.Mem.Realloc_fcn(Pointer(Parser.Atts), Parser.AttsAlloc,
+      Parser.AttsSize * SizeOf(ATTRIBUTE)) then
     begin
       Result := XML_ERROR_NO_MEMORY;
 
       Exit;
     end
     else
-      Parser.M_attsAlloc := Parser.M_attsSize * SizeOf(ATTRIBUTE);
+      Parser.AttsAlloc := Parser.AttsSize * SizeOf(ATTRIBUTE);
 
     if N > OldAttsSize then
-      XmlGetAttributes(Enc, Pointer(AttStr), N, Parser.M_atts);
+      XmlGetAttributes(Enc, Pointer(AttStr), N, Parser.Atts);
   end;
 
-  AppAtts := XML_PPAnsiChar(Parser.M_atts);
+  AppAtts := XML_PPAnsiChar(Parser.Atts);
 
   I := 0;
 
@@ -1983,10 +1982,10 @@ begin
   begin
     { add the name and value to the attribute list }
     AttId := GetAttributeId(Parser, Enc,
-      Pointer(ATTRIBUTE_ptr(PtrComp(Parser.M_atts) + I * SizeOf(ATTRIBUTE))
-      ^.Name), Pointer(PtrComp(ATTRIBUTE_ptr(PtrComp(Parser.M_atts) + I *
+      Pointer(ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I * SizeOf(ATTRIBUTE))
+      ^.Name), Pointer(PtrComp(ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I *
       SizeOf(ATTRIBUTE))^.Name) + XmlNameLength(Enc,
-      ATTRIBUTE_ptr(PtrComp(Parser.M_atts) + I * SizeOf(ATTRIBUTE))^.Name)));
+      ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I * SizeOf(ATTRIBUTE))^.Name)));
 
     if AttId = nil then
     begin
@@ -2001,9 +2000,9 @@ begin
     if XML_PAnsiChar(PtrComp(AttId.Name) - 1 * SizeOf(XML_Char))^ <> XML_Char(0)
     then
     begin
-      if Enc = Parser.M_encoding then
-        Parser.M_eventPtr :=
-          Pointer(ATTRIBUTE_ptr(PtrComp(Parser.M_atts) + I *
+      if Enc = Parser.Encoding then
+        Parser.EventPtr :=
+          Pointer(ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I *
           SizeOf(ATTRIBUTE))^.Name);
 
       Result := XML_ERROR_DUPLICATE_ATTRIBUTE;
@@ -2018,10 +2017,10 @@ begin
 
     Inc(AttIndex);
 
-    if ATTRIBUTE_ptr(PtrComp(Parser.M_atts) + I * SizeOf(ATTRIBUTE))
+    if ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I * SizeOf(ATTRIBUTE))
       ^.Normalized = #0 then
     begin
-      IsCdata := XML_TRUE;
+      IsCdata := CXmlTrue;
 
       { figure out whether declared as other than CDATA }
       if AttId.MaybeTokenized <> 0 then
@@ -2030,11 +2029,11 @@ begin
 
         while J < NDefaultAtts do
         begin
-          if AttId = DEFAULT_ATTRIBUTE_ptr(PtrComp(ElementType.DefaultAtts) + J
-            * SizeOf(DEFAULT_ATTRIBUTE))^.Id then
+          if AttId = PDefaultAttribute(PtrComp(ElementType.DefaultAtts) + J
+            * SizeOf(TDefaultAttribute))^.Id then
           begin
-            IsCdata := DEFAULT_ATTRIBUTE_ptr(PtrComp(ElementType.DefaultAtts) +
-              J * SizeOf(DEFAULT_ATTRIBUTE))^.IsCdata;
+            IsCdata := PDefaultAttribute(PtrComp(ElementType.DefaultAtts) +
+              J * SizeOf(TDefaultAttribute))^.IsCdata;
 
             Break;
           end;
@@ -2045,9 +2044,9 @@ begin
 
       { normalize the attribute value }
       Result_ := StoreAttributeValue(Parser, Enc, IsCdata,
-        Pointer(ATTRIBUTE_ptr(PtrComp(Parser.M_atts) + I * SizeOf(ATTRIBUTE))
-        ^.ValuePtr), Pointer(ATTRIBUTE_ptr(PtrComp(Parser.M_atts) + I *
-        SizeOf(ATTRIBUTE))^.ValueEnd), @Parser.M_tempPool);
+        Pointer(ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I * SizeOf(ATTRIBUTE))
+        ^.ValuePtr), Pointer(ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I *
+        SizeOf(ATTRIBUTE))^.ValueEnd), @Parser.TempPool);
 
       if Result_ <> XML_Error(0) then
       begin
@@ -2057,17 +2056,17 @@ begin
       end;
 
       XML_PPAnsiChar(PtrComp(AppAtts) + AttIndex * SizeOf(XML_PAnsiChar))^ :=
-        PoolStart(@Parser.M_tempPool);
+        PoolStart(@Parser.TempPool);
 
-      PoolFinish(@Parser.M_tempPool);
+      PoolFinish(@Parser.TempPool);
     end
     else
     begin
       { the value did not need normalizing }
       XML_PPAnsiChar(PtrComp(AppAtts) + AttIndex * SizeOf(XML_PAnsiChar))^ :=
-        PoolStoreString(@Parser.M_tempPool, Enc,
-        Pointer(ATTRIBUTE_ptr(PtrComp(Parser.M_atts) + I * SizeOf(ATTRIBUTE))
-        ^.ValuePtr), Pointer(ATTRIBUTE_ptr(PtrComp(Parser.M_atts) + I *
+        PoolStoreString(@Parser.TempPool, Enc,
+        Pointer(ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I * SizeOf(ATTRIBUTE))
+        ^.ValuePtr), Pointer(ATTRIBUTE_ptr(PtrComp(Parser.Atts) + I *
         SizeOf(ATTRIBUTE))^.ValueEnd));
 
       if XML_PPAnsiChar(PtrComp(AppAtts) + AttIndex * SizeOf(XML_PAnsiChar))^ = nil
@@ -2078,15 +2077,15 @@ begin
         Exit;
       end;
 
-      PoolFinish(@Parser.M_tempPool);
+      PoolFinish(@Parser.TempPool);
     end;
 
     { handle prefixed attribute names }
-    if AttId.Prefix <> nil then
+    if AttId.TPrefix <> nil then
       if AttId.Xmlns <> 0 then
       begin
         { deal with namespace declarations here }
-        Result_ := AddBinding(Parser, AttId.Prefix, AttId,
+        Result_ := AddBinding(Parser, AttId.TPrefix, AttId,
           XML_PPAnsiChar(PtrComp(AppAtts) + AttIndex * SizeOf(XML_PAnsiChar))^,
           BindingsPtr);
 
@@ -2128,7 +2127,7 @@ begin
       if XML_PPAnsiChar(PtrComp(AppAtts) + I * SizeOf(XML_PAnsiChar))
         ^ = ElementType.IdAtt.Name then
       begin
-        Parser.M_idAttIndex := I;
+        Parser.IdAttIndex := I;
 
         Break;
       end;
@@ -2137,22 +2136,22 @@ begin
     end;
   end
   else
-    Parser.M_idAttIndex := -1;
+    Parser.IdAttIndex := -1;
 
   { do attribute defaulting }
   I := 0;
 
   while I < NDefaultAtts do
   begin
-    Da := DEFAULT_ATTRIBUTE_ptr(PtrComp(ElementType.DefaultAtts) + I *
-      SizeOf(DEFAULT_ATTRIBUTE));
+    Da := PDefaultAttribute(PtrComp(ElementType.DefaultAtts) + I *
+      SizeOf(TDefaultAttribute));
 
     if (XML_PAnsiChar(PtrComp(Da.Id.Name) - 1 * SizeOf(XML_Char))^ = XML_Char(0)
       ) and (Da.Value <> nil) then
-      if Da.Id.Prefix <> nil then
+      if Da.Id.TPrefix <> nil then
         if Da.Id.Xmlns <> 0 then
         begin
-          Result_ := AddBinding(Parser, Da.Id.Prefix, Da.Id, Da.Value,
+          Result_ := AddBinding(Parser, Da.Id.TPrefix, Da.Id, Da.Value,
             BindingsPtr);
 
           if Result_ <> XML_Error(0) then
@@ -2223,7 +2222,7 @@ begin
 
       NsAttsSize := 1 shl Parser.M_nsAttsPower;
 
-      if not Parser.M_mem.Realloc_fcn(Pointer(Parser.M_nsAtts),
+      if not Parser.Mem.Realloc_fcn(Pointer(Parser.M_nsAtts),
         Parser.M_nsAttsAlloc, NsAttsSize * SizeOf(NS_ATT)) then
       begin
         Result := XML_ERROR_NO_MEMORY;
@@ -2273,8 +2272,8 @@ begin
         XML_PAnsiChar(PtrComp(S) - 1 * SizeOf(XML_Char))^ := XML_Char(0);
         { clear flag }
 
-        Id := ATTRIBUTE_ID_ptr(Lookup(@Dtd.AttributeIds, S, 0));
-        B := Id.Prefix.Binding;
+        Id := PAttributeID(Lookup(@Dtd.AttributeIds, S, 0));
+        B := Id.TPrefix.TBinding;
 
         if B = nil then
         begin
@@ -2290,7 +2289,7 @@ begin
         begin
           C := XML_PAnsiChar(PtrComp(B.Uri) + J * SizeOf(XML_Char))^;
 
-          if PoolAppendChar(@Parser.M_tempPool, C) = 0 then
+          if PoolAppendChar(@Parser.TempPool, C) = 0 then
           begin
             Result := XML_ERROR_NO_MEMORY;
 
@@ -2312,7 +2311,7 @@ begin
         _w0:
           C := S^;
 
-          if PoolAppendChar(@Parser.M_tempPool, S^) = 0 then
+          if PoolAppendChar(@Parser.TempPool, S^) = 0 then
           begin
             Result := XML_ERROR_NO_MEMORY;
 
@@ -2325,7 +2324,7 @@ begin
         end;
 
         { Check hash table for duplicate of expanded name (uriName).
-          Derived from code in lookup(HASH_TABLE *table, ...). }
+          Derived from code in lookup(THashTable *table, ...). }
         Step := 0;
         Mask := NsAttsSize - 1;
         J := UriHash and Mask; { index into hash table }
@@ -2337,7 +2336,7 @@ begin
           if UriHash = NS_ATT_ptr(PtrComp(Parser.M_nsAtts) + J * SizeOf(NS_ATT))
             ^.Hash then
           begin
-            S1 := PoolStart(@Parser.M_tempPool);
+            S1 := PoolStart(@Parser.TempPool);
             S2 := NS_ATT_ptr(PtrComp(Parser.M_nsAtts) + J * SizeOf(NS_ATT)
               )^.UriName;
 
@@ -2369,19 +2368,19 @@ begin
         end;
 
         if Parser.M_ns_triplets <> 0
-        then { append namespace separator and prefix }
+        then { append namespace separator and TPrefix }
         begin
-          XML_PAnsiChar(PtrComp(Parser.M_tempPool.Ptr) - 1 * SizeOf(XML_Char))^
-            := Parser.M_namespaceSeparator;
+          XML_PAnsiChar(PtrComp(Parser.TempPool.Ptr) - 1 * SizeOf(XML_Char))^
+            := Parser.NamespaceSeparator;
 
-          S := B.Prefix.Name;
+          S := B.TPrefix.Name;
 
           goto _w1;
 
           while S^ <> XML_Char(0) do
           begin
           _w1:
-            if PoolAppendChar(@Parser.M_tempPool, S^) = 0 then
+            if PoolAppendChar(@Parser.TempPool, S^) = 0 then
             begin
               Result := XML_ERROR_NO_MEMORY;
 
@@ -2393,9 +2392,9 @@ begin
         end;
 
         { store expanded name in attribute list }
-        S := PoolStart(@Parser.M_tempPool);
+        S := PoolStart(@Parser.TempPool);
 
-        PoolFinish(@Parser.M_tempPool);
+        PoolFinish(@Parser.TempPool);
 
         XML_PPAnsiChar(PtrComp(AppAtts) + I * SizeOf(XML_PAnsiChar))^ := S;
 
@@ -2432,14 +2431,14 @@ begin
     Inc(I, 2);
   end;
 
-  Binding := BindingsPtr^;
+  TBinding := BindingsPtr^;
 
-  while Binding <> nil do
+  while TBinding <> nil do
   begin
-    XML_PAnsiChar(PtrComp(Binding.AttId.Name) - 1 * SizeOf(XML_Char))^ :=
+    XML_PAnsiChar(PtrComp(TBinding.AttId.Name) - 1 * SizeOf(XML_Char))^ :=
       XML_Char(0);
 
-    Binding := Binding.NextTagBinding;
+    TBinding := TBinding.NextTagBinding;
   end;
 
   if Parser.M_ns = 0 then
@@ -2450,11 +2449,11 @@ begin
   end;
 
   { expand the element type name }
-  if ElementType.Prefix <> nil then
+  if ElementType.TPrefix <> nil then
   begin
-    Binding := ElementType.Prefix.Binding;
+    TBinding := ElementType.TPrefix.TBinding;
 
-    if Binding = nil then
+    if TBinding = nil then
     begin
       Result := XML_ERROR_UNBOUND_PREFIX;
 
@@ -2467,9 +2466,9 @@ begin
       Inc(PtrComp(LocalPart), SizeOf(XML_Char));
 
   end
-  else if Dtd.DefaultPrefix.Binding <> nil then
+  else if Dtd.DefaultPrefix.TBinding <> nil then
   begin
-    Binding := Dtd.DefaultPrefix.Binding;
+    TBinding := Dtd.DefaultPrefix.TBinding;
     LocalPart := TagNamePtr.Str;
   end
   else
@@ -2481,9 +2480,9 @@ begin
 
   PrefixLen := 0;
 
-  if (Parser.M_ns_triplets <> 0) and (Binding.Prefix.Name <> nil) then
+  if (Parser.M_ns_triplets <> 0) and (TBinding.TPrefix.Name <> nil) then
   begin
-    while XML_PAnsiChar(PtrComp(Binding.Prefix.Name) + PrefixLen *
+    while XML_PAnsiChar(PtrComp(TBinding.TPrefix.Name) + PrefixLen *
       SizeOf(XML_Char))^ <> XML_Char(0) do
       Inc(PrefixLen);
 
@@ -2491,8 +2490,8 @@ begin
   end;
 
   TagNamePtr.LocalPart := LocalPart;
-  TagNamePtr.UriLen := Binding.UriLen;
-  TagNamePtr.Prefix := Binding.Prefix.Name;
+  TagNamePtr.UriLen := TBinding.UriLen;
+  TagNamePtr.TPrefix := TBinding.TPrefix.Name;
   TagNamePtr.PrefixLen := PrefixLen;
 
   I := 0;
@@ -2503,11 +2502,11 @@ begin
 
   Inc(I); { i includes null terminator }
 
-  N := I + Binding.UriLen + PrefixLen;
+  N := I + TBinding.UriLen + PrefixLen;
 
-  if N > Binding.UriAlloc then
+  if N > TBinding.UriAlloc then
   begin
-    Parser.M_mem.Malloc_fcn(Pointer(Uri), (N + EXPAND_SPARE) *
+    Parser.Mem.Malloc_fcn(Pointer(Uri), (N + EXPAND_SPARE) *
       SizeOf(XML_Char));
 
     if Uri = nil then
@@ -2517,50 +2516,50 @@ begin
       Exit;
     end;
 
-    J := Binding.UriAlloc;
+    J := TBinding.UriAlloc;
 
-    Binding.UriAlloc := N + EXPAND_SPARE;
+    TBinding.UriAlloc := N + EXPAND_SPARE;
 
-    Move(Binding.Uri^, Uri^, Binding.UriLen * SizeOf(XML_Char));
+    Move(TBinding.Uri^, Uri^, TBinding.UriLen * SizeOf(XML_Char));
 
-    P := Parser.M_tagStack;
+    P := Parser.TagStack;
 
     while P <> nil do
     begin
-      if P.Name.Str = Binding.Uri then
+      if P.Name.Str = TBinding.Uri then
         P.Name.Str := Uri;
 
       P := P.Parent;
     end;
 
-    Parser.M_mem.Free_fcn(Pointer(Binding.Uri), J * SizeOf(XML_Char));
+    Parser.Mem.Free_fcn(Pointer(TBinding.Uri), J * SizeOf(XML_Char));
 
-    Binding.Uri := Uri;
+    TBinding.Uri := Uri;
   end;
 
   { if namespaceSeparator != '\0' then uri includes it already }
-  Uri := XML_PAnsiChar(PtrComp(Binding.Uri) + Binding.UriLen *
+  Uri := XML_PAnsiChar(PtrComp(TBinding.Uri) + TBinding.UriLen *
     SizeOf(XML_Char));
 
   Move(LocalPart^, Uri^, I * SizeOf(XML_Char));
 
-  { we always have a namespace separator between localPart and prefix }
+  { we always have a namespace separator between localPart and TPrefix }
   if PrefixLen <> 0 then
   begin
     Inc(PtrComp(Uri), (I - 1) * SizeOf(XML_Char));
 
-    Uri^ := Parser.M_namespaceSeparator; { replace null terminator }
+    Uri^ := Parser.NamespaceSeparator; { replace null terminator }
 
-    Move(Binding.Prefix.Name^, XML_PAnsiChar(PtrComp(Uri) + 1 * SizeOf(XML_Char)
+    Move(TBinding.TPrefix.Name^, XML_PAnsiChar(PtrComp(Uri) + 1 * SizeOf(XML_Char)
       )^, PrefixLen * SizeOf(XML_Char));
   end;
 
-  TagNamePtr.Str := Binding.Uri;
+  TagNamePtr.Str := TBinding.Uri;
 
   Result := XML_ERROR_NONE;
 end;
 
-function ProcessInternalEntity(Parser: XML_Parser; Entity: ENTITY_ptr;
+function ProcessInternalEntity(Parser: XML_Parser; TEntity: PEntity;
   BetweenDecl: XML_Bool): XML_Error;
 begin
 end;
@@ -2572,23 +2571,23 @@ var
 
   Tok: Integer;
 begin
-  Parser.M_processor := @EpilogProcessor;
-  Parser.M_eventPtr := S;
+  Parser.TProcessor := @EpilogProcessor;
+  Parser.EventPtr := S;
 
   repeat
     Next := nil;
-    Tok := XmlPrologTok(Parser.M_encoding, Pointer(S), Pointer(Stop), @Next);
+    Tok := XmlPrologTok(Parser.Encoding, Pointer(S), Pointer(Stop), @Next);
 
-    Parser.M_eventEndPtr := Next;
+    Parser.EventEndPtr := Next;
 
     case Tok of
       - XML_TOK_PROLOG_S:
         begin
-          if @Parser.M_defaultHandler <> nil then
+          if @Parser.DefaultHandler <> nil then
           begin
-            ReportDefault(Parser, Parser.M_encoding, S, Next);
+            ReportDefault(Parser, Parser.Encoding, S, Next);
 
-            if Parser.M_parsingStatus.Parsing = XML_FINISHED then
+            if Parser.ParsingStatus.Parsing = XML_FINISHED then
             begin
               Result := XML_ERROR_ABORTED;
 
@@ -2611,11 +2610,11 @@ begin
         end;
 
       XML_TOK_PROLOG_S:
-        if @Parser.M_defaultHandler <> nil then
-          ReportDefault(Parser, Parser.M_encoding, S, Next);
+        if @Parser.DefaultHandler <> nil then
+          ReportDefault(Parser, Parser.Encoding, S, Next);
 
       XML_TOK_PI:
-        if ReportProcessingInstruction(Parser, Parser.M_encoding, S, Next) = 0
+        if ReportProcessingInstruction(Parser, Parser.Encoding, S, Next) = 0
         then
         begin
           Result := XML_ERROR_NO_MEMORY;
@@ -2624,7 +2623,7 @@ begin
         end;
 
       XML_TOK_COMMENT:
-        if ReportComment(Parser, Parser.M_encoding, S, Next) = 0 then
+        if ReportComment(Parser, Parser.Encoding, S, Next) = 0 then
         begin
           Result := XML_ERROR_NO_MEMORY;
 
@@ -2633,7 +2632,7 @@ begin
 
       XML_TOK_INVALID:
         begin
-          Parser.M_eventPtr := Next;
+          Parser.EventPtr := Next;
 
           Result := XML_ERROR_INVALID_TOKEN;
 
@@ -2642,7 +2641,7 @@ begin
 
       XML_TOK_PARTIAL:
         begin
-          if Parser.M_parsingStatus.FinalBuffer = 0 then
+          if Parser.ParsingStatus.FinalBuffer = 0 then
           begin
             NextPtr^ := S;
             Result := XML_ERROR_NONE;
@@ -2657,7 +2656,7 @@ begin
 
       XML_TOK_PARTIAL_CHAR:
         begin
-          if Parser.M_parsingStatus.FinalBuffer = 0 then
+          if Parser.ParsingStatus.FinalBuffer = 0 then
           begin
             NextPtr^ := S;
             Result := XML_ERROR_NONE;
@@ -2679,11 +2678,11 @@ begin
 
     end;
 
-    Parser.M_eventPtr := Next;
+    Parser.EventPtr := Next;
 
     S := Next;
 
-    case Parser.M_parsingStatus.Parsing of
+    case Parser.ParsingStatus.Parsing of
       XML_SUSPENDED:
         begin
           NextPtr^ := Next;
@@ -2728,13 +2727,13 @@ var
   Next, RawNameEnd, FromPtr, Temp, RawName: PAnsiChar;
   Tok, BufSize, ConvLen, Len, N: Integer;
   C, Ch: XML_Char;
-  Name, Context, ToPtr, LocalPart, Prefix, Uri: XML_PAnsiChar;
-  Entity: ENTITY_ptr;
+  Name, Context, ToPtr, LocalPart, TPrefix, Uri: XML_PAnsiChar;
+  TEntity: PEntity;
   Result_: XML_Error;
   Tag: TAG_ptr;
-  Bindings, B: BINDING_ptr;
+  Bindings, B: PBinding;
   NoElmHandlers: XML_Bool;
-  Name_: TAG_NAME;
+  Name_: TTagName;
   Buf: array [0 .. XML_ENCODE_MAX - 1] of XML_Char;
   DataPtr: IPAnsiChar;
 
@@ -2745,15 +2744,15 @@ begin
   { save one level of indirection }
   Dtd := Parser.M_dtd;
 
-  if Enc = Parser.M_encoding then
+  if Enc = Parser.Encoding then
   begin
-    EventPP := @Parser.M_eventPtr;
-    EventEndPP := @Parser.M_eventEndPtr;
+    EventPP := @Parser.EventPtr;
+    EventEndPP := @Parser.EventEndPtr;
   end
   else
   begin
-    EventPP := @Parser.M_openInternalEntities.InternalEventPtr;
-    EventEndPP := @Parser.M_openInternalEntities.InternalEventEndPtr;
+    EventPP := @Parser.OpenInternalEntities.InternalEventPtr;
+    EventEndPP := @Parser.OpenInternalEntities.InternalEventEndPtr;
   end;
 
   EventPP^ := S;
@@ -2778,14 +2777,14 @@ begin
 
           EventEndPP^ := Stop;
 
-          if @Parser.M_characterDataHandler <> nil then
+          if @Parser.CharacterDataHandler <> nil then
           begin
             C := XML_Char($A);
 
-            Parser.M_characterDataHandler(Parser.M_handlerArg, @C, 1);
+            Parser.CharacterDataHandler(Parser.HandlerArg, @C, 1);
 
           end
-          else if @Parser.M_defaultHandler <> nil then
+          else if @Parser.DefaultHandler <> nil then
             ReportDefault(Parser, Enc, S, Stop);
 
           { We are at the end of the final buffer, should we check for
@@ -2797,7 +2796,7 @@ begin
             Exit;
           end;
 
-          if Parser.M_tagLevel <> StartTagLevel then
+          if Parser.TagLevel <> StartTagLevel then
           begin
             Result := XML_ERROR_ASYNC_ENTITY;
 
@@ -2822,7 +2821,7 @@ begin
 
           if StartTagLevel > 0 then
           begin
-            if Parser.M_tagLevel <> StartTagLevel then
+            if Parser.TagLevel <> StartTagLevel then
             begin
               Result := XML_ERROR_ASYNC_ENTITY;
 
@@ -2886,9 +2885,9 @@ begin
 
           if Ch <> XML_Char(0) then
           begin
-            if @Parser.M_characterDataHandler <> nil then
-              Parser.M_characterDataHandler(Parser.M_handlerArg, @Ch, 1)
-            else if @Parser.M_defaultHandler <> nil then
+            if @Parser.CharacterDataHandler <> nil then
+              Parser.CharacterDataHandler(Parser.HandlerArg, @Ch, 1)
+            else if @Parser.DefaultHandler <> nil then
               ReportDefault(Parser, Enc, S, Next);
 
             goto _break;
@@ -2905,65 +2904,65 @@ begin
             Exit;
           end;
 
-          Entity := ENTITY_ptr(Lookup(@Dtd.GeneralEntities, name, 0));
+          TEntity := PEntity(Lookup(@Dtd.GeneralEntities, name, 0));
 
           PoolDiscard(@Dtd.Pool);
 
           { First, determine if a check for an existing declaration is needed;
-            if yes, check that the entity exists, and that it is internal,
-            otherwise call the skipped entity or default handler. }
+            if yes, check that the TEntity exists, and that it is internal,
+            otherwise call the skipped TEntity or default handler. }
           if (Dtd.HasParamEntityRefs = 0) or (Dtd.Standalone <> 0) then
-            if Entity = nil then
+            if TEntity = nil then
             begin
               Result := XML_ERROR_UNDEFINED_ENTITY;
 
               Exit;
             end
-            else if Entity.IsInternal = 0 then
+            else if TEntity.IsInternal = 0 then
             begin
               Result := XML_ERROR_ENTITY_DECLARED_IN_PE;
 
               Exit;
             end
             else
-          else if Entity = nil then
+          else if TEntity = nil then
           begin
-            if @Parser.M_skippedEntityHandler <> nil then
-              Parser.M_skippedEntityHandler(Parser.M_handlerArg, name, 0)
-            else if @Parser.M_defaultHandler <> nil then
+            if @Parser.SkippedEntityHandler <> nil then
+              Parser.SkippedEntityHandler(Parser.HandlerArg, name, 0)
+            else if @Parser.DefaultHandler <> nil then
               ReportDefault(Parser, Enc, S, Next);
 
             goto _break;
           end;
 
-          if Entity.Open <> 0 then
+          if TEntity.Open <> 0 then
           begin
             Result := XML_ERROR_RECURSIVE_ENTITY_REF;
 
             Exit;
           end;
 
-          if Entity.Notation <> nil then
+          if TEntity.Notation <> nil then
           begin
             Result := XML_ERROR_BINARY_ENTITY_REF;
 
             Exit;
           end;
 
-          if Entity.TextPtr <> nil then
+          if TEntity.TextPtr <> nil then
           begin
-            if Parser.M_defaultExpandInternalEntities <> 0 then
+            if Parser.DefaultExpandInternalEntities <> 0 then
             begin
-              if @Parser.M_skippedEntityHandler <> nil then
-                Parser.M_skippedEntityHandler(Parser.M_handlerArg,
-                  Entity.Name, 0)
-              else if @Parser.M_defaultHandler <> nil then
+              if @Parser.SkippedEntityHandler <> nil then
+                Parser.SkippedEntityHandler(Parser.HandlerArg,
+                  TEntity.Name, 0)
+              else if @Parser.DefaultHandler <> nil then
                 ReportDefault(Parser, Enc, S, Next);
 
               goto _break;
             end;
 
-            Result_ := ProcessInternalEntity(Parser, Entity, XML_FALSE);
+            Result_ := ProcessInternalEntity(Parser, TEntity, CXmlFalse);
 
             if Result_ <> XML_ERROR_NONE then
             begin
@@ -2973,11 +2972,11 @@ begin
             end;
 
           end
-          else if @Parser.M_externalEntityRefHandler <> nil then
+          else if @Parser.ExternalEntityRefHandler <> nil then
           begin
-            Entity.Open := XML_TRUE;
+            TEntity.Open := CXmlTrue;
             Context := GetContext(Parser);
-            Entity.Open := XML_FALSE;
+            TEntity.Open := CXmlFalse;
 
             if Context = nil then
             begin
@@ -2986,33 +2985,33 @@ begin
               Exit;
             end;
 
-            if Parser.M_externalEntityRefHandler
-              (Parser.M_externalEntityRefHandlerArg, Context, Entity.Base,
-              Entity.SystemId, Entity.PublicId) = 0 then
+            if Parser.ExternalEntityRefHandler
+              (Parser.ExternalEntityRefHandlerArg, Context, TEntity.Base,
+              TEntity.SystemId, TEntity.PublicId) = 0 then
             begin
               Result := XML_ERROR_EXTERNAL_ENTITY_HANDLING;
 
               Exit;
             end;
 
-            PoolDiscard(@Parser.M_tempPool);
+            PoolDiscard(@Parser.TempPool);
           end
-          else if @Parser.M_defaultHandler <> nil then
+          else if @Parser.DefaultHandler <> nil then
             ReportDefault(Parser, Enc, S, Next);
 
         end;
 
       XML_TOK_START_TAG_NO_ATTS, XML_TOK_START_TAG_WITH_ATTS:
         begin
-          if Parser.M_freeTagList <> nil then
+          if Parser.FreeTagList <> nil then
           begin
-            Tag := Parser.M_freeTagList;
+            Tag := Parser.FreeTagList;
 
-            Parser.M_freeTagList := Parser.M_freeTagList.Parent;
+            Parser.FreeTagList := Parser.FreeTagList.Parent;
           end
           else
           begin
-            Parser.M_mem.Malloc_fcn(Pointer(Tag), SizeOf(Expat.TAG));
+            Parser.Mem.Malloc_fcn(Pointer(Tag), SizeOf(Expat.TAG));
 
             if Tag = nil then
             begin
@@ -3021,11 +3020,11 @@ begin
               Exit;
             end;
 
-            Parser.M_mem.Malloc_fcn(Pointer(Tag.Buf), INIT_TAG_BUF_SIZE);
+            Parser.Mem.Malloc_fcn(Pointer(Tag.Buf), INIT_TAG_BUF_SIZE);
 
             if Tag.Buf = nil then
             begin
-              Parser.M_mem.Free_fcn(Pointer(Tag), SizeOf(Expat.TAG));
+              Parser.Mem.Free_fcn(Pointer(Tag), SizeOf(Expat.TAG));
 
               Result := XML_ERROR_NO_MEMORY;
 
@@ -3038,14 +3037,14 @@ begin
           end;
 
           Tag.Bindings := nil;
-          Tag.Parent := Parser.M_tagStack;
-          Parser.M_tagStack := Tag;
+          Tag.Parent := Parser.TagStack;
+          Parser.TagStack := Tag;
           Tag.Name.LocalPart := nil;
-          Tag.Name.Prefix := nil;
+          Tag.Name.TPrefix := nil;
           Tag.RawName := PAnsiChar(PtrComp(S) + Enc.MinBytesPerChar);
           Tag.RawNameLength := XmlNameLength(Enc, Pointer(Tag.RawName));
 
-          Inc(Parser.M_tagLevel);
+          Inc(Parser.TagLevel);
 
           RawNameEnd := PAnsiChar(PtrComp(Tag.RawName) + Tag.RawNameLength);
           FromPtr := Tag.RawName;
@@ -3066,7 +3065,7 @@ begin
 
             BufSize := (PtrComp(Tag.BufEnd) - PtrComp(Tag.Buf)) shl 1;
 
-            Parser.M_mem.Realloc_fcn(Pointer(Tag.Buf), Tag.Alloc, BufSize);
+            Parser.Mem.Realloc_fcn(Pointer(Tag.Buf), Tag.Alloc, BufSize);
 
             if Temp = nil then
             begin
@@ -3095,22 +3094,22 @@ begin
             Exit;
           end;
 
-          if @Parser.FStartElementHandler <> nil then
-            Parser.FStartElementHandler(Parser.M_handlerArg, Tag.Name.Str,
-              XML_PPAnsiChar(Parser.M_atts))
-          else if @Parser.M_defaultHandler <> nil then
+          if @Parser.StartElementHandler <> nil then
+            Parser.StartElementHandler(Parser.HandlerArg, Tag.Name.Str,
+              XML_PPAnsiChar(Parser.Atts))
+          else if @Parser.DefaultHandler <> nil then
             ReportDefault(Parser, Enc, S, Next);
 
-          PoolClear(@Parser.M_tempPool);
+          PoolClear(@Parser.TempPool);
         end;
 
       XML_TOK_EMPTY_ELEMENT_NO_ATTS, XML_TOK_EMPTY_ELEMENT_WITH_ATTS:
         begin
           RawName := PAnsiChar(PtrComp(S) + Enc.MinBytesPerChar);
           Bindings := nil;
-          NoElmHandlers := XML_TRUE;
+          NoElmHandlers := CXmlTrue;
 
-          Name_.Str := PoolStoreString(@Parser.M_tempPool, Enc, RawName,
+          Name_.Str := PoolStoreString(@Parser.TempPool, Enc, RawName,
             PAnsiChar(PtrComp(RawName) + XmlNameLength(Enc, Pointer(RawName))));
 
           if Name_.Str = nil then
@@ -3121,7 +3120,7 @@ begin
 
           end;
 
-          PoolFinish(@Parser.M_tempPool);
+          PoolFinish(@Parser.TempPool);
 
           Result_ := StoreAtts(Parser, Enc, S, @Name_, @Bindings);
 
@@ -3133,50 +3132,50 @@ begin
 
           end;
 
-          PoolFinish(@Parser.M_tempPool);
+          PoolFinish(@Parser.TempPool);
 
-          if @Parser.FStartElementHandler <> nil then
+          if @Parser.StartElementHandler <> nil then
           begin
-            Parser.FStartElementHandler(Parser.M_handlerArg, Name_.Str,
-              XML_PPAnsiChar(Parser.M_atts));
+            Parser.StartElementHandler(Parser.HandlerArg, Name_.Str,
+              XML_PPAnsiChar(Parser.Atts));
 
-            NoElmHandlers := XML_FALSE;
+            NoElmHandlers := CXmlFalse;
 
           end;
 
-          if @Parser.M_endElementHandler <> nil then
+          if @Parser.EndElementHandler <> nil then
           begin
-            if @Parser.FStartElementHandler <> nil then
+            if @Parser.StartElementHandler <> nil then
               EventPP^ := EventEndPP^;
 
-            Parser.M_endElementHandler(Parser.M_handlerArg, Name_.Str);
+            Parser.EndElementHandler(Parser.HandlerArg, Name_.Str);
 
-            NoElmHandlers := XML_FALSE;
+            NoElmHandlers := CXmlFalse;
 
           end;
 
-          if (NoElmHandlers <> 0) and (@Parser.M_defaultHandler <> nil) then
+          if (NoElmHandlers <> 0) and (@Parser.DefaultHandler <> nil) then
             ReportDefault(Parser, Enc, S, Next);
 
-          PoolClear(@Parser.M_tempPool);
+          PoolClear(@Parser.TempPool);
 
           while Bindings <> nil do
           begin
             B := Bindings;
 
-            if @Parser.M_endNamespaceDeclHandler <> nil then
-              Parser.M_endNamespaceDeclHandler(Parser.M_handlerArg,
-                B.Prefix.Name);
+            if @Parser.EndNamespaceDeclHandler <> nil then
+              Parser.EndNamespaceDeclHandler(Parser.HandlerArg,
+                B.TPrefix.Name);
 
             Bindings := Bindings.NextTagBinding;
-            B.NextTagBinding := Parser.M_freeBindingList;
+            B.NextTagBinding := Parser.FreeBindingList;
 
-            Parser.M_freeBindingList := B;
-            B.Prefix.Binding := B.PrevPrefixBinding;
+            Parser.FreeBindingList := B;
+            B.TPrefix.TBinding := B.PrevPrefixBinding;
 
           end;
 
-          if Parser.M_tagLevel = 0 then
+          if Parser.TagLevel = 0 then
           begin
             Result := EpilogProcessor(Parser, Next, Stop, NextPtr);
 
@@ -3187,7 +3186,7 @@ begin
         end;
 
       XML_TOK_END_TAG:
-        if Parser.M_tagLevel = StartTagLevel then
+        if Parser.TagLevel = StartTagLevel then
         begin
           Result := XML_ERROR_ASYNC_ENTITY;
 
@@ -3196,10 +3195,10 @@ begin
         end
         else
         begin
-          Tag := Parser.M_tagStack;
-          Parser.M_tagStack := Tag.Parent;
-          Tag.Parent := Parser.M_freeTagList;
-          Parser.M_freeTagList := Tag;
+          Tag := Parser.TagStack;
+          Parser.TagStack := Tag.Parent;
+          Tag.Parent := Parser.FreeTagList;
+          Parser.FreeTagList := Tag;
 
           RawName := PAnsiChar(PtrComp(S) + Enc.MinBytesPerChar * 2);
           Len := XmlNameLength(Enc, Pointer(RawName));
@@ -3214,16 +3213,16 @@ begin
 
           end;
 
-          Dec(Parser.M_tagLevel);
+          Dec(Parser.TagLevel);
 
-          if @Parser.M_endElementHandler <> nil then
+          if @Parser.EndElementHandler <> nil then
           begin
             LocalPart := Tag.Name.LocalPart;
 
             if (Parser.M_ns <> 0) and (LocalPart <> nil) then
             begin
-              { localPart and prefix may have been overwritten in
-                tag->name.str, since this points to the binding->uri
+              { localPart and TPrefix may have been overwritten in
+                tag->name.str, since this points to the TBinding->uri
                 buffer which gets re-used; so we have to add them again }
               Uri := XML_PAnsiChar(PtrComp(Tag.Name.Str) + Tag.Name.UriLen);
 
@@ -3237,20 +3236,20 @@ begin
 
               end;
 
-              Prefix := XML_PAnsiChar(Tag.Name.Prefix);
+              TPrefix := XML_PAnsiChar(Tag.Name.TPrefix);
 
-              if (Parser.M_ns_triplets <> 0) and (Prefix <> nil) then
+              if (Parser.M_ns_triplets <> 0) and (TPrefix <> nil) then
               begin
-                Uri^ := Parser.M_namespaceSeparator;
+                Uri^ := Parser.NamespaceSeparator;
 
                 Inc(PtrComp(Uri), SizeOf(XML_Char));
 
-                while Prefix^ <> XML_Char(0) do
+                while TPrefix^ <> XML_Char(0) do
                 begin
-                  Uri^ := Prefix^;
+                  Uri^ := TPrefix^;
 
                   Inc(PtrComp(Uri), SizeOf(XML_Char));
-                  Inc(PtrComp(Prefix), SizeOf(XML_Char));
+                  Inc(PtrComp(TPrefix), SizeOf(XML_Char));
 
                 end;
 
@@ -3260,28 +3259,28 @@ begin
 
             end;
 
-            Parser.M_endElementHandler(Parser.M_handlerArg, Tag.Name.Str);
+            Parser.EndElementHandler(Parser.HandlerArg, Tag.Name.Str);
 
           end
-          else if @Parser.M_defaultHandler <> nil then
+          else if @Parser.DefaultHandler <> nil then
             ReportDefault(Parser, Enc, S, Next);
 
           while Tag.Bindings <> nil do
           begin
             B := Tag.Bindings;
 
-            if @Parser.M_endNamespaceDeclHandler <> nil then
-              Parser.M_endNamespaceDeclHandler(Parser.M_handlerArg,
-                B.Prefix.Name);
+            if @Parser.EndNamespaceDeclHandler <> nil then
+              Parser.EndNamespaceDeclHandler(Parser.HandlerArg,
+                B.TPrefix.Name);
 
             Tag.Bindings := Tag.Bindings.NextTagBinding;
-            B.NextTagBinding := Parser.M_freeBindingList;
-            Parser.M_freeBindingList := B;
-            B.Prefix.Binding := B.PrevPrefixBinding;
+            B.NextTagBinding := Parser.FreeBindingList;
+            Parser.FreeBindingList := B;
+            B.TPrefix.TBinding := B.PrevPrefixBinding;
 
           end;
 
-          if Parser.M_tagLevel = 0 then
+          if Parser.TagLevel = 0 then
           begin
             Result := EpilogProcessor(Parser, Next, Stop, NextPtr);
 
@@ -3303,10 +3302,10 @@ begin
 
           end;
 
-          if @Parser.M_characterDataHandler <> nil then
-            Parser.M_characterDataHandler(Parser.M_handlerArg, @Buf[0],
+          if @Parser.CharacterDataHandler <> nil then
+            Parser.CharacterDataHandler(Parser.HandlerArg, @Buf[0],
               XmlEncode(N, IPAnsiChar(@Buf)))
-          else if @Parser.M_defaultHandler <> nil then
+          else if @Parser.DefaultHandler <> nil then
             ReportDefault(Parser, Enc, S, Next);
 
         end;
@@ -3320,21 +3319,21 @@ begin
         end;
 
       XML_TOK_DATA_NEWLINE:
-        if @Parser.M_characterDataHandler <> nil then
+        if @Parser.CharacterDataHandler <> nil then
         begin
           C := XML_Char($A);
 
-          Parser.M_characterDataHandler(Parser.M_handlerArg, @C, 1);
+          Parser.CharacterDataHandler(Parser.HandlerArg, @C, 1);
 
         end
-        else if @Parser.M_defaultHandler <> nil then
+        else if @Parser.DefaultHandler <> nil then
           ReportDefault(Parser, Enc, S, Next);
 
       XML_TOK_CDATA_SECT_OPEN:
         begin
-          if @Parser.FStartCdataSectionHandler <> nil then
-            Parser.FStartCdataSectionHandler(Parser.M_handlerArg)
-{$IFDEF 0 }
+          if @Parser.StartCdataSectionHandler <> nil then
+            Parser.StartCdataSectionHandler(Parser.HandlerArg)
+{$IFDEF 0}
             { Suppose you doing a transformation on a document that involves
               changing only the AnsiCharacter data.  You set up a defaultHandler
               and a AnsiCharacterDataHandler.  The defaultHandler simply copies
@@ -3346,11 +3345,11 @@ begin
 
               However, now we have a start/endCdataSectionHandler, so it seems
               easier to let the user deal with this. }
-          else if @Parser.M_characterDataHandler <> nil then
-            Parser.M_characterDataHandler(Parser.M_handlerArg,
-              Parser.M_dataBuf, 0)
-{$ENDIF }
-          else if @Parser.M_defaultHandler <> nil then
+          else if @Parser.CharacterDataHandler <> nil then
+            Parser.CharacterDataHandler(Parser.HandlerArg,
+              Parser.DataBuf, 0)
+{$ENDIF}
+          else if @Parser.DefaultHandler <> nil then
             ReportDefault(Parser, Enc, S, Next);
 
           Result_ := DoCdataSection(Parser, Enc, @Next, Stop, NextPtr,
@@ -3365,7 +3364,7 @@ begin
           end
           else if Next = nil then
           begin
-            Parser.M_processor := @CdataSectionProcessor;
+            Parser.TProcessor := @CdataSectionProcessor;
 
             Result := Result_;
 
@@ -3386,24 +3385,24 @@ begin
 
           end;
 
-          if @Parser.M_characterDataHandler <> nil then
+          if @Parser.CharacterDataHandler <> nil then
             if MUSRasterizerConverterERT(Enc, S) <> 0 then
             begin
-              DataPtr := IPAnsiChar(Parser.M_dataBuf);
+              DataPtr := IPAnsiChar(Parser.DataBuf);
 
               XmlConvert(Enc, @S, Stop, @DataPtr,
-                IPAnsiChar(Parser.M_dataBufEnd));
+                IPAnsiChar(Parser.DataBufEnd));
 
-              Parser.M_characterDataHandler(Parser.M_handlerArg,
-                Parser.M_dataBuf, (PtrComp(DataPtr) - PtrComp(Parser.M_dataBuf))
+              Parser.CharacterDataHandler(Parser.HandlerArg,
+                Parser.DataBuf, (PtrComp(DataPtr) - PtrComp(Parser.DataBuf))
                 div SizeOf(ICHAR));
 
             end
             else
-              Parser.M_characterDataHandler(Parser.M_handlerArg,
+              Parser.CharacterDataHandler(Parser.HandlerArg,
                 XML_PAnsiChar(S), (PtrComp(Stop) - PtrComp(S))
                 div SizeOf(XML_Char))
-          else if @Parser.M_defaultHandler <> nil then
+          else if @Parser.DefaultHandler <> nil then
             ReportDefault(Parser, Enc, S, Stop);
 
           { We are at the end of the final buffer, should we check for
@@ -3417,7 +3416,7 @@ begin
 
           end;
 
-          if Parser.M_tagLevel <> StartTagLevel then
+          if Parser.TagLevel <> StartTagLevel then
           begin
             EventPP^ := Stop;
             Result := XML_ERROR_ASYNC_ENTITY;
@@ -3434,18 +3433,18 @@ begin
         end;
 
       XML_TOK_DATA_CHARS:
-        if @Parser.M_characterDataHandler <> nil then
+        if @Parser.CharacterDataHandler <> nil then
           if MUSRasterizerConverterERT(Enc, S) <> 0 then
             repeat
-              DataPtr := IPAnsiChar(Parser.M_dataBuf);
+              DataPtr := IPAnsiChar(Parser.DataBuf);
 
               XmlConvert(Enc, @S, Next, @DataPtr,
-                IPAnsiChar(Parser.M_dataBufEnd));
+                IPAnsiChar(Parser.DataBufEnd));
 
               EventEndPP^ := S;
 
-              Parser.M_characterDataHandler(Parser.M_handlerArg,
-                Parser.M_dataBuf, (PtrComp(DataPtr) - PtrComp(Parser.M_dataBuf))
+              Parser.CharacterDataHandler(Parser.HandlerArg,
+                Parser.DataBuf, (PtrComp(DataPtr) - PtrComp(Parser.DataBuf))
                 div SizeOf(ICHAR));
 
               if S = Next then
@@ -3455,10 +3454,10 @@ begin
 
             until False
           else
-            Parser.M_characterDataHandler(Parser.M_handlerArg, XML_PAnsiChar(S),
+            Parser.CharacterDataHandler(Parser.HandlerArg, XML_PAnsiChar(S),
               (PtrComp(Next) - PtrComp(S)) div SizeOf(XML_Char))
 
-        else if @Parser.M_defaultHandler <> nil then
+        else if @Parser.DefaultHandler <> nil then
           ReportDefault(Parser, Enc, S, Next);
 
       XML_TOK_PI:
@@ -3467,7 +3466,6 @@ begin
           Result := XML_ERROR_NO_MEMORY;
 
           Exit;
-
         end;
 
       XML_TOK_COMMENT:
@@ -3476,27 +3474,24 @@ begin
           Result := XML_ERROR_NO_MEMORY;
 
           Exit;
-
         end;
 
     else
-      if @Parser.M_defaultHandler <> nil then
+      if @Parser.DefaultHandler <> nil then
         ReportDefault(Parser, Enc, S, Next);
-
     end;
 
   _break:
     EventPP^ := Next;
     S := Next;
 
-    case Parser.M_parsingStatus.Parsing of
+    case Parser.ParsingStatus.Parsing of
       XML_SUSPENDED:
         begin
           NextPtr^ := Next;
           Result := XML_ERROR_NONE;
 
           Exit;
-
         end;
 
       XML_FINISHED:
@@ -3504,26 +3499,21 @@ begin
           Result := XML_ERROR_ABORTED;
 
           Exit;
-
         end;
-
     end;
-
   until False;
 
   { not reached }
-
 end;
 
-{ contentProcessor }
 function ContentProcessor(Parser: XML_Parser; Start, Stop: PAnsiChar;
   EndPtr: PPAnsiChar): XML_Error;
 var
   Result_: XML_Error;
 
 begin
-  Result_ := DoContent(Parser, 0, Parser.M_encoding, Start, Stop, EndPtr,
-    XML_Bool(not Parser.M_parsingStatus.FinalBuffer));
+  Result_ := DoContent(Parser, 0, Parser.Encoding, Start, Stop, EndPtr,
+    XML_Bool(not Parser.ParsingStatus.FinalBuffer));
 
   if Result_ = XML_ERROR_NONE then
     if StoreRawNames(Parser) = 0 then
@@ -3531,31 +3521,23 @@ begin
       Result := XML_ERROR_NO_MEMORY;
 
       Exit;
-
     end;
 
   Result := Result_;
-
 end;
 
-{ getElementType {.. }
 function GetElementType(Parser: XML_Parser; Enc: ENCODING_ptr;
-  Ptr, Stop: PAnsiChar): ELEMENT_TYPE_ptr;
+  Ptr, Stop: PAnsiChar): PElementType;
 begin
 end;
 
-{ getAttributeId }
 function GetAttributeId(Parser: XML_Parser; Enc: ENCODING_ptr;
-  Start, Stop: PAnsiChar): ATTRIBUTE_ID_ptr;
+  Start, Stop: PAnsiChar): PAttributeID;
 var
   Dtd: DTD_ptr;
-
-  Id: ATTRIBUTE_ID_ptr;
-
+  Id: PAttributeID;
   Name: XML_PAnsiChar;
-
   I, J: Integer;
-
 begin
   { save one level of indirection }
   Dtd := Parser.M_dtd;
@@ -3565,7 +3547,6 @@ begin
     Result := nil;
 
     Exit;
-
   end;
 
   name := PoolStoreString(@Dtd.Pool, Enc, Start, Stop);
@@ -3575,25 +3556,22 @@ begin
     Result := nil;
 
     Exit;
-
   end;
 
   { skip quotation mark - its storage will be re-used (like in name[-1]) }
   Inc(PtrComp(name), SizeOf(XML_Char));
 
-  Id := ATTRIBUTE_ID_ptr(Lookup(@Dtd.AttributeIds, name, SizeOf(ATTRIBUTE_ID)));
+  Id := PAttributeID(Lookup(@Dtd.AttributeIds, name, SizeOf(TAttributeID)));
 
   if Id = nil then
   begin
     Result := nil;
 
     Exit;
-
   end;
 
   if Id.Name <> name then
     PoolDiscard(@Dtd.Pool)
-
   else
   begin
     PoolFinish(@Dtd.Pool);
@@ -3608,13 +3586,12 @@ begin
       (XML_PAnsiChar(PtrComp(name) + 5 * SizeOf(XML_Char))^ = XML_T(':'))) then
     begin
       if XML_PAnsiChar(PtrComp(name) + 5 * SizeOf(XML_Char))^ = XML_T(#0) then
-        Id.Prefix := @Dtd.DefaultPrefix
+        Id.TPrefix := @Dtd.DefaultPrefix
       else
-        Id.Prefix := PREFIX_ptr(Lookup(@Dtd.Prefixes,
-          XML_PAnsiChar(PtrComp(name) + 6 * SizeOf(XML_Char)), SizeOf(PREFIX)));
+        Id.TPrefix := PPrefix(Lookup(@Dtd.Prefixes,
+          XML_PAnsiChar(PtrComp(name) + 6 * SizeOf(XML_Char)), SizeOf(TPrefix)));
 
-      Id.Xmlns := XML_TRUE;
-
+      Id.Xmlns := CXmlTrue;
     end
     else
     begin
@@ -3623,7 +3600,7 @@ begin
       while XML_PAnsiChar(PtrComp(name) + I * SizeOf(XML_Char))^ <>
         XML_Char(0) do
       begin
-        { attributes without prefix are *not* in the default namespace }
+        { attributes without TPrefix are *not* in the default namespace }
         if XML_PAnsiChar(PtrComp(name) + I * SizeOf(XML_Char))^ = XML_T(':')
         then
         begin
@@ -3637,11 +3614,9 @@ begin
               Result := nil;
 
               Exit;
-
             end;
 
             Inc(J);
-
           end;
 
           if PoolAppendChar(@Dtd.Pool, XML_T(#0)) = 0 then
@@ -3649,59 +3624,43 @@ begin
             Result := nil;
 
             Exit;
-
           end;
 
-          Id.Prefix := PREFIX_ptr(Lookup(@Dtd.Prefixes, PoolStart(@Dtd.Pool),
-            SizeOf(PREFIX)));
+          Id.TPrefix := PPrefix(Lookup(@Dtd.Prefixes, PoolStart(@Dtd.Pool),
+            SizeOf(TPrefix)));
 
-          if Id.Prefix.Name = PoolStart(@Dtd.Pool) then
+          if Id.TPrefix.Name = PoolStart(@Dtd.Pool) then
             PoolFinish(@Dtd.Pool)
           else
             PoolDiscard(@Dtd.Pool);
 
           Break;
-
         end;
 
         Inc(I);
-
       end;
-
     end;
-
   end;
 
   Result := Id;
-
 end;
 
-{ defineAttribute {.. }
-function DefineAttribute(Type_: ELEMENT_TYPE_ptr; AttId: ATTRIBUTE_ID_ptr;
+function DefineAttribute(Type_: PElementType; AttId: PAttributeID;
   IsCdata, IsId: XML_Bool; Value: XML_PAnsiChar; Parser: XML_Parser): Integer;
 begin
 end;
 
-{ appendAttributeValue }
 function AppendAttributeValue(Parser: XML_Parser; Enc: ENCODING_ptr;
-  IsCdata: XML_Bool; Ptr, Stop: PAnsiChar; Pool: STRING_POOL_ptr): XML_Error;
+  IsCdata: XML_Bool; Ptr, Stop: PAnsiChar; Pool: PStringPool): XML_Error;
 var
   Dtd: DTD_ptr;
-
   Next: PAnsiChar;
-
   Tok, I, N: Integer;
-
   Buf: array [0 .. XML_ENCODE_MAX - 1] of XML_Char;
-
   Name, TextEnd: XML_PAnsiChar;
-
-  Entity: ENTITY_ptr;
-
+  TEntity: PEntity;
   CheckEntityDecl: AnsiChar;
-
   Ch: XML_Char;
-
   Result_: XML_Error;
 
 label
@@ -3725,20 +3684,18 @@ begin
 
       XML_TOK_INVALID:
         begin
-          if Enc = Parser.M_encoding then
-            Parser.M_eventPtr := Next;
+          if Enc = Parser.Encoding then
+            Parser.EventPtr := Next;
 
           Result := XML_ERROR_INVALID_TOKEN;
-
         end;
 
       XML_TOK_PARTIAL:
         begin
-          if Enc = Parser.M_encoding then
-            Parser.M_eventPtr := Ptr;
+          if Enc = Parser.Encoding then
+            Parser.EventPtr := Ptr;
 
           Result := XML_ERROR_INVALID_TOKEN;
-
         end;
 
       XML_TOK_CHAR_REF:
@@ -3747,11 +3704,10 @@ begin
 
           if N < 0 then
           begin
-            if Enc = Parser.M_encoding then
-              Parser.M_eventPtr := Ptr;
+            if Enc = Parser.Encoding then
+              Parser.EventPtr := Ptr;
 
             Result := XML_ERROR_BAD_CHAR_REF;
-
           end;
 
           if (IsCdata = 0) and (N = $20) and { space }
@@ -3763,13 +3719,12 @@ begin
 
           if N = 0 then
           begin
-            if Enc = Parser.M_encoding then
-              Parser.M_eventPtr := Ptr;
+            if Enc = Parser.Encoding then
+              Parser.EventPtr := Ptr;
 
             Result := XML_ERROR_BAD_CHAR_REF;
 
             Exit;
-
           end;
 
           I := 0;
@@ -3781,11 +3736,9 @@ begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
-
             end;
 
             Inc(I);
-
           end;
 
         end;
@@ -3796,7 +3749,6 @@ begin
           Result := XML_ERROR_NO_MEMORY;
 
           Exit;
-
         end;
 
       XML_TOK_TRAILING_CR:
@@ -3804,7 +3756,6 @@ begin
           Next := PAnsiChar(PtrComp(Ptr) + Enc.MinBytesPerChar);
 
           goto _go0;
-
         end;
 
       XML_TOK_ATTRIBUTE_VALUE_S, XML_TOK_DATA_NEWLINE:
@@ -3820,9 +3771,7 @@ begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
-
         end;
 
       XML_TOK_ENTITY_REF:
@@ -3838,11 +3787,9 @@ begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
-
             end;
 
             goto _break;
-
           end;
 
           name := PoolStoreString(@Parser.M_temp2Pool, Enc,
@@ -3854,26 +3801,24 @@ begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
 
-          Entity := ENTITY_ptr(Lookup(@Parser.M_dtd.GeneralEntities, name, 0));
+          TEntity := PEntity(Lookup(@Parser.M_dtd.GeneralEntities, name, 0));
 
           PoolDiscard(@Parser.M_temp2Pool);
 
           { First, determine if a check for an existing declaration is needed;
-            if yes, check that the entity exists, and that it is internal. }
+            if yes, check that the TEntity exists, and that it is internal. }
           if Pool = @Parser.M_dtd.Pool then { are we called from prolog? }
           begin
             if Dtd.Standalone <> 0 then
-              CheckEntityDecl := AnsiChar(Parser.M_openInternalEntities = nil)
+              CheckEntityDecl := AnsiChar(Parser.OpenInternalEntities = nil)
             else
               CheckEntityDecl := AnsiChar(Dtd.HasParamEntityRefs = 0);
 
 {$IFDEF XML_DTD }
             CheckEntityDecl := AnsiChar((CheckEntityDecl <> #0) and
-              (Parser.M_prologState.DocumentEntity <> 0))
-
+              (Parser.PrologState.DocumentEntity <> 0))
 {$ENDIF }
           end
           else { if pool = @tempPool: we are called from content }
@@ -3881,100 +3826,89 @@ begin
               (Dtd.Standalone <> 0));
 
           if CheckEntityDecl <> #0 then
-            if Entity = nil then
+            if TEntity = nil then
             begin
               Result := XML_ERROR_UNDEFINED_ENTITY;
 
               Exit;
-
             end
-            else if Entity.IsInternal = 0 then
+            else if TEntity.IsInternal = 0 then
             begin
               Result := XML_ERROR_ENTITY_DECLARED_IN_PE;
 
               Exit;
-
             end
             else
-          else if Entity = nil then
-            { Cannot report skipped entity here - see comments on
+          else if TEntity = nil then
+            { Cannot report skipped TEntity here - see comments on
               skippedEntityHandler.
-              if @parser.m_skippedEntityHandler <> NIL then
-              parser.m_skippedEntityHandler(parser.m_handlerArg ,name ,0 ); }
+              if @parser.SkippedEntityHandler <> NIL then
+              parser.SkippedEntityHandler(parser.HandlerArg ,name ,0 ); }
             { Cannot call the default handler because this would be
               out of sync with the call to the startElementHandler.
-              if (pool = @parser.m_tempPool ) and
-              (@parser.m_defaultHandler <> NIL ) then
+              if (pool = @parser.TempPool ) and
+              (@parser.DefaultHandler <> NIL ) then
               reportDefault(parser ,enc ,ptr ,next ); }
             goto _break;
 
-          if Entity.Open <> 0 then
+          if TEntity.Open <> 0 then
           begin
-            if Enc = Parser.M_encoding then
-              Parser.M_eventPtr := Ptr;
+            if Enc = Parser.Encoding then
+              Parser.EventPtr := Ptr;
 
             Result := XML_ERROR_RECURSIVE_ENTITY_REF;
 
             Exit;
-
           end;
 
-          if Entity.Notation <> nil then
+          if TEntity.Notation <> nil then
           begin
-            if Enc = Parser.M_encoding then
-              Parser.M_eventPtr := Ptr;
+            if Enc = Parser.Encoding then
+              Parser.EventPtr := Ptr;
 
             Result := XML_ERROR_BINARY_ENTITY_REF;
 
             Exit;
-
           end;
 
-          if Entity.TextPtr = nil then
+          if TEntity.TextPtr = nil then
           begin
-            if Enc = Parser.M_encoding then
-              Parser.M_eventPtr := Ptr;
+            if Enc = Parser.Encoding then
+              Parser.EventPtr := Ptr;
 
             Result := XML_ERROR_ATTRIBUTE_EXTERNAL_ENTITY_REF;
 
             Exit;
-
           end
           else
           begin
-            TextEnd := XML_PAnsiChar(PtrComp(Entity.TextPtr) + Entity.TextLen *
+            TextEnd := XML_PAnsiChar(PtrComp(TEntity.TextPtr) + TEntity.TextLen *
               SizeOf(XML_Char));
 
-            Entity.Open := XML_TRUE;
+            TEntity.Open := CXmlTrue;
 
-            Result_ := AppendAttributeValue(Parser, Parser.MInternalEncoding,
-              IsCdata, PAnsiChar(Entity.TextPtr), PAnsiChar(TextEnd), Pool);
+            Result_ := AppendAttributeValue(Parser, Parser.InternalEncoding,
+              IsCdata, PAnsiChar(TEntity.TextPtr), PAnsiChar(TextEnd), Pool);
 
-            Entity.Open := XML_FALSE;
+            TEntity.Open := CXmlFalse;
 
             if Result_ <> XML_Error(0) then
             begin
               Result := Result_;
 
               Exit;
-
             end;
-
           end;
-
         end;
-
     else
       begin
-        if Enc = Parser.M_encoding then
-          Parser.M_eventPtr := Ptr;
+        if Enc = Parser.Encoding then
+          Parser.EventPtr := Ptr;
 
         Result := XML_ERROR_UNEXPECTED_STATE;
 
         Exit;
-
       end;
-
     end;
 
   _break:
@@ -3983,15 +3917,12 @@ begin
   until False;
 
   { not reached }
-
 end;
 
-{ storeAttributeValue }
 function StoreAttributeValue(Parser: XML_Parser; Enc: ENCODING_ptr;
-  IsCdata: XML_Bool; Ptr, Stop: PAnsiChar; Pool: STRING_POOL_ptr): XML_Error;
+  IsCdata: XML_Bool; Ptr, Stop: PAnsiChar; Pool: PStringPool): XML_Error;
 var
   Result_: XML_Error;
-
 begin
   Result_ := AppendAttributeValue(Parser, Enc, IsCdata, Ptr, Stop, Pool);
 
@@ -4000,7 +3931,6 @@ begin
     Result := Result_;
 
     Exit;
-
   end;
 
   if (IsCdata = 0) and (PoolLength(Pool) <> 0) and
@@ -4012,20 +3942,16 @@ begin
     Result := XML_ERROR_NO_MEMORY;
 
     Exit;
-
   end;
 
   Result := XML_ERROR_NONE;
-
 end;
 
-{ storeEntityValue {.. }
 function StoreEntityValue(Parser: XML_Parser; Enc: ENCODING_ptr;
   Start, Stop: PAnsiChar): XML_Error;
 begin
 end;
 
-{ doIgnoreSection {.. }
 { startPtr gets set to non-null is the section is closed, and to null
   if the section is not yet closed. }
 function DoIgnoreSection(Parser: XML_Parser; Enc: ENCODING_ptr;
@@ -4034,7 +3960,6 @@ function DoIgnoreSection(Parser: XML_Parser; Enc: ENCODING_ptr;
 begin
 end;
 
-{ ignoreSectionProcessor {.. }
 { The idea here is to avoid using stack for each IGNORE section when
   the whole file is parsed with one call. }
 function IgnoreSectionProcessor(Parser: XML_Parser; Start, Stop: PAnsiChar;
@@ -4042,46 +3967,39 @@ function IgnoreSectionProcessor(Parser: XML_Parser; Start, Stop: PAnsiChar;
 begin
 end;
 
-{ nextScaffoldPart {.. }
 function NextScaffoldPart(Parser: XML_Parser): Integer;
 begin
 end;
 
-{ build_model {.. }
 function Build_model(Parser: XML_Parser): XML_Content_ptr;
 begin
 end;
 
-{ reportProcessingInstruction {.. }
 function ReportProcessingInstruction(Parser: XML_Parser; Enc: ENCODING_ptr;
   Start, Stop: PAnsiChar): Integer;
 begin
 end;
 
-{ normalizeLines {.. }
 procedure NormalizeLines(S: XML_PAnsiChar);
 begin
 end;
 
-{ reportComment }
 function ReportComment(Parser: XML_Parser; Enc: ENCODING_ptr;
   Start, Stop: PAnsiChar): Integer;
 var
   Data: XML_PAnsiChar;
-
 begin
-  if @Parser.M_commentHandler = nil then
+  if @Parser.CommentHandler = nil then
   begin
-    if @Parser.M_defaultHandler <> nil then
+    if @Parser.DefaultHandler <> nil then
       ReportDefault(Parser, Enc, Start, Stop);
 
     Result := 1;
 
     Exit;
-
   end;
 
-  Data := PoolStoreString(@Parser.M_tempPool, Enc,
+  Data := PoolStoreString(@Parser.TempPool, Enc,
     PAnsiChar(PtrComp(Start) + Enc.MinBytesPerChar * 4),
     PAnsiChar(PtrComp(Stop) - Enc.MinBytesPerChar * 3));
 
@@ -4090,20 +4008,17 @@ begin
     Result := 0;
 
     Exit;
-
   end;
 
   NormalizeLines(Data);
 
-  Parser.M_commentHandler(Parser.M_handlerArg, Data);
+  Parser.CommentHandler(Parser.HandlerArg, Data);
 
-  PoolClear(@Parser.M_tempPool);
+  PoolClear(@Parser.TempPool);
 
   Result := 1;
-
 end;
 
-{ doProlog }
 function DoProlog(Parser: XML_Parser; Enc: ENCODING_ptr; S, Stop: PAnsiChar;
   Tok: Integer; Next: PAnsiChar; NextPtr: PPAnsiChar; HaveMore: XML_Bool)
   : XML_Error;
@@ -4130,28 +4045,16 @@ const
 
 var
   Dtd: DTD_ptr;
-
   EventPP, EventEndPP: PPAnsiChar;
-
   Quant: XML_Content_Quant;
-
   Role, Myindex, NameLen: Integer;
-
   HandleDefault, HadParamEntityRefs, Ok, BetweenDecl: XML_Bool;
-
   Result_: XML_Error;
-
-  Tem, Prefix, AttVal, Name, SystemId: XML_PAnsiChar;
-
-  Entity: ENTITY_ptr;
-
-  Ctemp, Nxt: PAnsiChar;
-
-  Itemp: PInteger;
-
+  Tem, TPrefix, AttVal, Name, SystemId: XML_PAnsiChar;
+  TEntity: PEntity;
+  Nxt: PAnsiChar;
   Content, Model: XML_Content_ptr;
-
-  El: ELEMENT_TYPE_ptr;
+  El: PElementType;
 
 label
   _break, _go0, _go1,
@@ -4161,21 +4064,19 @@ begin
   { save one level of indirection }
   Dtd := Parser.M_dtd;
 
-  if Enc = Parser.M_encoding then
+  if Enc = Parser.Encoding then
   begin
-    EventPP := @Parser.M_eventPtr;
-    EventEndPP := @Parser.M_eventEndPtr;
-
+    EventPP := @Parser.EventPtr;
+    EventEndPP := @Parser.EventEndPtr;
   end
   else
   begin
-    EventPP := @Parser.M_openInternalEntities.InternalEventPtr;
-    EventEndPP := @Parser.M_openInternalEntities.InternalEventEndPtr;
-
+    EventPP := @Parser.OpenInternalEntities.InternalEventPtr;
+    EventEndPP := @Parser.OpenInternalEntities.InternalEventEndPtr;
   end;
 
   repeat
-    HandleDefault := XML_TRUE;
+    HandleDefault := CXmlTrue;
     EventPP^ := S;
     EventEndPP^ := Next;
 
@@ -4187,7 +4088,6 @@ begin
         Result := XML_ERROR_NONE;
 
         Exit;
-
       end;
 
       case Tok of
@@ -4197,7 +4097,6 @@ begin
             Result := XML_ERROR_INVALID_TOKEN;
 
             Exit;
-
           end;
 
         XML_TOK_PARTIAL:
@@ -4205,7 +4104,6 @@ begin
             Result := XML_ERROR_UNCLOSED_TOKEN;
 
             Exit;
-
           end;
 
         XML_TOK_PARTIAL_CHAR:
@@ -4213,63 +4111,55 @@ begin
             Result := XML_ERROR_PARTIAL_CHAR;
 
             Exit;
-
           end;
 
         XML_TOK_NONE:
           begin
 {$IFDEF XML_DTD }
             { for internal PE NOT referenced between declarations }
-            if (Enc <> Parser.M_encoding) and
-              (Parser.M_openInternalEntities.BetweenDecl = 0) then
+            if (Enc <> Parser.Encoding) and
+              (Parser.OpenInternalEntities.BetweenDecl = 0) then
             begin
               NextPtr^ := S;
               Result := XML_ERROR_NONE;
 
               Exit;
-
             end;
 
             { WFC: PE Between Declarations - must check that PE contains
               complete markup, not only for external PEs, but also for
               internal PEs if the reference occurs between declarations. }
-            if (Parser.M_isParamEntity <> 0) or (Enc <> Parser.M_encoding) then
+            if (Parser.IsParamEntity <> 0) or (Enc <> Parser.Encoding) then
             begin
-              if XmlTokenRole(@Parser.M_prologState, XML_TOK_NONE,
+              if XmlTokenRole(@Parser.PrologState, XML_TOK_NONE,
                 Pointer(Stop), Pointer(Stop), Enc) = XML_ROLE_ERROR then
               begin
                 Result := XML_ERROR_INCOMPLETE_PE;
 
                 Exit;
-
               end;
 
               NextPtr^ := S;
               Result := XML_ERROR_NONE;
 
               Exit;
-
             end;
-
 {$ENDIF }
+
             Result := XML_ERROR_NO_ELEMENTS;
 
             Exit;
-
           end;
 
       else
         begin
           Tok := -Tok;
           Next := Stop;
-
         end;
-
       end;
-
     end;
 
-    Role := XmlTokenRole(@Parser.M_prologState, Tok, Pointer(S),
+    Role := XmlTokenRole(@Parser.PrologState, Tok, Pointer(S),
       Pointer(Next), Enc);
 
     case Role of
@@ -4282,57 +4172,48 @@ begin
             Result := Result_;
 
             Exit;
-
           end;
 
-          Enc := Parser.M_encoding;
-
-          HandleDefault := XML_FALSE;
-
+          Enc := Parser.Encoding;
+          HandleDefault := CXmlFalse;
         end;
 
       XML_ROLE_DOCTYPE_NAME:
         begin
-          if @Parser.FStartDoctypeDeclHandler <> nil then
+          if @Parser.StartDoctypeDeclHandler <> nil then
           begin
-            Parser.M_doctypeName := PoolStoreString(@Parser.M_tempPool,
+            Parser.DoctypeName := PoolStoreString(@Parser.TempPool,
               Enc, S, Next);
 
-            if Parser.M_doctypeName = nil then
+            if Parser.DoctypeName = nil then
             begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
-
             end;
 
-            PoolFinish(@Parser.M_tempPool);
+            PoolFinish(@Parser.TempPool);
 
-            Parser.M_doctypePubid := nil;
-            HandleDefault := XML_FALSE;
-
+            Parser.DoctypePubid := nil;
+            HandleDefault := CXmlFalse;
           end;
 
-          Parser.M_doctypeSysid := nil; { always initialize to NULL }
-
+          Parser.DoctypeSysid := nil; { always initialize to NULL }
         end;
 
       XML_ROLE_DOCTYPE_INTERNAL_SUBSET:
-        if @Parser.FStartDoctypeDeclHandler <> nil then
+        if @Parser.StartDoctypeDeclHandler <> nil then
         begin
-          Parser.FStartDoctypeDeclHandler(Parser.M_handlerArg,
-            Parser.M_doctypeName, Parser.M_doctypeSysid,
-            Parser.M_doctypePubid, 1);
+          Parser.StartDoctypeDeclHandler(Parser.HandlerArg,
+            Parser.DoctypeName, Parser.DoctypeSysid,
+            Parser.DoctypePubid, 1);
 
-          Parser.M_doctypeName := nil;
-
-          PoolClear(@Parser.M_tempPool);
-
-          HandleDefault := XML_FALSE;
-
+          Parser.DoctypeName := nil;
+          PoolClear(@Parser.TempPool);
+          HandleDefault := CXmlFalse;
         end;
 
-{$IFDEF XML_DTD }
+{$IFDEF XML_DTD}
       XML_ROLE_TEXT_DECL:
         begin
           Result_ := ProcessXmlDecl(Parser, 1, S, Next);
@@ -4342,35 +4223,32 @@ begin
             Result := Result_;
 
             Exit;
-
           end;
 
-          Enc := Parser.M_encoding;
-          HandleDefault := XML_FALSE;
-
+          Enc := Parser.Encoding;
+          HandleDefault := CXmlFalse;
         end;
 
-{$ENDIF }
+{$ENDIF}
       XML_ROLE_DOCTYPE_PUBLIC_ID:
         begin
-{$IFDEF XML_DTD }
-          Parser.M_useForeignDTD := XML_FALSE;
-          Parser.M_declEntity :=
-            ENTITY_ptr(Lookup(@Dtd.ParamEntities, @ExternalSubsetName[0],
-            SizeOf(Expat.ENTITY)));
+{$IFDEF XML_DTD}
+          Parser.M_useForeignDTD := CXmlFalse;
+          Parser.DeclEntity :=
+            PEntity(Lookup(@Dtd.ParamEntities, @ExternalSubsetName[0],
+            SizeOf(Expat.TEntity)));
 
-          if Parser.M_declEntity = nil then
+          if Parser.DeclEntity = nil then
           begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
 
-{$ENDIF }
-          Dtd.HasParamEntityRefs := XML_TRUE;
+{$ENDIF}
+          Dtd.HasParamEntityRefs := CXmlTrue;
 
-          if @Parser.FStartDoctypeDeclHandler <> nil then
+          if @Parser.StartDoctypeDeclHandler <> nil then
           begin
             if XmlIsPublicId(Enc, Pointer(S), Pointer(Next), Pointer(EventPP)) = 0
             then
@@ -4378,33 +4256,29 @@ begin
               Result := XML_ERROR_PUBLICID;
 
               Exit;
-
             end;
 
-            Parser.M_doctypePubid := PoolStoreString(@Parser.M_tempPool, Enc,
+            Parser.DoctypePubid := PoolStoreString(@Parser.TempPool, Enc,
               PAnsiChar(PtrComp(S) + Enc.MinBytesPerChar),
               PAnsiChar(PtrComp(Next) - Enc.MinBytesPerChar));
 
-            if Parser.M_doctypePubid = nil then
+            if Parser.DoctypePubid = nil then
             begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
-
             end;
 
-            NormalizePublicId(XML_PAnsiChar(Parser.M_doctypePubid));
-            PoolFinish(@Parser.M_tempPool);
+            NormalizePublicId(XML_PAnsiChar(Parser.DoctypePubid));
+            PoolFinish(@Parser.TempPool);
 
-            HandleDefault := XML_FALSE;
+            HandleDefault := CXmlFalse;
 
             goto AlreadyChecked;
-
           end;
 
           { fall through }
           goto _go0;
-
         end;
 
       XML_ROLE_ENTITY_PUBLIC_ID:
@@ -4416,11 +4290,10 @@ begin
             Result := XML_ERROR_PUBLICID;
 
             Exit;
-
           end;
 
         AlreadyChecked:
-          if (Dtd.KeepProcessing <> 0) and (Parser.M_declEntity <> nil) then
+          if (Dtd.KeepProcessing <> 0) and (Parser.DeclEntity <> nil) then
           begin
             Tem := PoolStoreString(@Dtd.Pool, Enc,
               PAnsiChar(PtrComp(S) + Enc.MinBytesPerChar),
@@ -4431,157 +4304,140 @@ begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
-
             end;
 
             NormalizePublicId(Tem);
-
-            Parser.M_declEntity.PublicId := Tem;
-
+            Parser.DeclEntity.PublicId := Tem;
             PoolFinish(@Dtd.Pool);
 
-            if @Parser.M_entityDeclHandler <> nil then
-              HandleDefault := XML_FALSE;
-
+            if @Parser.EntityDeclHandler <> nil then
+              HandleDefault := CXmlFalse;
           end;
-
         end;
 
       XML_ROLE_DOCTYPE_CLOSE:
         begin
-          if Parser.M_doctypeName <> nil then
+          if Parser.DoctypeName <> nil then
           begin
-            Parser.FStartDoctypeDeclHandler(Parser.M_handlerArg,
-              Parser.M_doctypeName, Parser.M_doctypeSysid,
-              Parser.M_doctypePubid, 0);
+            Parser.StartDoctypeDeclHandler(Parser.HandlerArg,
+              Parser.DoctypeName, Parser.DoctypeSysid,
+              Parser.DoctypePubid, 0);
 
-            PoolClear(@Parser.M_tempPool);
-
-            HandleDefault := XML_FALSE;
-
+            PoolClear(@Parser.TempPool);
+            HandleDefault := CXmlFalse;
           end;
 
           { doctypeSysid will be non-NULL in the case of a previous
             XML_ROLE_DOCTYPE_SYSTEM_ID, even if startDoctypeDeclHandler
             was not set, indicating an external subset }
 {$IFDEF XML_DTD }
-          if (Parser.M_doctypeSysid <> nil) or (Parser.M_useForeignDTD <> 0)
+          if (Parser.DoctypeSysid <> nil) or (Parser.M_useForeignDTD <> 0)
           then
           begin
             HadParamEntityRefs := Dtd.HasParamEntityRefs;
-            Dtd.HasParamEntityRefs := XML_TRUE;
+            Dtd.HasParamEntityRefs := CXmlTrue;
 
-            if (Parser.M_paramEntityParsing <> XML_ParamEntityParsing(0)) and
-              (@Parser.M_externalEntityRefHandler <> nil) then
+            if (Parser.ParamEntityParsing <> XML_ParamEntityParsing(0)) and
+              (@Parser.ExternalEntityRefHandler <> nil) then
             begin
-              Entity := ENTITY_ptr(Lookup(@Dtd.ParamEntities,
-                @ExternalSubsetName[0], SizeOf(Expat.ENTITY)));
+              TEntity := PEntity(Lookup(@Dtd.ParamEntities,
+                @ExternalSubsetName[0], SizeOf(Expat.TEntity)));
 
-              if Entity = nil then
+              if TEntity = nil then
               begin
                 Result := XML_ERROR_NO_MEMORY;
 
                 Exit;
-
               end;
 
               if Parser.M_useForeignDTD <> 0 then
-                Entity.Base := Parser.FCurBase;
+                TEntity.Base := Parser.CurBase;
 
-              Dtd.ParamEntityRead := XML_FALSE;
+              Dtd.ParamEntityRead := CXmlFalse;
 
-              if Parser.M_externalEntityRefHandler
-                (Parser.M_externalEntityRefHandlerArg, 0, Entity.Base,
-                Entity.SystemId, Entity.PublicId) = 0 then
+              if Parser.ExternalEntityRefHandler
+                (Parser.ExternalEntityRefHandlerArg, 0, TEntity.Base,
+                TEntity.SystemId, TEntity.PublicId) = 0 then
               begin
                 Result := XML_ERROR_EXTERNAL_ENTITY_HANDLING;
 
                 Exit;
-
               end;
 
               if Dtd.ParamEntityRead <> 0 then
                 if (Dtd.Standalone = 0) and
-                  (@Parser.M_notStandaloneHandler <> nil) and
-                  (Parser.M_notStandaloneHandler(Parser.M_handlerArg) = 0) then
+                  (@Parser.NotStandaloneHandler <> nil) and
+                  (Parser.NotStandaloneHandler(Parser.HandlerArg) = 0) then
                 begin
                   Result := XML_ERROR_NOT_STANDALONE;
 
                   Exit;
-
                 end
                 else
               else
                 { if we didn't read the foreign DTD then this means that there
                   is no external subset and we must reset dtd.hasParamEntityRefs }
-                if Parser.M_doctypeSysid = nil then
+                if Parser.DoctypeSysid = nil then
                   Dtd.HasParamEntityRefs := HadParamEntityRefs;
 
               { end of DTD - no need to update dtd.keepProcessing }
-
             end;
 
-            Parser.M_useForeignDTD := XML_FALSE;
-
+            Parser.M_useForeignDTD := CXmlFalse;
           end;
 
-{$ENDIF }
-          if @Parser.M_endDoctypeDeclHandler <> nil then
+{$ENDIF}
+          if @Parser.EndDoctypeDeclHandler <> nil then
           begin
-            Parser.M_endDoctypeDeclHandler(Parser.M_handlerArg);
+            Parser.EndDoctypeDeclHandler(Parser.HandlerArg);
 
-            HandleDefault := XML_FALSE;
-
+            HandleDefault := CXmlFalse;
           end;
-
         end;
 
       XML_ROLE_INSTANCE_START:
         begin
-{$IFDEF XML_DTD }
+{$IFDEF XML_DTD}
           { if there is no DOCTYPE declaration then now is the
             last chance to read the foreign DTD }
           if Parser.M_useForeignDTD <> 0 then
           begin
             HadParamEntityRefs := Dtd.HasParamEntityRefs;
-            Dtd.HasParamEntityRefs := XML_TRUE;
+            Dtd.HasParamEntityRefs := CXmlTrue;
 
-            if (Parser.M_paramEntityParsing <> XML_ParamEntityParsing(0)) and
-              (@Parser.M_externalEntityRefHandler <> nil) then
+            if (Parser.ParamEntityParsing <> XML_ParamEntityParsing(0)) and
+              (@Parser.ExternalEntityRefHandler <> nil) then
             begin
-              Entity := ENTITY_ptr(Lookup(@Dtd.ParamEntities,
-                @ExternalSubsetName[0], SizeOf(Expat.ENTITY)));
+              TEntity := PEntity(Lookup(@Dtd.ParamEntities,
+                @ExternalSubsetName[0], SizeOf(Expat.TEntity)));
 
-              if Entity = nil then
+              if TEntity = nil then
               begin
                 Result := XML_ERROR_NO_MEMORY;
 
                 Exit;
-
               end;
 
-              Entity.Base := Parser.FCurBase;
-              Dtd.ParamEntityRead := XML_FALSE;
+              TEntity.Base := Parser.CurBase;
+              Dtd.ParamEntityRead := CXmlFalse;
 
-              if Parser.M_externalEntityRefHandler
-                (Parser.M_externalEntityRefHandlerArg, 0, Entity.Base,
-                Entity.SystemId, Entity.PublicId) = 0 then
+              if Parser.ExternalEntityRefHandler
+                (Parser.ExternalEntityRefHandlerArg, 0, TEntity.Base,
+                TEntity.SystemId, TEntity.PublicId) = 0 then
               begin
                 Result := XML_ERROR_EXTERNAL_ENTITY_HANDLING;
 
                 Exit;
-
               end;
 
               if Dtd.ParamEntityRead <> 0 then
                 if (Dtd.Standalone = 0) and
-                  (@Parser.M_notStandaloneHandler <> nil) and
-                  (Parser.M_notStandaloneHandler(Parser.M_handlerArg) = 0) then
+                  (@Parser.NotStandaloneHandler <> nil) and
+                  (Parser.NotStandaloneHandler(Parser.HandlerArg) = 0) then
                 begin
                   Result := XML_ERROR_NOT_STANDALONE;
 
                   Exit;
-
                 end
                 else
               else
@@ -4590,216 +4446,192 @@ begin
                 Dtd.HasParamEntityRefs := HadParamEntityRefs;
 
               { end of DTD - no need to update dtd.keepProcessing }
-
             end;
-
           end;
 
-{$ENDIF }
-          Parser.M_processor := @ContentProcessor;
-
+{$ENDIF}
+          Parser.TProcessor := @ContentProcessor;
           Result := ContentProcessor(Parser, S, Stop, NextPtr);
 
           Exit;
-
         end;
 
       XML_ROLE_ATTLIST_ELEMENT_NAME:
         begin
-          Parser.M_declElementType := GetElementType(Parser, Enc, S, Next);
+          Parser.DeclElementType := GetElementType(Parser, Enc, S, Next);
 
-          if Parser.M_declElementType = nil then
+          if Parser.DeclElementType = nil then
           begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
 
           goto CheckAttListDeclHandler;
-
         end;
 
       XML_ROLE_ATTRIBUTE_NAME:
         begin
-          Parser.M_declAttributeId := GetAttributeId(Parser, Enc, S, Next);
+          Parser.DeclAttributeId := GetAttributeId(Parser, Enc, S, Next);
 
-          if Parser.M_declAttributeId = nil then
+          if Parser.DeclAttributeId = nil then
           begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
 
-          Parser.M_declAttributeIsCdata := XML_FALSE;
-          Parser.M_declAttributeType := nil;
-          Parser.M_declAttributeIsId := XML_FALSE;
+          Parser.DeclAttributeIsCdata := CXmlFalse;
+          Parser.DeclAttributeType := nil;
+          Parser.DeclAttributeIsId := CXmlFalse;
 
           goto CheckAttListDeclHandler;
-
         end;
 
       XML_ROLE_ATTRIBUTE_TYPE_CDATA:
         begin
-          Parser.M_declAttributeIsCdata := XML_TRUE;
-          Parser.M_declAttributeType := @AtypeCDATA[0];
+          Parser.DeclAttributeIsCdata := CXmlTrue;
+          Parser.DeclAttributeType := @AtypeCDATA[0];
 
           goto CheckAttListDeclHandler;
-
         end;
 
       XML_ROLE_ATTRIBUTE_TYPE_ID:
         begin
-          Parser.M_declAttributeIsId := XML_TRUE;
-          Parser.M_declAttributeType := @AtypeID[0];
+          Parser.DeclAttributeIsId := CXmlTrue;
+          Parser.DeclAttributeType := @AtypeID[0];
 
           goto CheckAttListDeclHandler;
-
         end;
 
       XML_ROLE_ATTRIBUTE_TYPE_IDREF:
         begin
-          Parser.M_declAttributeType := @AtypeIDREF[0];
+          Parser.DeclAttributeType := @AtypeIDREF[0];
 
           goto CheckAttListDeclHandler;
-
         end;
 
       XML_ROLE_ATTRIBUTE_TYPE_IDREFS:
         begin
-          Parser.M_declAttributeType := @AtypeIDREFS[0];
+          Parser.DeclAttributeType := @AtypeIDREFS[0];
 
           goto CheckAttListDeclHandler;
-
         end;
 
       XML_ROLE_ATTRIBUTE_TYPE_ENTITY:
         begin
-          Parser.M_declAttributeType := @AtypeENTITY[0];
+          Parser.DeclAttributeType := @AtypeENTITY[0];
 
           goto CheckAttListDeclHandler;
-
         end;
 
       XML_ROLE_ATTRIBUTE_TYPE_ENTITIES:
         begin
-          Parser.M_declAttributeType := @AtypeENTITIES[0];
+          Parser.DeclAttributeType := @AtypeENTITIES[0];
 
           goto CheckAttListDeclHandler;
-
         end;
 
       XML_ROLE_ATTRIBUTE_TYPE_NMTOKEN:
         begin
-          Parser.M_declAttributeType := @AtypeNMTOKEN[0];
+          Parser.DeclAttributeType := @AtypeNMTOKEN[0];
 
           goto CheckAttListDeclHandler;
-
         end;
 
       XML_ROLE_ATTRIBUTE_TYPE_NMTOKENS:
         begin
-          Parser.M_declAttributeType := @AtypeNMTOKENS[0];
+          Parser.DeclAttributeType := @AtypeNMTOKENS[0];
 
         CheckAttListDeclHandler:
-          if (Dtd.KeepProcessing <> 0) and (@Parser.M_attlistDeclHandler <> nil)
+          if (Dtd.KeepProcessing <> 0) and (@Parser.AttlistDeclHandler <> nil)
           then
-            HandleDefault := XML_FALSE;
-
+            HandleDefault := CXmlFalse;
         end;
 
       XML_ROLE_ATTRIBUTE_ENUM_VALUE, XML_ROLE_ATTRIBUTE_NOTATION_VALUE:
-        if (Dtd.KeepProcessing <> 0) and (@Parser.M_attlistDeclHandler <> nil)
+        if (Dtd.KeepProcessing <> 0) and (@Parser.AttlistDeclHandler <> nil)
         then
         begin
-          if Parser.M_declAttributeType <> nil then
-            Prefix := @EnumValueSep[0]
+          if Parser.DeclAttributeType <> nil then
+            TPrefix := @EnumValueSep[0]
 
           else if Role = XML_ROLE_ATTRIBUTE_NOTATION_VALUE then
-            Prefix := @NotationPrefix[0]
+            TPrefix := @NotationPrefix[0]
           else
-            Prefix := @EnumValueStart[0];
+            TPrefix := @EnumValueStart[0];
 
-          if PoolAppendString(@Parser.M_tempPool, Prefix) = nil then
+          if PoolAppendString(@Parser.TempPool, TPrefix) = nil then
           begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
 
-          if PoolAppend(@Parser.M_tempPool, Enc, S, Next) = nil then
+          if PoolAppend(@Parser.TempPool, Enc, S, Next) = nil then
           begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
 
-          Parser.M_declAttributeType := Parser.M_tempPool.Start;
+          Parser.DeclAttributeType := Parser.TempPool.Start;
 
-          HandleDefault := XML_FALSE;
-
+          HandleDefault := CXmlFalse;
         end;
 
       XML_ROLE_IMPLIED_ATTRIBUTE_VALUE, XML_ROLE_REQUIRED_ATTRIBUTE_VALUE:
         if Dtd.KeepProcessing <> 0 then
         begin
-          if DefineAttribute(Parser.M_declElementType, Parser.M_declAttributeId,
-            Parser.M_declAttributeIsCdata, Parser.M_declAttributeIsId, 0,
+          if DefineAttribute(Parser.DeclElementType, Parser.DeclAttributeId,
+            Parser.DeclAttributeIsCdata, Parser.DeclAttributeIsId, 0,
             Parser) = 0 then
           begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
 
-          if (@Parser.M_attlistDeclHandler <> nil) and
-            (Parser.M_declAttributeType <> nil) then
+          if (@Parser.AttlistDeclHandler <> nil) and
+            (Parser.DeclAttributeType <> nil) then
           begin
-            if (Parser.M_declAttributeType^ = XML_T('(')) or
-              ((Parser.M_declAttributeType^ = XML_T('N')) and
-              (XML_PAnsiChar(PtrComp(Parser.M_declAttributeType) + 1)
+            if (Parser.DeclAttributeType^ = XML_T('(')) or
+              ((Parser.DeclAttributeType^ = XML_T('N')) and
+              (XML_PAnsiChar(PtrComp(Parser.DeclAttributeType) + 1)
               ^ = XML_T('O'))) then
             begin
               { Enumerated or Notation type }
-              if (PoolAppendChar(@Parser.M_tempPool, XML_T(')')) = 0) or
-                (PoolAppendChar(@Parser.M_tempPool, XML_T(#0)) = 0) then
+              if (PoolAppendChar(@Parser.TempPool, XML_T(')')) = 0) or
+                (PoolAppendChar(@Parser.TempPool, XML_T(#0)) = 0) then
               begin
                 Result := XML_ERROR_NO_MEMORY;
 
                 Exit;
-
               end;
 
-              Parser.M_declAttributeType := Parser.M_tempPool.Start;
+              Parser.DeclAttributeType := Parser.TempPool.Start;
 
-              PoolFinish(@Parser.M_tempPool);
-
+              PoolFinish(@Parser.TempPool);
             end;
 
             EventEndPP^ := S;
 
-            Parser.M_attlistDeclHandler(Parser.M_handlerArg,
-              Parser.M_declElementType.Name, Parser.M_declAttributeId.Name,
-              Parser.M_declAttributeType, 0,
+            Parser.AttlistDeclHandler(Parser.HandlerArg,
+              Parser.DeclElementType.Name, Parser.DeclAttributeId.Name,
+              Parser.DeclAttributeType, 0,
               Integer(Role = XML_ROLE_REQUIRED_ATTRIBUTE_VALUE));
 
-            PoolClear(@Parser.M_tempPool);
+            PoolClear(@Parser.TempPool);
 
-            HandleDefault := XML_FALSE;
-
+            HandleDefault := CXmlFalse;
           end;
-
         end;
 
       XML_ROLE_DEFAULT_ATTRIBUTE_VALUE, XML_ROLE_FIXED_ATTRIBUTE_VALUE:
         if Dtd.KeepProcessing <> 0 then
         begin
           Result_ := StoreAttributeValue(Parser, Enc,
-            Parser.M_declAttributeIsCdata,
+            Parser.DeclAttributeIsCdata,
             PAnsiChar(PtrComp(S) + Enc.MinBytesPerChar),
             PAnsiChar(PtrComp(Next) - Enc.MinBytesPerChar), @Dtd.Pool);
 
@@ -4808,7 +4640,6 @@ begin
             Result := Result_;
 
             Exit;
-
           end;
 
           AttVal := PoolStart(@Dtd.Pool);
@@ -4816,49 +4647,47 @@ begin
           PoolFinish(@Dtd.Pool);
 
           { ID attributes aren't alLowed to have a default }
-          if DefineAttribute(Parser.M_declElementType, Parser.M_declAttributeId,
-            Parser.M_declAttributeIsCdata, XML_FALSE, AttVal, Parser) = 0 then
+          if DefineAttribute(Parser.DeclElementType, Parser.DeclAttributeId,
+            Parser.DeclAttributeIsCdata, CXmlFalse, AttVal, Parser) = 0 then
           begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
 
-          if (@Parser.M_attlistDeclHandler <> nil) and
-            (Parser.M_declAttributeType <> nil) then
+          if (@Parser.AttlistDeclHandler <> nil) and
+            (Parser.DeclAttributeType <> nil) then
           begin
-            if (Parser.M_declAttributeType^ = XML_T('(')) or
-              ((Parser.M_declAttributeType^ = XML_T('N')) and
-              (XML_PAnsiChar(PtrComp(Parser.M_declAttributeType) + 1)
+            if (Parser.DeclAttributeType^ = XML_T('(')) or
+              ((Parser.DeclAttributeType^ = XML_T('N')) and
+              (XML_PAnsiChar(PtrComp(Parser.DeclAttributeType) + 1)
               ^ = XML_T('O'))) then
             begin
               { Enumerated or Notation type }
-              if (PoolAppendChar(@Parser.M_tempPool, XML_T(')')) = 0) or
-                (PoolAppendChar(@Parser.M_tempPool, XML_T(#0)) = 0) then
+              if (PoolAppendChar(@Parser.TempPool, XML_T(')')) = 0) or
+                (PoolAppendChar(@Parser.TempPool, XML_T(#0)) = 0) then
               begin
                 Result := XML_ERROR_NO_MEMORY;
 
                 Exit;
-
               end;
 
-              Parser.M_declAttributeType := Parser.M_tempPool.Start;
+              Parser.DeclAttributeType := Parser.TempPool.Start;
 
-              PoolFinish(@Parser.M_tempPool);
+              PoolFinish(@Parser.TempPool);
 
             end;
 
             EventEndPP^ := S;
 
-            Parser.M_attlistDeclHandler(Parser.M_handlerArg,
-              Parser.M_declElementType.Name, Parser.M_declAttributeId.Name,
-              Parser.M_declAttributeType, AttVal,
+            Parser.AttlistDeclHandler(Parser.HandlerArg,
+              Parser.DeclElementType.Name, Parser.DeclAttributeId.Name,
+              Parser.DeclAttributeType, AttVal,
               Integer(Role = XML_ROLE_FIXED_ATTRIBUTE_VALUE));
 
-            PoolClear(@Parser.M_tempPool);
+            PoolClear(@Parser.TempPool);
 
-            HandleDefault := XML_FALSE;
+            HandleDefault := CXmlFalse;
           end;
         end;
 
@@ -4869,23 +4698,23 @@ begin
             PAnsiChar(PtrComp(S) + Enc.MinBytesPerChar),
             PAnsiChar(PtrComp(Next) - Enc.MinBytesPerChar));
 
-          if Parser.M_declEntity <> nil then
+          if Parser.DeclEntity <> nil then
           begin
-            Parser.M_declEntity.TextPtr := PoolStart(@Dtd.EntityValuePool);
-            Parser.M_declEntity.TextLen := PoolLength(@Dtd.EntityValuePool);
+            Parser.DeclEntity.TextPtr := PoolStart(@Dtd.EntityValuePool);
+            Parser.DeclEntity.TextLen := PoolLength(@Dtd.EntityValuePool);
 
             PoolFinish(@Dtd.EntityValuePool);
 
-            if @Parser.M_entityDeclHandler <> nil then
+            if @Parser.EntityDeclHandler <> nil then
             begin
               EventEndPP^ := S;
 
-              Parser.M_entityDeclHandler(Parser.M_handlerArg,
-                Parser.M_declEntity.Name, Parser.M_declEntity.Is_param,
-                Parser.M_declEntity.TextPtr, Parser.M_declEntity.TextLen,
-                Parser.FCurBase, 0, 0, 0);
+              Parser.EntityDeclHandler(Parser.HandlerArg,
+                Parser.DeclEntity.Name, Parser.DeclEntity.Is_param,
+                Parser.DeclEntity.TextPtr, Parser.DeclEntity.TextLen,
+                Parser.CurBase, 0, 0, 0);
 
-              HandleDefault := XML_FALSE;
+              HandleDefault := CXmlFalse;
             end;
           end
           else
@@ -4901,165 +4730,154 @@ begin
 
       XML_ROLE_DOCTYPE_SYSTEM_ID:
         begin
-{$IFDEF XML_DTD }
-          Parser.M_useForeignDTD := XML_FALSE;
+{$IFDEF XML_DTD}
+          Parser.M_useForeignDTD := CXmlFalse;
 
-{$ENDIF }
-          Dtd.HasParamEntityRefs := XML_TRUE;
+{$ENDIF}
+          Dtd.HasParamEntityRefs := CXmlTrue;
 
-          if @Parser.FStartDoctypeDeclHandler <> nil then
+          if @Parser.StartDoctypeDeclHandler <> nil then
           begin
-            Parser.M_doctypeSysid := PoolStoreString(@Parser.M_tempPool, Enc,
+            Parser.DoctypeSysid := PoolStoreString(@Parser.TempPool, Enc,
               PAnsiChar(PtrComp(S) + Enc.MinBytesPerChar),
               PAnsiChar(PtrComp(Next) - Enc.MinBytesPerChar));
 
-            if Parser.M_doctypeSysid = nil then
+            if Parser.DoctypeSysid = nil then
             begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
             end;
 
-            PoolFinish(@Parser.M_tempPool);
+            PoolFinish(@Parser.TempPool);
 
-            HandleDefault := XML_FALSE;
+            HandleDefault := CXmlFalse;
           end
-{$IFDEF XML_DTD }
+{$IFDEF XML_DTD}
           else
             { use externalSubsetName to make doctypeSysid non-NULL
               for the case where no startDoctypeDeclHandler is set }
-            Parser.M_doctypeSysid := @ExternalSubsetName[0];
+            Parser.DoctypeSysid := @ExternalSubsetName[0];
 
-{$ELSE }; {$ENDIF }
+{$ELSE}; {$ENDIF}
           if (Dtd.Standalone = 0) and
-{$IFDEF XML_DTD }
-            (Parser.M_paramEntityParsing = XML_ParamEntityParsing(0)) and
-{$ENDIF }
-            (@Parser.M_notStandaloneHandler <> nil) and
-            (Parser.M_notStandaloneHandler(Parser.M_handlerArg) = 0) then
+{$IFDEF XML_DTD}
+            (Parser.ParamEntityParsing = XML_ParamEntityParsing(0)) and
+{$ENDIF}
+            (@Parser.NotStandaloneHandler <> nil) and
+            (Parser.NotStandaloneHandler(Parser.HandlerArg) = 0) then
           begin
             Result := XML_ERROR_NOT_STANDALONE;
 
             Exit;
           end;
 
-{$IFNDEF XML_DTD }
-{$ELSE }
-          if Parser.M_declEntity = nil then
+{$IFNDEF XML_DTD}
+{$ELSE}
+          if Parser.DeclEntity = nil then
           begin
-            Parser.M_declEntity :=
-              ENTITY_ptr(Lookup(@Dtd.ParamEntities, @ExternalSubsetName[0],
-              SizeOf(Expat.ENTITY)));
+            Parser.DeclEntity :=
+              PEntity(Lookup(@Dtd.ParamEntities, @ExternalSubsetName[0],
+              SizeOf(Expat.TEntity)));
 
-            if Parser.M_declEntity = nil then
+            if Parser.DeclEntity = nil then
             begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
-
             end;
 
-            Parser.M_declEntity.PublicId := nil;
-
+            Parser.DeclEntity.PublicId := nil;
           end;
 
-{$ENDIF }
+{$ENDIF}
           { fall through }
           goto _go1;
-
         end;
 
       XML_ROLE_ENTITY_SYSTEM_ID:
       _go1:
-        if (Dtd.KeepProcessing <> 0) and (Parser.M_declEntity <> nil) then
+        if (Dtd.KeepProcessing <> 0) and (Parser.DeclEntity <> nil) then
         begin
-          Parser.M_declEntity.SystemId := PoolStoreString(@Dtd.Pool, Enc,
+          Parser.DeclEntity.SystemId := PoolStoreString(@Dtd.Pool, Enc,
             PAnsiChar(PtrComp(S) + Enc.MinBytesPerChar),
             PAnsiChar(PtrComp(Next) - Enc.MinBytesPerChar));
 
-          if Parser.M_declEntity.SystemId = nil then
+          if Parser.DeclEntity.SystemId = nil then
           begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
 
-          Parser.M_declEntity.Base := Parser.FCurBase;
+          Parser.DeclEntity.Base := Parser.CurBase;
 
           PoolFinish(@Dtd.Pool);
 
-          if @Parser.M_entityDeclHandler <> nil then
-            HandleDefault := XML_FALSE;
-
+          if @Parser.EntityDeclHandler <> nil then
+            HandleDefault := CXmlFalse;
         end;
 
       XML_ROLE_ENTITY_COMPLETE:
-        if (Dtd.KeepProcessing <> 0) and (Parser.M_declEntity <> nil) and
-          (@Parser.M_entityDeclHandler <> nil) then
+        if (Dtd.KeepProcessing <> 0) and (Parser.DeclEntity <> nil) and
+          (@Parser.EntityDeclHandler <> nil) then
         begin
           EventEndPP^ := S;
 
-          Parser.M_entityDeclHandler(Parser.M_handlerArg,
-            Parser.M_declEntity.Name, Parser.M_declEntity.Is_param, 0, 0,
-            Parser.M_declEntity.Base, Parser.M_declEntity.SystemId,
-            Parser.M_declEntity.PublicId, 0);
+          Parser.EntityDeclHandler(Parser.HandlerArg,
+            Parser.DeclEntity.Name, Parser.DeclEntity.Is_param, 0, 0,
+            Parser.DeclEntity.Base, Parser.DeclEntity.SystemId,
+            Parser.DeclEntity.PublicId, 0);
 
-          HandleDefault := XML_FALSE;
-
+          HandleDefault := CXmlFalse;
         end;
 
       XML_ROLE_ENTITY_NOTATION_NAME:
-        if (Dtd.KeepProcessing <> 0) and (Parser.M_declEntity <> nil) then
+        if (Dtd.KeepProcessing <> 0) and (Parser.DeclEntity <> nil) then
         begin
-          Parser.M_declEntity.Notation := PoolStoreString(@Dtd.Pool,
+          Parser.DeclEntity.Notation := PoolStoreString(@Dtd.Pool,
             Enc, S, Next);
 
-          if Parser.M_declEntity.Notation = nil then
+          if Parser.DeclEntity.Notation = nil then
           begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
 
           PoolFinish(@Dtd.Pool);
 
-          if @Parser.M_unparsedEntityDeclHandler <> nil then
+          if @Parser.UnparsedEntityDeclHandler <> nil then
           begin
             EventEndPP^ := S;
 
-            Parser.M_unparsedEntityDeclHandler(Parser.M_handlerArg,
-              Parser.M_declEntity.Name, Parser.M_declEntity.Base,
-              Parser.M_declEntity.SystemId, Parser.M_declEntity.PublicId,
-              Parser.M_declEntity.Notation);
+            Parser.UnparsedEntityDeclHandler(Parser.HandlerArg,
+              Parser.DeclEntity.Name, Parser.DeclEntity.Base,
+              Parser.DeclEntity.SystemId, Parser.DeclEntity.PublicId,
+              Parser.DeclEntity.Notation);
 
-            HandleDefault := XML_FALSE;
-
+            HandleDefault := CXmlFalse;
           end
-          else if @Parser.M_entityDeclHandler <> nil then
+          else if @Parser.EntityDeclHandler <> nil then
           begin
             EventEndPP^ := S;
 
-            Parser.M_entityDeclHandler(Parser.M_handlerArg,
-              Parser.M_declEntity.Name, 0, 0, 0, Parser.M_declEntity.Base,
-              Parser.M_declEntity.SystemId, Parser.M_declEntity.PublicId,
-              Parser.M_declEntity.Notation);
+            Parser.EntityDeclHandler(Parser.HandlerArg,
+              Parser.DeclEntity.Name, 0, 0, 0, Parser.DeclEntity.Base,
+              Parser.DeclEntity.SystemId, Parser.DeclEntity.PublicId,
+              Parser.DeclEntity.Notation);
 
-            HandleDefault := XML_FALSE;
-
+            HandleDefault := CXmlFalse;
           end;
-
         end;
 
       XML_ROLE_GENERAL_ENTITY_NAME:
         begin
           if XmlPredefinedEntityName(Enc, Pointer(S), Pointer(Next)) <> 0 then
           begin
-            Parser.M_declEntity := nil;
+            Parser.DeclEntity := nil;
 
             goto _break;
-
           end;
 
           if Dtd.KeepProcessing <> 0 then
@@ -5071,59 +4889,52 @@ begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
-
             end;
 
-            Parser.M_declEntity :=
-              ENTITY_ptr(Lookup(@Dtd.GeneralEntities, name,
-              SizeOf(Expat.ENTITY)));
+            Parser.DeclEntity :=
+              PEntity(Lookup(@Dtd.GeneralEntities, name,
+              SizeOf(Expat.TEntity)));
 
-            if Parser.M_declEntity = nil then
+            if Parser.DeclEntity = nil then
             begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
-
             end;
 
-            if Parser.M_declEntity.Name <> name then
+            if Parser.DeclEntity.Name <> name then
             begin
               PoolDiscard(@Dtd.Pool);
 
-              Parser.M_declEntity := nil;
-
+              Parser.DeclEntity := nil;
             end
             else
             begin
               PoolFinish(@Dtd.Pool);
 
-              Parser.M_declEntity.PublicId := nil;
-              Parser.M_declEntity.Is_param := XML_FALSE;
+              Parser.DeclEntity.PublicId := nil;
+              Parser.DeclEntity.Is_param := CXmlFalse;
 
               { if we have a parent parser or are reading an internal parameter
-                entity, then the entity declaration is not considered "internal" }
-              Parser.M_declEntity.IsInternal :=
-                XML_Bool(not((Parser.M_parentParser <> nil) or
-                (Parser.M_openInternalEntities <> nil)));
+                TEntity, then the TEntity declaration is not considered "internal" }
+              Parser.DeclEntity.IsInternal :=
+                XML_Bool(not((Parser.ParentParser <> nil) or
+                (Parser.OpenInternalEntities <> nil)));
 
-              if @Parser.M_entityDeclHandler <> nil then
-                HandleDefault := XML_FALSE;
-
+              if @Parser.EntityDeclHandler <> nil then
+                HandleDefault := CXmlFalse;
             end;
-
           end
           else
           begin
             PoolDiscard(@Dtd.Pool);
 
-            Parser.M_declEntity := nil;
-
+            Parser.DeclEntity := nil;
           end;
-
         end;
 
       XML_ROLE_PARAM_ENTITY_NAME:
-{$IFDEF XML_DTD }
+{$IFDEF XML_DTD}
         if Dtd.KeepProcessing <> 0 then
         begin
           name := PoolStoreString(@Dtd.Pool, Enc, S, Next);
@@ -5133,82 +4944,73 @@ begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
 
-          Parser.M_declEntity :=
-            ENTITY_ptr(Lookup(@Dtd.ParamEntities, name, SizeOf(Expat.ENTITY)));
+          Parser.DeclEntity :=
+            PEntity(Lookup(@Dtd.ParamEntities, name, SizeOf(Expat.TEntity)));
 
-          if Parser.M_declEntity = nil then
+          if Parser.DeclEntity = nil then
           begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
 
-          if Parser.M_declEntity.Name <> name then
+          if Parser.DeclEntity.Name <> name then
           begin
             PoolDiscard(@Dtd.Pool);
 
-            Parser.M_declEntity := nil;
-
+            Parser.DeclEntity := nil;
           end
           else
           begin
             PoolFinish(@Dtd.Pool);
 
-            Parser.M_declEntity.PublicId := nil;
-            Parser.M_declEntity.Is_param := XML_TRUE;
+            Parser.DeclEntity.PublicId := nil;
+            Parser.DeclEntity.Is_param := CXmlTrue;
 
             { if we have a parent parser or are reading an internal parameter
-              entity, then the entity declaration is not considered "internal" }
-            Parser.M_declEntity.IsInternal :=
-              XML_Bool(not((Parser.M_parentParser <> nil) or
-              (Parser.M_openInternalEntities <> nil)));
+              TEntity, then the TEntity declaration is not considered "internal" }
+            Parser.DeclEntity.IsInternal :=
+              XML_Bool(not((Parser.ParentParser <> nil) or
+              (Parser.OpenInternalEntities <> nil)));
 
-            if @Parser.M_entityDeclHandler <> nil then
-              HandleDefault := XML_FALSE;
-
+            if @Parser.EntityDeclHandler <> nil then
+              HandleDefault := CXmlFalse;
           end;
-
         end
         else
         begin
           PoolDiscard(@Dtd.Pool);
 
-          Parser.M_declEntity := nil;
-
+          Parser.DeclEntity := nil;
         end;
 
-{$ELSE }
-        Parser.M_declEntity := nil;
+{$ELSE}
+        Parser.DeclEntity := nil;
 
-{$ENDIF }
+{$ENDIF}
       XML_ROLE_NOTATION_NAME:
         begin
-          Parser.M_declNotationPublicId := nil;
-          Parser.M_declNotationName := nil;
+          Parser.DeclNotationPublicId := nil;
+          Parser.DeclNotationName := nil;
 
-          if @Parser.M_notationDeclHandler <> nil then
+          if @Parser.NotationDeclHandler <> nil then
           begin
-            Parser.M_declNotationName := PoolStoreString(@Parser.M_tempPool,
+            Parser.DeclNotationName := PoolStoreString(@Parser.TempPool,
               Enc, S, Next);
 
-            if Parser.M_declNotationName = nil then
+            if Parser.DeclNotationName = nil then
             begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
-
             end;
 
-            PoolFinish(@Parser.M_tempPool);
+            PoolFinish(@Parser.TempPool);
 
-            HandleDefault := XML_FALSE;
-
+            HandleDefault := CXmlFalse;
           end;
-
         end;
 
       XML_ROLE_NOTATION_PUBLIC_ID:
@@ -5219,13 +5021,12 @@ begin
             Result := XML_ERROR_PUBLICID;
 
             Exit;
-
           end;
 
-          if Parser.M_declNotationName <> nil
+          if Parser.DeclNotationName <> nil
           then { means notationDeclHandler <> NIL }
           begin
-            Tem := PoolStoreString(@Parser.M_tempPool, Enc,
+            Tem := PoolStoreString(@Parser.TempPool, Enc,
               PAnsiChar(PtrComp(S) + Enc.MinBytesPerChar),
               PAnsiChar(PtrComp(Next) - Enc.MinBytesPerChar));
 
@@ -5234,27 +5035,24 @@ begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
-
             end;
 
             NormalizePublicId(Tem);
 
-            Parser.M_declNotationPublicId := Tem;
+            Parser.DeclNotationPublicId := Tem;
 
-            PoolFinish(@Parser.M_tempPool);
+            PoolFinish(@Parser.TempPool);
 
-            HandleDefault := XML_FALSE;
-
+            HandleDefault := CXmlFalse;
           end;
-
         end;
 
       XML_ROLE_NOTATION_SYSTEM_ID:
         begin
-          if (Parser.M_declNotationName <> nil) and
-            (@Parser.M_notationDeclHandler <> nil) then
+          if (Parser.DeclNotationName <> nil) and
+            (@Parser.NotationDeclHandler <> nil) then
           begin
-            SystemId := PoolStoreString(@Parser.M_tempPool, Enc,
+            SystemId := PoolStoreString(@Parser.TempPool, Enc,
               PAnsiChar(PtrComp(S) + Enc.MinBytesPerChar),
               PAnsiChar(PtrComp(Next) - Enc.MinBytesPerChar));
 
@@ -5263,40 +5061,35 @@ begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
-
             end;
 
             EventEndPP^ := S;
 
-            Parser.M_notationDeclHandler(Parser.M_handlerArg,
-              Parser.M_declNotationName, Parser.FCurBase, SystemId,
-              Parser.M_declNotationPublicId);
+            Parser.NotationDeclHandler(Parser.HandlerArg,
+              Parser.DeclNotationName, Parser.CurBase, SystemId,
+              Parser.DeclNotationPublicId);
 
-            HandleDefault := XML_FALSE;
-
+            HandleDefault := CXmlFalse;
           end;
 
-          PoolClear(@Parser.M_tempPool);
-
+          PoolClear(@Parser.TempPool);
         end;
 
       XML_ROLE_NOTATION_NO_SYSTEM_ID:
         begin
-          if (Parser.M_declNotationPublicId <> nil) and
-            (@Parser.M_notationDeclHandler <> nil) then
+          if (Parser.DeclNotationPublicId <> nil) and
+            (@Parser.NotationDeclHandler <> nil) then
           begin
             EventEndPP^ := S;
 
-            Parser.M_notationDeclHandler(Parser.M_handlerArg,
-              Parser.M_declNotationName, Parser.FCurBase, 0,
-              Parser.M_declNotationPublicId);
+            Parser.NotationDeclHandler(Parser.HandlerArg,
+              Parser.DeclNotationName, Parser.CurBase, 0,
+              Parser.DeclNotationPublicId);
 
-            HandleDefault := XML_FALSE;
-
+            HandleDefault := CXmlFalse;
           end;
 
-          PoolClear(@Parser.M_tempPool);
-
+          PoolClear(@Parser.TempPool);
         end;
 
       XML_ROLE_ERROR:
@@ -5308,7 +5101,6 @@ begin
               Result := XML_ERROR_PARAM_ENTITY_REF;
 
               Exit;
-
             end;
 
           XML_TOK_XML_DECL:
@@ -5316,7 +5108,6 @@ begin
               Result := XML_ERROR_MISPLACED_XML_PI;
 
               Exit;
-
             end;
 
         else
@@ -5324,18 +5115,16 @@ begin
             Result := XML_ERROR_SYNTAX;
 
             Exit;
-
           end;
-
         end;
 
-{$IFDEF XML_DTD }
+{$IFDEF XML_DTD}
       XML_ROLE_IGNORE_SECT:
         begin
-          if @Parser.M_defaultHandler <> nil then
+          if @Parser.DefaultHandler <> nil then
             ReportDefault(Parser, Enc, S, Next);
 
-          HandleDefault := XML_FALSE;
+          HandleDefault := CXmlFalse;
 
           Result_ := DoIgnoreSection(Parser, Enc, @Next, Stop, NextPtr,
             HaveMore);
@@ -5345,11 +5134,10 @@ begin
             Result := Result_;
 
             Exit;
-
           end
           else if Next = nil then
           begin
-            Parser.M_processor := @IgnoreSectionProcessor;
+            Parser.TProcessor := @IgnoreSectionProcessor;
 
             Result := Result_;
 
@@ -5357,60 +5145,54 @@ begin
           end;
         end;
 
-{$ENDIF }
+{$ENDIF}
       XML_ROLE_GROUP_OPEN:
         begin
-          if Parser.M_prologState.Level >= Parser.M_groupSize then
-            if Parser.M_groupSize <> 0 then
+          if Parser.PrologState.Level >= Parser.GroupSize then
+            if Parser.GroupSize <> 0 then
             begin
-              Parser.M_groupSize := Parser.M_groupSize * 2;
+              Parser.GroupSize := Parser.GroupSize * 2;
 
-              if Parser.M_mem.Realloc_fcn(Pointer(Parser.M_groupConnector),
-                Parser.M_groupAlloc, Parser.M_groupSize) then
-                Parser.M_groupAlloc := Parser.M_groupSize
+              if Parser.Mem.Realloc_fcn(Pointer(Parser.GroupConnector),
+                Parser.M_groupAlloc, Parser.GroupSize) then
+                Parser.M_groupAlloc := Parser.GroupSize
 
               else
               begin
                 Result := XML_ERROR_NO_MEMORY;
 
                 Exit;
-
               end;
 
               if Dtd.ScaffIndex <> nil then
-                if Parser.M_mem.Realloc_fcn(Pointer(Dtd.ScaffIndex),
-                  Dtd.ScaffAlloc, Parser.M_groupSize * SizeOf(Integer)) then
-                  Dtd.ScaffAlloc := Parser.M_groupSize * SizeOf(Integer)
+                if Parser.Mem.Realloc_fcn(Pointer(Dtd.ScaffIndex),
+                  Dtd.ScaffAlloc, Parser.GroupSize * SizeOf(Integer)) then
+                  Dtd.ScaffAlloc := Parser.GroupSize * SizeOf(Integer)
 
                 else
                 begin
                   Result := XML_ERROR_NO_MEMORY;
 
                   Exit;
-
                 end;
-
             end
             else
             begin
-              Parser.M_groupSize := 32;
+              Parser.GroupSize := 32;
 
-              if Parser.M_mem.Malloc_fcn(Pointer(Parser.M_groupConnector),
-                Parser.M_groupSize) then
-                Parser.M_groupAlloc := Parser.M_groupSize
-
+              if Parser.Mem.Malloc_fcn(Pointer(Parser.GroupConnector),
+                Parser.GroupSize) then
+                Parser.M_groupAlloc := Parser.GroupSize
               else
               begin
                 Result := XML_ERROR_NO_MEMORY;
 
                 Exit;
-
               end;
-
             end;
 
-          PAnsiChar(PtrComp(Parser.M_groupConnector) +
-            Parser.M_prologState.Level)^ := #0;
+          PAnsiChar(PtrComp(Parser.GroupConnector) +
+            Parser.PrologState.Level)^ := #0;
 
           if Dtd.In_eldecl <> 0 then
           begin
@@ -5428,73 +5210,68 @@ begin
 
             Inc(Dtd.ScaffLevel);
 
-            CONTENT_SCAFFOLD_ptr(PtrComp(Dtd.Scaffold) + Myindex *
-              SizeOf(CONTENT_SCAFFOLD))^.Type_ := XML_CTYPE_SEQ;
+            PContentScaffold(PtrComp(Dtd.Scaffold) + Myindex *
+              SizeOf(TContentScaffold))^.Type_ := XML_CTYPE_SEQ;
 
-            if @Parser.M_elementDeclHandler <> nil then
-              HandleDefault := XML_FALSE;
+            if @Parser.ElementDeclHandler <> nil then
+              HandleDefault := CXmlFalse;
           end;
         end;
 
       XML_ROLE_GROUP_SEQUENCE:
         begin
-          if PAnsiChar(PtrComp(Parser.M_groupConnector) +
-            Parser.M_prologState.Level)^ = '|' then
+          if PAnsiChar(PtrComp(Parser.GroupConnector) +
+            Parser.PrologState.Level)^ = '|' then
           begin
             Result := XML_ERROR_SYNTAX;
 
             Exit;
           end;
 
-          PAnsiChar(PtrComp(Parser.M_groupConnector) +
-            Parser.M_prologState.Level)^ := ',';
+          PAnsiChar(PtrComp(Parser.GroupConnector) +
+            Parser.PrologState.Level)^ := ',';
 
-          if (Dtd.In_eldecl <> 0) and (@Parser.M_elementDeclHandler <> nil) then
-            HandleDefault := XML_FALSE;
-
+          if (Dtd.In_eldecl <> 0) and (@Parser.ElementDeclHandler <> nil) then
+            HandleDefault := CXmlFalse;
         end;
 
       XML_ROLE_GROUP_CHOICE:
         begin
-          if PAnsiChar(PtrComp(Parser.M_groupConnector) +
-            Parser.M_prologState.Level)^ = ',' then
+          if PAnsiChar(PtrComp(Parser.GroupConnector) +
+            Parser.PrologState.Level)^ = ',' then
           begin
             Result := XML_ERROR_SYNTAX;
 
             Exit;
-
           end;
 
           if (Dtd.In_eldecl <> 0) and
-            (PAnsiChar(PtrComp(Parser.M_groupConnector) +
-            Parser.M_prologState.Level)^ <> #0) and
-            (CONTENT_SCAFFOLD_ptr(PtrComp(Dtd.Scaffold) +
+            (PAnsiChar(PtrComp(Parser.GroupConnector) +
+            Parser.PrologState.Level)^ <> #0) and
+            (PContentScaffold(PtrComp(Dtd.Scaffold) +
             PInteger(PtrComp(Dtd.ScaffIndex) + (Dtd.ScaffLevel - 1) * SizeOf(Integer))^
-            * SizeOf(CONTENT_SCAFFOLD))^.Type_ <> XML_CTYPE_MIXED) then
+            * SizeOf(TContentScaffold))^.Type_ <> XML_CTYPE_MIXED) then
           begin
-            CONTENT_SCAFFOLD_ptr(PtrComp(Dtd.Scaffold) +
+            PContentScaffold(PtrComp(Dtd.Scaffold) +
               PInteger(PtrComp(Dtd.ScaffIndex) + (Dtd.ScaffLevel - 1) * SizeOf(Integer))
-              ^ * SizeOf(CONTENT_SCAFFOLD))^.Type_ := XML_CTYPE_CHOICE;
+              ^ * SizeOf(TContentScaffold))^.Type_ := XML_CTYPE_CHOICE;
 
-            if @Parser.M_elementDeclHandler <> nil then
-              HandleDefault := XML_FALSE;
-
+            if @Parser.ElementDeclHandler <> nil then
+              HandleDefault := CXmlFalse;
           end;
 
-          PAnsiChar(PtrComp(Parser.M_groupConnector) +
-            Parser.M_prologState.Level)^ := '|';
-
+          PAnsiChar(PtrComp(Parser.GroupConnector) +
+            Parser.PrologState.Level)^ := '|';
         end;
 
       XML_ROLE_PARAM_ENTITY_REF
-      {$IFDEF XML_DTD } , XML_ROLE_INNER_PARAM_ENTITY_REF: {$ELSE }: {$ENDIF }
+      {$IFDEF XML_DTD} , XML_ROLE_INNER_PARAM_ENTITY_REF: {$ELSE}: {$ENDIF}
         begin
-{$IFDEF XML_DTD }
-          Dtd.HasParamEntityRefs := XML_TRUE;
+{$IFDEF XML_DTD}
+          Dtd.HasParamEntityRefs := CXmlTrue;
 
-          if Parser.M_paramEntityParsing = XML_ParamEntityParsing(0) then
+          if Parser.ParamEntityParsing = XML_ParamEntityParsing(0) then
             Dtd.KeepProcessing := Dtd.Standalone
-
           else
           begin
             name := PoolStoreString(@Dtd.Pool, Enc,
@@ -5506,104 +5283,96 @@ begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
-
             end;
 
-            Entity := ENTITY_ptr(Lookup(@Dtd.ParamEntities, name, 0));
+            TEntity := PEntity(Lookup(@Dtd.ParamEntities, name, 0));
 
             PoolDiscard(@Dtd.Pool);
 
             { first, determine if a check for an existing declaration is needed;
-              if yes, check that the entity exists, and that it is internal,
-              otherwise call the skipped entity handler }
+              if yes, check that the TEntity exists, and that it is internal,
+              otherwise call the skipped TEntity handler }
             if Dtd.Standalone <> 0 then
-              Ok := XML_Bool(Parser.M_openInternalEntities = nil)
+              Ok := XML_Bool(Parser.OpenInternalEntities = nil)
             else
               Ok := XML_Bool(Dtd.HasParamEntityRefs = 0);
 
-            if (Parser.M_prologState.DocumentEntity <> 0) and (Ok <> 0) then
-              if Entity = nil then
+            if (Parser.PrologState.DocumentEntity <> 0) and (Ok <> 0) then
+              if TEntity = nil then
               begin
                 Result := XML_ERROR_UNDEFINED_ENTITY;
 
                 Exit;
-
               end
-              else if Entity.IsInternal = 0 then
+              else if TEntity.IsInternal = 0 then
               begin
                 Result := XML_ERROR_ENTITY_DECLARED_IN_PE;
 
                 Exit;
-
               end
               else
-            else if Entity = nil then
+            else if TEntity = nil then
             begin
               Dtd.KeepProcessing := Dtd.Standalone;
 
               { cannot report skipped entities in declarations }
               if (Role = XML_ROLE_PARAM_ENTITY_REF) and
-                (@Parser.M_skippedEntityHandler <> nil) then
+                (@Parser.SkippedEntityHandler <> nil) then
               begin
-                Parser.M_skippedEntityHandler(Parser.M_handlerArg, name, 1);
+                Parser.SkippedEntityHandler(Parser.HandlerArg, name, 1);
 
-                HandleDefault := XML_FALSE;
-
+                HandleDefault := CXmlFalse;
               end;
 
               goto _break;
-
             end;
 
-            if Entity.Open <> 0 then
+            if TEntity.Open <> 0 then
             begin
               Result := XML_ERROR_RECURSIVE_ENTITY_REF;
 
               Exit;
-
             end;
 
-            if Entity.TextPtr <> nil then
+            if TEntity.TextPtr <> nil then
             begin
               if Role = XML_ROLE_PARAM_ENTITY_REF then
-                BetweenDecl := XML_TRUE
+                BetweenDecl := CXmlTrue
               else
-                BetweenDecl := XML_FALSE;
+                BetweenDecl := CXmlFalse;
 
-              Result_ := ProcessInternalEntity(Parser, Entity, BetweenDecl);
+              Result_ := ProcessInternalEntity(Parser, TEntity, BetweenDecl);
 
               if Result_ <> XML_ERROR_NONE then
               begin
                 Result := Result_;
 
                 Exit;
-
               end;
 
-              HandleDefault := XML_FALSE;
+              HandleDefault := CXmlFalse;
 
               goto _break;
-
             end;
 
-            if @Parser.M_externalEntityRefHandler <> nil then
+            if @Parser.ExternalEntityRefHandler <> nil then
             begin
-              Dtd.ParamEntityRead := XML_FALSE;
-              Entity.Open := XML_TRUE;
+              Dtd.ParamEntityRead := CXmlFalse;
+              TEntity.Open := CXmlTrue;
 
-              if Parser.M_externalEntityRefHandler
-                (Parser.M_externalEntityRefHandlerArg, 0, Entity.Base,
-                Entity.SystemId, Entity.PublicId) = 0 then
+              if Parser.ExternalEntityRefHandler
+                (Parser.ExternalEntityRefHandlerArg, nil, TEntity.Base,
+                TEntity.SystemId, TEntity.PublicId) = 0 then
               begin
-                Entity.Open := XML_FALSE;
+                TEntity.Open := CXmlFalse;
 
                 Result := XML_ERROR_EXTERNAL_ENTITY_HANDLING;
 
                 Exit;
               end;
 
-              Entity.Open := XML_FALSE;
-              HandleDefault := XML_FALSE;
+              TEntity.Open := CXmlFalse;
+              HandleDefault := CXmlFalse;
 
               if Dtd.ParamEntityRead = 0 then
               begin
@@ -5620,52 +5389,47 @@ begin
             end;
           end;
 
-{$ENDIF }
-          if (Dtd.Standalone = 0) and (@Parser.M_notStandaloneHandler <> nil)
-            and (Parser.M_notStandaloneHandler(Parser.M_handlerArg) = 0) then
+{$ENDIF}
+          if (Dtd.Standalone = 0) and (@Parser.NotStandaloneHandler <> nil)
+            and (Parser.NotStandaloneHandler(Parser.HandlerArg) = 0) then
           begin
             Result := XML_ERROR_NOT_STANDALONE;
 
             Exit;
-
           end;
-
         end;
 
       { Element declaration stuff }
       XML_ROLE_ELEMENT_NAME:
-        if @Parser.M_elementDeclHandler <> nil then
+        if @Parser.ElementDeclHandler <> nil then
         begin
-          Parser.M_declElementType := GetElementType(Parser, Enc, S, Next);
+          Parser.DeclElementType := GetElementType(Parser, Enc, S, Next);
 
-          if Parser.M_declElementType = nil then
+          if Parser.DeclElementType = nil then
           begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
 
           Dtd.ScaffLevel := 0;
           Dtd.ScaffCount := 0;
-          Dtd.In_eldecl := XML_TRUE;
-          HandleDefault := XML_FALSE;
-
+          Dtd.In_eldecl := CXmlTrue;
+          HandleDefault := CXmlFalse;
         end;
 
       XML_ROLE_CONTENT_ANY, XML_ROLE_CONTENT_EMPTY:
         if Dtd.In_eldecl <> 0 then
         begin
-          if @Parser.M_elementDeclHandler <> nil then
+          if @Parser.ElementDeclHandler <> nil then
           begin
-            Parser.M_mem.Malloc_fcn(Pointer(Content), SizeOf(XML_Content));
+            Parser.Mem.Malloc_fcn(Pointer(Content), SizeOf(TXmlContent));
 
             if Content = nil then
             begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
-
             end;
 
             Content.Quant := XML_CQUANT_NONE;
@@ -5680,27 +5444,24 @@ begin
 
             EventEndPP^ := S;
 
-            Parser.M_elementDeclHandler(Parser.M_handlerArg,
-              Parser.M_declElementType.Name, Content);
+            Parser.ElementDeclHandler(Parser.HandlerArg,
+              Parser.DeclElementType.Name, Content);
 
-            HandleDefault := XML_FALSE;
-
+            HandleDefault := CXmlFalse;
           end;
 
-          Dtd.In_eldecl := XML_FALSE;
-
+          Dtd.In_eldecl := CXmlFalse;
         end;
 
       XML_ROLE_CONTENT_PCDATA:
         if Dtd.In_eldecl <> 0 then
         begin
-          CONTENT_SCAFFOLD_ptr(PtrComp(Dtd.Scaffold) +
+          PContentScaffold(PtrComp(Dtd.Scaffold) +
             PInteger(PtrComp(Dtd.ScaffIndex) + (Dtd.ScaffLevel - 1) * SizeOf(Integer))^
-            * SizeOf(CONTENT_SCAFFOLD))^.Type_ := XML_CTYPE_MIXED;
+            * SizeOf(TContentScaffold))^.Type_ := XML_CTYPE_MIXED;
 
-          if @Parser.M_elementDeclHandler <> nil then
-            HandleDefault := XML_FALSE;
-
+          if @Parser.ElementDeclHandler <> nil then
+            HandleDefault := CXmlFalse;
         end;
 
       XML_ROLE_CONTENT_ELEMENT:
@@ -5708,7 +5469,6 @@ begin
           Quant := XML_CQUANT_NONE;
 
           goto ElementContent;
-
         end;
 
       XML_ROLE_CONTENT_ELEMENT_OPT:
@@ -5716,7 +5476,6 @@ begin
           Quant := XML_CQUANT_OPT;
 
           goto ElementContent;
-
         end;
 
       XML_ROLE_CONTENT_ELEMENT_REP:
@@ -5724,7 +5483,6 @@ begin
           Quant := XML_CQUANT_REP;
 
           goto ElementContent;
-
         end;
 
       XML_ROLE_CONTENT_ELEMENT_PLUS:
@@ -5746,14 +5504,13 @@ begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
-
             end;
 
-            CONTENT_SCAFFOLD_ptr(PtrComp(Dtd.Scaffold) + Myindex *
-              SizeOf(CONTENT_SCAFFOLD))^.Type_ := XML_CTYPE_NAME;
+            PContentScaffold(PtrComp(Dtd.Scaffold) + Myindex *
+              SizeOf(TContentScaffold))^.Type_ := XML_CTYPE_NAME;
 
-            CONTENT_SCAFFOLD_ptr(PtrComp(Dtd.Scaffold) + Myindex *
-              SizeOf(CONTENT_SCAFFOLD))^.Quant := Quant;
+            PContentScaffold(PtrComp(Dtd.Scaffold) + Myindex *
+              SizeOf(TContentScaffold))^.Quant := Quant;
 
             El := GetElementType(Parser, Enc, S, Nxt);
 
@@ -5762,13 +5519,12 @@ begin
               Result := XML_ERROR_NO_MEMORY;
 
               Exit;
-
             end;
 
             name := El.Name;
 
-            CONTENT_SCAFFOLD_ptr(PtrComp(Dtd.Scaffold) + Myindex *
-              SizeOf(CONTENT_SCAFFOLD))^.Name := name;
+            PContentScaffold(PtrComp(Dtd.Scaffold) + Myindex *
+              SizeOf(TContentScaffold))^.Name := name;
 
             NameLen := 0;
 
@@ -5777,11 +5533,9 @@ begin
 
             Inc(Dtd.ContentStringLen, NameLen);
 
-            if @Parser.M_elementDeclHandler <> nil then
-              HandleDefault := XML_FALSE;
-
+            if @Parser.ElementDeclHandler <> nil then
+              HandleDefault := CXmlFalse;
           end;
-
         end;
 
       XML_ROLE_GROUP_CLOSE:
@@ -5789,7 +5543,6 @@ begin
           Quant := XML_CQUANT_NONE;
 
           goto CloseGroup;
-
         end;
 
       XML_ROLE_GROUP_CLOSE_OPT:
@@ -5797,7 +5550,6 @@ begin
           Quant := XML_CQUANT_OPT;
 
           goto CloseGroup;
-
         end;
 
       XML_ROLE_GROUP_CLOSE_REP:
@@ -5805,7 +5557,6 @@ begin
           Quant := XML_CQUANT_REP;
 
           goto CloseGroup;
-
         end;
 
       XML_ROLE_GROUP_CLOSE_PLUS:
@@ -5815,14 +5566,14 @@ begin
         CloseGroup:
           if Dtd.In_eldecl <> 0 then
           begin
-            if @Parser.M_elementDeclHandler <> nil then
-              HandleDefault := XML_FALSE;
+            if @Parser.ElementDeclHandler <> nil then
+              HandleDefault := CXmlFalse;
 
             Dec(Dtd.ScaffLevel);
 
-            CONTENT_SCAFFOLD_ptr(PtrComp(Dtd.Scaffold) +
+            PContentScaffold(PtrComp(Dtd.Scaffold) +
               PInteger(PtrComp(Dtd.ScaffIndex) + Dtd.ScaffLevel * SizeOf(Integer))^ *
-              SizeOf(CONTENT_SCAFFOLD))^.Quant := Quant;
+              SizeOf(TContentScaffold))^.Quant := Quant;
 
             if Dtd.ScaffLevel = 0 then
             begin
@@ -5835,23 +5586,18 @@ begin
                   Result := XML_ERROR_NO_MEMORY;
 
                   Exit;
-
                 end;
 
                 EventEndPP^ := S;
 
-                Parser.M_elementDeclHandler(Parser.M_handlerArg,
-                  Parser.M_declElementType.Name, Model);
-
+                Parser.ElementDeclHandler(Parser.HandlerArg,
+                  Parser.DeclElementType.Name, Model);
               end;
 
-              Dtd.In_eldecl := XML_FALSE;
+              Dtd.In_eldecl := CXmlFalse;
               Dtd.ContentStringLen := 0;
-
             end;
-
           end;
-
         end; { End element declaration stuff }
 
       XML_ROLE_PI:
@@ -5861,11 +5607,9 @@ begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
 
-          HandleDefault := XML_FALSE;
-
+          HandleDefault := CXmlFalse;
         end;
 
       XML_ROLE_COMMENT:
@@ -5875,56 +5619,52 @@ begin
             Result := XML_ERROR_NO_MEMORY;
 
             Exit;
-
           end;
 
-          HandleDefault := XML_FALSE;
-
+          HandleDefault := CXmlFalse;
         end;
 
       XML_ROLE_NONE:
         case Tok of
           XML_TOK_BOM:
-            HandleDefault := XML_FALSE;
-
+            HandleDefault := CXmlFalse;
         end;
 
       XML_ROLE_DOCTYPE_NONE:
-        if @Parser.FStartDoctypeDeclHandler <> nil then
-          HandleDefault := XML_FALSE;
+        if @Parser.StartDoctypeDeclHandler <> nil then
+          HandleDefault := CXmlFalse;
 
       XML_ROLE_ENTITY_NONE:
-        if (Dtd.KeepProcessing <> 0) and (@Parser.M_entityDeclHandler <> nil)
+        if (Dtd.KeepProcessing <> 0) and (@Parser.EntityDeclHandler <> nil)
         then
-          HandleDefault := XML_FALSE;
+          HandleDefault := CXmlFalse;
 
       XML_ROLE_NOTATION_NONE:
-        if @Parser.M_notationDeclHandler <> nil then
-          HandleDefault := XML_FALSE;
+        if @Parser.NotationDeclHandler <> nil then
+          HandleDefault := CXmlFalse;
 
       XML_ROLE_ATTLIST_NONE:
-        if (Dtd.KeepProcessing <> 0) and (@Parser.M_attlistDeclHandler <> nil)
+        if (Dtd.KeepProcessing <> 0) and (@Parser.AttlistDeclHandler <> nil)
         then
-          HandleDefault := XML_FALSE;
+          HandleDefault := CXmlFalse;
 
       XML_ROLE_ELEMENT_NONE:
-        if @Parser.M_elementDeclHandler <> nil then
-          HandleDefault := XML_FALSE;
+        if @Parser.ElementDeclHandler <> nil then
+          HandleDefault := CXmlFalse;
 
     end; { end of big case }
 
   _break:
-    if (HandleDefault = XML_TRUE) and (@Parser.M_defaultHandler <> nil) then
+    if (HandleDefault = CXmlTrue) and (@Parser.DefaultHandler <> nil) then
       ReportDefault(Parser, Enc, S, Next);
 
-    case Parser.M_parsingStatus.Parsing of
+    case Parser.ParsingStatus.Parsing of
       XML_SUSPENDED:
         begin
           NextPtr^ := Next;
           Result := XML_ERROR_NONE;
 
           Exit;
-
         end;
 
       XML_FINISHED:
@@ -5932,14 +5672,12 @@ begin
           Result := XML_ERROR_ABORTED;
 
           Exit;
-
         end;
 
     else
       begin
         S := Next;
         Tok := XmlPrologTok(Enc, Pointer(S), Pointer(Stop), @Next);
-
       end;
 
     end;
@@ -5947,31 +5685,26 @@ begin
   until False;
 
   { not reached }
-
 end;
 
-{ prologProcessor }
 function PrologProcessor(Parser: XML_Parser; S, Stop: PAnsiChar;
   NextPtr: PPAnsiChar): XML_Error;
 var
   Next: PAnsiChar;
   Tok : Integer;
-
 begin
   Next := S;
-  Tok := XmlPrologTok(Parser.M_encoding, Pointer(S), Pointer(Stop), @Next);
+  Tok := XmlPrologTok(Parser.Encoding, Pointer(S), Pointer(Stop), @Next);
 
-  Result := DoProlog(Parser, Parser.M_encoding, S, Stop, Tok, Next, NextPtr,
-    XML_Bool(not Parser.M_parsingStatus.FinalBuffer));
+  Result := DoProlog(Parser, Parser.Encoding, S, Stop, Tok, Next, NextPtr,
+    XML_Bool(not Parser.ParsingStatus.FinalBuffer));
 
 end;
 
-{ prologInitProcessor }
 function PrologInitProcessor(Parser: XML_Parser; S, Stop: PAnsiChar;
   NextPtr: PPAnsiChar): XML_Error;
 var
   Result_: XML_Error;
-
 begin
   Result_ := InitializeEncoding(Parser);
 
@@ -5980,118 +5713,113 @@ begin
     Result := Result_;
 
     Exit;
-
   end;
 
-  Parser.M_processor := @PrologProcessor;
+  Parser.TProcessor := @PrologProcessor;
 
   Result := PrologProcessor(Parser, S, Stop, NextPtr);
-
 end;
 
-{ parserInit }
 procedure ParserInit(Parser: XML_Parser; EncodingName: XML_PAnsiChar);
 begin
-  Parser.M_processor := @PrologInitProcessor;
+  Parser.TProcessor := @PrologInitProcessor;
 
-  XmlPrologStateInit(@Parser.M_prologState);
+  XmlPrologStateInit(@Parser.PrologState);
 
   if EncodingName <> nil then
-    Parser.M_protocolEncodingName := PoolCopyString(@Parser.M_tempPool,
+    Parser.ProtocolEncodingName := PoolCopyString(@Parser.TempPool,
       EncodingName)
   else
-    Parser.M_protocolEncodingName := nil;
+    Parser.ProtocolEncodingName := nil;
 
-  Parser.FCurBase := nil;
+  Parser.CurBase := nil;
 
-  XmlInitEncoding(@Parser.MInitEncoding, @Parser.M_encoding, 0);
+  XmlInitEncoding(@Parser.InitEncoding, @Parser.Encoding, nil);
 
-  Parser.M_userData := nil;
-  Parser.M_handlerArg := nil;
+  Parser.UserData := nil;
+  Parser.HandlerArg := nil;
 
-  Parser.FStartElementHandler := nil;
-  Parser.M_endElementHandler := nil;
-  Parser.M_characterDataHandler := nil;
-  Parser.M_processingInstructionHandler := nil;
-  Parser.M_commentHandler := nil;
-  Parser.FStartCdataSectionHandler := nil;
-  Parser.M_endCdataSectionHandler := nil;
-  Parser.M_defaultHandler := nil;
-  Parser.FStartDoctypeDeclHandler := nil;
-  Parser.M_endDoctypeDeclHandler := nil;
-  Parser.M_unparsedEntityDeclHandler := nil;
-  Parser.M_notationDeclHandler := nil;
-  Parser.FStartNamespaceDeclHandler := nil;
-  Parser.M_endNamespaceDeclHandler := nil;
-  Parser.M_notStandaloneHandler := nil;
-  Parser.M_externalEntityRefHandler := nil;
-  Parser.M_externalEntityRefHandlerArg := Parser;
-  Parser.M_skippedEntityHandler := nil;
-  Parser.M_elementDeclHandler := nil;
-  Parser.M_attlistDeclHandler := nil;
-  Parser.M_entityDeclHandler := nil;
-  Parser.M_xmlDeclHandler := nil;
+  Parser.StartElementHandler := nil;
+  Parser.EndElementHandler := nil;
+  Parser.CharacterDataHandler := nil;
+  Parser.ProcessingInstructionHandler := nil;
+  Parser.CommentHandler := nil;
+  Parser.StartCdataSectionHandler := nil;
+  Parser.EndCdataSectionHandler := nil;
+  Parser.DefaultHandler := nil;
+  Parser.StartDoctypeDeclHandler := nil;
+  Parser.EndDoctypeDeclHandler := nil;
+  Parser.UnparsedEntityDeclHandler := nil;
+  Parser.NotationDeclHandler := nil;
+  Parser.StartNamespaceDeclHandler := nil;
+  Parser.EndNamespaceDeclHandler := nil;
+  Parser.NotStandaloneHandler := nil;
+  Parser.ExternalEntityRefHandler := nil;
+  Parser.ExternalEntityRefHandlerArg := Parser;
+  Parser.SkippedEntityHandler := nil;
+  Parser.ElementDeclHandler := nil;
+  Parser.AttlistDeclHandler := nil;
+  Parser.EntityDeclHandler := nil;
+  Parser.XmlDeclHandler := nil;
 
-  Parser.M_bufferPtr := Parser.M_buffer;
-  Parser.M_bufferEnd := Parser.M_buffer;
+  Parser.BufferPtr := Parser.Buffer;
+  Parser.BufferEnd := Parser.Buffer;
 
-  Parser.M_parseEndByteIndex := 0;
-  Parser.M_parseEndPtr := nil;
+  Parser.ParseEndByteIndex := 0;
+  Parser.ParseEndPtr := nil;
 
-  Parser.M_declElementType := nil;
-  Parser.M_declAttributeId := nil;
-  Parser.M_declEntity := nil;
+  Parser.DeclElementType := nil;
+  Parser.DeclAttributeId := nil;
+  Parser.DeclEntity := nil;
 
-  Parser.M_doctypeName := nil;
-  Parser.M_doctypeSysid := nil;
-  Parser.M_doctypePubid := nil;
+  Parser.DoctypeName := nil;
+  Parser.DoctypeSysid := nil;
+  Parser.DoctypePubid := nil;
 
-  Parser.M_declAttributeType := nil;
-  Parser.M_declNotationName := nil;
-  Parser.M_declNotationPublicId := nil;
-  Parser.M_declAttributeIsCdata := XML_FALSE;
-  Parser.M_declAttributeIsId := XML_FALSE;
+  Parser.DeclAttributeType := nil;
+  Parser.DeclNotationName := nil;
+  Parser.DeclNotationPublicId := nil;
+  Parser.DeclAttributeIsCdata := CXmlFalse;
+  Parser.DeclAttributeIsId := CXmlFalse;
 
-  FillChar(Parser.M_position, SizeOf(POSITION), 0);
+  FillChar(Parser.Position, SizeOf(POSITION), 0);
 
-  Parser.M_errorCode := XML_ERROR_NONE;
+  Parser.ErrorCode := XML_ERROR_NONE;
 
-  Parser.M_eventPtr := nil;
-  Parser.M_eventEndPtr := nil;
-  Parser.M_positionPtr := nil;
+  Parser.EventPtr := nil;
+  Parser.EventEndPtr := nil;
+  Parser.PositionPtr := nil;
 
-  Parser.M_openInternalEntities := nil;
-  Parser.M_defaultExpandInternalEntities := XML_TRUE;
+  Parser.OpenInternalEntities := nil;
+  Parser.DefaultExpandInternalEntities := CXmlTrue;
 
-  Parser.M_tagLevel := 0;
-  Parser.M_tagStack := nil;
-  Parser.MInheritedBindings := nil;
+  Parser.TagLevel := 0;
+  Parser.TagStack := nil;
+  Parser.InheritedBindings := nil;
   Parser.M_nSpecifiedAtts := 0;
 
-  Parser.M_unknownEncodingMem := nil;
-  Parser.M_unknownEncodingRelease := nil;
-  Parser.M_unknownEncodingData := nil;
-  Parser.M_unknownEncodingAlloc := 0;
+  Parser.UnknownEncodingMem := nil;
+  Parser.UnknownEncodingRelease := nil;
+  Parser.UnknownEncodingData := nil;
+  Parser.UnknownEncodingAlloc := 0;
 
-  Parser.M_parentParser := nil;
-  Parser.M_parsingStatus.Parsing := XML_INITIALIZED;
+  Parser.ParentParser := nil;
+  Parser.ParsingStatus.Parsing := XML_INITIALIZED;
 
-{$IFDEF XML_DTD }
-  Parser.M_isParamEntity := XML_FALSE;
-  Parser.M_useForeignDTD := XML_FALSE;
+{$IFDEF XML_DTD}
+  Parser.IsParamEntity := CXmlFalse;
+  Parser.M_useForeignDTD := CXmlFalse;
 
-  Parser.M_paramEntityParsing := XML_PARAM_ENTITY_PARSING_NEVER;
-
-{$ENDIF }
+  Parser.ParamEntityParsing := XML_PARAM_ENTITY_PARSING_NEVER;
+{$ENDIF}
 end;
 
-{ parserCreate }
 function ParserCreate(EncodingName: XML_PAnsiChar;
-  Memsuite: XML_Memory_Handling_Suite_ptr; NameSep: XML_PAnsiChar; Dtd: DTD_ptr)
+  Memsuite: PXmlMemoryHandlingSuite; NameSep: XML_PAnsiChar; Dtd: DTD_ptr)
   : XML_Parser;
 var
   Parser: XML_Parser;
-  Mtemp : XML_Memory_Handling_Suite_ptr;
+  Mtemp : PXmlMemoryHandlingSuite;
 
 begin
   Parser := nil;
@@ -6102,14 +5830,12 @@ begin
 
     if Parser <> nil then
     begin
-      Mtemp := @Parser.M_mem;
+      Mtemp := @Parser.Mem;
 
       Mtemp.Malloc_fcn := Memsuite.Malloc_fcn;
       Mtemp.Realloc_fcn := Memsuite.Realloc_fcn;
       Mtemp.Free_fcn := Memsuite.Free_fcn;
-
     end;
-
   end
   else
   begin
@@ -6117,14 +5843,12 @@ begin
 
     if Parser <> nil then
     begin
-      Mtemp := @Parser.M_mem;
+      Mtemp := @Parser.Mem;
 
       Mtemp.Malloc_fcn := @Expat_getmem;
       Mtemp.Realloc_fcn := @Expat_realloc;
       Mtemp.Free_fcn := @Expat_freemem;
-
     end;
-
   end;
 
   if Parser = nil then
@@ -6132,116 +5856,108 @@ begin
     Result := nil;
 
     Exit;
-
   end;
 
-  Parser.M_buffer := nil;
-  Parser.M_bufferLim := nil;
-  Parser.M_attsSize := INIT_ATTS_SIZE;
+  Parser.Buffer := nil;
+  Parser.BufferLim := nil;
+  Parser.AttsSize := INIT_ATTS_SIZE;
 
-  Parser.M_attsAlloc := 0;
+  Parser.AttsAlloc := 0;
   Parser.M_nsAttsAlloc := 0;
 
-  Parser.M_mem.Malloc_fcn(Pointer(Parser.M_atts),
-    Parser.M_attsSize * SizeOf(ATTRIBUTE));
+  Parser.Mem.Malloc_fcn(Pointer(Parser.Atts),
+    Parser.AttsSize * SizeOf(ATTRIBUTE));
 
-  if Parser.M_atts = nil then
+  if Parser.Atts = nil then
   begin
-    Parser.M_mem.Free_fcn(Pointer(Parser), SizeOf(XML_ParserStruct));
+    Parser.Mem.Free_fcn(Pointer(Parser), SizeOf(XML_ParserStruct));
 
     Result := nil;
 
     Exit;
-
   end
   else
-    Parser.M_attsAlloc := Parser.M_attsSize * SizeOf(ATTRIBUTE);
+    Parser.AttsAlloc := Parser.AttsSize * SizeOf(ATTRIBUTE);
 
-  Parser.M_mem.Malloc_fcn(Pointer(Parser.M_dataBuf),
+  Parser.Mem.Malloc_fcn(Pointer(Parser.DataBuf),
     INIT_DATA_BUF_SIZE * SizeOf(XML_Char));
 
-  if Parser.M_dataBuf = nil then
+  if Parser.DataBuf = nil then
   begin
-    Parser.M_mem.Free_fcn(Pointer(Parser.M_atts), Parser.M_attsAlloc);
-    Parser.M_mem.Free_fcn(Pointer(Parser), SizeOf(XML_ParserStruct));
+    Parser.Mem.Free_fcn(Pointer(Parser.Atts), Parser.AttsAlloc);
+    Parser.Mem.Free_fcn(Pointer(Parser), SizeOf(XML_ParserStruct));
 
     Result := nil;
 
     Exit;
-
   end;
 
-  Parser.M_dataBufEnd := XML_PAnsiChar(PtrComp(Parser.M_dataBuf) +
+  Parser.DataBufEnd := XML_PAnsiChar(PtrComp(Parser.DataBuf) +
     INIT_DATA_BUF_SIZE);
 
   if Dtd <> nil then
     Parser.M_dtd := Dtd
   else
   begin
-    Parser.M_dtd := DtdCreate(@Parser.M_mem);
+    Parser.M_dtd := DtdCreate(@Parser.Mem);
 
     if Parser.M_dtd = nil then
     begin
-      Parser.M_mem.Free_fcn(Pointer(Parser.M_dataBuf),
+      Parser.Mem.Free_fcn(Pointer(Parser.DataBuf),
         INIT_DATA_BUF_SIZE * SizeOf(XML_Char));
-      Parser.M_mem.Free_fcn(Pointer(Parser.M_atts), Parser.M_attsAlloc);
-      Parser.M_mem.Free_fcn(Pointer(Parser), SizeOf(XML_ParserStruct));
+      Parser.Mem.Free_fcn(Pointer(Parser.Atts), Parser.AttsAlloc);
+      Parser.Mem.Free_fcn(Pointer(Parser), SizeOf(XML_ParserStruct));
 
       Result := nil;
 
       Exit;
-
     end;
-
   end;
 
-  Parser.M_freeBindingList := nil;
-  Parser.M_freeTagList := nil;
-  Parser.M_freeInternalEntities := nil;
+  Parser.FreeBindingList := nil;
+  Parser.FreeTagList := nil;
+  Parser.FreeInternalEntities := nil;
 
-  Parser.M_groupSize := 0;
+  Parser.GroupSize := 0;
   Parser.M_groupAlloc := 0;
-  Parser.M_groupConnector := nil;
+  Parser.GroupConnector := nil;
 
-  Parser.M_unknownEncodingHandler := nil;
-  Parser.M_unknownEncodingHandlerData := nil;
+  Parser.UnknownEncodingHandler := nil;
+  Parser.UnknownEncodingHandlerData := nil;
 
-  Parser.M_namespaceSeparator := '!';
+  Parser.NamespaceSeparator := '!';
 
-  Parser.M_ns := XML_FALSE;
-  Parser.M_ns_triplets := XML_FALSE;
+  Parser.M_ns := CXmlFalse;
+  Parser.M_ns_triplets := CXmlFalse;
 
   Parser.M_nsAtts := nil;
   Parser.M_nsAttsVersion := 0;
   Parser.M_nsAttsPower := 0;
 
-  PoolInit(@Parser.M_tempPool, @Parser.M_mem);
-  PoolInit(@Parser.M_temp2Pool, @Parser.M_mem);
+  PoolInit(@Parser.TempPool, @Parser.Mem);
+  PoolInit(@Parser.M_temp2Pool, @Parser.Mem);
   ParserInit(Parser, EncodingName);
 
-  if (EncodingName <> nil) and (Parser.M_protocolEncodingName = nil) then
+  if (EncodingName <> nil) and (Parser.ProtocolEncodingName = nil) then
   begin
     XML_ParserFree(Parser);
 
     Result := nil;
 
     Exit;
-
   end;
 
   if NameSep <> nil then
   begin
-    Parser.M_ns := XML_TRUE;
+    Parser.M_ns := CXmlTrue;
 
-    Parser.MInternalEncoding := XmlGetInternalEncodingNS;
-    Parser.M_namespaceSeparator := NameSep^;
-
+    Parser.InternalEncoding := XmlGetInternalEncodingNS;
+    Parser.NamespaceSeparator := NameSep^;
   end
   else
-    Parser.MInternalEncoding := XmlGetInternalEncoding;
+    Parser.InternalEncoding := XmlGetInternalEncoding;
 
   Result := Parser;
-
 end;
 
 function SetContext(Parser: XML_Parser; Context: XML_PAnsiChar): XML_Bool;
@@ -6261,7 +5977,7 @@ begin
 
   if (Parser <> nil) and (Parser.M_ns <> 0) then
     { implicit context only set for root parser, since child
-      parsers (i.e. external entity parsers) will inherit it }
+      parsers (i.e. external TEntity parsers) will inherit it }
     if not SetContext(Parser, @ImplicitContext[0]) <> 0 then
     begin
       XML_ParserFree(Parser);
@@ -6275,24 +5991,24 @@ end;
 
 procedure XML_SetUserData;
 begin
-  if Parser.M_handlerArg = Parser.M_userData then
+  if Parser.HandlerArg = Parser.UserData then
   begin
-    Parser.M_handlerArg := UserData;
-    Parser.M_userData := UserData;
+    Parser.HandlerArg := UserData;
+    Parser.UserData := UserData;
   end
   else
-    Parser.M_userData := UserData;
+    Parser.UserData := UserData;
 end;
 
 procedure XML_SetElementHandler;
 begin
-  Parser.FStartElementHandler := Start;
-  Parser.M_endElementHandler := End_;
+  Parser.StartElementHandler := Start;
+  Parser.EndElementHandler := End_;
 end;
 
 procedure XML_SetCharacterDataHandler;
 begin
-  Parser.M_characterDataHandler := Handler;
+  Parser.CharacterDataHandler := Handler;
 end;
 
 function XML_GetBuffer(Parser: XML_Parser; Len: Integer): Pointer;
@@ -6300,30 +6016,30 @@ var
   NeededSize, Keep, Offset, BufferSize: Integer;
   NewBuf: PAnsiChar;
 begin
-  case Parser.M_parsingStatus.Parsing of
+  case Parser.ParsingStatus.Parsing of
     XML_SUSPENDED:
       begin
-        Parser.M_errorCode := XML_ERROR_SUSPENDED;
+        Parser.ErrorCode := XML_ERROR_SUSPENDED;
         Result := nil;
         Exit;
       end;
 
     XML_FINISHED:
       begin
-        Parser.M_errorCode := XML_ERROR_FINISHED;
+        Parser.ErrorCode := XML_ERROR_FINISHED;
         Result := nil;
         Exit;
       end;
   end;
 
-  if Len > PtrComp(Parser.M_bufferLim) - PtrComp(Parser.M_bufferEnd) then
+  if Len > PtrComp(Parser.BufferLim) - PtrComp(Parser.BufferEnd) then
   begin
-    { FIXME avoid integer overfLow }
-    NeededSize := Len + (PtrComp(Parser.M_bufferEnd) -
-      PtrComp(Parser.M_bufferPtr));
+    { FIXME avoid integer overflow }
+    NeededSize := Len + (PtrComp(Parser.BufferEnd) -
+      PtrComp(Parser.BufferPtr));
 
 {$IFDEF XML_CONTEXT_BYTES}
-    Keep := PtrComp(Parser.M_bufferPtr) - PtrComp(Parser.M_buffer);
+    Keep := PtrComp(Parser.BufferPtr) - PtrComp(Parser.Buffer);
 
     if Keep > _XML_CONTEXT_BYTES then
       Keep := _XML_CONTEXT_BYTES;
@@ -6331,34 +6047,33 @@ begin
     Inc(NeededSize, Keep);
 
 {$ENDIF}
-    if NeededSize <= PtrComp(Parser.M_bufferLim) - PtrComp(Parser.M_buffer) then
+    if NeededSize <= PtrComp(Parser.BufferLim) - PtrComp(Parser.Buffer) then
     begin
 {$IFDEF XML_CONTEXT_BYTES}
-      if Keep < PtrComp(Parser.M_bufferPtr) - PtrComp(Parser.M_buffer) then
+      if Keep < PtrComp(Parser.BufferPtr) - PtrComp(Parser.Buffer) then
       begin
-        Offset := PtrComp(Parser.M_bufferPtr) - PtrComp(Parser.M_buffer) - Keep;
+        Offset := PtrComp(Parser.BufferPtr) - PtrComp(Parser.Buffer) - Keep;
 
-        Move(PAnsiChar(PtrComp(Parser.M_buffer) + Offset)^, Parser.M_buffer^,
-          PtrComp(Parser.M_bufferEnd) - PtrComp(Parser.M_bufferPtr) + Keep);
+        Move(PAnsiChar(PtrComp(Parser.Buffer) + Offset)^, Parser.Buffer^,
+          PtrComp(Parser.BufferEnd) - PtrComp(Parser.BufferPtr) + Keep);
 
-        Dec(PtrComp(Parser.M_bufferEnd), Offset);
-        Dec(PtrComp(Parser.M_bufferPtr), Offset);
+        Dec(PtrComp(Parser.BufferEnd), Offset);
+        Dec(PtrComp(Parser.BufferPtr), Offset);
 
       end;
 
-{$ELSE }
-      Move(Parser.M_bufferPtr^, Parser.M_buffer^, PtrComp(Parser.M_bufferEnd) -
-        PtrComp(Parser.M_bufferPtr));
+{$ELSE}
+      Move(Parser.BufferPtr^, Parser.Buffer^, PtrComp(Parser.BufferEnd) -
+        PtrComp(Parser.BufferPtr));
 
-      Parser.M_bufferEnd := PAnsiChar(PtrComp(Parser.M_buffer) +
-        (PtrComp(Parser.M_bufferEnd) - PtrComp(Parser.M_bufferPtr)));
-      Parser.M_bufferPtr := Parser.M_buffer;
-
-{$ENDIF }
+      Parser.BufferEnd := PAnsiChar(PtrComp(Parser.Buffer) +
+        (PtrComp(Parser.BufferEnd) - PtrComp(Parser.BufferPtr)));
+      Parser.BufferPtr := Parser.Buffer;
+{$ENDIF}
     end
     else
     begin
-      BufferSize := PtrComp(Parser.M_bufferLim) - PtrComp(Parser.M_bufferPtr);
+      BufferSize := PtrComp(Parser.BufferLim) - PtrComp(Parser.BufferPtr);
 
       if BufferSize = 0 then
         BufferSize := INIT_BUFFER_SIZE;
@@ -6368,84 +6083,77 @@ begin
 
       until BufferSize >= NeededSize;
 
-      Parser.M_mem.Malloc_fcn(Pointer(NewBuf), BufferSize);
+      Parser.Mem.Malloc_fcn(Pointer(NewBuf), BufferSize);
 
       if NewBuf = nil then
       begin
-        Parser.M_errorCode := XML_ERROR_NO_MEMORY;
+        Parser.ErrorCode := XML_ERROR_NO_MEMORY;
 
         Result := nil;
 
         Exit;
-
       end;
 
-      Parser.M_bufferLim := PAnsiChar(PtrComp(NewBuf) + BufferSize);
+      Parser.BufferLim := PAnsiChar(PtrComp(NewBuf) + BufferSize);
 
-{$IFDEF XML_CONTEXT_BYTES }
-      if Parser.M_bufferPtr <> nil then
+{$IFDEF XML_CONTEXT_BYTES}
+      if Parser.BufferPtr <> nil then
       begin
-        Keep := PtrComp(Parser.M_bufferPtr) - PtrComp(Parser.M_buffer);
+        Keep := PtrComp(Parser.BufferPtr) - PtrComp(Parser.Buffer);
 
         if Keep > _XML_CONTEXT_BYTES then
           Keep := _XML_CONTEXT_BYTES;
 
-        Move(PAnsiChar(PtrComp(Parser.M_bufferPtr) - Keep)^, NewBuf^,
-          PtrComp(Parser.M_bufferEnd) - PtrComp(Parser.M_bufferPtr) + Keep);
+        Move(PAnsiChar(PtrComp(Parser.BufferPtr) - Keep)^, NewBuf^,
+          PtrComp(Parser.BufferEnd) - PtrComp(Parser.BufferPtr) + Keep);
 
-        Expat_freemem(Pointer(Parser.M_buffer), Parser.M_bufferAloc);
+        Expat_freemem(Pointer(Parser.Buffer), Parser.BufferAloc);
 
-        Parser.M_buffer := NewBuf;
-        Parser.M_bufferAloc := BufferSize;
+        Parser.Buffer := NewBuf;
+        Parser.BufferAloc := BufferSize;
 
-        Parser.M_bufferEnd :=
-          PAnsiChar(PtrComp(Parser.M_buffer) + (PtrComp(Parser.M_bufferEnd) -
-          PtrComp(Parser.M_bufferPtr)) + Keep);
+        Parser.BufferEnd :=
+          PAnsiChar(PtrComp(Parser.Buffer) + (PtrComp(Parser.BufferEnd) -
+          PtrComp(Parser.BufferPtr)) + Keep);
 
-        Parser.M_bufferPtr := PAnsiChar(PtrComp(Parser.M_buffer) + Keep);
+        Parser.BufferPtr := PAnsiChar(PtrComp(Parser.Buffer) + Keep);
 
       end
       else
       begin
-        Parser.M_bufferEnd :=
-          PAnsiChar(PtrComp(NewBuf) + (PtrComp(Parser.M_bufferEnd) -
-          PtrComp(Parser.M_bufferPtr)));
-        Parser.M_buffer := NewBuf;
-        Parser.M_bufferPtr := NewBuf;
-        Parser.M_bufferAloc := BufferSize;
-
+        Parser.BufferEnd :=
+          PAnsiChar(PtrComp(NewBuf) + (PtrComp(Parser.BufferEnd) -
+          PtrComp(Parser.BufferPtr)));
+        Parser.Buffer := NewBuf;
+        Parser.BufferPtr := NewBuf;
+        Parser.BufferAloc := BufferSize;
       end;
-
-{$ELSE }
-      if Parser.M_bufferPtr <> nil then
+{$ELSE}
+      if Parser.BufferPtr <> nil then
       begin
-        Move(Parser.M_bufferPtr^, NewBuf^, PtrComp(Parser.M_bufferEnd) -
-          PtrComp(Parser.M_bufferPtr));
+        Move(Parser.BufferPtr^, NewBuf^, PtrComp(Parser.BufferEnd) -
+          PtrComp(Parser.BufferPtr));
 
-        Expat_freemem(Pointer(Parser.M_buffer), Parser.M_bufferAloc);
-
+        Expat_freemem(Pointer(Parser.Buffer), Parser.BufferAloc);
       end;
 
-      Parser.M_bufferEnd :=
-        PAnsiChar(PtrComp(NewBuf) + (PtrComp(Parser.M_bufferEnd) -
-        PtrComp(Parser.M_bufferPtr)));
-      Parser.M_buffer := NewBuf;
-      Parser.M_bufferPtr := NewBuf;
-      Parser.M_bufferAloc := BufferSize;
-
-{$ENDIF }
+      Parser.BufferEnd :=
+        PAnsiChar(PtrComp(NewBuf) + (PtrComp(Parser.BufferEnd) -
+        PtrComp(Parser.BufferPtr)));
+      Parser.Buffer := NewBuf;
+      Parser.BufferPtr := NewBuf;
+      Parser.BufferAloc := BufferSize;
+{$ENDIF}
     end;
-
   end;
 
-  Result := Parser.M_bufferEnd;
-
+  Result := Parser.BufferEnd;
 end;
 
 function ErrorProcessor(Parser: XML_Parser; S, Stop: PAnsiChar;
   NextPtr: PPAnsiChar): XML_Error;
 begin
-  Result := Parser.M_errorCode;
+  Result := Parser.ErrorCode;
 end;
 
 function XML_ParseBuffer(Parser: XML_Parser; Len, IsFinal: Integer): XML_Status;
@@ -6456,133 +6164,113 @@ var
 begin
   Result_ := XML_STATUS_OK;
 
-  case Parser.M_parsingStatus.Parsing of
+  case Parser.ParsingStatus.Parsing of
     XML_SUSPENDED:
       begin
-        Parser.M_errorCode := XML_ERROR_SUSPENDED;
+        Parser.ErrorCode := XML_ERROR_SUSPENDED;
 
         Result := XML_STATUS_ERROR;
 
         Exit;
-
       end;
 
     XML_FINISHED:
       begin
-        Parser.M_errorCode := XML_ERROR_FINISHED;
+        Parser.ErrorCode := XML_ERROR_FINISHED;
 
         Result := XML_STATUS_ERROR;
 
         Exit;
-
       end;
 
   else
-    Parser.M_parsingStatus.Parsing := XML_PARSING_;
-
+    Parser.ParsingStatus.Parsing := XML_PARSING_;
   end;
 
-  Start := Parser.M_bufferPtr;
-  Parser.M_positionPtr := Start;
+  Start := Parser.BufferPtr;
+  Parser.PositionPtr := Start;
 
-  Inc(PtrComp(Parser.M_bufferEnd), Len);
+  Inc(PtrComp(Parser.BufferEnd), Len);
 
-  Parser.M_parseEndPtr := Parser.M_bufferEnd;
+  Parser.ParseEndPtr := Parser.BufferEnd;
 
-  Inc(PtrComp(Parser.M_parseEndByteIndex), Len);
+  Inc(PtrComp(Parser.ParseEndByteIndex), Len);
 
-  Parser.M_parsingStatus.FinalBuffer := XML_Bool(IsFinal);
+  Parser.ParsingStatus.FinalBuffer := XML_Bool(IsFinal);
 
-  Parser.M_errorCode := Parser.M_processor(Parser, Start, Parser.M_parseEndPtr,
-    @Parser.M_bufferPtr);
+  Parser.ErrorCode := Parser.TProcessor(Parser, Start, Parser.ParseEndPtr,
+    @Parser.BufferPtr);
 
-  if Parser.M_errorCode <> XML_ERROR_NONE then
+  if Parser.ErrorCode <> XML_ERROR_NONE then
   begin
-    Parser.M_eventEndPtr := Parser.M_eventPtr;
-    Parser.M_processor := @ErrorProcessor;
+    Parser.EventEndPtr := Parser.EventPtr;
+    Parser.TProcessor := @ErrorProcessor;
 
     Result := XML_STATUS_ERROR;
 
     Exit;
-
   end
   else
-    case Parser.M_parsingStatus.Parsing of
+    case Parser.ParsingStatus.Parsing of
       XML_SUSPENDED:
         Result_ := XML_STATUS_SUSPENDED;
 
       XML_INITIALIZED, XML_PARSING_:
         if IsFinal <> 0 then
         begin
-          Parser.M_parsingStatus.Parsing := XML_FINISHED;
+          Parser.ParsingStatus.Parsing := XML_FINISHED;
 
           Result := Result_;
 
           Exit;
-
         end;
-
     else
       { should not happen }
       NoP;
-
     end;
 
-  Parser.M_encoding.UpdatePosition(Parser.M_encoding,
-    Pointer(Parser.M_positionPtr), Pointer(Parser.M_bufferPtr),
-    @Parser.M_position);
+  Parser.Encoding.UpdatePosition(Parser.Encoding,
+    Pointer(Parser.PositionPtr), Pointer(Parser.BufferPtr),
+    @Parser.Position);
 
-  Parser.M_positionPtr := Parser.M_bufferPtr;
+  Parser.PositionPtr := Parser.BufferPtr;
 
   Result := Result_;
-
 end;
 
-{ XML_PARSE {.. }
 function XML_Parse;
 var
   Buff: Pointer;
-
 begin
-  case Parser.M_parsingStatus.Parsing of
+  case Parser.ParsingStatus.Parsing of
     XML_SUSPENDED:
       begin
-        Parser.M_errorCode := XML_ERROR_SUSPENDED;
+        Parser.ErrorCode := XML_ERROR_SUSPENDED;
 
         Result := XML_STATUS_ERROR;
 
         Exit;
-
       end;
 
     XML_FINISHED:
       begin
-        Parser.M_errorCode := XML_ERROR_FINISHED;
+        Parser.ErrorCode := XML_ERROR_FINISHED;
 
         Result := XML_STATUS_ERROR;
 
         Exit;
-
       end;
 
   else
-    Parser.M_parsingStatus.Parsing := XML_PARSING_;
-
+    Parser.ParsingStatus.Parsing := XML_PARSING_;
   end;
 
   if Len = 0 then
-  begin
-    NoP;
-
-  end
-{$IFNDEF XML_CONTEXT_BYTES }
-  else if Parser.M_bufferPtr = Parser.M_bufferEnd then
-  begin
-    NoP;
-
-  end
-
-{$ENDIF }
+    NoP
+{$IFNDEF XML_CONTEXT_BYTES}
+  else if Parser.BufferPtr = Parser.BufferEnd then
+    NoP
+{$ENDIF}
   else
   begin
     Buff := XML_GetBuffer(Parser, Len);
@@ -6595,33 +6283,25 @@ begin
       Move(S^, Buff^, Len);
 
       Result := XML_ParseBuffer(Parser, Len, IsFinal);
-
     end;
-
   end;
-
 end;
 
-{ XML_GETERRORCODE {.. }
 function XML_GetErrorCode;
 begin
 end;
 
-{ XML_ERRORSTRING {.. }
 function XML_ErrorString;
 begin
 end;
 
-{ XML_GETCURRENTLINENUMBER {.. }
 function XML_GetCurrentLineNumber;
 begin
 end;
 
-{ destroyBindings }
-procedure DestroyBindings(Bindings: BINDING_ptr; Parser: XML_Parser);
+procedure DestroyBindings(Bindings: PBinding; Parser: XML_Parser);
 var
-  B: BINDING_ptr;
-
+  B: PBinding;
 begin
   repeat
     B := Bindings;
@@ -6631,98 +6311,95 @@ begin
 
     Bindings := B.NextTagBinding;
 
-    Parser.M_mem.Free_fcn(Pointer(B.Uri), B.UriAlloc);
-    Parser.M_mem.Free_fcn(Pointer(B), SizeOf(Expat.BINDING));
+    Parser.Mem.Free_fcn(Pointer(B.Uri), B.UriAlloc);
+    Parser.Mem.Free_fcn(Pointer(B), SizeOf(Expat.TBinding));
 
   until False;
-
 end;
 
-{ XML_PARSERFREE }
 procedure XML_ParserFree;
 var
   TagList, P: TAG_ptr;
 
-  EntityList, OpenEntity: OPEN_INTERNAL_ENTITY_ptr;
-
+  EntityList, OpenEntity: POpenInternalEntity;
 begin
   if Parser = nil then
     Exit;
 
   { free tagStack and freeTagList }
-  TagList := Parser.M_tagStack;
+  TagList := Parser.TagStack;
 
   repeat
     if TagList = nil then
     begin
-      if Parser.M_freeTagList = nil then
+      if Parser.FreeTagList = nil then
         Break;
 
-      TagList := Parser.M_freeTagList;
+      TagList := Parser.FreeTagList;
 
-      Parser.M_freeTagList := nil;
+      Parser.FreeTagList := nil;
 
     end;
 
     P := TagList;
     TagList := TagList.Parent;
 
-    Parser.M_mem.Free_fcn(Pointer(P.Buf), P.Alloc);
+    Parser.Mem.Free_fcn(Pointer(P.Buf), P.Alloc);
     DestroyBindings(P.Bindings, Parser);
-    Parser.M_mem.Free_fcn(Pointer(P), SizeOf(Expat.TAG));
+    Parser.Mem.Free_fcn(Pointer(P), SizeOf(Expat.TAG));
 
   until False;
 
   { free openInternalEntities and freeInternalEntities }
-  EntityList := Parser.M_openInternalEntities;
+  EntityList := Parser.OpenInternalEntities;
 
   repeat
     if EntityList = nil then
     begin
-      if Parser.M_freeInternalEntities = nil then
+      if Parser.FreeInternalEntities = nil then
         Break;
 
-      EntityList := Parser.M_freeInternalEntities;
+      EntityList := Parser.FreeInternalEntities;
 
-      Parser.M_freeInternalEntities := nil;
+      Parser.FreeInternalEntities := nil;
 
     end;
 
     OpenEntity := EntityList;
     EntityList := EntityList.Next;
 
-    Parser.M_mem.Free_fcn(Pointer(OpenEntity), SizeOf(OPEN_INTERNAL_ENTITY));
+    Parser.Mem.Free_fcn(Pointer(OpenEntity), SizeOf(TOpenInternalEntity));
 
   until False;
 
-  DestroyBindings(Parser.M_freeBindingList, Parser);
-  DestroyBindings(Parser.MInheritedBindings, Parser);
+  DestroyBindings(Parser.FreeBindingList, Parser);
+  DestroyBindings(Parser.InheritedBindings, Parser);
 
-  PoolDestroy(@Parser.M_tempPool);
+  PoolDestroy(@Parser.TempPool);
   PoolDestroy(@Parser.M_temp2Pool);
 
-{$IFDEF XML_DTD }
-  { external parameter entity parsers share the DTD structure
+{$IFDEF XML_DTD}
+  { external parameter TEntity parsers share the DTD structure
     parser->m_dtd with the root parser, so we must not destroy it }
-  if (Parser.M_isParamEntity = 0) and (Parser.M_dtd <> nil) then
-{$ELSE }
+  if (Parser.IsParamEntity = 0) and (Parser.M_dtd <> nil) then
+{$ELSE}
   if Parser.M_dtd <> nil then {$ENDIF }
-    DtdDestroy(Parser.M_dtd, XML_Bool(Parser.M_parentParser = nil),
-      @Parser.M_mem);
+    DtdDestroy(Parser.M_dtd, XML_Bool(Parser.ParentParser = nil),
+      @Parser.Mem);
 
-  Parser.M_mem.Free_fcn(Pointer(Parser.M_atts), Parser.M_attsAlloc);
-  Parser.M_mem.Free_fcn(Pointer(Parser.M_groupConnector), Parser.M_groupAlloc);
-  Parser.M_mem.Free_fcn(Pointer(Parser.M_buffer), Parser.M_bufferAloc);
-  Parser.M_mem.Free_fcn(Pointer(Parser.M_dataBuf),
+  Parser.Mem.Free_fcn(Pointer(Parser.Atts), Parser.AttsAlloc);
+  Parser.Mem.Free_fcn(Pointer(Parser.GroupConnector), Parser.M_groupAlloc);
+  Parser.Mem.Free_fcn(Pointer(Parser.Buffer), Parser.BufferAloc);
+  Parser.Mem.Free_fcn(Pointer(Parser.DataBuf),
     INIT_DATA_BUF_SIZE * SizeOf(XML_Char));
-  Parser.M_mem.Free_fcn(Pointer(Parser.M_nsAtts), Parser.M_nsAttsAlloc);
-  Parser.M_mem.Free_fcn(Pointer(Parser.M_unknownEncodingMem),
-    Parser.M_unknownEncodingAlloc);
+  Parser.Mem.Free_fcn(Pointer(Parser.M_nsAtts), Parser.M_nsAttsAlloc);
+  Parser.Mem.Free_fcn(Pointer(Parser.UnknownEncodingMem),
+    Parser.UnknownEncodingAlloc);
 
-  if @Parser.M_unknownEncodingRelease <> nil then
-    Parser.M_unknownEncodingRelease(Parser.M_unknownEncodingData);
+  if @Parser.UnknownEncodingRelease <> nil then
+    Parser.UnknownEncodingRelease(Parser.UnknownEncodingData);
 
-  Parser.M_mem.Free_fcn(Pointer(Parser), SizeOf(XML_ParserStruct));
+  Parser.Mem.Free_fcn(Pointer(Parser), SizeOf(XML_ParserStruct));
 end;
 
 end.
