@@ -651,7 +651,7 @@ end;
 
 function TPathRenderer.GetItem(Index: Cardinal): Cardinal;
 begin
-  FTransform.AssignAll(@PPathAttributesRecord(FAttrStorage[Index]).FTransform);
+  FTransform.AssignAll(PPathAttributesRecord(FAttrStorage[Index]).FTransform);
 
   Result := PPathAttributesRecord(FAttrStorage[Index]).Index;
 end;

@@ -45,7 +45,6 @@ uses
 
 {$I expat_mode.inc}
 
-
 const
   XML_ROLE_ERROR = -1;
   XML_ROLE_NONE = 0;
@@ -111,39 +110,36 @@ const
   XML_ROLE_IGNORE_SECT = XML_ROLE_TEXT_DECL + 1;
   XML_ROLE_INNER_PARAM_ENTITY_REF = XML_ROLE_IGNORE_SECT + 1;
   XML_ROLE_PARAM_ENTITY_REF = XML_ROLE_INNER_PARAM_ENTITY_REF + 1;
-
 {$ELSE }
   XML_ROLE_PARAM_ENTITY_REF = XML_ROLE_COMMENT + 1;
-
 {$ENDIF }
 
 type
-  PROLOG_STATE_ptr = ^PROLOG_STATE;
+  PPrologState = ^TPrologState;
 
-  PROLOG_STATE = record
-    Handler: function(State: PROLOG_STATE_ptr; Tok: Integer; Ptr, End_: PAnsiChar;
+  TPrologState = record
+    Handler: function(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
       Enc: ENCODING_ptr): Integer;
 
     Level: Cardinal;
-    Role_none: Integer;
+    RoleNone: Integer;
 
 {$IFDEF XML_DTD }
     IncludeLevel: Cardinal;
     DocumentEntity, InEntityValue: Integer;
-
 {$ENDIF }
   end;
 
-  { GLOBAL PROCEDURES }
-procedure XmlPrologStateInit(State: PROLOG_STATE_ptr);
-function XmlTokenRole(State: PROLOG_STATE_ptr; Tok: Integer; Ptr, End_: PAnsiChar;
+procedure XmlPrologStateInit(State: PPrologState);
+function XmlTokenRole(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
   Enc: ENCODING_ptr): Integer;
 
 implementation
 
-
 const
+
 {$I ascii.inc }
+
   { Doesn't check:
 
     that ,| are not mixed in a model group
@@ -217,32 +213,27 @@ const
     ASCII_E, ASCII_M, #0);
 
   
-  { MIN_BYTES_PER_CHAR }
 function MIN_BYTES_PER_CHAR(Enc: ENCODING_ptr): Integer;
 begin
   Result := Enc.MinBytesPerChar;
 end;
 
-{ error }
-function Error(State: PROLOG_STATE_ptr; Tok: Integer; Ptr, End_: PAnsiChar;
+function Error(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
   Enc: ENCODING_ptr): Integer;
 begin
   Result := XML_ROLE_NONE;
 end;
 
-{ common {.. }
-function Common(State: PROLOG_STATE_ptr; Tok: Integer): Integer;
+function Common(State: PPrologState; Tok: Integer): Integer;
 begin
 end;
 
-{ internalSubset {.. }
-function InternalSubset(State: PROLOG_STATE_ptr; Tok: Integer; Ptr, End_: PAnsiChar;
+function InternalSubset(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
   Enc: ENCODING_ptr): Integer;
 begin
 end;
 
-{ prolog2 }
-function Prolog2(State: PROLOG_STATE_ptr; Tok: Integer; Ptr, End_: PAnsiChar;
+function Prolog2(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
   Enc: ENCODING_ptr): Integer;
 begin
   case Tok of
@@ -251,7 +242,6 @@ begin
         Result := XML_ROLE_NONE;
 
         Exit;
-
       end;
 
     XML_TOK_PI:
@@ -259,7 +249,6 @@ begin
         Result := XML_ROLE_PI;
 
         Exit;
-
       end;
 
     XML_TOK_COMMENT:
@@ -267,7 +256,6 @@ begin
         Result := XML_ROLE_COMMENT;
 
         Exit;
-
       end;
 
     XML_TOK_INSTANCE_START:
@@ -277,16 +265,13 @@ begin
         Result := XML_ROLE_INSTANCE_START;
 
         Exit;
-
       end;
-
   end;
 
   Result := Common(State, Tok);
 end;
 
-{ doctype4 }
-function Doctype4(State: PROLOG_STATE_ptr; Tok: Integer; Ptr, End_: PAnsiChar;
+function Doctype4(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
   Enc: ENCODING_ptr): Integer;
 begin
   case Tok of
@@ -320,8 +305,7 @@ begin
 
 end;
 
-{ doctype3 }
-function Doctype3(State: PROLOG_STATE_ptr; Tok: Integer; Ptr, End_: PAnsiChar;
+function Doctype3(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
   Enc: ENCODING_ptr): Integer;
 begin
   case Tok of
@@ -345,8 +329,7 @@ begin
   Result := Common(State, Tok);
 end;
 
-{ doctype2 }
-function Doctype2(State: PROLOG_STATE_ptr; Tok: Integer; Ptr, End_: PAnsiChar;
+function Doctype2(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
   Enc: ENCODING_ptr): Integer;
 begin
   case Tok of
@@ -370,8 +353,7 @@ begin
   Result := Common(State, Tok);
 end;
 
-{ doctype1 }
-function Doctype1(State: PROLOG_STATE_ptr; Tok: Integer; Ptr, End_: PAnsiChar;
+function Doctype1(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
   Enc: ENCODING_ptr): Integer;
 begin
   case Tok of
@@ -425,8 +407,7 @@ begin
   Result := Common(State, Tok);
 end;
 
-{ doctype0 }
-function Doctype0(State: PROLOG_STATE_ptr; Tok: Integer; Ptr, End_: PAnsiChar;
+function Doctype0(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
   Enc: ENCODING_ptr): Integer;
 begin
   case Tok of
@@ -450,8 +431,7 @@ begin
   Result := Common(State, Tok);
 end;
 
-{ prolog1 }
-function Prolog1(State: PROLOG_STATE_ptr; Tok: Integer; Ptr, End_: PAnsiChar;
+function Prolog1(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
   Enc: ENCODING_ptr): Integer;
 begin
   case Tok of
@@ -509,8 +489,7 @@ begin
   Result := Common(State, Tok);
 end;
 
-{ prolog0 }
-function Prolog0(State: PROLOG_STATE_ptr; Tok: Integer; Ptr, End_: PAnsiChar;
+function Prolog0(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
   Enc: ENCODING_ptr): Integer;
 label
   _break;
@@ -588,7 +567,6 @@ _break:
   Result := Common(State, Tok);
 end;
 
-{ XMLPROLOGSTATEINIT }
 procedure XmlPrologStateInit;
 begin
   State.Handler := @Prolog0;
@@ -597,11 +575,9 @@ begin
   State.DocumentEntity := 1;
   State.IncludeLevel := 0;
   State.InEntityValue := 0;
-
 {$ENDIF }
 end;
 
-{ XMLTOKENROLE }
 function XmlTokenRole;
 begin
   Result := State.Handler(State, Tok, Ptr, End_, Enc);

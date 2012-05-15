@@ -639,7 +639,7 @@ type
 
     UnknownEncodingRelease: procedure(Void: Pointer);
 
-    PrologState: PROLOG_STATE;
+    PrologState: TPrologState;
     TProcessor: TProcessor;
     ErrorCode: TXmlError;
     EventPtr, EventEndPtr, PositionPtr: PAnsiChar;
