@@ -44,10 +44,10 @@ unit xmltok;
 interface
 
 uses
-  Expat_basics,
+  ExpatBasics,
   ExpatExternal;
 
-{$I expat_mode.inc}
+{$I ExpatMode.inc}
 
 type
   PPWord = ^PWord;

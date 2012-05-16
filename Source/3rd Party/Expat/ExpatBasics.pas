@@ -1,4 +1,4 @@
-unit expat_basics;
+unit ExpatBasics;
 
 // ----------------------------------------------------------------------------
 // Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd
@@ -37,7 +37,7 @@ unit expat_basics;
 
 interface
 
-{$I expat_mode.inc }
+{$I ExpatMode.inc }
 
 function Expat_getmem(var Ptr: Pointer; Sz: Integer): Boolean;
 function Expat_realloc(var Ptr: Pointer; Old, Sz: Integer): Boolean;

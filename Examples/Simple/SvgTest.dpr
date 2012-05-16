@@ -6,6 +6,7 @@ program SvgTest;
 {$I AggCompiler.inc}
 
 uses
+//  FastMM4,
   SysUtils,
   AggPlatformSupport,
   AggFileUtils,
@@ -30,8 +31,8 @@ uses
   AggSvgPathRenderer in '..\..\Source\Svg\AggSvgPathRenderer.pas',
   AggSvgException in '..\..\Source\Svg\AggSvgException.pas',
   expat in '..\..\Source\3rd Party\Expat\expat.pas',
-  expat_basics in '..\..\Source\3rd Party\Expat\expat_basics.pas',
-  expat_external in '..\..\Source\3rd Party\Expat\expat_external.pas',
+  ExpatBasics in '..\..\Source\3rd Party\Expat\ExpatBasics.pas',
+  ExpatExternal in '..\..\Source\3rd Party\Expat\ExpatExternal.pas',
   xmlrole in '..\..\Source\3rd Party\Expat\xmlrole.pas',
   xmltok in '..\..\Source\3rd Party\Expat\xmltok.pas';
 
@@ -169,65 +170,84 @@ begin
   RendererBase := TAggRendererBase.Create(Pixf, True);
   try
     Ren := TAggRendererScanLineAASolid.Create(RendererBase);
+    try
+      RendererBase.Clear(CRgba8White);
 
-    RendererBase.Clear(CRgba8White);
+      Ras := TAggRasterizerScanLineAA.Create;
+      Sl := TAggScanLinePacked8.Create;
 
-    Ras := TAggRasterizerScanLineAA.Create;
-    Sl := TAggScanLinePacked8.Create;
-    Mtx := TAggTransAffine.Create;
+      // Render
+      Gmpw :=  TAggGammaPower.Create(FSliderGamma.Value);
+      try
+        Ras.Gamma(Gmpw);
+      finally
+        Gmpw.Free;
+      end;
 
-    // Render
-    Gmpw :=  TAggGammaPower.Create(FSliderGamma.Value);
-    Ras.Gamma(Gmpw);
+      Mtx := TAggTransAffine.Create;
+      try
+        Mtx.Translate((FMin.X + FMax.X) * -0.5, (FMin.Y + FMax.Y) * -0.5);
+        Mtx.Scale(FSliderScale.Value);
+        Mtx.Rotate(Deg2Rad(FSliderRotate.Value));
+        Mtx.Translate((FMin.X + FMax.X) * 0.5 + FX,
+          (FMin.Y + FMax.Y) * 0.5 + FY + 30);
 
-    Mtx.Translate((FMin.X + FMax.X) * -0.5, (FMin.Y + FMax.Y) * -0.5);
-    Mtx.Scale(FSliderScale.Value);
-    Mtx.Rotate(Deg2Rad(FSliderRotate.Value));
-    Mtx.Translate((FMin.X + FMax.X) * 0.5 + FX,
-      (FMin.Y + FMax.Y) * 0.5 + FY + 30);
+        FPath.Expand(FSliderExpand.Value);
 
-    FPath.Expand(FSliderExpand.Value);
+        StartTimer;
 
-    StartTimer;
+        FPath.Render(Ras, Sl, Ren, Mtx, RendererBase.GetClipBox^, 1.0);
 
-    FPath.Render(Ras, Sl, Ren, Mtx, RendererBase.GetClipBox^, 1.0);
+        Tm := GetElapsedTime;
+      finally
+        Mtx.Free;
+      end;
 
-    Tm := GetElapsedTime;
+      VertexCount := FPath.VertexCount;
 
-    VertexCount := FPath.GetVertexCount;
+      // Render the controls
+      Gmno := TAggGammaNone.Create;
+      try
+        Ras.Gamma(Gmno);
+      finally
+        Gmno.Free;
+      end;
 
-    // Render the controls
-    Gmno := TAggGammaNone.Create;
-    Ras.Gamma(Gmno);
+      RenderControl(Ras, Sl, Ren, FSliderExpand);
+      RenderControl(Ras, Sl, Ren, FSliderGamma);
+      RenderControl(Ras, Sl, Ren, FSliderScale);
+      RenderControl(Ras, Sl, Ren, FSliderRotate);
 
-    RenderControl(Ras, Sl, Ren, FSliderExpand);
-    RenderControl(Ras, Sl, Ren, FSliderGamma);
-    RenderControl(Ras, Sl, Ren, FSliderScale);
-    RenderControl(Ras, Sl, Ren, FSliderRotate);
+      // Display text
+      Txt := TAggGsvText.Create;
+      try
+        Txt.SetSize(10.0);
+        Txt.Flip := True;
 
-    // Display text
-    Txt := TAggGsvText.Create;
-    Txt.SetSize(10.0);
-    Txt.Flip := True;
+        Pt := TAggConvStroke.Create(Txt);
+        try
+          Pt.Width := 1.5;
 
-    Pt := TAggConvStroke.Create(Txt);
-    Pt.Width := 1.5;
+          Txt.SetStartPoint(10.0, 40.0);
+          Txt.SetText(Format('Vertices=%d Time=%.3f ms', [VertexCount, Tm]));
 
-    Txt.SetStartPoint(10.0, 40.0);
-    Txt.SetText(Format('Vertices=%d Time=%.3f ms', [VertexCount, Tm]));
+          Ras.AddPath(Pt);
+        finally
+          Pt.Free;
+        end;
+      finally
+        Txt.Free;
+      end;
 
-    Ras.AddPath(Pt);
-    Ren.SetColor(CRgba8Black);
-    RenderScanLines(Ras, Sl, Ren);
+      Ren.SetColor(CRgba8Black);
+      RenderScanLines(Ras, Sl, Ren);
 
-    // Free AGG resources
-    Mtx.Free;
-    Ren.Free;
-    Ras.Free;
-    Sl.Free;
-
-    Txt.Free;
-    Pt.Free;
+      // Free AGG resources
+      Ras.Free;
+      Sl.Free;
+    finally
+      Ren.Free;
+    end;
   finally
     RendererBase.Free;
   end;
@@ -275,14 +295,17 @@ begin
   if Key = Byte(' ') then
   begin
     Mtx := TAggTransAffine.Create;
+    try
+      Mtx.Translate((FMin.X + FMax.X) * -0.5, (FMin.Y + FMax.Y) * -0.5);
+      Mtx.Scale(FSliderScale.Value);
+      Mtx.Rotate(Deg2Rad(FSliderRotate.Value));
+      Mtx.Translate((FMin.X + FMax.X) * 0.5, (FMin.Y + FMax.Y) * 0.5);
+      Mtx.Translate(FX, FY);
 
-    Mtx.Translate((FMin.X + FMax.X) * -0.5, (FMin.Y + FMax.Y) * -0.5);
-    Mtx.Scale(FSliderScale.Value);
-    Mtx.Rotate(Deg2Rad(FSliderRotate.Value));
-    Mtx.Translate((FMin.X + FMax.X) * 0.5, (FMin.Y + FMax.Y) * 0.5);
-    Mtx.Translate(FX, FY);
-
-    Mtx.StoreTo(@M);
+      Mtx.StoreTo(@M);
+    finally
+      Mtx.Free;
+    end;
 
     DisplayMessage(Format('%3.3f, %3.3f, %3.3f, %3.3f, %3.3f, %3.3f', [M[0],
       M[1], M[2], M[3], M[4], M[5]]));

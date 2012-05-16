@@ -39,11 +39,11 @@ unit xmlrole;
 interface
 
 uses
-  Expat_basics,
+  ExpatBasics,
   ExpatExternal,
   Xmltok;
 
-{$I expat_mode.inc}
+{$I ExpatMode.inc}
 
 const
   XML_ROLE_ERROR = -1;

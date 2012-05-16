@@ -37,7 +37,7 @@ unit ExpatExternal;
 
 interface
 
-{$I expat_mode.inc }
+{$I ExpatMode.inc }
 
 type
   (* General Integer Types *)

@@ -39,12 +39,12 @@ unit expat;
 interface
 
 uses
-  Expat_basics,
-  Expat_external,
+  ExpatBasics,
+  ExpatExternal,
   Xmltok,
   Xmlrole;
 
-{$I expat_mode.inc}
+{$I ExpatMode.inc}
 
 type
   TXmlParser = ^TXmlParserStruct;
@@ -57,24 +57,17 @@ type
   TXmlError = (xeNone, xeNoMemory, xeSyntax, xeNoElements, xeInvalidToken,
     xeUnclosedToken, xePartialChar, xeTagMismatch, xeDuplicateAttribute,
     xeJunkAfterDocElement, xeParamEntityRef, xeUndefinedEntity,
-    xeRecursiveEntityRef, xeAsyncEntity,
-    XML_ERROR_BAD_CHAR_REF, XML_ERROR_BINARY_ENTITY_REF,
-    XML_ERROR_ATTRIBUTE_EXTERNAL_ENTITY_REF, XML_ERROR_MISPLACED_XML_PI,
-    XML_ERROR_UNKNOWN_ENCODING, XML_ERROR_INCORRECT_ENCODING,
-    XML_ERROR_UNCLOSED_CDATA_SECTION, XML_ERROR_EXTERNAL_ENTITY_HANDLING,
-    XML_ERROR_NOT_STANDALONE, XML_ERROR_UNEXPECTED_STATE,
-    XML_ERROR_ENTITY_DECLARED_IN_PE, XML_ERROR_FEATURE_REQUIRES_XML_DTD,
-    XML_ERROR_CANT_CHANGE_FEATURE_ONCE_PARSING,
-    { Added in 1.95.7. }
-    XML_ERROR_UNBOUND_PREFIX,
+    xeRecursiveEntityRef, xeAsyncEntity, xeBadCharRef, xeBinaryEntityRef,
+    xeAttributeExternalEntityRef, xeMisplacedXmlPi, xeUnknownEncoding,
+    xeIncorrectEncoding, xeUnclosedCDataSection, xeExternalEntityHandling,
+    xeNotStandalone, xeUnexpectedState, xeEntityDeclaredInPe,
+    xeFeatureRequiresXmlDtd, xeCantChangeFeatureOnceParsing, xeUnboundPrefix,
     { Added in 1.95.8. }
-    XML_ERROR_UNDECLARING_PREFIX, XML_ERROR_INCOMPLETE_PE, XML_ERROR_XML_DECL,
-    XML_ERROR_TEXT_DECL, XML_ERROR_PUBLICID, XML_ERROR_SUSPENDED,
-    XML_ERROR_NOT_SUSPENDED, XML_ERROR_ABORTED, XML_ERROR_FINISHED,
-    XML_ERROR_SUSPEND_PE,
+    xeUndeclaringPrefix, xeIncompletePe, xeXmlDecl, xeTextDecl, xePublicID,
+    xeSuspended, xeNotSuspended, xeAborted, xeFinished, xeSuspendPe,
     { Added in 2.0. }
-    XML_ERROR_RESERVED_PREFIX_XML, XML_ERROR_RESERVED_PREFIX_XMLNS,
-    XML_ERROR_RESERVED_NAMESPACE_URI);
+    xeReservedPrefixXml, xeReservedPrefixXmlNS,
+    xeReservedNamespaceURI);
 
   TXmlContentType = (___SKIP_ZERO____, ctEmpty, ctAny, ctMixed, ctName,
     ctChoice, ctSEQ);
@@ -83,14 +76,14 @@ type
 
   TXmlParamEntityParsing = (pepNever, pepUnlessStandalone, pepAlways);
 
-  { If type == ctEmpty or ctAny, then quant will be
+  { If type = ctEmpty or ctAny, then quant will be
     cqNone, and the other fields will be zero or NULL.
     If type == ctMixed, then quant will be NONE or REP and
     numchildren will contain number of elements that may be mixed in
     and children point to an array of TXmlContent cells that will be
     all of ctName type with no quantification.
 
-    If type == ctName, then the name points to the name, and
+    If type = ctName, then the name points to the name, and
     the numchildren field will be zero and children will be NULL. The
     quant fields indicates any quantifiers placed on the name.
 
@@ -100,15 +93,13 @@ type
 
     The EMPTY, ANY, and MIXED types will only occur at top level. }
   PXmlContent = ^TXmlContent;
-
   TXmlContent = record
-    Type_: TXmlContentType;
+    ContentType: TXmlContentType;
     Quant: TXmlContentQuant;
     Name: PXmlChar;
 
     Numchildren: Cardinal;
     Children: PXmlContent;
-
   end;
 
   { This is called for an element declaration. See above for
@@ -125,7 +116,7 @@ type
     value will be NULL in the case of "#REQUIRED". If "isrequired" is
     true and default is non-NULL, then this is a "#FIXED" default. }
   TXmlAttlistDeclHandler = procedure(UserData: Pointer;
-    Elname, Attname, Att_type, Dflt: PXmlChar; Isrequired: Integer);
+    ElName, AttributeName, AttributeType, Dflt: PXmlChar; IsRequired: Integer);
 
   { The XML declaration handler is called for *both* XML declarations
     and text declarations. The way to distinguish is that the version
@@ -137,14 +128,14 @@ type
   TXmlXmlDeclHandler = procedure(UserData: Pointer;
     Version, Encoding: PXmlChar; Standalone: Integer);
 
-  { This is called for TEntity declarations. The is_parameter_entity
+  { This is called for TEntity declarations. The IsParameterEntity
     argument will be non-zero if the TEntity is a parameter TEntity, zero
     otherwise.
 
     For internal entities (<!TEntity foo "bar">), value will
     be non-NULL and systemId, publicID, and notationName will be NULL.
     The value string is NOT nul-terminated; the length is provided in
-    the value_length argument. Since it is legal to have zero-length
+    the ValueLength argument. Since it is legal to have zero-length
     values, do not use this argument to test for internal entities.
 
     For external entities, value will be NULL and systemId will be
@@ -152,10 +143,10 @@ type
     identifier was provided. The notationName argument will have a
     non-NULL value only for unparsed TEntity declarations.
 
-    Note that is_parameter_entity can't be changed to XML_Bool, since
+    Note that IsParameterEntity can't be changed to XML_Bool, since
     that would break binary compatibility. }
   TXmlEntityDeclHandler = procedure(UserData: Pointer; EntityName: PXmlChar;
-    Is_parameter_entity: Integer; Value: PXmlChar; Value_length: Integer;
+    IsParameterEntity: Integer; Value: PXmlChar; ValueLength: Integer;
     Base, SystemId, PublicId, NotationName: PXmlChar);
 
   { atts is array of name/value pairs, terminated by 0;
@@ -195,7 +186,7 @@ type
   { This is called for the start of the DOCTYPE declaration, before
     any TDocTypeDeclaration or internal subset is parsed. }
   TXmlStartDoctypeDeclHandler = procedure(UserData: Pointer;
-    DoctypeName, Sysid, Pubid: PXmlChar; HasInternal_subset: Integer);
+    DoctypeName, Sysid, Pubid: PXmlChar; HasInternalSubset: Integer);
 
   { This is called for the start of the DOCTYPE declaration when the
     closing > is encountered, but after processing any external
@@ -233,7 +224,7 @@ type
     external subset or a reference to a parameter TEntity, but does not
     have standalone="yes". If this handler returns xsError,
     then processing will not continue, and the parser will return a
-    XML_ERROR_NOT_STANDALONE error.
+    xeNotStandalone error.
     If parameter TEntity parsing is enabled, then in addition to the
     conditions above this handler will only be called if the referenced
     TEntity was actually read. }
@@ -268,7 +259,7 @@ type
     The handler should return xsError if processing should not
     continue because of a fatal error in the handling of the external
     TEntity.  In this case the calling parser will return an
-    XML_ERROR_EXTERNAL_ENTITY_HANDLING error.
+    xeExternalEntityHandling error.
 
     Note that unlike other handlers the first argument is the parser,
     not userData. }
@@ -285,7 +276,7 @@ type
     the event would be out of sync with the reporting of the
     declarations or attribute values }
   TXmlSkippedEntityHandler = procedure(UserData: Pointer;
-    EntityName: PXmlChar; Is_parameter_entity: Integer);
+    EntityName: PXmlChar; IsParameterEntity: Integer);
 
   (* This structure is filled in by the TXmlUnknownEncodingHandler to
     provide information to the parser about encodings that are unknown
@@ -339,7 +330,6 @@ type
     4. No Unicode character may be encoded by more than one distinct
     sequence of bytes. *)
   PXmlEncoding = ^TXmlEncoding;
-
   TXmlEncoding = record
     Map: array [0..255] of Integer;
     Data: Pointer;
@@ -366,11 +356,10 @@ type
     Name: PXmlChar; Info: PXmlEncoding): Integer;
 
   PXmlMemoryHandlingSuite = ^TXmlMemoryHandlingSuite;
-
   TXmlMemoryHandlingSuite = record
-    Malloc_fcn: function(var Ptr: Pointer; Sz: Integer): Boolean;
-    Realloc_fcn: function(var Ptr: Pointer; Old, Sz: Integer): Boolean;
-    Free_fcn: function(var Ptr: Pointer; Sz: Integer): Boolean;
+    MallocFunction: function(var Ptr: Pointer; Size: Integer): Boolean;
+    ReallocFunction: function(var Ptr: Pointer; Old, Size: Integer): Boolean;
+    FreeFunction: function(var Ptr: Pointer; Size: Integer): Boolean;
   end;
 
   KEY = PXmlChar;
@@ -388,7 +377,7 @@ type
     A: Integer;
 
     Power: Int8u;
-    Size, Used: Size_t;
+    Size, Used: TSize;
     Mem: PXmlMemoryHandlingSuite;
   end;
 
@@ -419,7 +408,7 @@ type
 
   PContentScaffold = ^TContentScaffold;
   TContentScaffold = record
-    Type_: TXmlContentType;
+    ContentType: TXmlContentType;
     Quant: TXmlContentQuant;
     Name: PXmlChar;
 
@@ -463,25 +452,24 @@ type
     StrLen, UriLen, PrefixLen: Integer;
   end;
 
-  { TAG represents an open element.
+  { TTag represents an open element.
     The name of the element is stored in both the document and API
     encodings.  The memory buffer 'buf' is a separately-allocated
-    memory area which stores the name.  During the XML_Parse()/
+    memory area which stores the name.  During the XmlParse()/
     XMLParseBuffer() when the element is open, the memory for the 'raw'
     version of the name (in the document encoding) is shared with the
     document buffer.  If the element is open across calls to
-    XML_Parse()/XML_ParseBuffer(), the buffer is re-allocated to
+    XmlParse()/XML_ParseBuffer(), the buffer is re-allocated to
     contain the 'raw' name as well.
 
     A parser re-uses these structures, maintaining a list of allocated
-    TAG objects in a free list. }
+    TTag objects in a free list. }
   PPBinding = ^PBinding;
   PBinding = ^TBinding;
 
-  TAG_ptr = ^TAG;
-
-  TAG = record
-    Parent: TAG_ptr; { parent of this element }
+  PTag = ^TTag;
+  TTag = record
+    Parent: PTag; { parent of this element }
     RawName: PAnsiChar; { tagName in the original encoding }
 
     RawNameLength: Integer;
@@ -512,9 +500,9 @@ type
     TBinding: PBinding;
   end;
 
-  NS_ATT_ptr = ^NS_ATT;
+  PNameSpaceAtt = ^TNameSpaceAtt;
 
-  NS_ATT = record
+  TNameSpaceAtt = record
     Version, Hash: Int32u;
     UriName: PXmlChar;
   end;
@@ -531,7 +519,7 @@ type
   TStringPool = record
     Blocks, FreeBlocks: PBlock;
 
-    End_, Ptr, Start: PXmlChar;
+    Stop, Ptr, Start: PXmlChar;
 
     Mem: PXmlMemoryHandlingSuite;
   end;
@@ -553,8 +541,8 @@ type
     { indicates if external PE has been read }
     ParamEntityRead: TXmlBool;
     ParamEntities: THashTable;
-
 {$ENDIF}
+
     DefaultPrefix: TPrefix;
 
     { === scaffolding for building content model === }
@@ -575,7 +563,7 @@ type
     FinalBuffer: TXmlBool;
   end;
 
-  TProcessor = function(Parser: TXmlParser; Start, End_: PAnsiChar;
+  TProcessor = function(Parser: TXmlParser; Start, Stop: PAnsiChar;
     EndPtr: PPAnsiChar): TXmlError;
 
   TXmlParserStruct = record
@@ -627,11 +615,11 @@ type
     XmlDeclHandler: TXmlXmlDeclHandler;
 
     Encoding: PEncoding;
-    InitEncoding: INIT_ENCODING;
+    InitEncoding: TInitEncoding;
     InternalEncoding: PEncoding;
     ProtocolEncodingName: PXmlChar;
 
-    M_ns, M_ns_Triplets: TXmlBool;
+    NameSpace, NameSpaceTriplets: TXmlBool;
 
     UnknownEncodingMem, UnknownEncodingData,
       UnknownEncodingHandlerData: Pointer;
@@ -663,17 +651,17 @@ type
 
     CurBase: PXmlChar;
 
-    TagStack, FreeTagList: TAG_ptr;
+    TagStack, FreeTagList: PTag;
 
     InheritedBindings, FreeBindingList: PBinding;
 
-    AttsSize, AttsAlloc, M_nsAttsAlloc, M_nSpecifiedAtts, IdAttIndex: Integer;
+    AttsSize, AttsAlloc, NameSpaceAttsAlloc, M_nSpecifiedAtts, IdAttIndex: Integer;
 
     Atts: PAttribute;
-    M_nsAtts: NS_ATT_ptr;
+    NameSpaceAtts: PNameSpaceAtt;
 
-    M_nsAttsVersion: Cardinal;
-    M_nsAttsPower: Int8u;
+    NameSpaceAttsVersion: Cardinal;
+    NameSpaceAttsPower: Int8u;
 
     Position: TPosition;
     TempPool, Temp2Pool: TStringPool;
@@ -699,7 +687,7 @@ const
 
 { Constructs a new parser; encoding is the encoding specified by the
   external protocol or NIL if there is none specified. }
-function XML_ParserCreate(const Encoding: PXmlChar): TXmlParser;
+function XmlParserCreate(const Encoding: PXmlChar): TXmlParser;
 
 { Constructs a new parser using the memory management suite referred to
   by memsuite. If memsuite is NULL, then use the standard library memory
@@ -709,36 +697,36 @@ function XML_ParserCreate(const Encoding: PXmlChar): TXmlParser;
 
   All further memory operations used for the created parser will come from
   the given suite. }
-function XML_ParserCreate_MM(Encoding: PXmlChar;
+function XmlParserCreate_MM(Encoding: PXmlChar;
   Memsuite: PXmlMemoryHandlingSuite; NamespaceSeparator: PXmlChar)
   : TXmlParser;
 
 { This value is passed as the userData argument to callbacks. }
-procedure XML_SetUserData(Parser: TXmlParser; UserData: Pointer);
+procedure XmlSetUserData(Parser: TXmlParser; UserData: Pointer);
 
-procedure XML_SetElementHandler(Parser: TXmlParser;
-  Start: TXmlStartElementHandler; End_: TXmlEndElementHandler);
+procedure XmlSetElementHandler(Parser: TXmlParser;
+  Start: TXmlStartElementHandler; Stop: TXmlEndElementHandler);
 
-procedure XML_SetCharacterDataHandler(Parser: TXmlParser;
+procedure XmlSetCharacterDataHandler(Parser: TXmlParser;
   Handler: TXmlCharacterDataHandler);
 
 { Parses some input. Returns xsError if a fatal error is
-  detected.  The last call to XML_Parse must have isFinal true; len
+  detected.  The last call to XmlParse must have isFinal true; len
   may be zero for this call (or any other).
 
   Though the return values for these functions has always been
   described as a Boolean value, the implementation, at least for the
   1.95.x series, has always returned exactly one of the TXmlStatus
   values. }
-function XML_Parse(Parser: TXmlParser; const S: PAnsiChar; Len, IsFinal: Integer)
+function XmlParse(Parser: TXmlParser; const S: PAnsiChar; Len, IsFinal: Integer)
   : TXmlStatus;
 
-{ If XML_Parse or XML_ParseBuffer have returned xsError, then
-  XML_GetErrorCode returns information about the error. }
-function XML_GetErrorCode(Parser: TXmlParser): TXmlError;
+{ If XmlParse or XML_ParseBuffer have returned xsError, then
+  XmlGetErrorCode returns information about the error. }
+function XmlGetErrorCode(Parser: TXmlParser): TXmlError;
 
 { Returns a string describing the error. }
-function XML_ErrorString(Code: TXmlError): PXmlLChar;
+function XmlErrorString(Code: TXmlError): PXmlLChar;
 
 { These functions return information about the current parse
   location.  They may be called from any callback called to report
@@ -750,15 +738,15 @@ function XML_ErrorString(Code: TXmlError): PXmlLChar;
   functions, the position indicated will be just past the last parse
   event (regardless of whether there was an associated callback).
 
-  They may also be called after returning from a call to XML_Parse
+  They may also be called after returning from a call to XmlParse
   or XML_ParseBuffer.  If the return value is xsError then
   the location is the location of the character at which the error
   was detected; otherwise the location is the location of the last
   parse event, as described above. }
-function XML_GetCurrentLineNumber(Parser: TXmlParser): TXmlSize;
+function XmlGetCurrentLineNumber(Parser: TXmlParser): TXmlSize;
 
 { Frees memory used by the parser. }
-procedure XML_ParserFree(Parser: TXmlParser);
+procedure XmlParserFree(Parser: TXmlParser);
 
 implementation
 
@@ -785,23 +773,23 @@ function StoreAttributeValue(Parser: TXmlParser; Enc: PEncoding;
   : TXmlError; forward;
 
 const
-  ImplicitContext: array [0 .. 40] of TXmlChar = ('x', 'm', 'l', '=', 'h', 't',
+  CImplicitContext: array [0 .. 40] of TXmlChar = ('x', 'm', 'l', '=', 'h', 't',
     't', 'p', ':', '/', '/', 'w', 'w', 'w', '.', 'w', '3', '.', 'o', 'r', 'g',
     '/', 'X', 'M', 'L', '/', '1', '9', '9', '8', '/', 'n', 'a', 'm', 'e', 's',
     'p', 'a', 'c', 'e', #0);
 
-  INIT_TAG_BUF_SIZE = 32; { must be a multiple of SizeOf(TXmlChar) }
-  INIT_DATA_BUF_SIZE = 1024;
-  INIT_ATTS_SIZE = 16;
-  INIT_ATTS_VERSION = $FFFFFFFF;
-  INIT_BLOCK_SIZE = 1024;
-  INIT_BUFFER_SIZE = 1024;
+  CInitTagBufferSize = 32; { must be a multiple of SizeOf(TXmlChar) }
+  CInitDataBufferSize = 1024;
+  CInitAttsSize = 16;
+  CInitAttsVersion = $FFFFFFFF;
+  CInitBlockSize = 1024;
+  CInitBufferSize = 1024;
 
-  EXPAND_SPARE = 24;
+  CExpandSpare = 24;
 
-  INIT_SCAFFOLD_ELEMENTS = 32;
+  CInitScaffoldElements = 32;
 
-  INIT_POWER = 6;
+  CInitPower = 6;
 
 type
   PPIntChar = ^PIntChar;
@@ -846,7 +834,7 @@ end;
 
 { Basic character hash algorithm, taken from Python's string hash:
   h = h * 1000003 ^ character, the constant being a prime number. }
-function CHAR_HASH(H: Int32u; C: TXmlChar): Int32u;
+function CharHash(H: Int32u; C: TXmlChar): Int32u;
 begin
 {$IFDEF XML_UNICODE}
   Result := (H * $F4243) xor Int16u(C);
@@ -891,10 +879,10 @@ begin
   Result := TXmlChar(X);
 end;
 
-{ Round up n to be a multiple of sz, where sz is a power of 2. }
-function ROUND_UP(N, Sz: Integer): Integer;
+{ Round up n to be a multiple of Size, where Size is a power of 2. }
+function ROUND_UP(N, Size: Integer): Integer;
 begin
-  Result := (N + (Sz - 1)) and not (Sz - 1);
+  Result := (N + (Size - 1)) and not (Size - 1);
 end;
 
 procedure XmlConvert(Enc: PEncoding; FromP, FromLim, ToP, ToLim: Pointer);
@@ -921,27 +909,27 @@ begin
   Pool.FreeBlocks := nil;
   Pool.Start := nil;
   Pool.Ptr := nil;
-  Pool.End_ := nil;
+  Pool.Stop := nil;
   Pool.Mem := Ms;
 end;
 
 procedure HashTableDestroy(Table: PHashTable);
 var
-  I: Size_t;
+  I: TSize;
 begin
   I := 0;
 
   while I < Table.Size do
   begin
     if PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^ <> nil then
-      Table.Mem.Free_fcn(Pointer(PPNamed(PtrComp(Table.V) + I *
+      Table.Mem.FreeFunction(Pointer(PPNamed(PtrComp(Table.V) + I *
         SizeOf(PNamed))^), PPNamed(PtrComp(Table.V) + I *
         SizeOf(PNamed))^^.Alloc);
 
     Inc(I);
   end;
 
-  Table.Mem.Free_fcn(Pointer(Table.V), Table.A);
+  Table.Mem.FreeFunction(Pointer(Table.V), Table.A);
 end;
 
 procedure HashTableInit(P: PHashTable; Ms: PXmlMemoryHandlingSuite);
@@ -982,7 +970,7 @@ function DtdCreate(Ms: PXmlMemoryHandlingSuite): PDocTypeDeclaration;
 var
   P: PDocTypeDeclaration;
 begin
-  Ms.Malloc_fcn(Pointer(P), SizeOf(TDocTypeDeclaration));
+  Ms.MallocFunction(Pointer(P), SizeOf(TDocTypeDeclaration));
 
   if P = nil then
   begin
@@ -1038,7 +1026,7 @@ begin
       Break;
 
     if E.AllocDefaultAtts <> 0 then
-      Ms.Free_fcn(Pointer(E.DefaultAtts), E.DefaultAttsAlloc);
+      Ms.FreeFunction(Pointer(E.DefaultAtts), E.DefaultAttsAlloc);
   until False;
 
   HashTableDestroy(@P.GeneralEntities);
@@ -1056,11 +1044,11 @@ begin
 
   if IsDocEntity <> 0 then
   begin
-    Ms.Free_fcn(Pointer(P.ScaffIndex), P.ScaffAlloc);
-    Ms.Free_fcn(Pointer(P.Scaffold), SizeOf(TContentScaffold));
+    Ms.FreeFunction(Pointer(P.ScaffIndex), P.ScaffAlloc);
+    Ms.FreeFunction(Pointer(P.Scaffold), SizeOf(TContentScaffold));
   end;
 
-  Ms.Free_fcn(Pointer(P), SizeOf(TDocTypeDeclaration));
+  Ms.FreeFunction(Pointer(P), SizeOf(TDocTypeDeclaration));
 end;
 
 function HandleUnknownEncoding(Parser: TXmlParser; EncodingName: PXmlChar)
@@ -1078,7 +1066,7 @@ begin
   S := Pointer(Parser.ProtocolEncodingName);
 {$ENDIF}
 
-  if Parser.M_ns <> 0 then
+  if Parser.NameSpace <> 0 then
     Ok := XmlInitEncodingNS(@Parser.InitEncoding, @Parser.Encoding,
       Pointer(S))
   else
@@ -1116,7 +1104,7 @@ begin
   Storedversion := nil;
   Standalone := -1;
 
-  if Parser.M_ns <> 0 then
+  if Parser.NameSpace <> 0 then
     Ok := XmlParseXmlDeclNS(IsGeneralTextEntity, Parser.Encoding, Pointer(S),
       Pointer(Next), @Parser.EventPtr, @Version, @Versionend, @EncodingName,
       @NewEncoding, @Standalone)
@@ -1128,13 +1116,13 @@ begin
   if Ok = 0 then
     if IsGeneralTextEntity <> 0 then
     begin
-      Result := XML_ERROR_TEXT_DECL;
+      Result := xeTextDecl;
 
       Exit;
     end
     else
     begin
-      Result := XML_ERROR_XML_DECL;
+      Result := xeXmlDecl;
 
       Exit;
     end;
@@ -1196,7 +1184,7 @@ begin
       begin
         Parser.EventPtr := EncodingName;
 
-        Result := XML_ERROR_INCORRECT_ENCODING;
+        Result := xeIncorrectEncoding;
 
         Exit;
       end;
@@ -1223,7 +1211,7 @@ begin
 
       PoolClear(@Parser.Temp2Pool);
 
-      if Result_ = XML_ERROR_UNKNOWN_ENCODING then
+      if Result_ = xeUnknownEncoding then
         Parser.EventPtr := EncodingName;
 
       Result := Result_;
@@ -1260,7 +1248,7 @@ begin
   Pool.Blocks := nil;
   Pool.Start := nil;
   Pool.Ptr := nil;
-  Pool.End_ := nil;
+  Pool.Stop := nil;
 end;
 
 procedure PoolDestroy(Pool: PStringPool);
@@ -1273,7 +1261,7 @@ begin
   begin
     Tem := P.Next;
 
-    Pool.Mem.Free_fcn(Pointer(P), P.Alloc);
+    Pool.Mem.FreeFunction(Pointer(P), P.Alloc);
 
     P := Tem;
   end;
@@ -1284,7 +1272,7 @@ begin
   begin
     Tem := P.Next;
 
-    Pool.Mem.Free_fcn(Pointer(P), P.Alloc);
+    Pool.Mem.FreeFunction(Pointer(P), P.Alloc);
 
     P := Tem;
   end;
@@ -1304,7 +1292,7 @@ begin
       Pool.Blocks.Next := nil;
 
       Pool.Start := @Pool.Blocks.S;
-      Pool.End_ := PXmlChar(PtrComp(Pool.Start) + Pool.Blocks.Size *
+      Pool.Stop := PXmlChar(PtrComp(Pool.Start) + Pool.Blocks.Size *
         SizeOf(TXmlChar));
       Pool.Ptr := Pool.Start;
 
@@ -1313,7 +1301,7 @@ begin
       Exit;
     end;
 
-    if PtrComp(Pool.End_) - PtrComp(Pool.Start) < Pool.FreeBlocks.Size then
+    if PtrComp(Pool.Stop) - PtrComp(Pool.Start) < Pool.FreeBlocks.Size then
     begin
       Tem := Pool.FreeBlocks.Next;
 
@@ -1321,13 +1309,13 @@ begin
       Pool.Blocks := Pool.FreeBlocks;
       Pool.FreeBlocks := Tem;
 
-      Move(Pool.Start^, Pointer(@Pool.Blocks.S)^, PtrComp(Pool.End_) -
+      Move(Pool.Start^, Pointer(@Pool.Blocks.S)^, PtrComp(Pool.Stop) -
         PtrComp(Pool.Start));
 
       Pool.Ptr := PXmlChar(PtrComp(@Pool.Blocks.S) + PtrComp(Pool.Ptr) -
         PtrComp(Pool.Start));
       Pool.Start := @Pool.Blocks.S;
-      Pool.End_ := PXmlChar(PtrComp(Pool.Start) + Pool.Blocks.Size *
+      Pool.Stop := PXmlChar(PtrComp(Pool.Start) + Pool.Blocks.Size *
         SizeOf(TXmlChar));
 
       Result := CXmlTrue;
@@ -1338,10 +1326,10 @@ begin
 
   if (Pool.Blocks <> nil) and (Pool.Start = @Pool.Blocks.S) then
   begin
-    BlockSize := (PtrComp(Pool.End_) - PtrComp(Pool.Start)) *
+    BlockSize := (PtrComp(Pool.Stop) - PtrComp(Pool.Start)) *
       2 div SizeOf(TXmlChar);
 
-    Pool.Mem.Realloc_fcn(Pointer(Pool.Blocks), Pool.Blocks.Alloc,
+    Pool.Mem.ReallocFunction(Pointer(Pool.Blocks), Pool.Blocks.Alloc,
       (SizeOf(PBlock) + SizeOf(Integer) * 2) + BlockSize * SizeOf(TXmlChar));
 
     if Pool.Blocks = nil then
@@ -1359,20 +1347,20 @@ begin
     Pool.Ptr := PXmlChar(PtrComp(@Pool.Blocks.S) +
       (PtrComp(Pool.Ptr) - PtrComp(Pool.Start)));
     Pool.Start := @Pool.Blocks.S;
-    Pool.End_ := PXmlChar(PtrComp(Pool.Start) + BlockSize *
+    Pool.Stop := PXmlChar(PtrComp(Pool.Start) + BlockSize *
       SizeOf(TXmlChar));
   end
   else
   begin
-    BlockSize := (PtrComp(Pool.End_) - PtrComp(Pool.Start))
+    BlockSize := (PtrComp(Pool.Stop) - PtrComp(Pool.Start))
       div SizeOf(TXmlChar);
 
-    if BlockSize < INIT_BLOCK_SIZE then
-      BlockSize := INIT_BLOCK_SIZE
+    if BlockSize < CInitBlockSize then
+      BlockSize := CInitBlockSize
     else
       BlockSize := BlockSize * 2;
 
-    Pool.Mem.Malloc_fcn(Pointer(Tem), (SizeOf(PBlock) + SizeOf(Integer) * 2) +
+    Pool.Mem.MallocFunction(Pointer(Tem), (SizeOf(PBlock) + SizeOf(Integer) * 2) +
       BlockSize * SizeOf(TXmlChar));
 
     if Tem = nil then
@@ -1396,7 +1384,7 @@ begin
     Pool.Ptr := PXmlChar(PtrComp(@Tem.S) +
       (PtrComp(Pool.Ptr) - PtrComp(Pool.Start)) * SizeOf(TXmlChar));
     Pool.Start := @Tem.S;
-    Pool.End_ := PXmlChar(PtrComp(@Tem.S) + BlockSize * SizeOf(TXmlChar));
+    Pool.Stop := PXmlChar(PtrComp(@Tem.S) + BlockSize * SizeOf(TXmlChar));
   end;
 
   Result := CXmlTrue;
@@ -1413,7 +1401,7 @@ begin
   end;
 
   repeat
-    XmlConvert(Enc, @Ptr, Stop, PPIntChar(@Pool.Ptr), PIntChar(Pool.End_));
+    XmlConvert(Enc, @Ptr, Stop, PPIntChar(@Pool.Ptr), PIntChar(Pool.Stop));
 
     if Ptr = Stop then
       Break;
@@ -1435,7 +1423,7 @@ begin
     Exit;
   end;
 
-  if (Pool.Ptr = Pool.End_) and (PoolGrow(Pool) = 0) then
+  if (Pool.Ptr = Pool.Stop) and (PoolGrow(Pool) = 0) then
   begin
     Result := nil;
 
@@ -1509,7 +1497,7 @@ end;
 
 function PoolAppendChar(Pool: PStringPool; C: AnsiChar): Integer;
 begin
-  if (Pool.Ptr = Pool.End_) and (PoolGrow(Pool) = 0) then
+  if (Pool.Ptr = Pool.Stop) and (PoolGrow(Pool) = 0) then
     Result := 0
   else
   begin
@@ -1547,7 +1535,7 @@ begin
 
   while S^ <> TXmlChar(0) do
   begin
-    H := CHAR_HASH(H, S^);
+    H := CharHash(H, S^);
 
     Inc(PtrComp(S), SizeOf(TXmlChar));
   end;
@@ -1555,10 +1543,10 @@ begin
   Result := H;
 end;
 
-function Lookup(Table: PHashTable; Name: KEY; CreateSize: Size_t)
+function Lookup(Table: PHashTable; Name: KEY; CreateSize: TSize)
   : PNamed;
 var
-  I, Tsize, NewSize, J: Size_t;
+  I, TableSize, NewSize, J: TSize;
   H, Mask, NewMask, NewHash: Int32u;
   Step, NewPower: Int8u;
   NewV: PPNamed;
@@ -1572,14 +1560,14 @@ begin
       Exit;
     end;
 
-    Table.Power := INIT_POWER;
+    Table.Power := CInitPower;
 
     { table->size is a power of 2 }
-    Table.Size := Size_t(1 shl INIT_POWER);
+    Table.Size := TSize(1 shl CInitPower);
 
-    Tsize := Table.Size * SizeOf(PNamed);
+    TableSize := Table.Size * SizeOf(PNamed);
 
-    Table.Mem.Malloc_fcn(Pointer(Table.V), Tsize);
+    Table.Mem.MallocFunction(Pointer(Table.V), TableSize);
 
     if Table.V = nil then
     begin
@@ -1590,9 +1578,9 @@ begin
       Exit;
     end
     else
-      Table.A := Tsize;
+      Table.A := TableSize;
 
-    FillChar(Table.V^, Tsize, 0);
+    FillChar(Table.V^, TableSize, 0);
 
     I := Hash(name) and (Table.Size - 1);
   end
@@ -1633,11 +1621,11 @@ begin
     if Table.Used shr (Table.Power - 1) <> 0 then
     begin
       NewPower := Table.Power + 1;
-      NewSize := Size_t(1 shl NewPower);
+      NewSize := TSize(1 shl NewPower);
       NewMask := NewSize - 1;
-      Tsize := NewSize * SizeOf(PNamed);
+      TableSize := NewSize * SizeOf(PNamed);
 
-      Table.Mem.Malloc_fcn(Pointer(NewV), Tsize);
+      Table.Mem.MallocFunction(Pointer(NewV), TableSize);
 
       if NewV = nil then
       begin
@@ -1646,7 +1634,7 @@ begin
         Exit;
       end;
 
-      FillChar(NewV^, Tsize, 0);
+      FillChar(NewV^, TableSize, 0);
 
       I := 0;
 
@@ -1677,10 +1665,10 @@ begin
         Inc(I);
       end;
 
-      Table.Mem.Free_fcn(Pointer(Table.V), Table.A);
+      Table.Mem.FreeFunction(Pointer(Table.V), Table.A);
 
       Table.V := NewV;
-      Table.A := Tsize;
+      Table.A := TableSize;
       Table.Power := NewPower;
       Table.Size := NewSize;
 
@@ -1700,7 +1688,7 @@ begin
     end;
   end;
 
-  Table.Mem.Malloc_fcn(Pointer(PPNamed(PtrComp(Table.V) + I *
+  Table.Mem.MallocFunction(Pointer(PPNamed(PtrComp(Table.V) + I *
     SizeOf(PNamed))^), CreateSize);
 
   if PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^ = nil then
@@ -1772,38 +1760,38 @@ function AddBinding(Parser: TXmlParser; TPrefix: PPrefix;
 begin
 end;
 
-{ Initially tag.rawName always points into the parse buffer;
-  for those TAG instances opened while the current parse buffer was
-  processed, and not yet closed, we need to store tag.rawName in a more
+{ Initially TTag.rawName always points into the parse buffer;
+  for those TTag instances opened while the current parse buffer was
+  processed, and not yet closed, we need to store TTag.rawName in a more
   permanent location, since the parse buffer is about to be discarded. }
 function StoreRawNames(Parser: TXmlParser): TXmlBool;
 var
-  Tag: TAG_ptr;
+  TTag: PTag;
   BufSize, NameLen: Integer;
   RawNameBuf, Temp: PAnsiChar;
 begin
-  Tag := Parser.TagStack;
+  TTag := Parser.TagStack;
 
-  while Tag <> nil do
+  while TTag <> nil do
   begin
-    NameLen := SizeOf(TXmlChar) * (Tag.Name.StrLen + 1);
-    RawNameBuf := PAnsiChar(PtrComp(Tag.Buf) + NameLen);
+    NameLen := SizeOf(TXmlChar) * (TTag.Name.StrLen + 1);
+    RawNameBuf := PAnsiChar(PtrComp(TTag.Buf) + NameLen);
 
     { Stop if already stored. Since tagStack is a stack, we can stop
       at the first entry that has already been copied; everything
       below it in the stack is already been accounted for in a
       previous call to this function. }
-    if Tag.RawName = RawNameBuf then
+    if TTag.RawName = RawNameBuf then
       Break;
 
     { For re-use purposes we need to ensure that the
-      size of tag.buf is a multiple of SizeOf(TXmlChar ). }
-    BufSize := NameLen + ROUND_UP(Tag.RawNameLength, SizeOf(TXmlChar));
+      size of TTag.buf is a multiple of SizeOf(TXmlChar ). }
+    BufSize := NameLen + ROUND_UP(TTag.RawNameLength, SizeOf(TXmlChar));
 
-    if BufSize > PtrComp(Tag.BufEnd) - PtrComp(Tag.Buf) then
+    if BufSize > PtrComp(TTag.BufEnd) - PtrComp(TTag.Buf) then
     begin
-      if Parser.Mem.Realloc_fcn(Pointer(Tag.Buf), Tag.Alloc, BufSize) then
-        Temp := Tag.Buf
+      if Parser.Mem.ReallocFunction(Pointer(TTag.Buf), TTag.Alloc, BufSize) then
+        Temp := TTag.Buf
       else
         Temp := nil;
 
@@ -1815,30 +1803,30 @@ begin
 
       end;
 
-      Tag.Alloc := BufSize;
+      TTag.Alloc := BufSize;
 
-      { if tag.name.str points to tag.buf (only when namespace
+      { if TTag.name.str points to TTag.buf (only when namespace
         processing is off) then we have to update it }
-      if Tag.Name.Str = PXmlChar(Tag.Buf) then
-        Tag.Name.Str := PXmlChar(Temp);
+      if TTag.Name.Str = PXmlChar(TTag.Buf) then
+        TTag.Name.Str := PXmlChar(Temp);
 
-      { if tag->name.localPart is set (when namespace processing is on)
-        then update it as well, since it will always point into tag->buf }
-      if Tag.Name.LocalPart <> nil then
-        Tag.Name.LocalPart :=
-          PXmlChar(PtrComp(Temp) + (PtrComp(Tag.Name.LocalPart) -
-          PtrComp(Tag.Buf)));
+      { if TTag->name.localPart is set (when namespace processing is on)
+        then update it as well, since it will always point into TTag->buf }
+      if TTag.Name.LocalPart <> nil then
+        TTag.Name.LocalPart :=
+          PXmlChar(PtrComp(Temp) + (PtrComp(TTag.Name.LocalPart) -
+          PtrComp(TTag.Buf)));
 
-      Tag.Buf := Temp;
-      Tag.BufEnd := PAnsiChar(PtrComp(Temp) + BufSize);
+      TTag.Buf := Temp;
+      TTag.BufEnd := PAnsiChar(PtrComp(Temp) + BufSize);
       RawNameBuf := PAnsiChar(PtrComp(Temp) + NameLen);
 
     end;
 
-    Move(Tag.RawName^, RawNameBuf^, Tag.RawNameLength);
+    Move(TTag.RawName^, RawNameBuf^, TTag.RawNameLength);
 
-    Tag.RawName := RawNameBuf;
-    Tag := Tag.Parent;
+    TTag.RawName := RawNameBuf;
+    TTag := TTag.Parent;
 
   end;
 
@@ -1885,7 +1873,7 @@ var
 
   Da: PDefaultAttribute;
 
-  P: TAG_ptr;
+  P: PTag;
 
 label
   _w0, _w1;
@@ -1920,7 +1908,7 @@ begin
       Exit;
     end;
 
-    if (Parser.M_ns <> 0) and (SetElementTypePrefix(Parser, ElementType) = 0)
+    if (Parser.NameSpace <> 0) and (SetElementTypePrefix(Parser, ElementType) = 0)
     then
     begin
       Result := xeNoMemory;
@@ -1937,9 +1925,9 @@ begin
   if N + NDefaultAtts > Parser.AttsSize then
   begin
     OldAttsSize := Parser.AttsSize;
-    Parser.AttsSize := N + NDefaultAtts + INIT_ATTS_SIZE;
+    Parser.AttsSize := N + NDefaultAtts + CInitAttsSize;
 
-    if not Parser.Mem.Realloc_fcn(Pointer(Parser.Atts), Parser.AttsAlloc,
+    if not Parser.Mem.ReallocFunction(Pointer(Parser.Atts), Parser.AttsAlloc,
       Parser.AttsSize * SizeOf(TAttribute)) then
     begin
       Result := xeNoMemory;
@@ -2185,31 +2173,31 @@ begin
   if NPrefixes <> 0 then
   begin
     { j = hash table index }
-    Version := Parser.M_nsAttsVersion;
-    NsAttsSize := 1 shl Parser.M_nsAttsPower;
+    Version := Parser.NameSpaceAttsVersion;
+    NsAttsSize := 1 shl Parser.NameSpaceAttsPower;
 
     { size of hash table must be at least 2 * (# of prefixed attributes) }
-    if ShrInt32(NPrefixes shl 1, Parser.M_nsAttsPower) <> 0
+    if ShrInt32(NPrefixes shl 1, Parser.NameSpaceAttsPower) <> 0
     then { true for nsAttsPower = 0 }
     begin
       { hash table size must also be a power of 2 and >= 8 }
-      while ShrInt32(NPrefixes, Parser.M_nsAttsPower) <> 0 do
-        Inc(Parser.M_nsAttsPower);
+      while ShrInt32(NPrefixes, Parser.NameSpaceAttsPower) <> 0 do
+        Inc(Parser.NameSpaceAttsPower);
 
-      if Parser.M_nsAttsPower < 3 then
-        Parser.M_nsAttsPower := 3;
+      if Parser.NameSpaceAttsPower < 3 then
+        Parser.NameSpaceAttsPower := 3;
 
-      NsAttsSize := 1 shl Parser.M_nsAttsPower;
+      NsAttsSize := 1 shl Parser.NameSpaceAttsPower;
 
-      if not Parser.Mem.Realloc_fcn(Pointer(Parser.M_nsAtts),
-        Parser.M_nsAttsAlloc, NsAttsSize * SizeOf(NS_ATT)) then
+      if not Parser.Mem.ReallocFunction(Pointer(Parser.NameSpaceAtts),
+        Parser.NameSpaceAttsAlloc, NsAttsSize * SizeOf(TNameSpaceAtt)) then
       begin
         Result := xeNoMemory;
 
         Exit;
       end
       else
-        Parser.M_nsAttsAlloc := NsAttsSize * SizeOf(NS_ATT);
+        Parser.NameSpaceAttsAlloc := NsAttsSize * SizeOf(TNameSpaceAtt);
 
       Version := 0; { force re-initialization of nsAtts hash table }
     end;
@@ -2217,7 +2205,7 @@ begin
     { using a version flag saves us from initializing nsAtts every time }
     if Version = 0 then { initialize version flags when version wraps around }
     begin
-      Version := INIT_ATTS_VERSION;
+      Version := CInitAttsVersion;
 
       J := NsAttsSize;
 
@@ -2225,14 +2213,14 @@ begin
       begin
         Dec(J);
 
-        NS_ATT_ptr(PtrComp(Parser.M_nsAtts) + J * SizeOf(NS_ATT))^.Version
+        PNameSpaceAtt(PtrComp(Parser.NameSpaceAtts) + J * SizeOf(TNameSpaceAtt))^.Version
           := Version;
       end;
     end;
 
     Dec(Version);
 
-    Parser.M_nsAttsVersion := Version;
+    Parser.NameSpaceAttsVersion := Version;
 
     { expand prefixed names and check for duplicates }
     while I < AttIndex do
@@ -2252,7 +2240,7 @@ begin
 
         if B = nil then
         begin
-          Result := XML_ERROR_UNBOUND_PREFIX;
+          Result := xeUnboundPrefix;
 
           Exit;
         end;
@@ -2271,7 +2259,7 @@ begin
             Exit;
           end;
 
-          UriHash := CHAR_HASH(UriHash, C);
+          UriHash := CharHash(UriHash, C);
 
           Inc(J);
         end;
@@ -2293,7 +2281,7 @@ begin
             Exit;
           end;
 
-          UriHash := CHAR_HASH(UriHash, C);
+          UriHash := CharHash(UriHash, C);
 
           Inc(PtrComp(S), SizeOf(TXmlChar));
         end;
@@ -2304,15 +2292,15 @@ begin
         Mask := NsAttsSize - 1;
         J := UriHash and Mask; { index into hash table }
 
-        while NS_ATT_ptr(PtrComp(Parser.M_nsAtts) + J * SizeOf(NS_ATT))
+        while PNameSpaceAtt(PtrComp(Parser.NameSpaceAtts) + J * SizeOf(TNameSpaceAtt))
           ^.Version = Version do
         begin
           { for speed we compare stored hash values first }
-          if UriHash = NS_ATT_ptr(PtrComp(Parser.M_nsAtts) + J * SizeOf(NS_ATT))
+          if UriHash = PNameSpaceAtt(PtrComp(Parser.NameSpaceAtts) + J * SizeOf(TNameSpaceAtt))
             ^.Hash then
           begin
             S1 := PoolStart(@Parser.TempPool);
-            S2 := NS_ATT_ptr(PtrComp(Parser.M_nsAtts) + J * SizeOf(NS_ATT)
+            S2 := PNameSpaceAtt(PtrComp(Parser.NameSpaceAtts) + J * SizeOf(TNameSpaceAtt)
               )^.UriName;
 
             { s1 is null terminated, but not s2 }
@@ -2331,7 +2319,7 @@ begin
           end;
 
           if Step = 0 then
-            Step := PROBE_STEP(UriHash, Mask, Parser.M_nsAttsPower);
+            Step := PROBE_STEP(UriHash, Mask, Parser.NameSpaceAttsPower);
 
           if J < Step then
             Inc(J, NsAttsSize - Step)
@@ -2339,7 +2327,7 @@ begin
             Dec(J, Step);
         end;
 
-        if Parser.M_ns_Triplets <> 0
+        if Parser.NameSpaceTriplets <> 0
         then { append namespace separator and TPrefix }
         begin
           PXmlChar(PtrComp(Parser.TempPool.Ptr) - 1 * SizeOf(TXmlChar))^
@@ -2371,11 +2359,11 @@ begin
         PPXmlChar(PtrComp(AppAtts) + I * SizeOf(PXmlChar))^ := S;
 
         { fill empty slot with new version, uriName and hash value }
-        NS_ATT_ptr(PtrComp(Parser.M_nsAtts) + J * SizeOf(NS_ATT))^.Version
+        PNameSpaceAtt(PtrComp(Parser.NameSpaceAtts) + J * SizeOf(TNameSpaceAtt))^.Version
           := Version;
-        NS_ATT_ptr(PtrComp(Parser.M_nsAtts) + J * SizeOf(NS_ATT))^.Hash
+        PNameSpaceAtt(PtrComp(Parser.NameSpaceAtts) + J * SizeOf(TNameSpaceAtt))^.Hash
           := UriHash;
-        NS_ATT_ptr(PtrComp(Parser.M_nsAtts) + J * SizeOf(NS_ATT))^.UriName := S;
+        PNameSpaceAtt(PtrComp(Parser.NameSpaceAtts) + J * SizeOf(TNameSpaceAtt))^.UriName := S;
 
         Dec(NPrefixes);
 
@@ -2413,7 +2401,7 @@ begin
     TBinding := TBinding.NextTagBinding;
   end;
 
-  if Parser.M_ns = 0 then
+  if Parser.NameSpace = 0 then
   begin
     Result := xeNone;
 
@@ -2427,7 +2415,7 @@ begin
 
     if TBinding = nil then
     begin
-      Result := XML_ERROR_UNBOUND_PREFIX;
+      Result := xeUnboundPrefix;
 
       Exit;
     end;
@@ -2452,7 +2440,7 @@ begin
 
   PrefixLen := 0;
 
-  if (Parser.M_ns_Triplets <> 0) and (TBinding.TPrefix.Name <> nil) then
+  if (Parser.NameSpaceTriplets <> 0) and (TBinding.TPrefix.Name <> nil) then
   begin
     while PXmlChar(PtrComp(TBinding.TPrefix.Name) + PrefixLen *
       SizeOf(TXmlChar))^ <> TXmlChar(0) do
@@ -2478,7 +2466,7 @@ begin
 
   if N > TBinding.UriAlloc then
   begin
-    Parser.Mem.Malloc_fcn(Pointer(Uri), (N + EXPAND_SPARE) *
+    Parser.Mem.MallocFunction(Pointer(Uri), (N + CExpandSpare) *
       SizeOf(TXmlChar));
 
     if Uri = nil then
@@ -2490,7 +2478,7 @@ begin
 
     J := TBinding.UriAlloc;
 
-    TBinding.UriAlloc := N + EXPAND_SPARE;
+    TBinding.UriAlloc := N + CExpandSpare;
 
     Move(TBinding.Uri^, Uri^, TBinding.UriLen * SizeOf(TXmlChar));
 
@@ -2504,7 +2492,7 @@ begin
       P := P.Parent;
     end;
 
-    Parser.Mem.Free_fcn(Pointer(TBinding.Uri), J * SizeOf(TXmlChar));
+    Parser.Mem.FreeFunction(Pointer(TBinding.Uri), J * SizeOf(TXmlChar));
 
     TBinding.Uri := Uri;
   end;
@@ -2561,7 +2549,7 @@ begin
 
             if Parser.ParsingStatus.Parsing = xpFinished then
             begin
-              Result := XML_ERROR_ABORTED;
+              Result := xeAborted;
 
               Exit;
             end;
@@ -2665,7 +2653,7 @@ begin
 
       xpFinished:
         begin
-          Result := XML_ERROR_ABORTED;
+          Result := xeAborted;
 
           Exit;
         end;
@@ -2702,7 +2690,7 @@ var
   Name, Context, ToPtr, LocalPart, TPrefix, Uri: PXmlChar;
   TEntity: PEntity;
   Result_: TXmlError;
-  Tag: TAG_ptr;
+  TTag: PTag;
   Bindings, B: PBinding;
   NoElmHandlers: TXmlBool;
   Name_: TTagName;
@@ -2892,7 +2880,7 @@ begin
             end
             else if TEntity.IsInternal = 0 then
             begin
-              Result := XML_ERROR_ENTITY_DECLARED_IN_PE;
+              Result := xeEntityDeclaredInPe;
 
               Exit;
             end
@@ -2916,7 +2904,7 @@ begin
 
           if TEntity.Notation <> nil then
           begin
-            Result := XML_ERROR_BINARY_ENTITY_REF;
+            Result := xeBinaryEntityRef;
 
             Exit;
           end;
@@ -2961,7 +2949,7 @@ begin
               (Parser.ExternalEntityRefHandlerArg, Context, TEntity.Base,
               TEntity.SystemId, TEntity.PublicId) = 0 then
             begin
-              Result := XML_ERROR_EXTERNAL_ENTITY_HANDLING;
+              Result := xeExternalEntityHandling;
 
               Exit;
             end;
@@ -2977,67 +2965,67 @@ begin
         begin
           if Parser.FreeTagList <> nil then
           begin
-            Tag := Parser.FreeTagList;
+            TTag := Parser.FreeTagList;
 
             Parser.FreeTagList := Parser.FreeTagList.Parent;
           end
           else
           begin
-            Parser.Mem.Malloc_fcn(Pointer(Tag), SizeOf(Expat.TAG));
+            Parser.Mem.MallocFunction(Pointer(TTag), SizeOf(Expat.TTag));
 
-            if Tag = nil then
+            if TTag = nil then
             begin
               Result := xeNoMemory;
 
               Exit;
             end;
 
-            Parser.Mem.Malloc_fcn(Pointer(Tag.Buf), INIT_TAG_BUF_SIZE);
+            Parser.Mem.MallocFunction(Pointer(TTag.Buf), CInitTagBufferSize);
 
-            if Tag.Buf = nil then
+            if TTag.Buf = nil then
             begin
-              Parser.Mem.Free_fcn(Pointer(Tag), SizeOf(Expat.TAG));
+              Parser.Mem.FreeFunction(Pointer(TTag), SizeOf(Expat.TTag));
 
               Result := xeNoMemory;
 
               Exit;
             end
             else
-              Tag.Alloc := INIT_TAG_BUF_SIZE;
+              TTag.Alloc := CInitTagBufferSize;
 
-            Tag.BufEnd := PAnsiChar(PtrComp(Tag.Buf) + INIT_TAG_BUF_SIZE);
+            TTag.BufEnd := PAnsiChar(PtrComp(TTag.Buf) + CInitTagBufferSize);
           end;
 
-          Tag.Bindings := nil;
-          Tag.Parent := Parser.TagStack;
-          Parser.TagStack := Tag;
-          Tag.Name.LocalPart := nil;
-          Tag.Name.TPrefix := nil;
-          Tag.RawName := PAnsiChar(PtrComp(S) + Enc.MinBytesPerChar);
-          Tag.RawNameLength := XmlNameLength(Enc, Pointer(Tag.RawName));
+          TTag.Bindings := nil;
+          TTag.Parent := Parser.TagStack;
+          Parser.TagStack := TTag;
+          TTag.Name.LocalPart := nil;
+          TTag.Name.TPrefix := nil;
+          TTag.RawName := PAnsiChar(PtrComp(S) + Enc.MinBytesPerChar);
+          TTag.RawNameLength := XmlNameLength(Enc, Pointer(TTag.RawName));
 
           Inc(Parser.TagLevel);
 
-          RawNameEnd := PAnsiChar(PtrComp(Tag.RawName) + Tag.RawNameLength);
-          FromPtr := Tag.RawName;
-          ToPtr := PXmlChar(Tag.Buf);
+          RawNameEnd := PAnsiChar(PtrComp(TTag.RawName) + TTag.RawNameLength);
+          FromPtr := TTag.RawName;
+          ToPtr := PXmlChar(TTag.Buf);
 
           repeat
             XmlConvert(Enc, @FromPtr, RawNameEnd, PPIntChar(@ToPtr),
-              PIntChar(PtrComp(Tag.BufEnd) - 1));
+              PIntChar(PtrComp(TTag.BufEnd) - 1));
 
-            ConvLen := (PtrComp(ToPtr) - PtrComp(Tag.Buf)) div SizeOf(TXmlChar);
+            ConvLen := (PtrComp(ToPtr) - PtrComp(TTag.Buf)) div SizeOf(TXmlChar);
 
             if FromPtr = RawNameEnd then
             begin
-              Tag.Name.StrLen := ConvLen;
+              TTag.Name.StrLen := ConvLen;
 
               Break;
             end;
 
-            BufSize := (PtrComp(Tag.BufEnd) - PtrComp(Tag.Buf)) shl 1;
+            BufSize := (PtrComp(TTag.BufEnd) - PtrComp(TTag.Buf)) shl 1;
 
-            Parser.Mem.Realloc_fcn(Pointer(Tag.Buf), Tag.Alloc, BufSize);
+            Parser.Mem.ReallocFunction(Pointer(TTag.Buf), TTag.Alloc, BufSize);
 
             if Temp = nil then
             begin
@@ -3046,18 +3034,18 @@ begin
               Exit;
             end
             else
-              Tag.Alloc := BufSize;
+              TTag.Alloc := BufSize;
 
-            Tag.Buf := Temp;
-            Tag.BufEnd := PAnsiChar(PtrComp(Temp) + BufSize);
+            TTag.Buf := Temp;
+            TTag.BufEnd := PAnsiChar(PtrComp(Temp) + BufSize);
 
             ToPtr := PXmlChar(PtrComp(Temp) + ConvLen);
           until False;
 
-          Tag.Name.Str := PXmlChar(Tag.Buf);
+          TTag.Name.Str := PXmlChar(TTag.Buf);
 
           ToPtr^ := XML_T(#0);
-          Result_ := StoreAtts(Parser, Enc, S, @Tag.Name, @Tag.Bindings);
+          Result_ := StoreAtts(Parser, Enc, S, @TTag.Name, @TTag.Bindings);
 
           if Result_ <> TXmlError(0) then
           begin
@@ -3067,7 +3055,7 @@ begin
           end;
 
           if @Parser.StartElementHandler <> nil then
-            Parser.StartElementHandler(Parser.HandlerArg, Tag.Name.Str,
+            Parser.StartElementHandler(Parser.HandlerArg, TTag.Name.Str,
               PPXmlChar(Parser.Atts))
           else if @Parser.DefaultHandler <> nil then
             ReportDefault(Parser, Enc, S, Next);
@@ -3159,16 +3147,16 @@ begin
         end
         else
         begin
-          Tag := Parser.TagStack;
-          Parser.TagStack := Tag.Parent;
-          Tag.Parent := Parser.FreeTagList;
-          Parser.FreeTagList := Tag;
+          TTag := Parser.TagStack;
+          Parser.TagStack := TTag.Parent;
+          TTag.Parent := Parser.FreeTagList;
+          Parser.FreeTagList := TTag;
 
           RawName := PAnsiChar(PtrComp(S) + Enc.MinBytesPerChar * 2);
           Len := XmlNameLength(Enc, Pointer(RawName));
 
-          if (Len <> Tag.RawNameLength) or
-            (MemCmp(Pointer(Tag.RawName), Pointer(RawName), Len) <> 0) then
+          if (Len <> TTag.RawNameLength) or
+            (MemCmp(Pointer(TTag.RawName), Pointer(RawName), Len) <> 0) then
           begin
             EventPP^ := RawName;
             Result := xeTagMismatch;
@@ -3180,14 +3168,14 @@ begin
 
           if @Parser.EndElementHandler <> nil then
           begin
-            LocalPart := Tag.Name.LocalPart;
+            LocalPart := TTag.Name.LocalPart;
 
-            if (Parser.M_ns <> 0) and (LocalPart <> nil) then
+            if (Parser.NameSpace <> 0) and (LocalPart <> nil) then
             begin
               { localPart and TPrefix may have been overwritten in
-                tag->name.str, since this points to the TBinding->uri
+                TTag->name.str, since this points to the TBinding->uri
                 buffer which gets re-used; so we have to add them again }
-              Uri := PXmlChar(PtrComp(Tag.Name.Str) + Tag.Name.UriLen);
+              Uri := PXmlChar(PtrComp(TTag.Name.Str) + TTag.Name.UriLen);
 
               { don't need to check for space - already done in storeAtts() }
               while LocalPart^ <> TXmlChar(0) do
@@ -3198,9 +3186,9 @@ begin
                 Inc(PtrComp(LocalPart), SizeOf(TXmlChar));
               end;
 
-              TPrefix := PXmlChar(Tag.Name.TPrefix);
+              TPrefix := PXmlChar(TTag.Name.TPrefix);
 
-              if (Parser.M_ns_Triplets <> 0) and (TPrefix <> nil) then
+              if (Parser.NameSpaceTriplets <> 0) and (TPrefix <> nil) then
               begin
                 Uri^ := Parser.NamespaceSeparator;
 
@@ -3218,20 +3206,20 @@ begin
               Uri^ := XML_T(#0);
             end;
 
-            Parser.EndElementHandler(Parser.HandlerArg, Tag.Name.Str);
+            Parser.EndElementHandler(Parser.HandlerArg, TTag.Name.Str);
           end
           else if @Parser.DefaultHandler <> nil then
             ReportDefault(Parser, Enc, S, Next);
 
-          while Tag.Bindings <> nil do
+          while TTag.Bindings <> nil do
           begin
-            B := Tag.Bindings;
+            B := TTag.Bindings;
 
             if @Parser.EndNamespaceDeclHandler <> nil then
               Parser.EndNamespaceDeclHandler(Parser.HandlerArg,
                 B.TPrefix.Name);
 
-            Tag.Bindings := Tag.Bindings.NextTagBinding;
+            TTag.Bindings := TTag.Bindings.NextTagBinding;
             B.NextTagBinding := Parser.FreeBindingList;
             Parser.FreeBindingList := B;
             B.TPrefix.TBinding := B.PrevPrefixBinding;
@@ -3251,7 +3239,7 @@ begin
 
           if N < 0 then
           begin
-            Result := XML_ERROR_BAD_CHAR_REF;
+            Result := xeBadCharRef;
 
             Exit;
           end;
@@ -3265,7 +3253,7 @@ begin
 
       XML_TOK_XML_DECL:
         begin
-          Result := XML_ERROR_MISPLACED_XML_PI;
+          Result := xeMisplacedXmlPi;
 
           Exit;
         end;
@@ -3439,7 +3427,7 @@ begin
 
       xpFinished:
         begin
-          Result := XML_ERROR_ABORTED;
+          Result := xeAborted;
 
           Exit;
         end;
@@ -3519,7 +3507,7 @@ begin
   begin
     PoolFinish(@TDocTypeDeclaration.Pool);
 
-    if Parser.M_ns = 0 then
+    if Parser.NameSpace = 0 then
     else if (PXmlChar(PtrComp(name) + 0 * SizeOf(TXmlChar))^ = XML_T('x'))
       and (PXmlChar(PtrComp(name) + 1 * SizeOf(TXmlChar))^ = XML_T('m'))
       and (PXmlChar(PtrComp(name) + 2 * SizeOf(TXmlChar))^ = XML_T('l'))
@@ -3588,7 +3576,7 @@ begin
   Result := Id;
 end;
 
-function DefineAttribute(Type_: PElementType; AttId: PAttributeID;
+function DefineAttribute(ContentType: PElementType; AttId: PAttributeID;
   IsCdata, IsId: TXmlBool; Value: PXmlChar; Parser: TXmlParser): Integer;
 begin
   Result := 0;
@@ -3651,7 +3639,7 @@ begin
             if Enc = Parser.Encoding then
               Parser.EventPtr := Ptr;
 
-            Result := XML_ERROR_BAD_CHAR_REF;
+            Result := xeBadCharRef;
           end;
 
           if (IsCdata = 0) and (N = $20) and { space }
@@ -3666,7 +3654,7 @@ begin
             if Enc = Parser.Encoding then
               Parser.EventPtr := Ptr;
 
-            Result := XML_ERROR_BAD_CHAR_REF;
+            Result := xeBadCharRef;
 
             Exit;
           end;
@@ -3778,7 +3766,7 @@ begin
             end
             else if TEntity.IsInternal = 0 then
             begin
-              Result := XML_ERROR_ENTITY_DECLARED_IN_PE;
+              Result := xeEntityDeclaredInPe;
 
               Exit;
             end
@@ -3810,7 +3798,7 @@ begin
             if Enc = Parser.Encoding then
               Parser.EventPtr := Ptr;
 
-            Result := XML_ERROR_BINARY_ENTITY_REF;
+            Result := xeBinaryEntityRef;
 
             Exit;
           end;
@@ -3820,7 +3808,7 @@ begin
             if Enc = Parser.Encoding then
               Parser.EventPtr := Ptr;
 
-            Result := XML_ERROR_ATTRIBUTE_EXTERNAL_ENTITY_REF;
+            Result := xeAttributeExternalEntityRef;
 
             Exit;
           end
@@ -3849,7 +3837,7 @@ begin
         if Enc = Parser.Encoding then
           Parser.EventPtr := Ptr;
 
-        Result := XML_ERROR_UNEXPECTED_STATE;
+        Result := xeUnexpectedState;
 
         Exit;
       end;
@@ -4078,7 +4066,7 @@ begin
               if XmlTokenRole(@Parser.PrologState, XML_TOK_NONE,
                 Pointer(Stop), Pointer(Stop), Enc) = XML_ROLE_ERROR then
               begin
-                Result := XML_ERROR_INCOMPLETE_PE;
+                Result := xeIncompletePe;
 
                 Exit;
               end;
@@ -4197,7 +4185,7 @@ begin
             if XmlIsPublicId(Enc, Pointer(S), Pointer(Next), Pointer(EventPP)) = 0
             then
             begin
-              Result := XML_ERROR_PUBLICID;
+              Result := xePublicID;
 
               Exit;
             end;
@@ -4231,7 +4219,7 @@ begin
           if XmlIsPublicId(Enc, Pointer(S), Pointer(Next), Pointer(EventPP)) = 0
           then
           begin
-            Result := XML_ERROR_PUBLICID;
+            Result := xePublicID;
 
             Exit;
           end;
@@ -4303,7 +4291,7 @@ begin
                 (Parser.ExternalEntityRefHandlerArg, nil, TEntity.Base,
                 TEntity.SystemId, TEntity.PublicId) = 0 then
               begin
-                Result := XML_ERROR_EXTERNAL_ENTITY_HANDLING;
+                Result := xeExternalEntityHandling;
 
                 Exit;
               end;
@@ -4313,7 +4301,7 @@ begin
                   (@Parser.NotStandaloneHandler <> nil) and
                   (Parser.NotStandaloneHandler(Parser.HandlerArg) = 0) then
                 begin
-                  Result := XML_ERROR_NOT_STANDALONE;
+                  Result := xeNotStandalone;
 
                   Exit;
                 end
@@ -4369,7 +4357,7 @@ begin
                 (Parser.ExternalEntityRefHandlerArg, nil, TEntity.Base,
                 TEntity.SystemId, TEntity.PublicId) = 0 then
               begin
-                Result := XML_ERROR_EXTERNAL_ENTITY_HANDLING;
+                Result := xeExternalEntityHandling;
 
                 Exit;
               end;
@@ -4379,7 +4367,7 @@ begin
                   (@Parser.NotStandaloneHandler <> nil) and
                   (Parser.NotStandaloneHandler(Parser.HandlerArg) = 0) then
                 begin
-                  Result := XML_ERROR_NOT_STANDALONE;
+                  Result := xeNotStandalone;
 
                   Exit;
                 end
@@ -4711,7 +4699,7 @@ begin
             (@Parser.NotStandaloneHandler <> nil) and
             (Parser.NotStandaloneHandler(Parser.HandlerArg) = 0) then
           begin
-            Result := XML_ERROR_NOT_STANDALONE;
+            Result := xeNotStandalone;
 
             Exit;
           end;
@@ -4962,7 +4950,7 @@ begin
           if XmlIsPublicId(Enc, Pointer(S), Pointer(Next), Pointer(EventPP)) = 0
           then
           begin
-            Result := XML_ERROR_PUBLICID;
+            Result := xePublicID;
 
             Exit;
           end;
@@ -5049,7 +5037,7 @@ begin
 
           XML_TOK_XML_DECL:
             begin
-              Result := XML_ERROR_MISPLACED_XML_PI;
+              Result := xeMisplacedXmlPi;
 
               Exit;
             end;
@@ -5097,7 +5085,7 @@ begin
             begin
               Parser.GroupSize := Parser.GroupSize * 2;
 
-              if Parser.Mem.Realloc_fcn(Pointer(Parser.GroupConnector),
+              if Parser.Mem.ReallocFunction(Pointer(Parser.GroupConnector),
                 Parser.GroupAlloc, Parser.GroupSize) then
                 Parser.GroupAlloc := Parser.GroupSize
 
@@ -5109,7 +5097,7 @@ begin
               end;
 
               if TDocTypeDeclaration.ScaffIndex <> nil then
-                if Parser.Mem.Realloc_fcn(Pointer(TDocTypeDeclaration.ScaffIndex),
+                if Parser.Mem.ReallocFunction(Pointer(TDocTypeDeclaration.ScaffIndex),
                   TDocTypeDeclaration.ScaffAlloc, Parser.GroupSize * SizeOf(Integer)) then
                   TDocTypeDeclaration.ScaffAlloc := Parser.GroupSize * SizeOf(Integer)
 
@@ -5124,7 +5112,7 @@ begin
             begin
               Parser.GroupSize := 32;
 
-              if Parser.Mem.Malloc_fcn(Pointer(Parser.GroupConnector),
+              if Parser.Mem.MallocFunction(Pointer(Parser.GroupConnector),
                 Parser.GroupSize) then
                 Parser.GroupAlloc := Parser.GroupSize
               else
@@ -5155,7 +5143,7 @@ begin
             Inc(TDocTypeDeclaration.ScaffLevel);
 
             PContentScaffold(PtrComp(TDocTypeDeclaration.Scaffold) + Myindex *
-              SizeOf(TContentScaffold))^.Type_ := ctSEQ;
+              SizeOf(TContentScaffold))^.ContentType := ctSEQ;
 
             if @Parser.ElementDeclHandler <> nil then
               HandleDefault := CXmlFalse;
@@ -5194,11 +5182,11 @@ begin
             Parser.PrologState.Level)^ <> #0) and
             (PContentScaffold(PtrComp(TDocTypeDeclaration.Scaffold) +
             PInteger(PtrComp(TDocTypeDeclaration.ScaffIndex) + (TDocTypeDeclaration.ScaffLevel - 1) * SizeOf(Integer))^
-            * SizeOf(TContentScaffold))^.Type_ <> ctMixed) then
+            * SizeOf(TContentScaffold))^.ContentType <> ctMixed) then
           begin
             PContentScaffold(PtrComp(TDocTypeDeclaration.Scaffold) +
               PInteger(PtrComp(TDocTypeDeclaration.ScaffIndex) + (TDocTypeDeclaration.ScaffLevel - 1) * SizeOf(Integer))
-              ^ * SizeOf(TContentScaffold))^.Type_ := ctChoice;
+              ^ * SizeOf(TContentScaffold))^.ContentType := ctChoice;
 
             if @Parser.ElementDeclHandler <> nil then
               HandleDefault := CXmlFalse;
@@ -5250,7 +5238,7 @@ begin
               end
               else if TEntity.IsInternal = 0 then
               begin
-                Result := XML_ERROR_ENTITY_DECLARED_IN_PE;
+                Result := xeEntityDeclaredInPe;
 
                 Exit;
               end
@@ -5310,7 +5298,7 @@ begin
               begin
                 TEntity.Open := CXmlFalse;
 
-                Result := XML_ERROR_EXTERNAL_ENTITY_HANDLING;
+                Result := xeExternalEntityHandling;
 
                 Exit;
               end;
@@ -5337,7 +5325,7 @@ begin
           if (TDocTypeDeclaration.Standalone = 0) and (@Parser.NotStandaloneHandler <> nil)
             and (Parser.NotStandaloneHandler(Parser.HandlerArg) = 0) then
           begin
-            Result := XML_ERROR_NOT_STANDALONE;
+            Result := xeNotStandalone;
 
             Exit;
           end;
@@ -5367,7 +5355,7 @@ begin
         begin
           if @Parser.ElementDeclHandler <> nil then
           begin
-            Parser.Mem.Malloc_fcn(Pointer(Content), SizeOf(TXmlContent));
+            Parser.Mem.MallocFunction(Pointer(Content), SizeOf(TXmlContent));
 
             if Content = nil then
             begin
@@ -5382,9 +5370,9 @@ begin
             Content.Children := nil;
 
             if Role = XML_ROLE_CONTENT_ANY then
-              Content.Type_ := ctAny
+              Content.ContentType := ctAny
             else
-              Content.Type_ := ctEmpty;
+              Content.ContentType := ctEmpty;
 
             EventEndPP^ := S;
 
@@ -5402,7 +5390,7 @@ begin
         begin
           PContentScaffold(PtrComp(TDocTypeDeclaration.Scaffold) +
             PInteger(PtrComp(TDocTypeDeclaration.ScaffIndex) + (TDocTypeDeclaration.ScaffLevel - 1) * SizeOf(Integer))^
-            * SizeOf(TContentScaffold))^.Type_ := ctMixed;
+            * SizeOf(TContentScaffold))^.ContentType := ctMixed;
 
           if @Parser.ElementDeclHandler <> nil then
             HandleDefault := CXmlFalse;
@@ -5451,7 +5439,7 @@ begin
             end;
 
             PContentScaffold(PtrComp(TDocTypeDeclaration.Scaffold) + Myindex *
-              SizeOf(TContentScaffold))^.Type_ := ctName;
+              SizeOf(TContentScaffold))^.ContentType := ctName;
 
             PContentScaffold(PtrComp(TDocTypeDeclaration.Scaffold) + Myindex *
               SizeOf(TContentScaffold))^.Quant := Quant;
@@ -5613,7 +5601,7 @@ begin
 
       xpFinished:
         begin
-          Result := XML_ERROR_ABORTED;
+          Result := xeAborted;
 
           Exit;
         end;
@@ -5770,15 +5758,15 @@ begin
 
   if Memsuite <> nil then
   begin
-    Memsuite.Malloc_fcn(Pointer(Parser), SizeOf(TXmlParserStruct));
+    Memsuite.MallocFunction(Pointer(Parser), SizeOf(TXmlParserStruct));
 
     if Parser <> nil then
     begin
       Mtemp := @Parser.Mem;
 
-      Mtemp.Malloc_fcn := Memsuite.Malloc_fcn;
-      Mtemp.Realloc_fcn := Memsuite.Realloc_fcn;
-      Mtemp.Free_fcn := Memsuite.Free_fcn;
+      Mtemp.MallocFunction := Memsuite.MallocFunction;
+      Mtemp.ReallocFunction := Memsuite.ReallocFunction;
+      Mtemp.FreeFunction := Memsuite.FreeFunction;
     end;
   end
   else
@@ -5789,9 +5777,9 @@ begin
     begin
       Mtemp := @Parser.Mem;
 
-      Mtemp.Malloc_fcn := @Expat_getmem;
-      Mtemp.Realloc_fcn := @Expat_realloc;
-      Mtemp.Free_fcn := @Expat_freemem;
+      Mtemp.MallocFunction := @Expat_getmem;
+      Mtemp.ReallocFunction := @Expat_realloc;
+      Mtemp.FreeFunction := @Expat_freemem;
     end;
   end;
 
@@ -5804,17 +5792,17 @@ begin
 
   Parser.Buffer := nil;
   Parser.BufferLim := nil;
-  Parser.AttsSize := INIT_ATTS_SIZE;
+  Parser.AttsSize := CInitAttsSize;
 
   Parser.AttsAlloc := 0;
-  Parser.M_nsAttsAlloc := 0;
+  Parser.NameSpaceAttsAlloc := 0;
 
-  Parser.Mem.Malloc_fcn(Pointer(Parser.Atts),
+  Parser.Mem.MallocFunction(Pointer(Parser.Atts),
     Parser.AttsSize * SizeOf(TAttribute));
 
   if Parser.Atts = nil then
   begin
-    Parser.Mem.Free_fcn(Pointer(Parser), SizeOf(TXmlParserStruct));
+    Parser.Mem.FreeFunction(Pointer(Parser), SizeOf(TXmlParserStruct));
 
     Result := nil;
 
@@ -5823,13 +5811,13 @@ begin
   else
     Parser.AttsAlloc := Parser.AttsSize * SizeOf(TAttribute);
 
-  Parser.Mem.Malloc_fcn(Pointer(Parser.DataBuf),
-    INIT_DATA_BUF_SIZE * SizeOf(TXmlChar));
+  Parser.Mem.MallocFunction(Pointer(Parser.DataBuf),
+    CInitDataBufferSize * SizeOf(TXmlChar));
 
   if Parser.DataBuf = nil then
   begin
-    Parser.Mem.Free_fcn(Pointer(Parser.Atts), Parser.AttsAlloc);
-    Parser.Mem.Free_fcn(Pointer(Parser), SizeOf(TXmlParserStruct));
+    Parser.Mem.FreeFunction(Pointer(Parser.Atts), Parser.AttsAlloc);
+    Parser.Mem.FreeFunction(Pointer(Parser), SizeOf(TXmlParserStruct));
 
     Result := nil;
 
@@ -5837,7 +5825,7 @@ begin
   end;
 
   Parser.DataBufEnd := PXmlChar(PtrComp(Parser.DataBuf) +
-    INIT_DATA_BUF_SIZE);
+    CInitDataBufferSize);
 
   if TDocTypeDeclaration <> nil then
     Parser.DocTypeDeclaration := TDocTypeDeclaration
@@ -5847,10 +5835,10 @@ begin
 
     if Parser.DocTypeDeclaration = nil then
     begin
-      Parser.Mem.Free_fcn(Pointer(Parser.DataBuf),
-        INIT_DATA_BUF_SIZE * SizeOf(TXmlChar));
-      Parser.Mem.Free_fcn(Pointer(Parser.Atts), Parser.AttsAlloc);
-      Parser.Mem.Free_fcn(Pointer(Parser), SizeOf(TXmlParserStruct));
+      Parser.Mem.FreeFunction(Pointer(Parser.DataBuf),
+        CInitDataBufferSize * SizeOf(TXmlChar));
+      Parser.Mem.FreeFunction(Pointer(Parser.Atts), Parser.AttsAlloc);
+      Parser.Mem.FreeFunction(Pointer(Parser), SizeOf(TXmlParserStruct));
 
       Result := nil;
 
@@ -5871,12 +5859,12 @@ begin
 
   Parser.NamespaceSeparator := '!';
 
-  Parser.M_ns := CXmlFalse;
-  Parser.M_ns_Triplets := CXmlFalse;
+  Parser.NameSpace := CXmlFalse;
+  Parser.NameSpaceTriplets := CXmlFalse;
 
-  Parser.M_nsAtts := nil;
-  Parser.M_nsAttsVersion := 0;
-  Parser.M_nsAttsPower := 0;
+  Parser.NameSpaceAtts := nil;
+  Parser.NameSpaceAttsVersion := 0;
+  Parser.NameSpaceAttsPower := 0;
 
   PoolInit(@Parser.TempPool, @Parser.Mem);
   PoolInit(@Parser.Temp2Pool, @Parser.Mem);
@@ -5884,7 +5872,7 @@ begin
 
   if (EncodingName <> nil) and (Parser.ProtocolEncodingName = nil) then
   begin
-    XML_ParserFree(Parser);
+    XmlParserFree(Parser);
 
     Result := nil;
 
@@ -5893,7 +5881,7 @@ begin
 
   if NameSep <> nil then
   begin
-    Parser.M_ns := CXmlTrue;
+    Parser.NameSpace := CXmlTrue;
 
     Parser.InternalEncoding := XmlGetInternalEncodingNS;
     Parser.NamespaceSeparator := NameSep^;
@@ -5909,23 +5897,23 @@ begin
   Result := CXmlFalse;
 end;
 
-function XML_ParserCreate;
+function XmlParserCreate;
 begin
-  Result := XML_ParserCreate_MM(Encoding, nil, nil);
+  Result := XmlParserCreate_MM(Encoding, nil, nil);
 end;
 
-function XML_ParserCreate_MM;
+function XmlParserCreate_MM;
 var
   Parser: TXmlParser;
 begin
   Parser := ParserCreate(Encoding, Memsuite, NamespaceSeparator, nil);
 
-  if (Parser <> nil) and (Parser.M_ns <> 0) then
+  if (Parser <> nil) and (Parser.NameSpace <> 0) then
     { implicit context only set for root parser, since child
       parsers (i.e. external TEntity parsers) will inherit it }
-    if not SetContext(Parser, @ImplicitContext[0]) <> 0 then
+    if not SetContext(Parser, @CImplicitContext[0]) <> 0 then
     begin
-      XML_ParserFree(Parser);
+      XmlParserFree(Parser);
 
       Result := nil;
       Exit;
@@ -5934,7 +5922,7 @@ begin
   Result := Parser;
 end;
 
-procedure XML_SetUserData;
+procedure XmlSetUserData;
 begin
   if Parser.HandlerArg = Parser.UserData then
   begin
@@ -5945,13 +5933,13 @@ begin
     Parser.UserData := UserData;
 end;
 
-procedure XML_SetElementHandler;
+procedure XmlSetElementHandler;
 begin
   Parser.StartElementHandler := Start;
-  Parser.EndElementHandler := End_;
+  Parser.EndElementHandler := Stop;
 end;
 
-procedure XML_SetCharacterDataHandler;
+procedure XmlSetCharacterDataHandler;
 begin
   Parser.CharacterDataHandler := Handler;
 end;
@@ -5964,14 +5952,14 @@ begin
   case Parser.ParsingStatus.Parsing of
     xpSuspended:
       begin
-        Parser.ErrorCode := XML_ERROR_SUSPENDED;
+        Parser.ErrorCode := xeSuspended;
         Result := nil;
         Exit;
       end;
 
     xpFinished:
       begin
-        Parser.ErrorCode := XML_ERROR_FINISHED;
+        Parser.ErrorCode := xeFinished;
         Result := nil;
         Exit;
       end;
@@ -6021,14 +6009,14 @@ begin
       BufferSize := PtrComp(Parser.BufferLim) - PtrComp(Parser.BufferPtr);
 
       if BufferSize = 0 then
-        BufferSize := INIT_BUFFER_SIZE;
+        BufferSize := CInitBufferSize;
 
       repeat
         BufferSize := BufferSize * 2;
 
       until BufferSize >= NeededSize;
 
-      Parser.Mem.Malloc_fcn(Pointer(NewBuf), BufferSize);
+      Parser.Mem.MallocFunction(Pointer(NewBuf), BufferSize);
 
       if NewBuf = nil then
       begin
@@ -6112,7 +6100,7 @@ begin
   case Parser.ParsingStatus.Parsing of
     xpSuspended:
       begin
-        Parser.ErrorCode := XML_ERROR_SUSPENDED;
+        Parser.ErrorCode := xeSuspended;
 
         Result := xsError;
 
@@ -6121,7 +6109,7 @@ begin
 
     xpFinished:
       begin
-        Parser.ErrorCode := XML_ERROR_FINISHED;
+        Parser.ErrorCode := xeFinished;
 
         Result := xsError;
 
@@ -6183,14 +6171,14 @@ begin
   Result := Result_;
 end;
 
-function XML_Parse;
+function XmlParse;
 var
   Buff: Pointer;
 begin
   case Parser.ParsingStatus.Parsing of
     xpSuspended:
       begin
-        Parser.ErrorCode := XML_ERROR_SUSPENDED;
+        Parser.ErrorCode := xeSuspended;
 
         Result := xsError;
 
@@ -6199,7 +6187,7 @@ begin
 
     xpFinished:
       begin
-        Parser.ErrorCode := XML_ERROR_FINISHED;
+        Parser.ErrorCode := xeFinished;
 
         Result := xsError;
 
@@ -6232,15 +6220,15 @@ begin
   end;
 end;
 
-function XML_GetErrorCode(Parser: TXmlParser): TXmlError;
+function XmlGetErrorCode(Parser: TXmlParser): TXmlError;
 begin
 end;
 
-function XML_ErrorString(Code: TXmlError): PXmlLChar;
+function XmlErrorString(Code: TXmlError): PXmlLChar;
 begin
 end;
 
-function XML_GetCurrentLineNumber(Parser: TXmlParser): TXmlSize;
+function XmlGetCurrentLineNumber(Parser: TXmlParser): TXmlSize;
 begin
 end;
 
@@ -6256,15 +6244,15 @@ begin
 
     Bindings := B.NextTagBinding;
 
-    Parser.Mem.Free_fcn(Pointer(B.Uri), B.UriAlloc);
-    Parser.Mem.Free_fcn(Pointer(B), SizeOf(Expat.TBinding));
+    Parser.Mem.FreeFunction(Pointer(B.Uri), B.UriAlloc);
+    Parser.Mem.FreeFunction(Pointer(B), SizeOf(Expat.TBinding));
 
   until False;
 end;
 
-procedure XML_ParserFree;
+procedure XmlParserFree;
 var
-  TagList, P: TAG_ptr;
+  TagList, P: PTag;
 
   EntityList, OpenEntity: POpenInternalEntity;
 begin
@@ -6289,9 +6277,9 @@ begin
     P := TagList;
     TagList := TagList.Parent;
 
-    Parser.Mem.Free_fcn(Pointer(P.Buf), P.Alloc);
+    Parser.Mem.FreeFunction(Pointer(P.Buf), P.Alloc);
     DestroyBindings(P.Bindings, Parser);
-    Parser.Mem.Free_fcn(Pointer(P), SizeOf(Expat.TAG));
+    Parser.Mem.FreeFunction(Pointer(P), SizeOf(Expat.TTag));
 
   until False;
 
@@ -6312,7 +6300,7 @@ begin
     OpenEntity := EntityList;
     EntityList := EntityList.Next;
 
-    Parser.Mem.Free_fcn(Pointer(OpenEntity), SizeOf(TOpenInternalEntity));
+    Parser.Mem.FreeFunction(Pointer(OpenEntity), SizeOf(TOpenInternalEntity));
   until False;
 
   DestroyBindings(Parser.FreeBindingList, Parser);
@@ -6331,19 +6319,19 @@ begin
     DtdDestroy(Parser.DocTypeDeclaration, TXmlBool(Parser.ParentParser = nil),
       @Parser.Mem);
 
-  Parser.Mem.Free_fcn(Pointer(Parser.Atts), Parser.AttsAlloc);
-  Parser.Mem.Free_fcn(Pointer(Parser.GroupConnector), Parser.GroupAlloc);
-  Parser.Mem.Free_fcn(Pointer(Parser.Buffer), Parser.BufferAloc);
-  Parser.Mem.Free_fcn(Pointer(Parser.DataBuf),
-    INIT_DATA_BUF_SIZE * SizeOf(TXmlChar));
-  Parser.Mem.Free_fcn(Pointer(Parser.M_nsAtts), Parser.M_nsAttsAlloc);
-  Parser.Mem.Free_fcn(Pointer(Parser.UnknownEncodingMem),
+  Parser.Mem.FreeFunction(Pointer(Parser.Atts), Parser.AttsAlloc);
+  Parser.Mem.FreeFunction(Pointer(Parser.GroupConnector), Parser.GroupAlloc);
+  Parser.Mem.FreeFunction(Pointer(Parser.Buffer), Parser.BufferAloc);
+  Parser.Mem.FreeFunction(Pointer(Parser.DataBuf),
+    CInitDataBufferSize * SizeOf(TXmlChar));
+  Parser.Mem.FreeFunction(Pointer(Parser.NameSpaceAtts), Parser.NameSpaceAttsAlloc);
+  Parser.Mem.FreeFunction(Pointer(Parser.UnknownEncodingMem),
     Parser.UnknownEncodingAlloc);
 
   if @Parser.UnknownEncodingRelease <> nil then
     Parser.UnknownEncodingRelease(Parser.UnknownEncodingData);
 
-  Parser.Mem.Free_fcn(Pointer(Parser), SizeOf(TXmlParserStruct));
+  Parser.Mem.FreeFunction(Pointer(Parser), SizeOf(TXmlParserStruct));
 end;
 
 end.
