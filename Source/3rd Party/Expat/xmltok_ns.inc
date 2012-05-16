@@ -42,7 +42,7 @@ const
 function InitScanProlog(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 begin
-  Result := InitScan(@Encodings, INIT_ENCODING_ptr(Enc), XML_PROLOG_STATE, Ptr,
+  Result := InitScan(@Encodings, PInitEncoding(Enc), XML_PROLOG_STATE, Ptr,
     End_, NextTokPtr);
 end;
 
@@ -51,7 +51,7 @@ function InitScanContent(Enc: PEncoding; Ptr, End_: PAnsiChar;
 begin
 end;
 
-function XmlInitEncoding(P: INIT_ENCODING_ptr; EncPtr: PPEncoding;
+function XmlInitEncoding(P: PInitEncoding; EncPtr: PPEncoding;
   Name: PAnsiChar): Integer;
 var
   I: Integer;
@@ -64,7 +64,7 @@ begin
     Exit;
   end;
 
-  SET_INIT_ENC_INDEX(P, I);
+  SetInitEncIndex(P, I);
 
   P.InitEnc.Scanners[XML_PROLOG_STATE] := @InitScanProlog;
   P.InitEnc.Scanners[XML_CONTENT_STATE] := @InitScanContent;
@@ -77,7 +77,7 @@ begin
   Result := 1;
 end;
 
-function XmlInitEncodingNS(P: INIT_ENCODING_ptr; EncPtr: PPEncoding;
+function XmlInitEncodingNS(P: PInitEncoding; EncPtr: PPEncoding;
   Name: PAnsiChar): Integer;
 begin
 end;

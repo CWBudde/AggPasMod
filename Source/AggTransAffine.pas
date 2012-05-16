@@ -107,7 +107,6 @@ type
   TAggTransAffine = class
   protected
     FData: TAggParallelogram;
-    procedure InitializeTransforms;
   public
     Transform, Transform2x2, InverseTransform: TAggProcTransform;
 
@@ -151,6 +150,9 @@ type
 
     // Reset - actually load an identity matrix
     procedure Reset; virtual;
+
+    // Initialize Transforms
+    procedure InitializeTransforms;
 
     // Multiply matrix to another one
     procedure Multiply(M: TAggTransAffine);
@@ -594,20 +596,6 @@ begin
   Transform2x2 := @M.Transform2x2;
   InverseTransform := @M.InverseTransform;
   Multiply(M);
-
-(*
-  T := TAggTransAffine.Create;
-  try
-
-    T.AssignAll(M);
-
-    T.Multiply(Self);
-
-    Assign(T);
-  finally
-    T.Free;
-  end;
-*)
 end;
 
 procedure TAggTransAffine.MultiplyInv(M: TAggTransAffine);

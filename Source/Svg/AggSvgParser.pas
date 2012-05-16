@@ -66,7 +66,7 @@ type
     // XML event handlers
     procedure ParseAttr(Attr: PPAnsiChar); overload;
     procedure ParsePath(Attr: PPAnsiChar);
-    procedure ParsePoly(Attr: PPAnsiChar; Close_flag: Boolean);
+    procedure ParsePoly(Attr: PPAnsiChar; CloseFlag: Boolean);
     procedure ParseRect(Attr: PPAnsiChar);
     procedure ParseLine(Attr: PPAnsiChar);
     procedure ParseStyle(Str: PAnsiChar);
@@ -596,14 +596,14 @@ var
   Done: Boolean;
   Len : Integer;
 begin
-  P := XML_ParserCreate(nil);
+  P := XmlParserCreate(nil);
 
   if P = nil then
     raise TSvgException.Create('Couldn''t allocate memory for parser');
 
-  XML_SetUserData(P, @Self);
-  XML_SetElementHandler(P, @StartElement, @EndElement);
-  XML_SetCharacterDataHandler(P, @Content);
+  XmlSetUserData(P, @Self);
+  XmlSetElementHandler(P, @StartElement, @EndElement);
+  XmlSetCharacterDataHandler(P, @Content);
 
   FileName := FileName + #0;
 
@@ -611,7 +611,7 @@ begin
 
   if not ApiOpenFile(Af, FileName) then
   begin
-    XML_ParserFree(P);
+    XmlParserFree(P);
     raise TSvgException.Create(Format('Couldn''t open file %s', [FileName[1]]));
   end;
 
@@ -622,20 +622,19 @@ begin
 
     Done := Len < CAggBufferSize;
 
-    if XML_Parse(P, Pointer(FBuffer), Len, Integer(Done)) = xsError then
+    if XmlParse(P, Pointer(FBuffer), Len, Integer(Done)) = xsError then
     begin
       ApiCloseFile(Af);
-      XML_ParserFree(P);
+      XmlParserFree(P);
 
       raise TSvgException.Create(Format('%s at line %d'#13, [Cardinal(
-        XML_ErrorString(TXmlError(XML_GetErrorCode(P)))),
-        XML_GetCurrentLineNumber(P)]));
+        XmlErrorString(TXmlError(XmlGetErrorCode(P)))),
+        XmlGetCurrentLineNumber(P)]));
     end;
-
   until Done;
 
   ApiCloseFile(Af);
-  XML_ParserFree(P);
+  XmlParserFree(P);
 
   Ts := FTitle;
 
@@ -648,7 +647,7 @@ begin
   end;
 end;
 
-function TParser.Title;
+function TParser.Title: PAnsiChar;
 begin
   Result := FTitle;
 end;
@@ -656,7 +655,6 @@ end;
 procedure TParser.ParseAttr(Attr: PPAnsiChar);
 var
   I: Integer;
-
 begin
   I := 0;
 
@@ -712,7 +710,7 @@ begin
   end;
 end;
 
-procedure TParser.ParsePoly;
+procedure TParser.ParsePoly(Attr: PPAnsiChar; CloseFlag: Boolean);
 var
   I: Integer;
   X, Y: Double;
@@ -766,7 +764,7 @@ begin
   FPath.EndPath;
 end;
 
-procedure TParser.ParseRect;
+procedure TParser.ParseRect(Attr: PPAnsiChar);
 var
   I: Integer;
   X, Y, W, H: Double;
@@ -831,7 +829,7 @@ begin
   FPath.EndPath;
 end;
 
-procedure TParser.ParseLine;
+procedure TParser.ParseLine(Attr: PPAnsiChar);
 var
   I: Integer;
   X1, Y1, X2, Y2: Double;
@@ -880,7 +878,7 @@ begin
   FPath.EndPath;
 end;
 
-procedure TParser.ParseStyle;
+procedure TParser.ParseStyle(Str: PAnsiChar);
 var
   NameValueStart, NameValueStop: PAnsiChar;
 begin
@@ -911,7 +909,7 @@ begin
   end;
 end;
 
-procedure TParser.ParseTransform;
+procedure TParser.ParseTransform(Str: PAnsiChar);
 begin
   while Str^ <> #0 do
   begin
@@ -936,7 +934,7 @@ begin
   end;
 end;
 
-function TParser.ParseMatrix;
+function TParser.ParseMatrix(Str: PAnsiChar): Cardinal;
 var
   Args: TAggParallelogram;
   Na, Len: Cardinal;
@@ -959,7 +957,7 @@ begin
   Result := Len;
 end;
 
-function TParser.ParseTranslate;
+function TParser.ParseTranslate(Str: PAnsiChar): Cardinal;
 var
   Args: array [0..1] of Double;
   Na, Len: Cardinal;
@@ -971,17 +969,13 @@ begin
   if Na = 1 then
     Args[1] := 0.0;
 
-  Tat := TAggTransAffineTranslation.Create(Args[0], Args[1]);
-  try
-    FPath.Transform.PreMultiply(Tat);
-  finally
-    Tat.Free;
-  end;
+  FPath.Transform.InitializeTransforms;
+  FPath.Transform.Translate(Args[0], Args[1]);
 
   Result := Len;
 end;
 
-function TParser.ParseRotate;
+function TParser.ParseRotate(Str: PAnsiChar): Cardinal;
 var
   Args: array [0..2] of Double;
   Na, Len: Cardinal;
@@ -1004,19 +998,8 @@ begin
   begin
     T := TAggTransAffineTranslation.Create(-Args[1], -Args[2]);
     try
-      Tar := TAggTransAffineRotation.Create(Deg2Rad(Args[0]));
-      try
-        T.Multiply(Tar);
-      finally
-        Tar.Free;
-      end;
-
-      Tat := TAggTransAffineTranslation.Create(Args[1], Args[2]);
-      try
-        T.Multiply(Tat);
-      finally
-        Tat.Free;
-      end;
+      T.Rotate(Deg2Rad(Args[0]));
+      T.Translate(Args[1], Args[2]);
       FPath.Transform.PreMultiply(T);
     finally
       T.Free;
@@ -1028,7 +1011,7 @@ begin
   Result := Len;
 end;
 
-function TParser.ParseScale;
+function TParser.ParseScale(Str: PAnsiChar): Cardinal;
 var
   Args: array [0..1] of Double;
   Na, Len: Cardinal;
@@ -1050,7 +1033,7 @@ begin
   Result := Len;
 end;
 
-function TParser.ParseSkewX;
+function TParser.ParseSkewX(Str: PAnsiChar): Cardinal;
 var
   Arg: Double;
   Na, Len: Cardinal;
@@ -1069,7 +1052,7 @@ begin
   Result := Len;
 end;
 
-function TParser.ParseSkewY;
+function TParser.ParseSkewY(Str: PAnsiChar): Cardinal;
 var
   Arg: Double;
   Na, Len: Cardinal;
@@ -1106,7 +1089,7 @@ begin
       FPath.SetFillColor(@Clr);
     end
   else if CompareStr(AnsiString(name), 'fill-opacity') = 0 then
-    FPath.SetFillOpacity(ParseDouble(Value))
+    FPath.FillOpacity := ParseDouble(Value)
   else if CompareStr(AnsiString(name), 'stroke') = 0 then
     if CompareStr(AnsiString(Value), 'none') = 0 then
       FPath.StrokeNone
@@ -1117,29 +1100,29 @@ begin
       FPath.SetStrokeColor(@Clr);
     end
   else if CompareStr(AnsiString(name), 'stroke-width') = 0 then
-    FPath.SetStrokeWidth(ParseDouble(Value))
+    FPath.StrokeWidth := ParseDouble(Value)
   else if CompareStr(AnsiString(name), 'stroke-linecap') = 0 then
   begin
     if CompareStr(AnsiString(Value), 'butt') = 0 then
-      FPath.SetLineCap(lcButt)
+      FPath.LineCap := lcButt
     else if CompareStr(AnsiString(Value), 'round') = 0 then
-      FPath.SetLineCap(lcRound)
+      FPath.LineCap := lcRound
     else if CompareStr(AnsiString(Value), 'square') = 0 then
-      FPath.SetLineCap(lcSquare);
+      FPath.LineCap := lcSquare;
   end
   else if CompareStr(AnsiString(name), 'stroke-linejoin') = 0 then
   begin
     if CompareStr(AnsiString(Value), 'miter') = 0 then
-      FPath.SetLineJoin(ljMiter)
+      FPath.LineJoin := ljMiter
     else if CompareStr(AnsiString(Value), 'round') = 0 then
-      FPath.SetLineJoin(ljRound)
+      FPath.LineJoin := ljRound
     else if CompareStr(AnsiString(Value), 'bevel') = 0 then
-      FPath.SetLineJoin(ljBevel);
+      FPath.LineJoin := ljBevel;
   end
   else if CompareStr(AnsiString(name), 'stroke-miterlimit') = 0 then
-    FPath.SetMiterLimit(ParseDouble(Value))
+    FPath.MiterLimit := ParseDouble(Value)
   else if CompareStr(AnsiString(name), 'stroke-opacity') = 0 then
-    FPath.SetStrokeOpacity(ParseDouble(Value))
+    FPath.StrokeOpacity := ParseDouble(Value)
   else if CompareStr(AnsiString(name), 'transform') = 0 then
     ParseTransform(Value)
 
@@ -1153,7 +1136,7 @@ begin
     Result := False;
 end;
 
-function TParser.ParseNameValue;
+function TParser.ParseNameValue(NameValueStart, NameValueStop: PAnsiChar): Boolean;
 var
   Str, Val: PAnsiChar;
 begin
@@ -1181,7 +1164,7 @@ begin
     PAnsiChar(FAttrValue));
 end;
 
-procedure TParser.CopyName;
+procedure TParser.CopyName(Start, Stop: PAnsiChar);
 var
   Len: Cardinal;
 begin
@@ -1204,7 +1187,7 @@ begin
   PAnsiChar(PtrComp(FAttrName) + Len)^ := #0;
 end;
 
-procedure TParser.CopyValue;
+procedure TParser.CopyValue(Start, Stop: PAnsiChar);
 var
   Len: Cardinal;
 begin

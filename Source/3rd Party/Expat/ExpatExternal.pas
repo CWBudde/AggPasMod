@@ -1,4 +1,4 @@
-unit expat_external;
+unit ExpatExternal;
 
 // ----------------------------------------------------------------------------
 // Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd
@@ -63,7 +63,7 @@ type
   (* C/C++ compatibility Types *)
   Int = Int32;
   Cardinal = Int32u;
-  Size_t = Int32u;
+  TSize = Int32u;
 
   (* Pascal Pointer Computation Type *)
   {$IFDEF CPU64}

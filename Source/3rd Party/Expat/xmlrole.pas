@@ -40,7 +40,7 @@ interface
 
 uses
   Expat_basics,
-  Expat_external,
+  ExpatExternal,
   Xmltok;
 
 {$I expat_mode.inc}
@@ -112,14 +112,14 @@ const
   XML_ROLE_PARAM_ENTITY_REF = XML_ROLE_INNER_PARAM_ENTITY_REF + 1;
 {$ELSE }
   XML_ROLE_PARAM_ENTITY_REF = XML_ROLE_COMMENT + 1;
-{$ENDIF }
+{$ENDIF}
 
 type
   PPrologState = ^TPrologState;
 
   TPrologState = record
     Handler: function(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
-      Enc: ENCODING_ptr): Integer;
+      Enc: PEncoding): Integer;
 
     Level: Cardinal;
     RoleNone: Integer;
@@ -127,12 +127,12 @@ type
 {$IFDEF XML_DTD }
     IncludeLevel: Cardinal;
     DocumentEntity, InEntityValue: Integer;
-{$ENDIF }
+{$ENDIF}
   end;
 
 procedure XmlPrologStateInit(State: PPrologState);
 function XmlTokenRole(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
-  Enc: ENCODING_ptr): Integer;
+  Enc: PEncoding): Integer;
 
 implementation
 
@@ -213,13 +213,13 @@ const
     ASCII_E, ASCII_M, #0);
 
   
-function MIN_BYTES_PER_CHAR(Enc: ENCODING_ptr): Integer;
+function MIN_BYTES_PER_CHAR(Enc: PEncoding): Integer;
 begin
   Result := Enc.MinBytesPerChar;
 end;
 
 function Error(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
-  Enc: ENCODING_ptr): Integer;
+  Enc: PEncoding): Integer;
 begin
   Result := XML_ROLE_NONE;
 end;
@@ -229,12 +229,12 @@ begin
 end;
 
 function InternalSubset(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
-  Enc: ENCODING_ptr): Integer;
+  Enc: PEncoding): Integer;
 begin
 end;
 
 function Prolog2(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
-  Enc: ENCODING_ptr): Integer;
+  Enc: PEncoding): Integer;
 begin
   case Tok of
     XML_TOK_PROLOG_S:
@@ -272,7 +272,7 @@ begin
 end;
 
 function Doctype4(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
-  Enc: ENCODING_ptr): Integer;
+  Enc: PEncoding): Integer;
 begin
   case Tok of
     XML_TOK_PROLOG_S:
@@ -306,7 +306,7 @@ begin
 end;
 
 function Doctype3(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
-  Enc: ENCODING_ptr): Integer;
+  Enc: PEncoding): Integer;
 begin
   case Tok of
     XML_TOK_PROLOG_S:
@@ -330,7 +330,7 @@ begin
 end;
 
 function Doctype2(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
-  Enc: ENCODING_ptr): Integer;
+  Enc: PEncoding): Integer;
 begin
   case Tok of
     XML_TOK_PROLOG_S:
@@ -354,7 +354,7 @@ begin
 end;
 
 function Doctype1(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
-  Enc: ENCODING_ptr): Integer;
+  Enc: PEncoding): Integer;
 begin
   case Tok of
     XML_TOK_PROLOG_S:
@@ -408,7 +408,7 @@ begin
 end;
 
 function Doctype0(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
-  Enc: ENCODING_ptr): Integer;
+  Enc: PEncoding): Integer;
 begin
   case Tok of
     XML_TOK_PROLOG_S:
@@ -432,7 +432,7 @@ begin
 end;
 
 function Prolog1(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
-  Enc: ENCODING_ptr): Integer;
+  Enc: PEncoding): Integer;
 begin
   case Tok of
     XML_TOK_PROLOG_S:
@@ -490,7 +490,7 @@ begin
 end;
 
 function Prolog0(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
-  Enc: ENCODING_ptr): Integer;
+  Enc: PEncoding): Integer;
 label
   _break;
 
@@ -575,7 +575,7 @@ begin
   State.DocumentEntity := 1;
   State.IncludeLevel := 0;
   State.InEntityValue := 0;
-{$ENDIF }
+{$ENDIF}
 end;
 
 function XmlTokenRole;

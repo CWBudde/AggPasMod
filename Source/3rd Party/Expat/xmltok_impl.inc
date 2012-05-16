@@ -68,7 +68,7 @@ begin
 
 {$ENDIF}
   while Ptr <> End_ do
-    case BYTE_TYPE(Enc, Ptr) of
+    case ByteType(Enc, Ptr) of
       { #define CHECK_NAME_CASES }
       BT_NONASCII:
         if IS_NAME_CHAR_MINBPC(Enc, Ptr) = 0 then
@@ -97,7 +97,7 @@ begin
 
           end;
 
-          if IS_NAME_CHAR(Enc, Ptr, 2) = 0 then
+          if IsNameChar(Enc, Ptr, 2) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -121,7 +121,7 @@ begin
 
           end;
 
-          if IS_NAME_CHAR(Enc, Ptr, 3) = 0 then
+          if IsNameChar(Enc, Ptr, 3) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -143,7 +143,7 @@ begin
             Exit;
           end;
 
-          if IS_NAME_CHAR(Enc, Ptr, 4) = 0 then
+          if IsNameChar(Enc, Ptr, 4) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -181,7 +181,7 @@ begin
             Exit;
           end;
 
-          case BYTE_TYPE(Enc, Ptr) of
+          case ByteType(Enc, Ptr) of
             { #define CHECK_NMSTRT_CASES }
             BT_NONASCII:
               if IS_NMSTRT_CHAR_MINBPC(Enc, Ptr) = 0 then
@@ -282,7 +282,7 @@ begin
             if Ptr <> End_ then
               Result := XML_TOK_PARTIAL;
 
-            T := BYTE_TYPE(Enc, Ptr);
+            T := ByteType(Enc, Ptr);
 
             if T = BT_EQUALS then
               Break;
@@ -328,7 +328,7 @@ begin
 
             end;
 
-            Open := BYTE_TYPE(Enc, Ptr);
+            Open := ByteType(Enc, Ptr);
 
             if (Open = BT_QUOT) or (Open = BT_APOS) then
               Break;
@@ -361,7 +361,7 @@ begin
 
             end;
 
-            T := BYTE_TYPE(Enc, Ptr);
+            T := ByteType(Enc, Ptr);
 
             if T = Open then
               Break;
@@ -378,7 +378,7 @@ begin
 
                   end;
 
-                  if IS_INVALID_CHAR(Enc, Ptr, 2) <> 0 then
+                  if IsInvalidChar(Enc, Ptr, 2) <> 0 then
                   begin
                     NextTokPtr^ := Ptr;
 
@@ -402,7 +402,7 @@ begin
 
                   end;
 
-                  if IS_INVALID_CHAR(Enc, Ptr, 3) <> 0 then
+                  if IsInvalidChar(Enc, Ptr, 3) <> 0 then
                   begin
                     NextTokPtr^ := Ptr;
 
@@ -426,7 +426,7 @@ begin
 
                   end;
 
-                  if IS_INVALID_CHAR(Enc, Ptr, 4) <> 0 then
+                  if IsInvalidChar(Enc, Ptr, 4) <> 0 then
                   begin
                     NextTokPtr^ := Ptr;
 
@@ -497,7 +497,7 @@ begin
 
           end;
 
-          case BYTE_TYPE(Enc, Ptr) of
+          case ByteType(Enc, Ptr) of
             BT_SOL:
               goto Sol;
 
@@ -529,7 +529,7 @@ begin
 
             end;
 
-            case BYTE_TYPE(Enc, Ptr) of
+            case ByteType(Enc, Ptr) of
               { #define CHECK_NMSTRT_CASES }
               BT_NONASCII:
                 if IS_NMSTRT_CHAR_MINBPC(Enc, Ptr) = 0 then
@@ -642,7 +642,7 @@ begin
                     Exit;
                   end;
 
-                  if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_GT)) = 0 then
+                  if CharMatches(Enc, Ptr, Integer(ASCII_GT)) = 0 then
                   begin
                     NextTokPtr^ := Ptr;
 
@@ -694,7 +694,7 @@ begin
     Exit;
   end;
 
-  case BYTE_TYPE(Enc, Ptr) of
+  case ByteType(Enc, Ptr) of
     { #define CHECK_NMSTRT_CASES }
     BT_NONASCII:
       if IS_NMSTRT_CHAR_MINBPC(Enc, Ptr) = 0 then
@@ -784,7 +784,7 @@ begin
   end;
 
   while Ptr <> End_ do
-    case BYTE_TYPE(Enc, Ptr) of
+    case ByteType(Enc, Ptr) of
       { #define CHECK_NAME_CASES }
       BT_NONASCII:
         if IS_NAME_CHAR_MINBPC(Enc, Ptr) = 0 then
@@ -813,7 +813,7 @@ begin
 
           end;
 
-          if IS_NAME_CHAR(Enc, Ptr, 2) = 0 then
+          if IsNameChar(Enc, Ptr, 2) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -837,7 +837,7 @@ begin
 
           end;
 
-          if IS_NAME_CHAR(Enc, Ptr, 3) = 0 then
+          if IsNameChar(Enc, Ptr, 3) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -861,7 +861,7 @@ begin
 
           end;
 
-          if IS_NAME_CHAR(Enc, Ptr, 4) = 0 then
+          if IsNameChar(Enc, Ptr, 4) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -883,7 +883,7 @@ begin
 
           while Ptr <> End_ do
           begin
-            case BYTE_TYPE(Enc, Ptr) of
+            case ByteType(Enc, Ptr) of
               BT_GT:
                 begin
                   NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
@@ -956,7 +956,7 @@ function Normal_scanComment(Enc: PEncoding; Ptr, End_: PAnsiChar;
 begin
   if Ptr <> End_ then
   begin
-    if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_MINUS)) = 0 then
+    if CharMatches(Enc, Ptr, Integer(ASCII_MINUS)) = 0 then
     begin
       NextTokPtr^ := Ptr;
 
@@ -969,7 +969,7 @@ begin
     Inc(PtrComp(Ptr), MINBPC(Enc));
 
     while Ptr <> End_ do
-      case BYTE_TYPE(Enc, Ptr) of
+      case ByteType(Enc, Ptr) of
         { #define INVALID_CASES }
         BT_LEAD2:
           begin
@@ -981,7 +981,7 @@ begin
 
             end;
 
-            if IS_INVALID_CHAR(Enc, Ptr, 2) <> 0 then
+            if IsInvalidChar(Enc, Ptr, 2) <> 0 then
             begin
               NextTokPtr^ := Ptr;
 
@@ -1005,7 +1005,7 @@ begin
 
             end;
 
-            if IS_INVALID_CHAR(Enc, Ptr, 3) <> 0 then
+            if IsInvalidChar(Enc, Ptr, 3) <> 0 then
             begin
               NextTokPtr^ := Ptr;
 
@@ -1029,7 +1029,7 @@ begin
 
             end;
 
-            if IS_INVALID_CHAR(Enc, Ptr, 4) <> 0 then
+            if IsInvalidChar(Enc, Ptr, 4) <> 0 then
             begin
               NextTokPtr^ := Ptr;
 
@@ -1067,7 +1067,7 @@ begin
 
             end;
 
-            if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_MINUS)) <> 0 then
+            if CharMatches(Enc, Ptr, Integer(ASCII_MINUS)) <> 0 then
             begin
               Inc(PtrComp(Ptr), MINBPC(Enc));
 
@@ -1079,7 +1079,7 @@ begin
 
               end;
 
-              if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_GT)) = 0 then
+              if CharMatches(Enc, Ptr, Integer(ASCII_GT)) = 0 then
               begin
                 NextTokPtr^ := Ptr;
 
@@ -1129,10 +1129,9 @@ begin
     Result := 1;
 
     Exit;
-
   end;
 
-  case BYTETo_ASCII(Enc, Ptr) of
+  case ByteToASCII(Enc, Ptr) of
     Integer(ASCII_X):
       Upper := 1;
 
@@ -1142,14 +1141,12 @@ begin
       Result := 1;
 
       Exit;
-
     end;
-
   end;
 
   Inc(PtrComp(Ptr), MINBPC(Enc));
 
-  case BYTETo_ASCII(Enc, Ptr) of
+  case ByteToASCII(Enc, Ptr) of
     Integer(ASCII_M):
       Upper := 1;
 
@@ -1159,14 +1156,12 @@ begin
       Result := 1;
 
       Exit;
-
     end;
-
   end;
 
   Inc(PtrComp(Ptr), MINBPC(Enc));
 
-  case BYTETo_ASCII(Enc, Ptr) of
+  case ByteToASCII(Enc, Ptr) of
     Integer(ASCII_L):
       Upper := 1;
 
@@ -1176,9 +1171,7 @@ begin
       Result := 1;
 
       Exit;
-
     end;
-
   end;
 
   if Upper <> 0 then
@@ -1186,12 +1179,10 @@ begin
     Result := 0;
 
     Exit;
-
   end;
 
   TokPtr^ := XML_TOK_XML_DECL;
   Result := 1;
-
 end;
 
 { ptr points to character following "<?" }
@@ -1201,7 +1192,6 @@ var
   Tok: Integer;
 
   Target: PAnsiChar;
-
 label
   _bt0, _bt1, _else;
 
@@ -1213,10 +1203,9 @@ begin
     Result := XML_TOK_PARTIAL;
 
     Exit;
-
   end;
 
-  case BYTE_TYPE(Enc, Ptr) of
+  case ByteType(Enc, Ptr) of
     { #define CHECK_NMSTRT_CASES }
     BT_NONASCII:
       if IS_NMSTRT_CHAR_MINBPC(Enc, Ptr) = 0 then
@@ -1226,7 +1215,6 @@ begin
         Result := XML_TOK_INVALID;
 
         Exit;
-
       end
       else
         goto _bt0;
@@ -1305,7 +1293,7 @@ begin
   end;
 
   while Ptr <> End_ do
-    case BYTE_TYPE(Enc, Ptr) of
+    case ByteType(Enc, Ptr) of
       { #define CHECK_NAME_CASES }
       BT_NONASCII:
         if IS_NAME_CHAR_MINBPC(Enc, Ptr) = 0 then
@@ -1315,7 +1303,6 @@ begin
           Result := XML_TOK_INVALID;
 
           Exit;
-
         end
         else
           goto _bt1;
@@ -1331,21 +1318,18 @@ begin
             Result := XML_TOK_PARTIAL_CHAR;
 
             Exit;
-
           end;
 
-          if IS_NAME_CHAR(Enc, Ptr, 2) = 0 then
+          if IsNameChar(Enc, Ptr, 2) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), 2);
-
         end;
 
       BT_LEAD3:
@@ -1357,7 +1341,7 @@ begin
             Exit;
           end;
 
-          if IS_NAME_CHAR(Enc, Ptr, 3) = 0 then
+          if IsNameChar(Enc, Ptr, 3) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -1378,7 +1362,7 @@ begin
             Exit;
           end;
 
-          if IS_NAME_CHAR(Enc, Ptr, 4) = 0 then
+          if IsNameChar(Enc, Ptr, 4) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -1401,13 +1385,12 @@ begin
             Result := XML_TOK_INVALID;
 
             Exit;
-
           end;
 
           Inc(PtrComp(Ptr), MINBPC(Enc));
 
           while Ptr <> End_ do
-            case BYTE_TYPE(Enc, Ptr) of
+            case ByteType(Enc, Ptr) of
               { #define INVALID_CASES }
               BT_LEAD2:
                 begin
@@ -1416,21 +1399,18 @@ begin
                     Result := XML_TOK_PARTIAL_CHAR;
 
                     Exit;
-
                   end;
 
-                  if IS_INVALID_CHAR(Enc, Ptr, 2) <> 0 then
+                  if IsInvalidChar(Enc, Ptr, 2) <> 0 then
                   begin
                     NextTokPtr^ := Ptr;
 
                     Result := XML_TOK_INVALID;
 
                     Exit;
-
                   end;
 
                   Inc(PtrComp(Ptr), 2);
-
                 end;
 
               BT_LEAD3:
@@ -1440,21 +1420,18 @@ begin
                     Result := XML_TOK_PARTIAL_CHAR;
 
                     Exit;
-
                   end;
 
-                  if IS_INVALID_CHAR(Enc, Ptr, 3) <> 0 then
+                  if IsInvalidChar(Enc, Ptr, 3) <> 0 then
                   begin
                     NextTokPtr^ := Ptr;
 
                     Result := XML_TOK_INVALID;
 
                     Exit;
-
                   end;
 
                   Inc(PtrComp(Ptr), 3);
-
                 end;
 
               BT_LEAD4:
@@ -1464,21 +1441,18 @@ begin
                     Result := XML_TOK_PARTIAL_CHAR;
 
                     Exit;
-
                   end;
 
-                  if IS_INVALID_CHAR(Enc, Ptr, 4) <> 0 then
+                  if IsInvalidChar(Enc, Ptr, 4) <> 0 then
                   begin
                     NextTokPtr^ := Ptr;
 
                     Result := XML_TOK_INVALID;
 
                     Exit;
-
                   end;
 
                   Inc(PtrComp(Ptr), 4);
-
                 end;
 
               BT_NONXML, BT_MALFORM, BT_TRAIL:
@@ -1488,7 +1462,6 @@ begin
                   Result := XML_TOK_INVALID;
 
                   Exit;
-
                 end;
 
               { INVALID_CASES #define }
@@ -1502,10 +1475,9 @@ begin
                     Result := XML_TOK_PARTIAL;
 
                     Exit;
-
                   end;
 
-                  if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_GT)) <> 0 then
+                  if CharMatches(Enc, Ptr, Integer(ASCII_GT)) <> 0 then
                   begin
                     NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
 
@@ -1543,7 +1515,7 @@ begin
             Exit;
           end;
 
-          if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_GT)) <> 0 then
+          if CharMatches(Enc, Ptr, Integer(ASCII_GT)) <> 0 then
           begin
             NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
 
@@ -1588,7 +1560,7 @@ begin
     Exit;
   end;
 
-  case BYTE_TYPE(Enc, Ptr) of
+  case ByteType(Enc, Ptr) of
     { #define CHECK_NMSTRT_CASES }
     BT_NONASCII:
       if IS_NMSTRT_CHAR_MINBPC(Enc, Ptr) = 0 then
@@ -1677,7 +1649,7 @@ begin
           Exit;
         end;
 
-        case BYTE_TYPE(Enc, Ptr) of
+        case ByteType(Enc, Ptr) of
           BT_MINUS:
             begin
               Result := Normal_scanComment(Enc,
@@ -1734,7 +1706,7 @@ begin
 {$ENDIF}
   { we have a start-tag }
   while Ptr <> End_ do
-    case BYTE_TYPE(Enc, Ptr) of
+    case ByteType(Enc, Ptr) of
       { #define CHECK_NAME_CASES }
       BT_NONASCII:
         if IS_NAME_CHAR_MINBPC(Enc, Ptr) = 0 then
@@ -1761,7 +1733,7 @@ begin
             Exit;
           end;
 
-          if IS_NAME_CHAR(Enc, Ptr, 2) = 0 then
+          if IsNameChar(Enc, Ptr, 2) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -1782,7 +1754,7 @@ begin
             Exit;
           end;
 
-          if IS_NAME_CHAR(Enc, Ptr, 3) = 0 then
+          if IsNameChar(Enc, Ptr, 3) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -1804,7 +1776,7 @@ begin
             Exit;
           end;
 
-          if IS_NAME_CHAR(Enc, Ptr, 4) = 0 then
+          if IsNameChar(Enc, Ptr, 4) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -1841,7 +1813,7 @@ begin
             Exit;
           end;
 
-          case BYTE_TYPE(Enc, Ptr) of
+          case ByteType(Enc, Ptr) of
             { #define CHECK_NMSTRT_CASES }
             BT_NONASCII:
               if IS_NMSTRT_CHAR_MINBPC(Enc, Ptr) = 0 then
@@ -1937,7 +1909,7 @@ begin
 
           while Ptr <> End_ do
           begin
-            case BYTE_TYPE(Enc, Ptr) of
+            case ByteType(Enc, Ptr) of
               { #define CHECK_NMSTRT_CASES }
               BT_NONASCII:
                 if IS_NMSTRT_CHAR_MINBPC(Enc, Ptr) = 0 then
@@ -2071,7 +2043,7 @@ begin
             Exit;
           end;
 
-          if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_GT)) = 0 then
+          if CharMatches(Enc, Ptr, Integer(ASCII_GT)) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -2113,7 +2085,7 @@ begin
     Exit;
   end;
 
-  case BYTE_TYPE(Enc, Ptr) of
+  case ByteType(Enc, Ptr) of
     BT_MINUS:
       begin
         Result := Normal_scanComment(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
@@ -2145,7 +2117,7 @@ begin
   end;
 
   while Ptr <> End_ do
-    case BYTE_TYPE(Enc, Ptr) of
+    case ByteType(Enc, Ptr) of
       BT_PERCNT:
         begin
           if PtrComp(Ptr) + MINBPC(Enc) = PtrComp(End_) then
@@ -2156,7 +2128,7 @@ begin
           end;
 
           { don't alLow <!ENTITY% foo "whatever"> }
-          case BYTE_TYPE(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc))) of
+          case ByteType(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc))) of
             BT_S, BT_CR, BT_LF, BT_PERCNT:
               begin
                 NextTokPtr^ := Ptr;
@@ -2220,7 +2192,7 @@ label
 begin
   while Ptr <> End_ do
   begin
-    T := BYTE_TYPE(Enc, Ptr);
+    T := ByteType(Enc, Ptr);
 
     case T of
       { #define INVALID_CASES }
@@ -2233,7 +2205,7 @@ begin
             Exit;
           end;
 
-          if IS_INVALID_CHAR(Enc, Ptr, 2) <> 0 then
+          if IsInvalidChar(Enc, Ptr, 2) <> 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -2254,7 +2226,7 @@ begin
             Exit;
           end;
 
-          if IS_INVALID_CHAR(Enc, Ptr, 3) <> 0 then
+          if IsInvalidChar(Enc, Ptr, 3) <> 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -2275,7 +2247,7 @@ begin
             Exit;
           end;
 
-          if IS_INVALID_CHAR(Enc, Ptr, 4) <> 0 then
+          if IsInvalidChar(Enc, Ptr, 4) <> 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -2314,7 +2286,7 @@ begin
 
           NextTokPtr^ := Ptr;
 
-          case BYTE_TYPE(Enc, Ptr) of
+          case ByteType(Enc, Ptr) of
             BT_S, BT_CR, BT_LF, BT_GT, BT_PERCNT, BT_LSQB:
               begin
                 Result := XML_TOK_LITERAL;
@@ -2344,7 +2316,7 @@ function Normal_prologTok(Enc: PEncoding; Ptr, End_: PAnsiChar;
 var
   Tok: Integer;
 
-  N: Size_t;
+  N: TSize;
 label
   _bt_s, _else, _else2, _bt0, _bt1;
 
@@ -2375,7 +2347,7 @@ begin
     end;
   end;
 
-  case BYTE_TYPE(Enc, Ptr) of
+  case ByteType(Enc, Ptr) of
     BT_QUOT:
       begin
         Result := Normal_scanLit(BT_QUOT, Enc,
@@ -2400,7 +2372,7 @@ begin
           Exit;
         end;
 
-        case BYTE_TYPE(Enc, Ptr) of
+        case ByteType(Enc, Ptr) of
           BT_EXCL:
             begin
               Result := Normal_scanDecl(Enc,
@@ -2453,7 +2425,7 @@ begin
           if Ptr = End_ then
             Break;
 
-          case BYTE_TYPE(Enc, Ptr) of
+          case ByteType(Enc, Ptr) of
             BT_CR:
               { don't split CR/LF pair }
               if PtrComp(Ptr) + MINBPC(Enc) <> PtrComp(End_) then
@@ -2514,7 +2486,7 @@ begin
           Exit;
         end;
 
-        if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_RSQB)) <> 0 then
+        if CharMatches(Enc, Ptr, Integer(ASCII_RSQB)) <> 0 then
         begin
           if PtrComp(Ptr) + MINBPC(Enc) = PtrComp(End_) then
           begin
@@ -2522,7 +2494,7 @@ begin
             Exit;
           end;
 
-          if CHAR_MATCHES(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
+          if CharMatches(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
             Integer(ASCII_GT)) <> 0 then
           begin
             NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + 2 * MINBPC(Enc));
@@ -2556,7 +2528,7 @@ begin
           Exit;
         end;
 
-        case BYTE_TYPE(Enc, Ptr) of
+        case ByteType(Enc, Ptr) of
           BT_AST:
             begin
               NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
@@ -2637,7 +2609,7 @@ begin
 
           Tok := XML_TOK_NAME;
         end
-        else if IS_NAME_CHAR(Enc, Ptr, 2) <> 0 then
+        else if IsNameChar(Enc, Ptr, 2) <> 0 then
         begin
           Inc(PtrComp(Ptr), 2);
 
@@ -2668,7 +2640,7 @@ begin
 
           Tok := XML_TOK_NAME;
         end
-        else if IS_NAME_CHAR(Enc, Ptr, 3) <> 0 then
+        else if IsNameChar(Enc, Ptr, 3) <> 0 then
         begin
           Inc(PtrComp(Ptr), 3);
 
@@ -2699,7 +2671,7 @@ begin
 
           Tok := XML_TOK_NAME;
         end
-        else if IS_NAME_CHAR(Enc, Ptr, 4) <> 0 then
+        else if IsNameChar(Enc, Ptr, 4) <> 0 then
         begin
           Inc(PtrComp(Ptr), 4);
 
@@ -2758,7 +2730,7 @@ begin
   end;
 
   while Ptr <> End_ do
-    case BYTE_TYPE(Enc, Ptr) of
+    case ByteType(Enc, Ptr) of
       { #define CHECK_NAME_CASES }
       BT_NONASCII:
         if IS_NAME_CHAR_MINBPC(Enc, Ptr) = 0 then
@@ -2785,7 +2757,7 @@ begin
             Exit;
           end;
 
-          if IS_NAME_CHAR(Enc, Ptr, 2) = 0 then
+          if IsNameChar(Enc, Ptr, 2) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -2806,7 +2778,7 @@ begin
             Exit;
           end;
 
-          if IS_NAME_CHAR(Enc, Ptr, 3) = 0 then
+          if IsNameChar(Enc, Ptr, 3) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -2827,7 +2799,7 @@ begin
             Exit;
           end;
 
-          if IS_NAME_CHAR(Enc, Ptr, 4) = 0 then
+          if IsNameChar(Enc, Ptr, 4) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -2868,7 +2840,7 @@ begin
 
                 Tok := XML_TOK_PREFIXED_NAME;
 
-                case BYTE_TYPE(Enc, Ptr) of
+                case ByteType(Enc, Ptr) of
                   { #define CHECK_NAME_CASES }
                   BT_NONASCII:
                     if IS_NAME_CHAR_MINBPC(Enc, Ptr) = 0 then
@@ -2895,7 +2867,7 @@ begin
                         Exit;
                       end;
 
-                      if IS_NAME_CHAR(Enc, Ptr, 2) = 0 then
+                      if IsNameChar(Enc, Ptr, 2) = 0 then
                       begin
                         NextTokPtr^ := Ptr;
 
@@ -2916,7 +2888,7 @@ begin
                         Exit;
                       end;
 
-                      if IS_NAME_CHAR(Enc, Ptr, 3) = 0 then
+                      if IsNameChar(Enc, Ptr, 3) = 0 then
                       begin
                         NextTokPtr^ := Ptr;
 
@@ -2937,7 +2909,7 @@ begin
                         Exit;
                       end;
 
-                      if IS_NAME_CHAR(Enc, Ptr, 4) = 0 then
+                      if IsNameChar(Enc, Ptr, 4) = 0 then
                       begin
                         NextTokPtr^ := Ptr;
 
@@ -3030,7 +3002,7 @@ end;
 function Normal_contentTok(Enc: PEncoding; Ptr, End_: PAnsiChar;
   NextTokPtr: PPAnsiChar): Integer;
 var
-  N: Size_t;
+  N: TSize;
 
 label
   _break, _go0, _break2;
@@ -3062,7 +3034,7 @@ begin
     end;
   end;
 
-  case BYTE_TYPE(Enc, Ptr) of
+  case ByteType(Enc, Ptr) of
     BT_LT:
       begin
         Result := Normal_scanLt(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
@@ -3090,7 +3062,7 @@ begin
           Exit;
         end;
 
-        if BYTE_TYPE(Enc, Ptr) = BT_LF then
+        if ByteType(Enc, Ptr) = BT_LF then
           Inc(PtrComp(Ptr), MINBPC(Enc));
 
         NextTokPtr^ := Ptr;
@@ -3120,7 +3092,7 @@ begin
           Exit;
         end;
 
-        if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_RSQB)) = 0 then
+        if CharMatches(Enc, Ptr, Integer(ASCII_RSQB)) = 0 then
           goto _break;
 
         Inc(PtrComp(Ptr), MINBPC(Enc));
@@ -3132,7 +3104,7 @@ begin
           Exit;
         end;
 
-        if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_GT)) = 0 then
+        if CharMatches(Enc, Ptr, Integer(ASCII_GT)) = 0 then
         begin
           Dec(PtrComp(Ptr), MINBPC(Enc));
 
@@ -3156,7 +3128,7 @@ begin
           Exit;
         end;
 
-        if IS_INVALID_CHAR(Enc, Ptr, 2) <> 0 then
+        if IsInvalidChar(Enc, Ptr, 2) <> 0 then
         begin
           NextTokPtr^ := Ptr;
 
@@ -3176,7 +3148,7 @@ begin
           Exit;
         end;
 
-        if IS_INVALID_CHAR(Enc, Ptr, 3) <> 0 then
+        if IsInvalidChar(Enc, Ptr, 3) <> 0 then
         begin
           NextTokPtr^ := Ptr;
 
@@ -3196,7 +3168,7 @@ begin
           Exit;
         end;
 
-        if IS_INVALID_CHAR(Enc, Ptr, 4) <> 0 then
+        if IsInvalidChar(Enc, Ptr, 4) <> 0 then
         begin
           NextTokPtr^ := Ptr;
 
@@ -3225,11 +3197,11 @@ begin
 
 _break:
   while Ptr <> End_ do
-    case BYTE_TYPE(Enc, Ptr) of
+    case ByteType(Enc, Ptr) of
       BT_LEAD2:
         begin
           if (PtrComp(End_) - PtrComp(Ptr) < 2) or
-            (IS_INVALID_CHAR(Enc, Ptr, 2) <> 0) then
+            (IsInvalidChar(Enc, Ptr, 2) <> 0) then
           begin
             NextTokPtr^ := Ptr;
 
@@ -3244,7 +3216,7 @@ _break:
       BT_LEAD3:
         begin
           if (PtrComp(End_) - PtrComp(Ptr) < 3) or
-            (IS_INVALID_CHAR(Enc, Ptr, 3) <> 0) then
+            (IsInvalidChar(Enc, Ptr, 3) <> 0) then
           begin
             NextTokPtr^ := Ptr;
 
@@ -3259,7 +3231,7 @@ _break:
       BT_LEAD4:
         begin
           if (PtrComp(End_) - PtrComp(Ptr) < 4) or
-            (IS_INVALID_CHAR(Enc, Ptr, 4) <> 0) then
+            (IsInvalidChar(Enc, Ptr, 4) <> 0) then
           begin
             NextTokPtr^ := Ptr;
 
@@ -3275,7 +3247,7 @@ _break:
         begin
           if PtrComp(Ptr) + MINBPC(Enc) <> PtrComp(End_) then
           begin
-            if CHAR_MATCHES(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
+            if CharMatches(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
               Integer(ASCII_RSQB)) = 0 then
             begin
               Inc(PtrComp(Ptr), MINBPC(Enc));
@@ -3285,7 +3257,7 @@ _break:
 
             if PtrComp(Ptr) + 2 * MINBPC(Enc) <> PtrComp(End_) then
             begin
-              if CHAR_MATCHES(Enc, PAnsiChar(PtrComp(Ptr) + 2 * MINBPC(Enc)),
+              if CharMatches(Enc, PAnsiChar(PtrComp(Ptr) + 2 * MINBPC(Enc)),
                 Integer(ASCII_GT)) = 0 then
               begin
                 Inc(PtrComp(Ptr), MINBPC(Enc));
@@ -3352,7 +3324,7 @@ begin
   Start := Ptr;
 
   while Ptr <> End_ do
-    case BYTE_TYPE(Enc, Ptr) of
+    case ByteType(Enc, Ptr) of
       BT_LEAD2:
         Inc(PtrComp(Ptr), 2);
 
@@ -3420,7 +3392,7 @@ begin
               Exit;
             end;
 
-            if BYTE_TYPE(Enc, Ptr) = BT_LF then
+            if ByteType(Enc, Ptr) = BT_LF then
               Inc(PtrComp(Ptr), MINBPC(Enc));
 
             NextTokPtr^ := Ptr;
@@ -3484,7 +3456,7 @@ begin
       Exit;
     end;
 
-    if CHAR_MATCHES(Enc, Ptr1, Integer(Ptr2^)) = 0 then
+    if CharMatches(Enc, Ptr1, Integer(Ptr2^)) = 0 then
     begin
       Result := 0;
 
@@ -3506,7 +3478,7 @@ begin
   Start := Ptr;
 
   repeat
-    case BYTE_TYPE(Enc, Ptr) of
+    case ByteType(Enc, Ptr) of
       BT_LEAD2:
         Inc(PtrComp(Ptr), 2);
 
@@ -3558,7 +3530,7 @@ begin
   Inc(PtrComp(Ptr), MINBPC(Enc));
 
   repeat
-    case BYTE_TYPE(Enc, Ptr) of
+    case ByteType(Enc, Ptr) of
       BT_LEAD2:
         begin
           if State = Other then
@@ -3681,10 +3653,10 @@ begin
           (PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))^.Normalized
           <> #0) and
           ((Ptr = PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
-          ^.ValuePtr) or (BYTETo_ASCII(Enc, Ptr) <> Integer(ASCII_SPACE)) or
-          (BYTETo_ASCII(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)))
+          ^.ValuePtr) or (ByteToASCII(Enc, Ptr) <> Integer(ASCII_SPACE)) or
+          (ByteToASCII(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)))
           = Integer(ASCII_SPACE)) or
-          (BYTE_TYPE(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc))) = Open)) then
+          (ByteType(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc))) = Open)) then
           PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
             ^.Normalized := #0;
 
@@ -3726,7 +3698,7 @@ procedure Normal_updatePosition(Enc: PEncoding; Ptr, End_: PAnsiChar;
 begin
   while Ptr <> End_ do
   begin
-    case BYTE_TYPE(Enc, Ptr) of
+    case ByteType(Enc, Ptr) of
       BT_LEAD2:
         Inc(PtrComp(Ptr), 2);
 
@@ -3749,7 +3721,7 @@ begin
           Inc(Pos.LineNumber);
           Inc(PtrComp(Ptr), MINBPC(Enc));
 
-          if (Ptr <> End_) and (BYTE_TYPE(Enc, Ptr) = BT_LF) then
+          if (Ptr <> End_) and (ByteType(Enc, Ptr) = BT_LF) then
             Inc(PtrComp(Ptr), MINBPC(Enc));
 
           Pos.ColumnNumber := TXmlSize(-1);
@@ -3773,9 +3745,9 @@ begin
 
   while Ptr <> End_ do
   begin
-    case BYTE_TYPE(Enc, Ptr) of
+    case ByteType(Enc, Ptr) of
       BT_S:
-        if CHAR_MATCHES(Enc, Ptr, Integer(ASCII_TAB)) <> 0 then
+        if CharMatches(Enc, Ptr, Integer(ASCII_TAB)) <> 0 then
         begin
           BadPtr^ := Ptr;
           Result := 0;
@@ -3784,7 +3756,7 @@ begin
         end;
 
       BT_NAME, BT_NMSTRT:
-        if BYTETo_ASCII(Enc, Ptr) and not $7F = 0 then
+        if ByteToASCII(Enc, Ptr) and not $7F = 0 then
         else
           goto _else;
 
@@ -3793,7 +3765,7 @@ begin
         BT_PERCNT, BT_NUM {$IFDEF XML_NS} , BT_COLON: {$ELSE} : {$ENDIF}
       else
       _else:
-        case BYTETo_ASCII(Enc, Ptr) of
+        case ByteToASCII(Enc, Ptr) of
           $24, { $ }
           $40: { @ }
           else
