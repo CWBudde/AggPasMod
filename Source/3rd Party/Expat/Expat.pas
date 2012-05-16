@@ -1,4 +1,4 @@
-unit expat;
+unit Expat;
 
 // ----------------------------------------------------------------------------
 // Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd
@@ -391,7 +391,7 @@ type
     Processed: Integer; { # of processed bytes - when suspended }
     SystemId, Base, PublicId, Notation: PXmlChar;
 
-    Open, Is_param, IsInternal: TXmlBool;
+    Open, IsParam, IsInternal: TXmlBool;
     { true if declared in internal subset outside PE }
   end;
 
@@ -859,14 +859,14 @@ end;
   index was calculated: index:=hash and mask, where mask:=table.size - 1.
   We limit the maximum step size to table.size div 4 (mask shr 2 ) and make
   it odd, since odd numbers are always relative prime to a power of 2. }
-function SECOND_HASH(Hash, Mask: Int32u; Power: Int8u): Int8u;
+function SecontHash(Hash, Mask: Int32u; Power: Int8u): Int8u;
 begin
   Result := ((Hash and not Mask) shr (Power - 1)) and (Mask shr 2);
 end;
 
-function PROBE_STEP(Hash, Mask: Int32u; Power: Int8u): Int8u;
+function ProbeStep(Hash, Mask: Int32u; Power: Int8u): Int8u;
 begin
-  Result := SECOND_HASH(Hash, Mask, Power) or 1;
+  Result := SecontHash(Hash, Mask, Power) or 1;
 end;
 
 function XML_T(X: AnsiChar): TXmlChar;
@@ -880,7 +880,7 @@ begin
 end;
 
 { Round up n to be a multiple of Size, where Size is a power of 2. }
-function ROUND_UP(N, Size: Integer): Integer;
+function RoundUp(N, Size: Integer): Integer;
 begin
   Result := (N + (Size - 1)) and not (Size - 1);
 end;
@@ -1095,7 +1095,6 @@ var
   StoredEncName, Storedversion: PXmlChar;
   NewEncoding: PEncoding;
   Standalone, Ok: Integer;
-  Result_: TXmlError;
 begin
   EncodingName := nil;
   StoredEncName := nil;
@@ -1207,14 +1206,12 @@ begin
         end;
       end;
 
-      Result_ := HandleUnknownEncoding(Parser, StoredEncName);
-
+      Result := HandleUnknownEncoding(Parser, StoredEncName);
       PoolClear(@Parser.Temp2Pool);
 
-      if Result_ = xeUnknownEncoding then
+      if Result = xeUnknownEncoding then
         Parser.EventPtr := EncodingName;
 
-      Result := Result_;
       Exit;
     end;
   end;
@@ -1543,8 +1540,7 @@ begin
   Result := H;
 end;
 
-function Lookup(Table: PHashTable; Name: KEY; CreateSize: TSize)
-  : PNamed;
+function Lookup(Table: PHashTable; Name: KEY; CreateSize: TSize): PNamed;
 var
   I, TableSize, NewSize, J: TSize;
   H, Mask, NewMask, NewHash: Int32u;
@@ -1602,7 +1598,7 @@ begin
       end;
 
       if Step = 0 then
-        Step := PROBE_STEP(H, Mask, Table.Power);
+        Step := ProbeStep(H, Mask, Table.Power);
 
       if I < Step then
         Inc(I, Table.Size - Step)
@@ -1650,7 +1646,7 @@ begin
           while PPNamed(PtrComp(NewV) + J * SizeOf(PNamed))^ <> nil do
           begin
             if Step = 0 then
-              Step := PROBE_STEP(NewHash, NewMask, NewPower);
+              Step := ProbeStep(NewHash, NewMask, NewPower);
 
             if J < Step then
               Inc(J, NewSize - Step)
@@ -1678,7 +1674,7 @@ begin
       while PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^ <> nil do
       begin
         if Step = 0 then
-          Step := PROBE_STEP(H, NewMask, NewPower);
+          Step := ProbeStep(H, NewMask, NewPower);
 
         if I < Step then
           Inc(I, NewSize - Step)
@@ -1786,7 +1782,7 @@ begin
 
     { For re-use purposes we need to ensure that the
       size of TTag.buf is a multiple of SizeOf(TXmlChar ). }
-    BufSize := NameLen + ROUND_UP(TTag.RawNameLength, SizeOf(TXmlChar));
+    BufSize := NameLen + RoundUp(TTag.RawNameLength, SizeOf(TXmlChar));
 
     if BufSize > PtrComp(TTag.BufEnd) - PtrComp(TTag.Buf) then
     begin
@@ -1846,50 +1842,37 @@ end;
 function StoreAtts(Parser: TXmlParser; Enc: PEncoding; AttStr: PAnsiChar;
   TagNamePtr: PTagName; BindingsPtr: PPBinding): TXmlError;
 var
-  TDocTypeDeclaration: PDocTypeDeclaration;
-
+  DocTypeDeclaration: PDocTypeDeclaration;
   ElementType: PElementType;
-
   NDefaultAtts, AttIndex, PrefixLen, I, N, NPrefixes, OldAttsSize, J,
     NsAttsSize: Integer;
-
   Version, UriHash, Mask: Int32u;
-
   Step: Int8u;
-
   AppAtts: PPXmlChar; { the attribute list for the application }
-
   Uri, LocalPart, Name, S, S1, S2: PXmlChar;
-
   C: TXmlChar;
-
   TBinding, B: PBinding;
-
   AttId, Id: PAttributeID;
-
   Result_: TXmlError;
-
   IsCdata: TXmlBool;
-
   Da: PDefaultAttribute;
-
   P: PTag;
 
 label
   _w0, _w1;
 
 begin
-  TDocTypeDeclaration := Parser.DocTypeDeclaration; { save one level of indirection }
+  DocTypeDeclaration := Parser.DocTypeDeclaration; { save one level of indirection }
 
   AttIndex := 0;
   NPrefixes := 0;
 
   { lookup the element type name }
-  ElementType := PElementType(Lookup(@TDocTypeDeclaration.ElementTypes, TagNamePtr.Str, 0));
+  ElementType := PElementType(Lookup(@DocTypeDeclaration.ElementTypes, TagNamePtr.Str, 0));
 
   if ElementType = nil then
   begin
-    name := PoolCopyString(@TDocTypeDeclaration.Pool, TagNamePtr.Str);
+    name := PoolCopyString(@DocTypeDeclaration.Pool, TagNamePtr.Str);
 
     if name = nil then
     begin
@@ -1898,7 +1881,7 @@ begin
       Exit;
     end;
 
-    ElementType := PElementType(Lookup(@TDocTypeDeclaration.ElementTypes, name,
+    ElementType := PElementType(Lookup(@DocTypeDeclaration.ElementTypes, name,
       SizeOf(TElementType)));
 
     if ElementType = nil then
@@ -2235,7 +2218,7 @@ begin
         PXmlChar(PtrComp(S) - 1 * SizeOf(TXmlChar))^ := TXmlChar(0);
         { clear flag }
 
-        Id := PAttributeID(Lookup(@TDocTypeDeclaration.AttributeIds, S, 0));
+        Id := PAttributeID(Lookup(@DocTypeDeclaration.AttributeIds, S, 0));
         B := Id.TPrefix.TBinding;
 
         if B = nil then
@@ -2319,7 +2302,7 @@ begin
           end;
 
           if Step = 0 then
-            Step := PROBE_STEP(UriHash, Mask, Parser.NameSpaceAttsPower);
+            Step := ProbeStep(UriHash, Mask, Parser.NameSpaceAttsPower);
 
           if J < Step then
             Inc(J, NsAttsSize - Step)
@@ -2426,9 +2409,9 @@ begin
       Inc(PtrComp(LocalPart), SizeOf(TXmlChar));
 
   end
-  else if TDocTypeDeclaration.DefaultPrefix.TBinding <> nil then
+  else if DocTypeDeclaration.DefaultPrefix.TBinding <> nil then
   begin
-    TBinding := TDocTypeDeclaration.DefaultPrefix.TBinding;
+    TBinding := DocTypeDeclaration.DefaultPrefix.TBinding;
     LocalPart := TagNamePtr.Str;
   end
   else
@@ -2528,8 +2511,7 @@ function EpilogProcessor(Parser: TXmlParser; S, Stop: PAnsiChar;
   NextPtr: PPAnsiChar): TXmlError;
 var
   Next: PAnsiChar;
-
-  Tok: Integer;
+  Tok: TXmlTok;
 begin
   Parser.TProcessor := @EpilogProcessor;
   Parser.EventPtr := S;
@@ -2541,7 +2523,7 @@ begin
     Parser.EventEndPtr := Next;
 
     case Tok of
-      - XML_TOK_PROLOG_S:
+      TXmlTok(-Integer(xtProlog_S)):
         begin
           if @Parser.DefaultHandler <> nil then
           begin
@@ -2561,7 +2543,7 @@ begin
           Exit;
         end;
 
-      XML_TOK_NONE:
+      xtNone:
         begin
           NextPtr^ := S;
           Result := xeNone;
@@ -2569,11 +2551,11 @@ begin
           Exit;
         end;
 
-      XML_TOK_PROLOG_S:
+      xtProlog_S:
         if @Parser.DefaultHandler <> nil then
           ReportDefault(Parser, Parser.Encoding, S, Next);
 
-      XML_TOK_PI:
+      xt_PI:
         if ReportProcessingInstruction(Parser, Parser.Encoding, S, Next) = 0
         then
         begin
@@ -2582,7 +2564,7 @@ begin
           Exit;
         end;
 
-      XML_TOK_COMMENT:
+      xtComment:
         if ReportComment(Parser, Parser.Encoding, S, Next) = 0 then
         begin
           Result := xeNoMemory;
@@ -2590,7 +2572,7 @@ begin
           Exit;
         end;
 
-      XML_TOK_INVALID:
+      xtInvalid:
         begin
           Parser.EventPtr := Next;
 
@@ -2599,7 +2581,7 @@ begin
           Exit;
         end;
 
-      XML_TOK_PARTIAL:
+      xtPartial:
         begin
           if Parser.ParsingStatus.FinalBuffer = 0 then
           begin
@@ -2614,7 +2596,7 @@ begin
           Exit;
         end;
 
-      XML_TOK_PARTIAL_CHAR:
+      xtPartialChar:
         begin
           if Parser.ParsingStatus.FinalBuffer = 0 then
           begin
@@ -2625,14 +2607,12 @@ begin
           end;
 
           Result := xePartialChar;
-
           Exit;
         end;
 
     else
       begin
         Result := xeJunkAfterDocElement;
-
         Exit;
       end;
 
@@ -2654,14 +2634,12 @@ begin
       xpFinished:
         begin
           Result := xeAborted;
-
           Exit;
         end;
     end;
   until False;
 end;
 
-{ doCdataSection {.. }
 { startPtr gets set to non-null if the section is closed, and to null if
   the section is not yet closed. }
 function DoCdataSection(Parser: TXmlParser; Enc: PEncoding;
@@ -2670,7 +2648,6 @@ function DoCdataSection(Parser: TXmlParser; Enc: PEncoding;
 begin
 end;
 
-{ cdataSectionProcessor {.. }
 { The idea here is to avoid using stack for each CDATA section when
   the whole file is parsed with one call. }
 function CdataSectionProcessor(Parser: TXmlParser; Start, Stop: PAnsiChar;
@@ -2678,14 +2655,14 @@ function CdataSectionProcessor(Parser: TXmlParser; Start, Stop: PAnsiChar;
 begin
 end;
 
-{ doContent }
 function DoContent(Parser: TXmlParser; StartTagLevel: Integer; Enc: PEncoding;
   S, Stop: PAnsiChar; NextPtr: PPAnsiChar; HaveMore: TXmlBool): TXmlError;
 var
   TDocTypeDeclaration: PDocTypeDeclaration;
   EventPP, EventEndPP: PPAnsiChar;
   Next, RawNameEnd, FromPtr, Temp, RawName: PAnsiChar;
-  Tok, BufSize, ConvLen, Len, N: Integer;
+  Tok: TXmlTok;
+  BufSize, ConvLen, Len, N: Integer;
   C, Ch: TXmlChar;
   Name, Context, ToPtr, LocalPart, TPrefix, Uri: PXmlChar;
   TEntity: PEntity;
@@ -2725,7 +2702,7 @@ begin
     EventEndPP^ := Next;
 
     case Tok of
-      XML_TOK_TRAILING_CR:
+      xtTrailing_CR:
         begin
           if HaveMore <> 0 then
           begin
@@ -2769,7 +2746,7 @@ begin
           Exit;
         end;
 
-      XML_TOK_NONE:
+      xtNone:
         begin
           if HaveMore <> 0 then
           begin
@@ -2799,7 +2776,7 @@ begin
           Exit;
         end;
 
-      XML_TOK_INVALID:
+      xtInvalid:
         begin
           EventPP^ := Next;
           Result := xeInvalidToken;
@@ -2807,7 +2784,7 @@ begin
           Exit;
         end;
 
-      XML_TOK_PARTIAL:
+      xtPartial:
         begin
           if HaveMore <> 0 then
           begin
@@ -2822,7 +2799,7 @@ begin
           Exit;
         end;
 
-      XML_TOK_PARTIAL_CHAR:
+      xtPartialChar:
         begin
           if HaveMore <> 0 then
           begin
@@ -2837,7 +2814,7 @@ begin
           Exit;
         end;
 
-      XML_TOK_ENTITY_REF:
+      xtEntityRef:
         begin
           Ch := TXmlChar(XmlPredefinedEntityName(Enc,
             Pointer(PtrComp(S) + Enc.MinBytesPerChar),
@@ -2961,7 +2938,7 @@ begin
 
         end;
 
-      XML_TOK_START_TAG_NO_ATTS, XML_TOK_START_TAG_WITH_ATTS:
+      xtStartTagNoAtts, xtStartTagWithAtts:
         begin
           if Parser.FreeTagList <> nil then
           begin
@@ -3063,7 +3040,7 @@ begin
           PoolClear(@Parser.TempPool);
         end;
 
-      XML_TOK_EMPTY_ELEMENT_NO_ATTS, XML_TOK_EMPTY_ELEMENT_WITH_ATTS:
+      xtEmptyElementNoAtts, xtEmptyElementWithAtts:
         begin
           RawName := PAnsiChar(PtrComp(S) + Enc.MinBytesPerChar);
           Bindings := nil;
@@ -3138,7 +3115,7 @@ begin
           end;
         end;
 
-      XML_TOK_END_TAG:
+      xtEndTag:
         if Parser.TagLevel = StartTagLevel then
         begin
           Result := xeAsyncEntity;
@@ -3233,11 +3210,11 @@ begin
           end;
         end;
 
-      XML_TOK_CHAR_REF:
+      xtCharRef:
         begin
           N := XmlCharRefNumber(Enc, Pointer(S));
 
-          if N < 0 then
+          if Integer(N) < 0 then
           begin
             Result := xeBadCharRef;
 
@@ -3246,19 +3223,19 @@ begin
 
           if @Parser.CharacterDataHandler <> nil then
             Parser.CharacterDataHandler(Parser.HandlerArg, @Buf[0],
-              XmlEncode(N, PIntChar(@Buf)))
+              XmlEncode(Integer(N), PIntChar(@Buf)))
           else if @Parser.DefaultHandler <> nil then
             ReportDefault(Parser, Enc, S, Next);
         end;
 
-      XML_TOK_XML_DECL:
+      xt_XML_DECL:
         begin
           Result := xeMisplacedXmlPi;
 
           Exit;
         end;
 
-      XML_TOK_DATA_NEWLINE:
+      xtDataNewLine:
         if @Parser.CharacterDataHandler <> nil then
         begin
           C := TXmlChar($A);
@@ -3268,7 +3245,7 @@ begin
         else if @Parser.DefaultHandler <> nil then
           ReportDefault(Parser, Enc, S, Next);
 
-      XML_TOK_CDATA_SECT_OPEN:
+      xtCDataSectOpen:
         begin
           if @Parser.StartCdataSectionHandler <> nil then
             Parser.StartCdataSectionHandler(Parser.HandlerArg)
@@ -3311,7 +3288,7 @@ begin
 
         end;
 
-      XML_TOK_TRAILING_RSQB:
+      xtTrailingRSQB:
         begin
           if HaveMore <> 0 then
           begin
@@ -3364,7 +3341,7 @@ begin
           Exit;
         end;
 
-      XML_TOK_DATA_CHARS:
+      xtDataChars:
         if @Parser.CharacterDataHandler <> nil then
           if MUSRasterizerConverterERT(Enc, S) <> 0 then
             repeat
@@ -3391,7 +3368,7 @@ begin
         else if @Parser.DefaultHandler <> nil then
           ReportDefault(Parser, Enc, S, Next);
 
-      XML_TOK_PI:
+      xt_PI:
         if ReportProcessingInstruction(Parser, Enc, S, Next) = 0 then
         begin
           Result := xeNoMemory;
@@ -3399,7 +3376,7 @@ begin
           Exit;
         end;
 
-      XML_TOK_COMMENT:
+      xtComment:
         if ReportComment(Parser, Enc, S, Next) = 0 then
         begin
           Result := xeNoMemory;
@@ -3439,22 +3416,13 @@ end;
 
 function ContentProcessor(Parser: TXmlParser; Start, Stop: PAnsiChar;
   EndPtr: PPAnsiChar): TXmlError;
-var
-  Result_: TXmlError;
-
 begin
-  Result_ := DoContent(Parser, 0, Parser.Encoding, Start, Stop, EndPtr,
+  Result := DoContent(Parser, 0, Parser.Encoding, Start, Stop, EndPtr,
     TXmlBool(not Parser.ParsingStatus.FinalBuffer));
 
-  if Result_ = xeNone then
+  if Result = xeNone then
     if StoreRawNames(Parser) = 0 then
-    begin
       Result := xeNoMemory;
-
-      Exit;
-    end;
-
-  Result := Result_;
 end;
 
 function GetElementType(Parser: TXmlParser; Enc: PEncoding;
@@ -3587,7 +3555,8 @@ function AppendAttributeValue(Parser: TXmlParser; Enc: PEncoding;
 var
   TDocTypeDeclaration: PDocTypeDeclaration;
   Next: PAnsiChar;
-  Tok, I, N: Integer;
+  Tok: TXmlTok;
+  I, N: Integer;
   Buf: array [0 .. XML_ENCODE_MAX - 1] of TXmlChar;
   Name, TextEnd: PXmlChar;
   TEntity: PEntity;
@@ -3606,7 +3575,7 @@ begin
     Tok := XmlAttributeValueTok(Enc, Pointer(Ptr), Pointer(Stop), @Next);
 
     case Tok of
-      XML_TOK_NONE:
+      xtNone:
         begin
           Result := xeNone;
 
@@ -3614,7 +3583,7 @@ begin
 
         end;
 
-      XML_TOK_INVALID:
+      xtInvalid:
         begin
           if Enc = Parser.Encoding then
             Parser.EventPtr := Next;
@@ -3622,7 +3591,7 @@ begin
           Result := xeInvalidToken;
         end;
 
-      XML_TOK_PARTIAL:
+      xtPartial:
         begin
           if Enc = Parser.Encoding then
             Parser.EventPtr := Ptr;
@@ -3630,7 +3599,7 @@ begin
           Result := xeInvalidToken;
         end;
 
-      XML_TOK_CHAR_REF:
+      xtCharRef:
         begin
           N := XmlCharRefNumber(Enc, Pointer(Ptr));
 
@@ -3675,7 +3644,7 @@ begin
 
         end;
 
-      XML_TOK_DATA_CHARS:
+      xtDataChars:
         if PoolAppend(Pool, Enc, Ptr, Next) = nil then
         begin
           Result := xeNoMemory;
@@ -3683,14 +3652,14 @@ begin
           Exit;
         end;
 
-      XML_TOK_TRAILING_CR:
+      xtTrailing_CR:
         begin
           Next := PAnsiChar(PtrComp(Ptr) + Enc.MinBytesPerChar);
 
           goto _go0;
         end;
 
-      XML_TOK_ATTRIBUTE_VALUE_S, XML_TOK_DATA_NEWLINE:
+      xtAttributeValue_S, xtDataNewLine:
       _go0:
         begin
           if (IsCdata = 0) and
@@ -3706,7 +3675,7 @@ begin
           end;
         end;
 
-      XML_TOK_ENTITY_REF:
+      xtEntityRef:
         begin
           Ch := TXmlChar(XmlPredefinedEntityName(Enc,
             Pointer(PAnsiChar(PtrComp(Ptr) + Enc.MinBytesPerChar)),
@@ -3853,17 +3822,11 @@ end;
 
 function StoreAttributeValue(Parser: TXmlParser; Enc: PEncoding;
   IsCdata: TXmlBool; Ptr, Stop: PAnsiChar; Pool: PStringPool): TXmlError;
-var
-  Result_: TXmlError;
 begin
-  Result_ := AppendAttributeValue(Parser, Enc, IsCdata, Ptr, Stop, Pool);
+  Result := AppendAttributeValue(Parser, Enc, IsCdata, Ptr, Stop, Pool);
 
-  if Result_ <> TXmlError(0) then
-  begin
-    Result := Result_;
-
+  if Result <> TXmlError(0) then
     Exit;
-  end;
 
   if (IsCdata = 0) and (PoolLength(Pool) <> 0) and
     (PoolLastChar(Pool) = TXmlChar($20)) then
@@ -3952,7 +3915,7 @@ begin
 end;
 
 function DoProlog(Parser: TXmlParser; Enc: PEncoding; S, Stop: PAnsiChar;
-  Tok: Integer; Next: PAnsiChar; NextPtr: PPAnsiChar; HaveMore: TXmlBool)
+  Tok: TXmlTok; Next: PAnsiChar; NextPtr: PPAnsiChar; HaveMore: TXmlBool)
   : TXmlError;
 const
 {$IFDEF XML_DTD }
@@ -4012,9 +3975,9 @@ begin
     EventPP^ := S;
     EventEndPP^ := Next;
 
-    if Tok <= 0 then
+    if Integer(Tok) <= 0 then
     begin
-      if (HaveMore <> 0) and (Tok <> XML_TOK_INVALID) then
+      if (HaveMore <> 0) and (Tok <> xtInvalid) then
       begin
         NextPtr^ := S;
         Result := xeNone;
@@ -4023,7 +3986,7 @@ begin
       end;
 
       case Tok of
-        XML_TOK_INVALID:
+        xtInvalid:
           begin
             EventPP^ := Next;
             Result := xeInvalidToken;
@@ -4031,21 +3994,21 @@ begin
             Exit;
           end;
 
-        XML_TOK_PARTIAL:
+        xtPartial:
           begin
             Result := xeUnclosedToken;
 
             Exit;
           end;
 
-        XML_TOK_PARTIAL_CHAR:
+        xtPartialChar:
           begin
             Result := xePartialChar;
 
             Exit;
           end;
 
-        XML_TOK_NONE:
+        xtNone:
           begin
 {$IFDEF XML_DTD }
             { for internal PE NOT referenced between declarations }
@@ -4063,7 +4026,7 @@ begin
               internal PEs if the reference occurs between declarations. }
             if (Parser.IsParamEntity <> 0) or (Enc <> Parser.Encoding) then
             begin
-              if XmlTokenRole(@Parser.PrologState, XML_TOK_NONE,
+              if XmlTokenRole(@Parser.PrologState, xtNone,
                 Pointer(Stop), Pointer(Stop), Enc) = XML_ROLE_ERROR then
               begin
                 Result := xeIncompletePe;
@@ -4085,7 +4048,7 @@ begin
 
       else
         begin
-          Tok := -Tok;
+          Tok := TXmlTok(-Integer(Tok));
           Next := Stop;
         end;
       end;
@@ -4642,7 +4605,7 @@ begin
               EventEndPP^ := S;
 
               Parser.EntityDeclHandler(Parser.HandlerArg,
-                Parser.DeclEntity.Name, Parser.DeclEntity.Is_param,
+                Parser.DeclEntity.Name, Parser.DeclEntity.IsParam,
                 Parser.DeclEntity.TextPtr, Parser.DeclEntity.TextLen,
                 Parser.CurBase, nil, nil, nil);
 
@@ -4757,7 +4720,7 @@ begin
           EventEndPP^ := S;
 
           Parser.EntityDeclHandler(Parser.HandlerArg,
-            Parser.DeclEntity.Name, Parser.DeclEntity.Is_param, nil, 0,
+            Parser.DeclEntity.Name, Parser.DeclEntity.IsParam, nil, 0,
             Parser.DeclEntity.Base, Parser.DeclEntity.SystemId,
             Parser.DeclEntity.PublicId, nil);
 
@@ -4845,7 +4808,7 @@ begin
               PoolFinish(@TDocTypeDeclaration.Pool);
 
               Parser.DeclEntity.PublicId := nil;
-              Parser.DeclEntity.Is_param := CXmlFalse;
+              Parser.DeclEntity.IsParam := CXmlFalse;
 
               { if we have a parent parser or are reading an internal parameter
                 TEntity, then the TEntity declaration is not considered "internal" }
@@ -4899,7 +4862,7 @@ begin
             PoolFinish(@TDocTypeDeclaration.Pool);
 
             Parser.DeclEntity.PublicId := nil;
-            Parser.DeclEntity.Is_param := CXmlTrue;
+            Parser.DeclEntity.IsParam := CXmlTrue;
 
             { if we have a parent parser or are reading an internal parameter
               TEntity, then the TEntity declaration is not considered "internal" }
@@ -5026,7 +4989,7 @@ begin
 
       XML_ROLE_ERROR:
         case Tok of
-          XML_TOK_PARAM_ENTITY_REF:
+          xtParamEntityRef:
             { PE references in internal subset are
               not alLowed within declarations. }
             begin
@@ -5035,7 +4998,7 @@ begin
               Exit;
             end;
 
-          XML_TOK_XML_DECL:
+          xt_XML_DECL:
             begin
               Result := xeMisplacedXmlPi;
 
@@ -5558,7 +5521,7 @@ begin
 
       XML_ROLE_NONE:
         case Tok of
-          XML_TOK_BOM:
+          xtBOM:
             HandleDefault := CXmlFalse;
         end;
 
@@ -5623,7 +5586,7 @@ function PrologProcessor(Parser: TXmlParser; S, Stop: PAnsiChar;
   NextPtr: PPAnsiChar): TXmlError;
 var
   Next: PAnsiChar;
-  Tok : Integer;
+  Tok : TXmlTok;
 begin
   Next := S;
   Tok := XmlPrologTok(Parser.Encoding, Pointer(S), Pointer(Stop), @Next);
@@ -5635,17 +5598,11 @@ end;
 
 function PrologInitProcessor(Parser: TXmlParser; S, Stop: PAnsiChar;
   NextPtr: PPAnsiChar): TXmlError;
-var
-  Result_: TXmlError;
 begin
-  Result_ := InitializeEncoding(Parser);
+  Result := InitializeEncoding(Parser);
 
-  if Result_ <> xeNone then
-  begin
-    Result := Result_;
-
+  if Result <> xeNone then
     Exit;
-  end;
 
   Parser.TProcessor := @PrologProcessor;
 
@@ -5771,15 +5728,15 @@ begin
   end
   else
   begin
-    Expat_getmem(Pointer(Parser), SizeOf(TXmlParserStruct));
+    ExpatGetMem(Pointer(Parser), SizeOf(TXmlParserStruct));
 
     if Parser <> nil then
     begin
       Mtemp := @Parser.Mem;
 
-      Mtemp.MallocFunction := @Expat_getmem;
-      Mtemp.ReallocFunction := @Expat_realloc;
-      Mtemp.FreeFunction := @Expat_freemem;
+      Mtemp.MallocFunction := @ExpatGetMem;
+      Mtemp.ReallocFunction := @ExpatRealloc;
+      Mtemp.FreeFunction := @ExpatFreeMem;
     end;
   end;
 
@@ -6040,7 +5997,7 @@ begin
         Move(PAnsiChar(PtrComp(Parser.BufferPtr) - Keep)^, NewBuf^,
           PtrComp(Parser.BufferEnd) - PtrComp(Parser.BufferPtr) + Keep);
 
-        Expat_freemem(Pointer(Parser.Buffer), Parser.BufferAloc);
+        ExpatFreeMem(Pointer(Parser.Buffer), Parser.BufferAloc);
 
         Parser.Buffer := NewBuf;
         Parser.BufferAloc := BufferSize;
@@ -6067,7 +6024,7 @@ begin
         Move(Parser.BufferPtr^, NewBuf^, PtrComp(Parser.BufferEnd) -
           PtrComp(Parser.BufferPtr));
 
-        Expat_freemem(Pointer(Parser.Buffer), Parser.BufferAloc);
+        ExpatFreeMem(Pointer(Parser.Buffer), Parser.BufferAloc);
       end;
 
       Parser.BufferEnd :=
@@ -6092,27 +6049,21 @@ end;
 function XML_ParseBuffer(Parser: TXmlParser; Len, IsFinal: Integer): TXmlStatus;
 var
   Start  : PAnsiChar;
-  Result_: TXmlStatus;
-
 begin
-  Result_ := xsOK;
+  Result := xsOK;
 
   case Parser.ParsingStatus.Parsing of
     xpSuspended:
       begin
         Parser.ErrorCode := xeSuspended;
-
         Result := xsError;
-
         Exit;
       end;
 
     xpFinished:
       begin
         Parser.ErrorCode := xeFinished;
-
         Result := xsError;
-
         Exit;
       end;
 
@@ -6140,21 +6091,17 @@ begin
     Parser.TProcessor := @ErrorProcessor;
 
     Result := xsError;
-
     Exit;
   end
   else
     case Parser.ParsingStatus.Parsing of
       xpSuspended:
-        Result_ := xsSuspended;
+        Result := xsSuspended;
 
       xpInitialized, xpParsing:
         if IsFinal <> 0 then
         begin
           Parser.ParsingStatus.Parsing := xpFinished;
-
-          Result := Result_;
-
           Exit;
         end;
     else
@@ -6167,11 +6114,10 @@ begin
     @Parser.Position);
 
   Parser.PositionPtr := Parser.BufferPtr;
-
-  Result := Result_;
 end;
 
-function XmlParse;
+function XmlParse(Parser: TXmlParser; const S: PAnsiChar; Len, IsFinal: Integer)
+  : TXmlStatus;
 var
   Buff: Pointer;
 begin
@@ -6179,18 +6125,14 @@ begin
     xpSuspended:
       begin
         Parser.ErrorCode := xeSuspended;
-
         Result := xsError;
-
         Exit;
       end;
 
     xpFinished:
       begin
         Parser.ErrorCode := xeFinished;
-
         Result := xsError;
-
         Exit;
       end;
 
@@ -6246,14 +6188,12 @@ begin
 
     Parser.Mem.FreeFunction(Pointer(B.Uri), B.UriAlloc);
     Parser.Mem.FreeFunction(Pointer(B), SizeOf(Expat.TBinding));
-
   until False;
 end;
 
 procedure XmlParserFree;
 var
   TagList, P: PTag;
-
   EntityList, OpenEntity: POpenInternalEntity;
 begin
   if Parser = nil then
@@ -6271,7 +6211,6 @@ begin
       TagList := Parser.FreeTagList;
 
       Parser.FreeTagList := nil;
-
     end;
 
     P := TagList;
@@ -6280,7 +6219,6 @@ begin
     Parser.Mem.FreeFunction(Pointer(P.Buf), P.Alloc);
     DestroyBindings(P.Bindings, Parser);
     Parser.Mem.FreeFunction(Pointer(P), SizeOf(Expat.TTag));
-
   until False;
 
   { free openInternalEntities and freeInternalEntities }

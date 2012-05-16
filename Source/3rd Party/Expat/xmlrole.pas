@@ -118,7 +118,7 @@ type
   PPrologState = ^TPrologState;
 
   TPrologState = record
-    Handler: function(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
+    Handler: function(State: PPrologState; Tok: TXmlTok; Ptr, End_: PAnsiChar;
       Enc: PEncoding): Integer;
 
     Level: Cardinal;
@@ -131,7 +131,7 @@ type
   end;
 
 procedure XmlPrologStateInit(State: PPrologState);
-function XmlTokenRole(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
+function XmlTokenRole(State: PPrologState; Tok: TXmlTok; Ptr, End_: PAnsiChar;
   Enc: PEncoding): Integer;
 
 implementation
@@ -224,7 +224,7 @@ begin
   Result := XML_ROLE_NONE;
 end;
 
-function Common(State: PPrologState; Tok: Integer): Integer;
+function Common(State: PPrologState; Tok: TXmlTok): Integer;
 begin
 end;
 
@@ -233,32 +233,32 @@ function InternalSubset(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
 begin
 end;
 
-function Prolog2(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
+function Prolog2(State: PPrologState; Tok: TXmlTok; Ptr, End_: PAnsiChar;
   Enc: PEncoding): Integer;
 begin
   case Tok of
-    XML_TOK_PROLOG_S:
+    xtProlog_S:
       begin
         Result := XML_ROLE_NONE;
 
         Exit;
       end;
 
-    XML_TOK_PI:
+    xt_PI:
       begin
         Result := XML_ROLE_PI;
 
         Exit;
       end;
 
-    XML_TOK_COMMENT:
+    xtComment:
       begin
         Result := XML_ROLE_COMMENT;
 
         Exit;
       end;
 
-    XML_TOK_INSTANCE_START:
+    xtInstanceStart:
       begin
         State.Handler := @Error;
 
@@ -271,18 +271,18 @@ begin
   Result := Common(State, Tok);
 end;
 
-function Doctype4(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
+function Doctype4(State: PPrologState; Tok: TXmlTok; Ptr, End_: PAnsiChar;
   Enc: PEncoding): Integer;
 begin
   case Tok of
-    XML_TOK_PROLOG_S:
+    xtProlog_S:
       begin
         Result := XML_ROLE_DOCTYPE_NONE;
 
         Exit;
       end;
 
-    XML_TOK_OPEN_BRACKET:
+    xtOpenBracket:
       begin
         State.Handler := @InternalSubset;
 
@@ -291,7 +291,7 @@ begin
         Exit;
       end;
 
-    XML_TOK_DECL_CLOSE:
+    xtDeclClose:
       begin
         State.Handler := @Prolog2;
 
@@ -305,18 +305,18 @@ begin
 
 end;
 
-function Doctype3(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
+function Doctype3(State: PPrologState; Tok: TXmlTok; Ptr, End_: PAnsiChar;
   Enc: PEncoding): Integer;
 begin
   case Tok of
-    XML_TOK_PROLOG_S:
+    xtProlog_S:
       begin
         Result := XML_ROLE_DOCTYPE_NONE;
 
         Exit;
       end;
 
-    XML_TOK_LITERAL:
+    xtLiteral:
       begin
         State.Handler := @Doctype4;
 
@@ -329,18 +329,18 @@ begin
   Result := Common(State, Tok);
 end;
 
-function Doctype2(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
+function Doctype2(State: PPrologState; Tok: TXmlTok; Ptr, End_: PAnsiChar;
   Enc: PEncoding): Integer;
 begin
   case Tok of
-    XML_TOK_PROLOG_S:
+    xtProlog_S:
       begin
         Result := XML_ROLE_DOCTYPE_NONE;
 
         Exit;
       end;
 
-    XML_TOK_LITERAL:
+    xtLiteral:
       begin
         State.Handler := @Doctype3;
 
@@ -353,18 +353,18 @@ begin
   Result := Common(State, Tok);
 end;
 
-function Doctype1(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
+function Doctype1(State: PPrologState; Tok: TXmlTok; Ptr, End_: PAnsiChar;
   Enc: PEncoding): Integer;
 begin
   case Tok of
-    XML_TOK_PROLOG_S:
+    xtProlog_S:
       begin
         Result := XML_ROLE_DOCTYPE_NONE;
 
         Exit;
       end;
 
-    XML_TOK_OPEN_BRACKET:
+    xtOpenBracket:
       begin
         State.Handler := @InternalSubset;
 
@@ -373,7 +373,7 @@ begin
         Exit;
       end;
 
-    XML_TOK_DECL_CLOSE:
+    xtDeclClose:
       begin
         State.Handler := @Prolog2;
 
@@ -382,7 +382,7 @@ begin
         Exit;
       end;
 
-    XML_TOK_NAME:
+    xtName:
       begin
         if XmlNameMatchesAscii(Enc, Ptr, End_, @KW_SYSTEM[0]) <> 0 then
         begin
@@ -407,18 +407,18 @@ begin
   Result := Common(State, Tok);
 end;
 
-function Doctype0(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
+function Doctype0(State: PPrologState; Tok: TXmlTok; Ptr, End_: PAnsiChar;
   Enc: PEncoding): Integer;
 begin
   case Tok of
-    XML_TOK_PROLOG_S:
+    xtProlog_S:
       begin
         Result := XML_ROLE_DOCTYPE_NONE;
 
         Exit;
       end;
 
-    XML_TOK_NAME, XML_TOK_PREFIXED_NAME:
+    xtName, xtPrefixedName:
       begin
         State.Handler := @Doctype1;
 
@@ -431,39 +431,39 @@ begin
   Result := Common(State, Tok);
 end;
 
-function Prolog1(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
+function Prolog1(State: PPrologState; Tok: TXmlTok; Ptr, End_: PAnsiChar;
   Enc: PEncoding): Integer;
 begin
   case Tok of
-    XML_TOK_PROLOG_S:
+    xtProlog_S:
       begin
         Result := XML_ROLE_NONE;
 
         Exit;
       end;
 
-    XML_TOK_PI:
+    xt_PI:
       begin
         Result := XML_ROLE_PI;
 
         Exit;
       end;
 
-    XML_TOK_COMMENT:
+    xtComment:
       begin
         Result := XML_ROLE_COMMENT;
 
         Exit;
       end;
 
-    XML_TOK_BOM:
+    xtBOM:
       begin
         Result := XML_ROLE_NONE;
 
         Exit;
       end;
 
-    XML_TOK_DECL_OPEN:
+    xtDeclOpen:
       if XmlNameMatchesAscii(Enc,
         PAnsiChar(PtrComp(Ptr) + 2 * MIN_BYTES_PER_CHAR(Enc)), End_,
         @KW_DOCTYPE[0]) = 0 then
@@ -476,7 +476,7 @@ begin
         Exit;
       end;
 
-    XML_TOK_INSTANCE_START:
+    xtInstanceStart:
       begin
         State.Handler := @Error;
 
@@ -489,14 +489,14 @@ begin
   Result := Common(State, Tok);
 end;
 
-function Prolog0(State: PPrologState; Tok: Integer; Ptr, End_: PAnsiChar;
+function Prolog0(State: PPrologState; Tok: TXmlTok; Ptr, End_: PAnsiChar;
   Enc: PEncoding): Integer;
 label
   _break;
 
 begin
   case Tok of
-    XML_TOK_PROLOG_S:
+    xtProlog_S:
       begin
         State.Handler := @Prolog1;
 
@@ -505,7 +505,7 @@ begin
         Exit;
       end;
 
-    XML_TOK_XML_DECL:
+    xt_XML_DECL:
       begin
         State.Handler := @Prolog1;
 
@@ -514,7 +514,7 @@ begin
         Exit;
       end;
 
-    XML_TOK_PI:
+    xt_PI:
       begin
         State.Handler := @Prolog1;
 
@@ -523,7 +523,7 @@ begin
         Exit;
       end;
 
-    XML_TOK_COMMENT:
+    xtComment:
       begin
         State.Handler := @Prolog1;
 
@@ -532,14 +532,14 @@ begin
         Exit;
       end;
 
-    XML_TOK_BOM:
+    xtBOM:
       begin
         Result := XML_ROLE_NONE;
 
         Exit;
       end;
 
-    XML_TOK_DECL_OPEN:
+    xtDeclOpen:
       begin
         if XmlNameMatchesAscii(Enc,
           PAnsiChar(PtrComp(Ptr) + 2 * MIN_BYTES_PER_CHAR(Enc)), End_,
@@ -553,7 +553,7 @@ begin
         Exit;
       end;
 
-    XML_TOK_INSTANCE_START:
+    xtInstanceStart:
       begin
         State.Handler := @Error;
 
@@ -578,7 +578,8 @@ begin
 {$ENDIF}
 end;
 
-function XmlTokenRole;
+function XmlTokenRole(State: PPrologState; Tok: TXmlTok; Ptr, End_: PAnsiChar;
+  Enc: PEncoding): Integer;
 begin
   Result := State.Handler(State, Tok, Ptr, End_, Enc);
 end;

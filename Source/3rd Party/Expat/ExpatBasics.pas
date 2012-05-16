@@ -39,9 +39,9 @@ interface
 
 {$I ExpatMode.inc }
 
-function Expat_getmem(var Ptr: Pointer; Sz: Integer): Boolean;
-function Expat_realloc(var Ptr: Pointer; Old, Sz: Integer): Boolean;
-function Expat_freemem(var Ptr: Pointer; Sz: Integer): Boolean;
+function ExpatGetMem(var Ptr: Pointer; Size: Integer): Boolean;
+function ExpatRealloc(var Ptr: Pointer; Old, Size: Integer): Boolean;
+function ExpatFreemem(var Ptr: Pointer; Size: Integer): Boolean;
 
 procedure NoP;
 
@@ -56,32 +56,32 @@ function ShrInt32(I, Shift: Longint): Longint;
 
 implementation
 
-function Expat_getmem(var Ptr: Pointer; Sz: Integer): Boolean;
+function ExpatGetMem(var Ptr: Pointer; Size: Integer): Boolean;
 begin
   Result := False;
   try
-    Getmem(Ptr, Sz);
+    Getmem(Ptr, Size);
     Result := True;
   except
     Ptr := nil;
   end;
 end;
 
-function Expat_realloc(var Ptr: Pointer; Old, Sz: Integer): Boolean;
+function ExpatRealloc(var Ptr: Pointer; Old, Size: Integer): Boolean;
 var
   Nb : Pointer;
   Max: Integer;
 begin
-  if Expat_getmem(Nb, Sz) then
+  if ExpatGetMem(Nb, Size) then
   begin
     Max := Old;
 
-    if Max > Sz then
-      Max := Sz;
+    if Max > Size then
+      Max := Size;
 
     Move(Ptr^, Nb^, Max);
 
-    Expat_freemem(Ptr, Old);
+    ExpatFreemem(Ptr, Old);
 
     Ptr := Nb;
     Result := True;
@@ -90,14 +90,14 @@ begin
     Result := False;
 end;
 
-function Expat_freemem(var Ptr: Pointer; Sz: Integer): Boolean;
+function ExpatFreemem(var Ptr: Pointer; Size: Integer): Boolean;
 begin
   if Ptr = nil then
     Result := True
 
   else
     try
-      Freemem(Ptr, Sz);
+      Freemem(Ptr, Size);
 
       Ptr := nil;
       Result := True;
@@ -113,7 +113,7 @@ end;
 
 function ShrInt8(I, Shift: Shortint): Shortint;
 begin
-{$IFDEF EXPAT_CPU_386 }
+{$IFDEF EXPAT_CPU_386}
   asm
     mov     al ,byte ptr [i ]
     mov     cl ,byte ptr [shift ]
@@ -136,7 +136,7 @@ end;
 
 function ShrInt16(I, Shift: SmallInt): SmallInt;
 begin
-{$IFDEF EXPAT_CPU_386 }
+{$IFDEF EXPAT_CPU_386}
   asm
     mov     ax ,word ptr [i ]
     mov     cx ,word ptr [shift ]
@@ -145,7 +145,7 @@ begin
   end;
 
 {$ENDIF}
-{$IFDEF EXPAT_CPU_PPC }
+{$IFDEF EXPAT_CPU_PPC}
   asm
     lha     r2,i
     lha     r3,shift
@@ -159,7 +159,7 @@ end;
 
 function ShrInt32(I, Shift: Longint): Longint;
 begin
-{$IFDEF EXPAT_CPU_386 }
+{$IFDEF EXPAT_CPU_386}
   asm
     mov     eax, dword ptr [i ]
     mov     ecx, dword ptr [shift ]
@@ -168,7 +168,7 @@ begin
   end;
 
 {$ENDIF}
-{$IFDEF EXPAT_CPU_PPC }
+{$IFDEF EXPAT_CPU_PPC}
   asm
     lwz     r3, i
     lwz     r2, shift

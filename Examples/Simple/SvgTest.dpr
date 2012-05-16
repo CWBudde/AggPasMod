@@ -76,12 +76,10 @@ begin
 
   FPath := TPathRenderer.Create;
 
-  FSliderExpand := TAggControlSlider.Create(5, 5, 256 - 5, 11, not FlipY);
-  FSliderGamma := TAggControlSlider.Create(5, 5 + 15, 256 - 5, 11 + 15,
-    not FlipY);
-  FSliderScale := TAggControlSlider.Create(256 + 5, 5, 512 - 5, 11, not FlipY);
-  FSliderRotate := TAggControlSlider.Create(256 + 5, 5 + 15, 512 - 5, 11 + 15,
-    not FlipY);
+  FSliderExpand := TAggControlSlider.Create(5, 5, 251, 11, not FlipY);
+  FSliderGamma := TAggControlSlider.Create(5, 20, 251, 26, not FlipY);
+  FSliderScale := TAggControlSlider.Create(261, 5, 507, 11, not FlipY);
+  FSliderRotate := TAggControlSlider.Create(261, 20, 507, 26, not FlipY);
 
   FMin := PointDouble(0, 0);
   FMax := PointDouble(0, 0);
