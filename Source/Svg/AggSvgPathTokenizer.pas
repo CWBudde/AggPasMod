@@ -85,7 +85,6 @@ type
 
     procedure InitCharMask(Mask, CharSet: PAnsiChar);
 
-    function Contains_(Mask: PAnsiChar; C: Cardinal): Boolean;
     function IsCommand(C: Cardinal): Boolean;
     function IsNumeric(C: Cardinal): Boolean;
     function IsSeparator(C: Cardinal): Boolean;
@@ -96,6 +95,13 @@ type
   end;
 
 implementation
+
+function Contains(Mask: PAnsiChar; C: Cardinal): Boolean;
+  {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+begin
+  Result := (PInt8u(PtrComp(Mask) + (C shr 3) and 31)^ and
+    (1 shl (C and 7))) <> 0;
+end;
 
 
 { TPathTokenizer }
@@ -200,25 +206,19 @@ begin
   end;
 end;
 
-function TPathTokenizer.Contains_(Mask: PAnsiChar; C: Cardinal): Boolean;
-begin
-  Result := (PInt8u(PtrComp(Mask) + (C shr 3) and 31)^ and
-    (1 shl (C and 7))) <> 0;
-end;
-
 function TPathTokenizer.IsCommand(C: Cardinal): Boolean;
 begin
-  Result := Contains_(@FCommandsMask[0], C);
+  Result := Contains(@FCommandsMask[0], C);
 end;
 
 function TPathTokenizer.IsNumeric(C: Cardinal): Boolean;
 begin
-  Result := Contains_(@FNumericMask[0], C);
+  Result := Contains(@FNumericMask[0], C);
 end;
 
 function TPathTokenizer.IsSeparator(C: Cardinal): Boolean;
 begin
-  Result := Contains_(@FSeparatorsMask[0], C);
+  Result := Contains(@FSeparatorsMask[0], C);
 end;
 
 function TPathTokenizer.ParseNumber: Boolean;

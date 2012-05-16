@@ -2,7 +2,9 @@
 // PasExpat 2.0.0 RM0.83 compiler options configuration file
 //
 
-{DEFINE EXPAT_DEBUG}
+{$IFDEF DEBUG}
+  {$DEFINE EXPAT_DEBUG}
+{$ENDIF}
 
 //----------------------------------------------------------------------------
 
@@ -35,6 +37,22 @@
 
 {$IFDEF FPC}
   {$MODE DELPHI}
+  {$ASMMODE Intel}
+  {$DEFINE SUPPORTS_INLINE}
+{$ELSE}
+  {$IFDEF CONDITIONALEXPRESSIONS}
+    {$IF CompilerVersion >= 17.0}
+      {$DEFINE SUPPORTS_INLINE}
+    {$IFEND}
+    {$IF CompilerVersion < 22.0}
+      {$DEFINE SUPPORTS_INLINE}
+    {$IFEND}
+
+  {-$DEFINE USE_FASTMM4}
+
+  {$ELSE}
+    Delphi Version not supported!!!
+  {$ENDIF}
 {$ENDIF}
 
 //----------------------------------------------------------------------------
@@ -56,7 +74,7 @@
 {$IFDEF EXPAT_FULL_DEBUG}
   {$R+} // Range checking
   {$I+} // IO checking
-  {$Q+} // OverfLow checking
+  {$Q+} // Overflow checking
 
   {$IFNDEF FPC}
     {$O-} // Code Optimization

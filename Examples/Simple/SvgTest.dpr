@@ -30,7 +30,7 @@ uses
   AggSvgParser in '..\..\Source\Svg\AggSvgParser.pas',
   AggSvgPathRenderer in '..\..\Source\Svg\AggSvgPathRenderer.pas',
   AggSvgException in '..\..\Source\Svg\AggSvgException.pas',
-  expat in '..\..\Source\3rd Party\Expat\expat.pas',
+  Expat in '..\..\Source\3rd Party\Expat\Expat.pas',
   ExpatBasics in '..\..\Source\3rd Party\Expat\ExpatBasics.pas',
   ExpatExternal in '..\..\Source\3rd Party\Expat\ExpatExternal.pas',
   xmlrole in '..\..\Source\3rd Party\Expat\xmlrole.pas',

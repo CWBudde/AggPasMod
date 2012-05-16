@@ -115,19 +115,17 @@ type
   PPAnsiChar = ^PAnsiChar;
 
   (* Expat Types *)
-  {$IFDEF XML_UNICODE }
-
-  {$IFDEF XML_UNICODE_WCHAR_T }
-  // Information is UTF-16 encoded.
-  TXmlChar = Int16u;
-  TXmlLChar = Int16u;
-  {$ELSE }
-  // Information is UTF-8 encoded.
-  TXmlChar = Word;
-  TXmlLChar = AnsiChar;
-  {$ENDIF}
-
-  {$ELSE }
+  {$IFDEF XML_UNICODE}
+    {$IFDEF XML_UNICODE_WCHAR_T}
+    // Information is UTF-16 encoded.
+    TXmlChar = Int16u;
+    TXmlLChar = Int16u;
+    {$ELSE}
+    // Information is UTF-8 encoded.
+    TXmlChar = Word;
+    TXmlLChar = AnsiChar;
+    {$ENDIF}
+  {$ELSE}
   TXmlChar = AnsiChar;
   TXmlLChar = AnsiChar;
   {$ENDIF}
@@ -136,7 +134,7 @@ type
   PXmlLChar = ^TXmlLChar;
   PPXmlChar = ^PXmlChar;
 
-  {$IFDEF XML_LARGE_SIZE } // Use large integers for file/stream positions.
+  {$IFDEF XML_LARGE_SIZE} // Use large integers for file/stream positions.
   TXmlIndex = Int64;
   TXmlSize = Int64u;
   {$ELSE }

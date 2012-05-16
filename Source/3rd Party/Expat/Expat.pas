@@ -58,10 +58,11 @@ type
     xeUnclosedToken, xePartialChar, xeTagMismatch, xeDuplicateAttribute,
     xeJunkAfterDocElement, xeParamEntityRef, xeUndefinedEntity,
     xeRecursiveEntityRef, xeAsyncEntity, xeBadCharRef, xeBinaryEntityRef,
-    xeAttributeExternalEntityRef, xeMisplacedXmlPi, xeUnknownEncoding,
-    xeIncorrectEncoding, xeUnclosedCDataSection, xeExternalEntityHandling,
-    xeNotStandalone, xeUnexpectedState, xeEntityDeclaredInPe,
-    xeFeatureRequiresXmlDtd, xeCantChangeFeatureOnceParsing, xeUnboundPrefix,
+    xeAttributeExternalEntityRef, xeMisplacedXmlProcessingInstruction,
+    xeUnknownEncoding, xeIncorrectEncoding, xeUnclosedCDataSection,
+    xeExternalEntityHandling, xeNotStandalone, xeUnexpectedState,
+    xeEntityDeclaredInPe, xeFeatureRequiresXmlDtd,
+    xeCantChangeFeatureOnceParsing, xeUnboundPrefix,
     { Added in 1.95.8. }
     xeUndeclaringPrefix, xeIncompletePe, xeXmlDecl, xeTextDecl, xePublicID,
     xeSuspended, xeNotSuspended, xeAborted, xeFinished, xeSuspendPe,
@@ -78,7 +79,7 @@ type
 
   { If type = ctEmpty or ctAny, then quant will be
     cqNone, and the other fields will be zero or NULL.
-    If type == ctMixed, then quant will be NONE or REP and
+    If type = ctMixed, then quant will be none or REP and
     numchildren will contain number of elements that may be mixed in
     and children point to an array of TXmlContent cells that will be
     all of ctName type with no quantification.
@@ -537,7 +538,7 @@ type
       this includes the reference to an external subset }
     HasParamEntityRefs, Standalone: TXmlBool;
 
-{$IFDEF XML_DTD }
+{$IFDEF XML_DTD}
     { indicates if external PE has been read }
     ParamEntityRead: TXmlBool;
     ParamEntities: THashTable;
@@ -655,7 +656,7 @@ type
 
     InheritedBindings, FreeBindingList: PBinding;
 
-    AttsSize, AttsAlloc, NameSpaceAttsAlloc, M_nSpecifiedAtts, IdAttIndex: Integer;
+    AttsSize, AttsAlloc, NameSpaceAttsAlloc, NumSpecifiedAtts, IdAttIndex: Integer;
 
     Atts: PAttribute;
     NameSpaceAtts: PNameSpaceAtt;
@@ -674,7 +675,7 @@ type
     ParentParser: TXmlParser;
     ParsingStatus: TXmlParsingStatus;
 
-{$IFDEF XML_DTD }
+{$IFDEF XML_DTD}
     IsParamEntity, UseForeignDTD: TXmlBool;
 
     ParamEntityParsing: TXmlParamEntityParsing;
@@ -808,9 +809,9 @@ type
 
 const
 {$IFDEF XML_UNICODE}
-  XML_ENCODE_MAX = XML_UTF16_ENCODE_MAX;
+  CXmlEncodeMax = CXmlUTF16EncodeMax;
 {$ELSE }
-  XML_ENCODE_MAX = XML_UTF8_ENCODE_MAX;
+  CXmlEncodeMax = CXmlUTF8EncodeMax;
 {$ENDIF}
 
 function MemCmp(P1, P2: PInt8u; L: Integer): Integer;
@@ -834,7 +835,8 @@ end;
 
 { Basic character hash algorithm, taken from Python's string hash:
   h = h * 1000003 ^ character, the constant being a prime number. }
-function CharHash(H: Int32u; C: TXmlChar): Int32u;
+function CharHash(H: Int32u; C: TXmlChar): Int32u;  {$IFDEF SUPPORTS_INLINE}
+  inline; {$ENDIF}
 begin
 {$IFDEF XML_UNICODE}
   Result := (H * $F4243) xor Int16u(C);
@@ -860,11 +862,13 @@ end;
   We limit the maximum step size to table.size div 4 (mask shr 2 ) and make
   it odd, since odd numbers are always relative prime to a power of 2. }
 function SecontHash(Hash, Mask: Int32u; Power: Int8u): Int8u;
+ {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 begin
   Result := ((Hash and not Mask) shr (Power - 1)) and (Mask shr 2);
 end;
 
 function ProbeStep(Hash, Mask: Int32u; Power: Int8u): Int8u;
+  {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 begin
   Result := SecontHash(Hash, Mask, Power) or 1;
 end;
@@ -1031,7 +1035,7 @@ begin
 
   HashTableDestroy(@P.GeneralEntities);
 
-{$IFDEF XML_DTD }
+{$IFDEF XML_DTD}
   HashTableDestroy(@P.ParamEntities);
 {$ENDIF}
 
@@ -1130,7 +1134,7 @@ begin
   begin
     Parser.DocTypeDeclaration.Standalone := CXmlTrue;
 
-{$IFDEF XML_DTD }
+{$IFDEF XML_DTD}
     if Parser.ParamEntityParsing = pepUnlessStandalone
     then
       Parser.ParamEntityParsing := pepNever;
@@ -1457,8 +1461,7 @@ begin
   Result := S;
 end;
 
-function PoolAppendString(Pool: PStringPool; S: PXmlChar)
-  : PXmlChar;
+function PoolAppendString(Pool: PStringPool; S: PXmlChar): PXmlChar;
 begin
 end;
 
@@ -2064,7 +2067,7 @@ begin
   end;
 
   { set-up for XML_GetSpecifiedAttributeCount and XML_GetIdAttributeIndex }
-  Parser.M_nSpecifiedAtts := AttIndex;
+  Parser.NumSpecifiedAtts := AttIndex;
 
   if (ElementType.IdAtt <> nil) and
     (PXmlChar(PtrComp(ElementType.IdAtt.Name) - 1 * SizeOf(TXmlChar))^ <>
@@ -2555,7 +2558,7 @@ begin
         if @Parser.DefaultHandler <> nil then
           ReportDefault(Parser, Parser.Encoding, S, Next);
 
-      xt_PI:
+      xtProcessingInstruction:
         if ReportProcessingInstruction(Parser, Parser.Encoding, S, Next) = 0
         then
         begin
@@ -2671,7 +2674,7 @@ var
   Bindings, B: PBinding;
   NoElmHandlers: TXmlBool;
   Name_: TTagName;
-  Buf: array [0 .. XML_ENCODE_MAX - 1] of TXmlChar;
+  Buf: array [0 .. CXmlEncodeMax - 1] of TXmlChar;
   DataPtr: PIntChar;
 
 label
@@ -2702,7 +2705,7 @@ begin
     EventEndPP^ := Next;
 
     case Tok of
-      xtTrailing_CR:
+      xtTrailingCR:
         begin
           if HaveMore <> 0 then
           begin
@@ -3228,9 +3231,9 @@ begin
             ReportDefault(Parser, Enc, S, Next);
         end;
 
-      xt_XML_DECL:
+      xtXmlDecl:
         begin
-          Result := xeMisplacedXmlPi;
+          Result := xeMisplacedXmlProcessingInstruction;
 
           Exit;
         end;
@@ -3368,7 +3371,7 @@ begin
         else if @Parser.DefaultHandler <> nil then
           ReportDefault(Parser, Enc, S, Next);
 
-      xt_PI:
+      xtProcessingInstruction:
         if ReportProcessingInstruction(Parser, Enc, S, Next) = 0 then
         begin
           Result := xeNoMemory;
@@ -3557,7 +3560,7 @@ var
   Next: PAnsiChar;
   Tok: TXmlTok;
   I, N: Integer;
-  Buf: array [0 .. XML_ENCODE_MAX - 1] of TXmlChar;
+  Buf: array [0 .. CXmlEncodeMax - 1] of TXmlChar;
   Name, TextEnd: PXmlChar;
   TEntity: PEntity;
   CheckEntityDecl: AnsiChar;
@@ -3652,7 +3655,7 @@ begin
           Exit;
         end;
 
-      xtTrailing_CR:
+      xtTrailingCR:
         begin
           Next := PAnsiChar(PtrComp(Ptr) + Enc.MinBytesPerChar);
 
@@ -3717,7 +3720,7 @@ begin
             else
               CheckEntityDecl := AnsiChar(TDocTypeDeclaration.HasParamEntityRefs = 0);
 
-{$IFDEF XML_DTD }
+{$IFDEF XML_DTD}
             CheckEntityDecl := AnsiChar((CheckEntityDecl <> #0) and
               (Parser.PrologState.DocumentEntity <> 0))
 {$ENDIF}
@@ -3866,7 +3869,7 @@ function NextScaffoldPart(Parser: TXmlParser): Integer;
 begin
 end;
 
-function Build_model(Parser: TXmlParser): PXmlContent;
+function BuildModel(Parser: TXmlParser): PXmlContent;
 begin
 end;
 
@@ -3918,9 +3921,8 @@ function DoProlog(Parser: TXmlParser; Enc: PEncoding; S, Stop: PAnsiChar;
   Tok: TXmlTok; Next: PAnsiChar; NextPtr: PPAnsiChar; HaveMore: TXmlBool)
   : TXmlError;
 const
-{$IFDEF XML_DTD }
+{$IFDEF XML_DTD}
   ExternalSubsetName: array [0 .. 1] of TXmlChar = ('#', #0);
-
 {$ENDIF}
   AtypeCDATA: array [0 .. 5] of TXmlChar = ('C', 'D', 'A', 'T', 'A', #0);
   AtypeID: array [0 .. 2] of TXmlChar = ('I', 'D', #0);
@@ -3942,7 +3944,8 @@ var
   TDocTypeDeclaration: PDocTypeDeclaration;
   EventPP, EventEndPP: PPAnsiChar;
   Quant: TXmlContentQuant;
-  Role, Myindex, NameLen: Integer;
+  Role: TXmlRole;
+  Myindex, NameLen: Integer;
   HandleDefault, HadParamEntityRefs, Ok, BetweenDecl: TXmlBool;
   Result_: TXmlError;
   Tem, TPrefix, AttVal, Name, SystemId: PXmlChar;
@@ -4010,7 +4013,7 @@ begin
 
         xtNone:
           begin
-{$IFDEF XML_DTD }
+{$IFDEF XML_DTD}
             { for internal PE NOT referenced between declarations }
             if (Enc <> Parser.Encoding) and
               (Parser.OpenInternalEntities.BetweenDecl = 0) then
@@ -4027,7 +4030,7 @@ begin
             if (Parser.IsParamEntity <> 0) or (Enc <> Parser.Encoding) then
             begin
               if XmlTokenRole(@Parser.PrologState, xtNone,
-                Pointer(Stop), Pointer(Stop), Enc) = XML_ROLE_ERROR then
+                Pointer(Stop), Pointer(Stop), Enc) = xrError then
               begin
                 Result := xeIncompletePe;
 
@@ -4058,7 +4061,7 @@ begin
       Pointer(Next), Enc);
 
     case Role of
-      XML_ROLE_XML_DECL:
+      xrXmlDecl:
         begin
           Result_ := ProcessXmlDecl(Parser, 0, S, Next);
 
@@ -4073,7 +4076,7 @@ begin
           HandleDefault := CXmlFalse;
         end;
 
-      XML_ROLE_DOCTYPE_NAME:
+      xrDocTypeName:
         begin
           if @Parser.StartDoctypeDeclHandler <> nil then
           begin
@@ -4096,7 +4099,7 @@ begin
           Parser.DoctypeSysid := nil; { always initialize to NULL }
         end;
 
-      XML_ROLE_DOCTYPE_INTERNAL_SUBSET:
+      xrDocTypeInternalSubset:
         if @Parser.StartDoctypeDeclHandler <> nil then
         begin
           Parser.StartDoctypeDeclHandler(Parser.HandlerArg,
@@ -4109,7 +4112,7 @@ begin
         end;
 
 {$IFDEF XML_DTD}
-      XML_ROLE_TEXT_DECL:
+      xrTextDecl:
         begin
           Result_ := ProcessXmlDecl(Parser, 1, S, Next);
 
@@ -4123,9 +4126,9 @@ begin
           Enc := Parser.Encoding;
           HandleDefault := CXmlFalse;
         end;
-
 {$ENDIF}
-      XML_ROLE_DOCTYPE_PUBLIC_ID:
+
+      xrDocTypePublicID:
         begin
 {$IFDEF XML_DTD}
           Parser.UseForeignDTD := CXmlFalse;
@@ -4139,8 +4142,8 @@ begin
 
             Exit;
           end;
-
 {$ENDIF}
+
           TDocTypeDeclaration.HasParamEntityRefs := CXmlTrue;
 
           if @Parser.StartDoctypeDeclHandler <> nil then
@@ -4176,7 +4179,7 @@ begin
           goto _go0;
         end;
 
-      XML_ROLE_ENTITY_PUBLIC_ID:
+      xrEntityPublicID:
       _go0:
         begin
           if XmlIsPublicId(Enc, Pointer(S), Pointer(Next), Pointer(EventPP)) = 0
@@ -4210,7 +4213,7 @@ begin
           end;
         end;
 
-      XML_ROLE_DOCTYPE_CLOSE:
+      xrDocTypeClose:
         begin
           if Parser.DoctypeName <> nil then
           begin
@@ -4223,7 +4226,7 @@ begin
           end;
 
           { doctypeSysid will be non-NULL in the case of a previous
-            XML_ROLE_DOCTYPE_SYSTEM_ID, even if startDoctypeDeclHandler
+            xrDocTypeSYSTEM_ID, even if startDoctypeDeclHandler
             was not set, indicating an external subset }
 {$IFDEF XML_DTD }
           if (Parser.DoctypeSysid <> nil) or (Parser.UseForeignDTD <> 0)
@@ -4280,8 +4283,8 @@ begin
 
             Parser.UseForeignDTD := CXmlFalse;
           end;
-
 {$ENDIF}
+
           if @Parser.EndDoctypeDeclHandler <> nil then
           begin
             Parser.EndDoctypeDeclHandler(Parser.HandlerArg);
@@ -4290,7 +4293,7 @@ begin
           end;
         end;
 
-      XML_ROLE_INSTANCE_START:
+      xrInstanceStart:
         begin
 {$IFDEF XML_DTD}
           { if there is no DOCTYPE declaration then now is the
@@ -4351,7 +4354,7 @@ begin
           Exit;
         end;
 
-      XML_ROLE_ATTLIST_ELEMENT_NAME:
+      xrAttributeListElementName:
         begin
           Parser.DeclElementType := GetElementType(Parser, Enc, S, Next);
 
@@ -4365,7 +4368,7 @@ begin
           goto CheckAttListDeclHandler;
         end;
 
-      XML_ROLE_ATTRIBUTE_NAME:
+      xrAttributeName:
         begin
           Parser.DeclAttributeId := GetAttributeId(Parser, Enc, S, Next);
 
@@ -4383,7 +4386,7 @@ begin
           goto CheckAttListDeclHandler;
         end;
 
-      XML_ROLE_ATTRIBUTE_TYPE_CDATA:
+      xrAttributeType_CDATA:
         begin
           Parser.DeclAttributeIsCdata := CXmlTrue;
           Parser.DeclAttributeType := @AtypeCDATA[0];
@@ -4391,7 +4394,7 @@ begin
           goto CheckAttListDeclHandler;
         end;
 
-      XML_ROLE_ATTRIBUTE_TYPE_ID:
+      xrAttributeType_ID:
         begin
           Parser.DeclAttributeIsId := CXmlTrue;
           Parser.DeclAttributeType := @AtypeID[0];
@@ -4399,42 +4402,42 @@ begin
           goto CheckAttListDeclHandler;
         end;
 
-      XML_ROLE_ATTRIBUTE_TYPE_IDREF:
+      xrAttributeType_IDREF:
         begin
           Parser.DeclAttributeType := @AtypeIDREF[0];
 
           goto CheckAttListDeclHandler;
         end;
 
-      XML_ROLE_ATTRIBUTE_TYPE_IDREFS:
+      xrAttributeType_IDREFS:
         begin
           Parser.DeclAttributeType := @AtypeIDREFS[0];
 
           goto CheckAttListDeclHandler;
         end;
 
-      XML_ROLE_ATTRIBUTE_TYPE_ENTITY:
+      xrAttributeType_ENTITY:
         begin
           Parser.DeclAttributeType := @AtypeENTITY[0];
 
           goto CheckAttListDeclHandler;
         end;
 
-      XML_ROLE_ATTRIBUTE_TYPE_ENTITIES:
+      xrAttributeType_ENTITIES:
         begin
           Parser.DeclAttributeType := @AtypeENTITIES[0];
 
           goto CheckAttListDeclHandler;
         end;
 
-      XML_ROLE_ATTRIBUTE_TYPE_NMTOKEN:
+      xrAttributeType_NMTOKEN:
         begin
           Parser.DeclAttributeType := @AtypeNMTOKEN[0];
 
           goto CheckAttListDeclHandler;
         end;
 
-      XML_ROLE_ATTRIBUTE_TYPE_NMTOKENS:
+      xrAttributeType_NMTOKENS:
         begin
           Parser.DeclAttributeType := @AtypeNMTOKENS[0];
 
@@ -4444,14 +4447,14 @@ begin
             HandleDefault := CXmlFalse;
         end;
 
-      XML_ROLE_ATTRIBUTE_ENUM_VALUE, XML_ROLE_ATTRIBUTE_NOTATION_VALUE:
+      xrAttributeEnumValue, xrAttributeNotationValue:
         if (TDocTypeDeclaration.KeepProcessing <> 0) and (@Parser.AttlistDeclHandler <> nil)
         then
         begin
           if Parser.DeclAttributeType <> nil then
             TPrefix := @EnumValueSep[0]
 
-          else if Role = XML_ROLE_ATTRIBUTE_NOTATION_VALUE then
+          else if Role = xrAttributeNotationValue then
             TPrefix := @NotationPrefix[0]
           else
             TPrefix := @EnumValueStart[0];
@@ -4475,7 +4478,7 @@ begin
           HandleDefault := CXmlFalse;
         end;
 
-      XML_ROLE_IMPLIED_ATTRIBUTE_VALUE, XML_ROLE_REQUIRED_ATTRIBUTE_VALUE:
+      xrImpliedAttributeValue, xrRequiredAttributeValue:
         if TDocTypeDeclaration.KeepProcessing <> 0 then
         begin
           if DefineAttribute(Parser.DeclElementType, Parser.DeclAttributeId,
@@ -4514,7 +4517,7 @@ begin
             Parser.AttlistDeclHandler(Parser.HandlerArg,
               Parser.DeclElementType.Name, Parser.DeclAttributeId.Name,
               Parser.DeclAttributeType, nil,
-              Integer(Role = XML_ROLE_REQUIRED_ATTRIBUTE_VALUE));
+              Integer(Role = xrRequiredAttributeValue));
 
             PoolClear(@Parser.TempPool);
 
@@ -4522,7 +4525,7 @@ begin
           end;
         end;
 
-      XML_ROLE_DEFAULT_ATTRIBUTE_VALUE, XML_ROLE_FIXED_ATTRIBUTE_VALUE:
+      xrDefaultAttributeValue, xrFixedAttributeValue:
         if TDocTypeDeclaration.KeepProcessing <> 0 then
         begin
           Result_ := StoreAttributeValue(Parser, Enc,
@@ -4578,7 +4581,7 @@ begin
             Parser.AttlistDeclHandler(Parser.HandlerArg,
               Parser.DeclElementType.Name, Parser.DeclAttributeId.Name,
               Parser.DeclAttributeType, AttVal,
-              Integer(Role = XML_ROLE_FIXED_ATTRIBUTE_VALUE));
+              Integer(Role = xrFixedAttributeValue));
 
             PoolClear(@Parser.TempPool);
 
@@ -4586,7 +4589,7 @@ begin
           end;
         end;
 
-      XML_ROLE_ENTITY_VALUE:
+      xrEntityValue:
         if TDocTypeDeclaration.KeepProcessing <> 0 then
         begin
           Result_ := StoreEntityValue(Parser, Enc,
@@ -4623,12 +4626,12 @@ begin
           end;
         end;
 
-      XML_ROLE_DOCTYPE_SYSTEM_ID:
+      xrDocTypeSystemID:
         begin
 {$IFDEF XML_DTD}
           Parser.UseForeignDTD := CXmlFalse;
-
 {$ENDIF}
+
           TDocTypeDeclaration.HasParamEntityRefs := CXmlTrue;
 
           if @Parser.StartDoctypeDeclHandler <> nil then
@@ -4653,8 +4656,8 @@ begin
             { use externalSubsetName to make doctypeSysid non-NULL
               for the case where no startDoctypeDeclHandler is set }
             Parser.DoctypeSysid := @ExternalSubsetName[0];
-
 {$ELSE}; {$ENDIF}
+
           if (TDocTypeDeclaration.Standalone = 0) and
 {$IFDEF XML_DTD}
             (Parser.ParamEntityParsing = TXmlParamEntityParsing(0)) and
@@ -4684,13 +4687,13 @@ begin
 
             Parser.DeclEntity.PublicId := nil;
           end;
-
 {$ENDIF}
+
           { fall through }
           goto _go1;
         end;
 
-      XML_ROLE_ENTITY_SYSTEM_ID:
+      xrEntitySystemID:
       _go1:
         if (TDocTypeDeclaration.KeepProcessing <> 0) and (Parser.DeclEntity <> nil) then
         begin
@@ -4713,7 +4716,7 @@ begin
             HandleDefault := CXmlFalse;
         end;
 
-      XML_ROLE_ENTITY_COMPLETE:
+      xrEntityComplete:
         if (TDocTypeDeclaration.KeepProcessing <> 0) and (Parser.DeclEntity <> nil) and
           (@Parser.EntityDeclHandler <> nil) then
         begin
@@ -4727,7 +4730,7 @@ begin
           HandleDefault := CXmlFalse;
         end;
 
-      XML_ROLE_ENTITY_NOTATION_NAME:
+      xrEntityNotation_Name:
         if (TDocTypeDeclaration.KeepProcessing <> 0) and (Parser.DeclEntity <> nil) then
         begin
           Parser.DeclEntity.Notation := PoolStoreString(@TDocTypeDeclaration.Pool,
@@ -4766,7 +4769,7 @@ begin
           end;
         end;
 
-      XML_ROLE_GENERAL_ENTITY_NAME:
+      xrGeneralEntityName:
         begin
           if XmlPredefinedEntityName(Enc, Pointer(S), Pointer(Next)) <> 0 then
           begin
@@ -4828,7 +4831,7 @@ begin
           end;
         end;
 
-      XML_ROLE_PARAM_ENTITY_NAME:
+      xrParamEntityName:
 {$IFDEF XML_DTD}
         if TDocTypeDeclaration.KeepProcessing <> 0 then
         begin
@@ -4885,7 +4888,7 @@ begin
         Parser.DeclEntity := nil;
 
 {$ENDIF}
-      XML_ROLE_NOTATION_NAME:
+      xrNotationName:
         begin
           Parser.DeclNotationPublicId := nil;
           Parser.DeclNotationName := nil;
@@ -4908,7 +4911,7 @@ begin
           end;
         end;
 
-      XML_ROLE_NOTATION_PUBLIC_ID:
+      xrNotationPublicID:
         begin
           if XmlIsPublicId(Enc, Pointer(S), Pointer(Next), Pointer(EventPP)) = 0
           then
@@ -4942,7 +4945,7 @@ begin
           end;
         end;
 
-      XML_ROLE_NOTATION_SYSTEM_ID:
+      xrNotationSystemID:
         begin
           if (Parser.DeclNotationName <> nil) and
             (@Parser.NotationDeclHandler <> nil) then
@@ -4970,7 +4973,7 @@ begin
           PoolClear(@Parser.TempPool);
         end;
 
-      XML_ROLE_NOTATION_NO_SYSTEM_ID:
+      xrNotationNoSystem_ID:
         begin
           if (Parser.DeclNotationPublicId <> nil) and
             (@Parser.NotationDeclHandler <> nil) then
@@ -4987,7 +4990,7 @@ begin
           PoolClear(@Parser.TempPool);
         end;
 
-      XML_ROLE_ERROR:
+      xrError:
         case Tok of
           xtParamEntityRef:
             { PE references in internal subset are
@@ -4998,9 +5001,9 @@ begin
               Exit;
             end;
 
-          xt_XML_DECL:
+          xtXmlDecl:
             begin
-              Result := xeMisplacedXmlPi;
+              Result := xeMisplacedXmlProcessingInstruction;
 
               Exit;
             end;
@@ -5014,7 +5017,7 @@ begin
         end;
 
 {$IFDEF XML_DTD}
-      XML_ROLE_IGNORE_SECT:
+      xrIgnoreSect:
         begin
           if @Parser.DefaultHandler <> nil then
             ReportDefault(Parser, Enc, S, Next);
@@ -5041,7 +5044,7 @@ begin
         end;
 
 {$ENDIF}
-      XML_ROLE_GROUP_OPEN:
+      xrGroupOpen:
         begin
           if Parser.PrologState.Level >= Parser.GroupSize then
             if Parser.GroupSize <> 0 then
@@ -5113,7 +5116,7 @@ begin
           end;
         end;
 
-      XML_ROLE_GROUP_SEQUENCE:
+      xrGroupSequence:
         begin
           if PAnsiChar(PtrComp(Parser.GroupConnector) +
             Parser.PrologState.Level)^ = '|' then
@@ -5130,7 +5133,7 @@ begin
             HandleDefault := CXmlFalse;
         end;
 
-      XML_ROLE_GROUP_CHOICE:
+      xrGroupChoice:
         begin
           if PAnsiChar(PtrComp(Parser.GroupConnector) +
             Parser.PrologState.Level)^ = ',' then
@@ -5159,8 +5162,8 @@ begin
             Parser.PrologState.Level)^ := '|';
         end;
 
-      XML_ROLE_PARAM_ENTITY_REF
-      {$IFDEF XML_DTD} , XML_ROLE_INNER_PARAM_ENTITY_REF: {$ELSE}: {$ENDIF}
+      xrParamEntityRef
+      {$IFDEF XML_DTD} , xrInnerParamEntityRef: {$ELSE}: {$ENDIF}
         begin
 {$IFDEF XML_DTD}
           TDocTypeDeclaration.HasParamEntityRefs := CXmlTrue;
@@ -5211,7 +5214,7 @@ begin
               TDocTypeDeclaration.KeepProcessing := TDocTypeDeclaration.Standalone;
 
               { cannot report skipped entities in declarations }
-              if (Role = XML_ROLE_PARAM_ENTITY_REF) and
+              if (Role = xrParamEntityRef) and
                 (@Parser.SkippedEntityHandler <> nil) then
               begin
                 Parser.SkippedEntityHandler(Parser.HandlerArg, name, 1);
@@ -5231,7 +5234,7 @@ begin
 
             if TEntity.TextPtr <> nil then
             begin
-              if Role = XML_ROLE_PARAM_ENTITY_REF then
+              if Role = xrParamEntityRef then
                 BetweenDecl := CXmlTrue
               else
                 BetweenDecl := CXmlFalse;
@@ -5295,7 +5298,7 @@ begin
         end;
 
       { Element declaration stuff }
-      XML_ROLE_ELEMENT_NAME:
+      xrElementName:
         if @Parser.ElementDeclHandler <> nil then
         begin
           Parser.DeclElementType := GetElementType(Parser, Enc, S, Next);
@@ -5313,7 +5316,7 @@ begin
           HandleDefault := CXmlFalse;
         end;
 
-      XML_ROLE_CONTENT_ANY, XML_ROLE_CONTENT_EMPTY:
+      xrContentAny, xrContentEmpty:
         if TDocTypeDeclaration.In_eldecl <> 0 then
         begin
           if @Parser.ElementDeclHandler <> nil then
@@ -5332,7 +5335,7 @@ begin
             Content.Numchildren := 0;
             Content.Children := nil;
 
-            if Role = XML_ROLE_CONTENT_ANY then
+            if Role = xrContentAny then
               Content.ContentType := ctAny
             else
               Content.ContentType := ctEmpty;
@@ -5348,7 +5351,7 @@ begin
           TDocTypeDeclaration.In_eldecl := CXmlFalse;
         end;
 
-      XML_ROLE_CONTENT_PCDATA:
+      xrContentPCData:
         if TDocTypeDeclaration.In_eldecl <> 0 then
         begin
           PContentScaffold(PtrComp(TDocTypeDeclaration.Scaffold) +
@@ -5359,28 +5362,28 @@ begin
             HandleDefault := CXmlFalse;
         end;
 
-      XML_ROLE_CONTENT_ELEMENT:
+      xrContentElement:
         begin
           Quant := cqNone;
 
           goto ElementContent;
         end;
 
-      XML_ROLE_CONTENT_ELEMENT_OPT:
+      xrContentElementOpt:
         begin
           Quant := cqOpt;
 
           goto ElementContent;
         end;
 
-      XML_ROLE_CONTENT_ELEMENT_REP:
+      xrContentElementRep:
         begin
           Quant := cqRep;
 
           goto ElementContent;
         end;
 
-      XML_ROLE_CONTENT_ELEMENT_PLUS:
+      xrContentElementPlus:
         begin
           Quant := cqPlus;
 
@@ -5433,28 +5436,28 @@ begin
           end;
         end;
 
-      XML_ROLE_GROUP_CLOSE:
+      xrGroupClose:
         begin
           Quant := cqNone;
 
           goto CloseGroup;
         end;
 
-      XML_ROLE_GROUP_CLOSE_OPT:
+      xrGroupCloseOpt:
         begin
           Quant := cqOpt;
 
           goto CloseGroup;
         end;
 
-      XML_ROLE_GROUP_CLOSE_REP:
+      xrGroupCloseRep:
         begin
           Quant := cqRep;
 
           goto CloseGroup;
         end;
 
-      XML_ROLE_GROUP_CLOSE_PLUS:
+      xrGroupClosePlus:
         begin
           Quant := cqPlus;
 
@@ -5474,7 +5477,7 @@ begin
             begin
               if HandleDefault = 0 then
               begin
-                Model := Build_model(Parser);
+                Model := BuildModel(Parser);
 
                 if Model = nil then
                 begin
@@ -5495,7 +5498,7 @@ begin
           end;
         end; { End element declaration stuff }
 
-      XML_ROLE_PI:
+      xrProcessingInstruction:
         begin
           if ReportProcessingInstruction(Parser, Enc, S, Next) = 0 then
           begin
@@ -5507,7 +5510,7 @@ begin
           HandleDefault := CXmlFalse;
         end;
 
-      XML_ROLE_COMMENT:
+      xrComment:
         begin
           if ReportComment(Parser, Enc, S, Next) = 0 then
           begin
@@ -5519,31 +5522,31 @@ begin
           HandleDefault := CXmlFalse;
         end;
 
-      XML_ROLE_NONE:
+      xrNone:
         case Tok of
           xtBOM:
             HandleDefault := CXmlFalse;
         end;
 
-      XML_ROLE_DOCTYPE_NONE:
+      xrDocTypeNone:
         if @Parser.StartDoctypeDeclHandler <> nil then
           HandleDefault := CXmlFalse;
 
-      XML_ROLE_ENTITY_NONE:
+      xrEntityNone:
         if (TDocTypeDeclaration.KeepProcessing <> 0) and (@Parser.EntityDeclHandler <> nil)
         then
           HandleDefault := CXmlFalse;
 
-      XML_ROLE_NOTATION_NONE:
+      xrNotationNone:
         if @Parser.NotationDeclHandler <> nil then
           HandleDefault := CXmlFalse;
 
-      XML_ROLE_ATTLIST_NONE:
+      xrAttributeListNone:
         if (TDocTypeDeclaration.KeepProcessing <> 0) and (@Parser.AttlistDeclHandler <> nil)
         then
           HandleDefault := CXmlFalse;
 
-      XML_ROLE_ELEMENT_NONE:
+      xrElementNone:
         if @Parser.ElementDeclHandler <> nil then
           HandleDefault := CXmlFalse;
 
@@ -5685,7 +5688,7 @@ begin
   Parser.TagLevel := 0;
   Parser.TagStack := nil;
   Parser.InheritedBindings := nil;
-  Parser.M_nSpecifiedAtts := 0;
+  Parser.NumSpecifiedAtts := 0;
 
   Parser.UnknownEncodingMem := nil;
   Parser.UnknownEncodingRelease := nil;
@@ -6078,7 +6081,7 @@ begin
 
   Parser.ParseEndPtr := Parser.BufferEnd;
 
-  Inc(PtrComp(Parser.ParseEndByteIndex), Len);
+  Inc(Parser.ParseEndByteIndex, Len);
 
   Parser.ParsingStatus.FinalBuffer := TXmlBool(IsFinal);
 

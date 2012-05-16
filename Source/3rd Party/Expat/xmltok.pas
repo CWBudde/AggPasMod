@@ -59,7 +59,7 @@ type
 
   { The following tokens may be returned ByteType both XmlPrologTok and XmlContentTok. }
     xtNone = -4, { The string to be scanned is empty }
-    xtTrailing_CR = -3, { A CR at the end of the scan, might be part of
+    xtTrailingCR = -3, { A CR at the end of the scan, might be part of
       CRLF sequence }
     xtPartialChar = -2, { only part of a multibyte sequence }
     xtPartial = -1, { only part of a token }
@@ -79,8 +79,8 @@ type
     xtCharRef = 10, { numeric character reference }
 
   { The following tokens may be returned ByteType both XmlPrologTok and XmlContentTok. }
-    xt_PI = 11, { processing instruction }
-    xt_XML_DECL = 12, { XML decl or text decl }
+    xtProcessingInstruction = 11, { processing instruction }
+    xtXmlDecl = 12, { XML decl or text decl }
     xtComment = 13,
     xtBom = 14, { Byte order mark }
 
@@ -93,8 +93,8 @@ type
     xtPoundName = 20, { #name }
     xtOr = 21, { | }
     xtPercent = 22,
-    xtOpen_PAREN = 23,
-    xtClose_PAREN = 24,
+    xtOpenParen = 23,
+    xtCloseParen = 24,
     xtOpenBracket = 25,
     xtCloseBracket = 26,
     xtLiteral = 27,
@@ -107,9 +107,9 @@ type
     xtNamePlus = 32, { name+ }
     xtCondSectOpen = 33, { <![ }
     xtCondSectClose = 34, { ]]> }
-    xtClose_PAREN_QUESTION = 35, { )? }
-    xtClose_PAREN_ASTERISK = 36, { )* }
-    xtClose_PAREN_PLUS = 37, { )+ }
+    xtCloseParenQuestion = 35, { )? }
+    xtCloseParenAsterisk = 36, { )* }
+    xtCloseParenPlus = 37, { )+ }
     xtComma = 38,
 
   { The following token is returned only ByteType XmlAttributeValueTok }
@@ -129,28 +129,28 @@ type
 
 const
 {$IFDEF XML_DTD}
-  XML_N_STATES = 4;
+  CXmlNumStates = 4;
 {$ELSE }
-  XML_N_STATES = 3;
+  CXmlNumStates = 3;
 {$ENDIF}
 
-  XML_PROLOG_STATE = 0;
-  XML_CONTENT_STATE = 1;
-  XML_CDATA_SECTION_STATE = 2;
+  CXmlPrologState = 0;
+  CXmlContentState = 1;
+  CXmlCDataSectionState = 2;
 
 {$IFDEF XML_DTD}
-  XML_IGNORE_SECTION_STATE = 3;
+  CXmlIgnoreSectionState = 3;
 {$ENDIF}
 
-  XML_N_LITERAL_TYPES = 2;
-  XML_ATTRIBUTE_VALUE_LITERAL = 0;
-  XML_ENTITY_VALUE_LITERAL = 1;
+  CXmlNumLiteralTypes = 2;
+  CXmlAttributeValueLiteral = 0;
+  CXmlEntityValueLiteral = 1;
 
   { The size of the buffer passed to XmlUtf8Encode must be at least this. }
-  XML_UTF8_ENCODE_MAX = 4;
+  CXmlUtf8EncodeMax = 4;
 
   { The size of the buffer passed to XmlUtf16Encode must be at least this. }
-  XML_UTF16_ENCODE_MAX = 2;
+  CXmlUtf16EncodeMax = 2;
 
 type
   PPosition = ^TPosition;
@@ -171,8 +171,8 @@ type
   TScanner = function(P1: PEncoding; P2, P3: PAnsiChar; P4: PPAnsiChar): TXmlTok;
 
   TEncoding = record
-    Scanners: array [0..XML_N_STATES - 1] of TScanner;
-    LiteralScanners: array [0..XML_N_LITERAL_TYPES - 1] of TScanner;
+    Scanners: array [0..CXmlNumStates - 1] of TScanner;
+    LiteralScanners: array [0..CXmlNumLiteralTypes - 1] of TScanner;
 
     SameName: function(P1: PEncoding; P2, P3: PAnsiChar): Integer;
     NameMatchesAscii: function(P1: PEncoding; P2, P3, P4: PAnsiChar): Integer;
@@ -261,23 +261,14 @@ type
   TEncodingFinder = function(Enc: PEncoding; Ptr, Stop: PAnsiChar): PEncoding;
 
 const
-
   {$I ascii.inc }
+  CKeyWordVersion: array [0..7] of AnsiChar = 'version'#0;
+  CKeyWordEncoding: array [0..8] of AnsiChar = 'encoding'#0;
+  CKeyWordStandalone: array [0..10] of AnsiChar = 'standalone'#0;
+  CKeyWordYes: array [0..3] of AnsiChar = 'yes'#0;
+  CKeyWordNo: array [0..2] of AnsiChar = 'no'#0;
 
-  KW_version: array [0..7] of AnsiChar = (ASCII_vl, ASCII_el, ASCII_rl, ASCII_sl,
-    ASCII_il, ASCII_ol, ASCII_nl, #0);
-
-  KW_encoding: array [0..8] of AnsiChar = (ASCII_el, ASCII_nl, ASCII_cl, ASCII_ol,
-    ASCII_dl, ASCII_il, ASCII_nl, ASCII_gl, #0);
-
-  KW_standalone: array [0..10] of AnsiChar = (ASCII_sl, ASCII_tl, ASCII_al,
-    ASCII_nl, ASCII_dl, ASCII_al, ASCII_ll, ASCII_ol, ASCII_nl, ASCII_el, #0);
-
-  KW_yes: array [0..3] of AnsiChar = (ASCII_yl, ASCII_el, ASCII_sl, #0);
-
-  KW_no: array [0..2] of AnsiChar = (ASCII_nl, ASCII_ol, #0);
-
-function MinBPC(Enc: PEncoding): Integer;
+function MinBPC(Enc: PEncoding): Integer; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 begin
 {$IFDEF XML_MIN_SIZE}
   Result := Enc.MinBytesPerChar;
@@ -441,6 +432,7 @@ const
   BT_COLON_ = BT_NMSTRT;
 
 function ByteType(Enc: PEncoding; P: PAnsiChar): Integer;
+  {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 begin
 {$IFDEF XML_MIN_SIZE}
   Result := PNormalEncoding(Enc).ByteType(Enc, P);
@@ -521,12 +513,25 @@ begin
 {$ENDIF}
 end;
 
-function InitEncIndex(Enc: PInitEncoding): Integer;
+type
+  { If this enumeration is changed, getEncodingIndex and encodings
+    must also be changed. }
+  TEncodingType = (
+    etUnknown = -1,
+    etISO_8859_1 = 0,
+    etUS_ASCII = 1,
+    etUTF_8 = 2,
+    etUTF_16 = 3,
+    etUTF_16BE = 4,
+    etUTF_16LE = 5,
+    etNone = 6); { must match encodingNames up to here }
+
+function InitEncIndex(Enc: PInitEncoding): TEncodingType;
 begin
-  Result := Integer(Enc.InitEnc.IsUtf16);
+  Result := TEncodingType(Enc.InitEnc.IsUtf16);
 end;
 
-procedure SetInitEncIndex(Enc: PInitEncoding; I: Integer);
+procedure SetInitEncIndex(Enc: PInitEncoding; I: TEncodingType);
 begin
   Enc.InitEnc.IsUtf16 := AnsiChar(I);
 end;
@@ -541,7 +546,6 @@ function NormalScanAtts(Enc: PEncoding; Ptr, Stop: PAnsiChar;
 var
 {$IFDEF XML_NS}
   HadColon: Integer;
-
 {$ENDIF}
   T, Open: Integer;
   Tok: TXmlTok;
@@ -552,7 +556,6 @@ label
 begin
 {$IFDEF XML_NS}
   HadColon := 0;
-
 {$ENDIF}
   while Ptr <> Stop do
     case ByteType(Enc, Ptr) of
@@ -570,7 +573,7 @@ begin
 
       BT_NMSTRT, BT_HEX, BT_DIGIT, BT_NAME, BT_MINUS:
       _bt0:
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
       BT_LEAD2:
         begin
@@ -644,7 +647,7 @@ begin
 
           HadColon := 1;
 
-          Inc(PtrComp(Ptr), MINBPC(Enc));
+          Inc(PtrComp(Ptr), MinBPC(Enc));
 
           if Ptr <> Stop then
           begin
@@ -667,7 +670,7 @@ begin
 
             BT_NMSTRT, BT_HEX:
             _bt1:
-              Inc(PtrComp(Ptr), MINBPC(Enc));
+              Inc(PtrComp(Ptr), MinBPC(Enc));
 
             BT_LEAD2:
               begin
@@ -741,12 +744,12 @@ begin
             end;
           end;
         end;
-
 {$ENDIF}
+
       BT_S, BT_CR, BT_LF:
         begin
           repeat
-            Inc(PtrComp(Ptr), MINBPC(Enc));
+            Inc(PtrComp(Ptr), MinBPC(Enc));
 
             if Ptr <> Stop then
               Result := xtPartial;
@@ -782,7 +785,7 @@ begin
           HadColon := 0;
 {$ENDIF}
           repeat
-            Inc(PtrComp(Ptr), MINBPC(Enc));
+            Inc(PtrComp(Ptr), MinBPC(Enc));
 
             if Ptr = Stop then
             begin
@@ -809,7 +812,7 @@ begin
             end;
           until False;
 
-          Inc(PtrComp(Ptr), MINBPC(Enc));
+          Inc(PtrComp(Ptr), MinBPC(Enc));
 
           { in attribute value }
           repeat
@@ -904,7 +907,7 @@ begin
               BT_AMP:
                 begin
                   Tok := NormalScanRef(Enc,
-                    PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)), Stop, @Ptr);
+                    PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)), Stop, @Ptr);
 
                   if Integer(Tok) <= 0 then
                   begin
@@ -927,11 +930,11 @@ begin
                 end;
 
             else
-              Inc(PtrComp(Ptr), MINBPC(Enc));
+              Inc(PtrComp(Ptr), MinBPC(Enc));
             end;
           until False;
 
-          Inc(PtrComp(Ptr), MINBPC(Enc));
+          Inc(PtrComp(Ptr), MinBPC(Enc));
 
           if Ptr = Stop then
           begin
@@ -960,7 +963,7 @@ begin
 
           { ptr points to closing quote }
           repeat
-            Inc(PtrComp(Ptr), MINBPC(Enc));
+            Inc(PtrComp(Ptr), MinBPC(Enc));
 
             if Ptr = Stop then
             begin
@@ -985,7 +988,7 @@ begin
 
               BT_NMSTRT, BT_HEX:
               _bt2:
-                Inc(PtrComp(Ptr), MINBPC(Enc));
+                Inc(PtrComp(Ptr), MinBPC(Enc));
 
               BT_LEAD2:
                 begin
@@ -1052,7 +1055,7 @@ begin
               BT_GT:
               Gt:
                 begin
-                  NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+                  NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
                   Result := xtStartTagWithATTS;
 
@@ -1062,7 +1065,7 @@ begin
               BT_SOL:
               Sol:
                 begin
-                  Inc(PtrComp(Ptr), MINBPC(Enc));
+                  Inc(PtrComp(Ptr), MinBPC(Enc));
 
                   if Ptr = Stop then
                   begin
@@ -1080,7 +1083,7 @@ begin
                     Exit;
                   end;
 
-                  NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+                  NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
                   Result := xtEmptyElementWithAtts;
 
@@ -1139,7 +1142,7 @@ begin
 
     BT_NMSTRT, BT_HEX:
     _bt0:
-      Inc(PtrComp(Ptr), MINBPC(Enc));
+      Inc(PtrComp(Ptr), MinBPC(Enc));
 
     BT_LEAD2:
       begin
@@ -1225,7 +1228,7 @@ begin
 
       BT_NMSTRT, BT_HEX, BT_DIGIT, BT_NAME, BT_MINUS:
       _bt1:
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
       BT_LEAD2:
         begin
@@ -1288,14 +1291,14 @@ begin
 
       BT_S, BT_CR, BT_LF:
         begin
-          Inc(PtrComp(Ptr), MINBPC(Enc));
+          Inc(PtrComp(Ptr), MinBPC(Enc));
 
           while Ptr <> Stop do
           begin
             case ByteType(Enc, Ptr) of
               BT_GT:
                 begin
-                  NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+                  NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
                   Result := xtEndTag;
                   Exit;
@@ -1311,7 +1314,7 @@ begin
               end;
             end;
 
-            Inc(PtrComp(Ptr), MINBPC(Enc));
+            Inc(PtrComp(Ptr), MinBPC(Enc));
           end;
 
           Result := xtPartial;
@@ -1322,12 +1325,12 @@ begin
       BT_COLON:
         { no need to check qname syntax here,
           since end-tag must match exactly }
-        Inc(PtrComp(Ptr), MINBPC(Enc));
-
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 {$ENDIF}
+
       BT_GT:
         begin
-          NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+          NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
           Result := xtEndTag;
           Exit;
@@ -1359,7 +1362,7 @@ begin
       Exit;
     end;
 
-    Inc(PtrComp(Ptr), MINBPC(Enc));
+    Inc(PtrComp(Ptr), MinBPC(Enc));
 
     while Ptr <> Stop do
       case ByteType(Enc, Ptr) of
@@ -1433,7 +1436,7 @@ begin
 
         BT_MINUS:
           begin
-            Inc(PtrComp(Ptr), MINBPC(Enc));
+            Inc(PtrComp(Ptr), MinBPC(Enc));
 
             if Ptr = Stop then
             begin
@@ -1443,7 +1446,7 @@ begin
 
             if CharMatches(Enc, Ptr, Integer(ASCII_MINUS)) <> 0 then
             begin
-              Inc(PtrComp(Ptr), MINBPC(Enc));
+              Inc(PtrComp(Ptr), MinBPC(Enc));
 
               if Ptr = Stop then
               begin
@@ -1459,14 +1462,14 @@ begin
                 Exit;
               end;
 
-              NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+              NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
               Result := xtComment;
               Exit;
             end;
           end;
       else
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
       end;
   end;
 
@@ -1478,16 +1481,16 @@ function NormalScanCdataSection(Enc: PEncoding; Ptr, Stop: PAnsiChar;
 begin
 end;
 
-function NormalCheckPiTarget(Enc: PEncoding; Ptr, Stop: PAnsiChar;
-  TokPtr: PXmlTok): Integer;
+function NormalCheckProcessingInstructionTarget(Enc: PEncoding; Ptr,
+  Stop: PAnsiChar; TokPtr: PXmlTok): Integer;
 var
   Upper: Integer;
 
 begin
   Upper := 0;
-  TokPtr^ := xt_PI;
+  TokPtr^ := xtProcessingInstruction;
 
-  if PtrComp(Stop) - PtrComp(Ptr) <> MINBPC(Enc) * 3 then
+  if PtrComp(Stop) - PtrComp(Ptr) <> MinBPC(Enc) * 3 then
   begin
     Result := 1;
 
@@ -1507,7 +1510,7 @@ begin
     end;
   end;
 
-  Inc(PtrComp(Ptr), MINBPC(Enc));
+  Inc(PtrComp(Ptr), MinBPC(Enc));
 
   case ByteToASCII(Enc, Ptr) of
     Integer(ASCII_M):
@@ -1522,7 +1525,7 @@ begin
     end;
   end;
 
-  Inc(PtrComp(Ptr), MINBPC(Enc));
+  Inc(PtrComp(Ptr), MinBPC(Enc));
 
   case ByteToASCII(Enc, Ptr) of
     Integer(ASCII_L):
@@ -1544,12 +1547,12 @@ begin
     Exit;
   end;
 
-  TokPtr^ := xt_XML_DECL;
+  TokPtr^ := xtXmlDecl;
   Result := 1;
 end;
 
 { ptr points to character following "<?" }
-function NormalScanPi(Enc: PEncoding; Ptr, Stop: PAnsiChar;
+function NormalScanProcessingInstruction(Enc: PEncoding; Ptr, Stop: PAnsiChar;
   NextTokPtr: PPAnsiChar): TXmlTok;
 var
   Tok: TXmlTok;
@@ -1584,7 +1587,7 @@ begin
 
     BT_NMSTRT, BT_HEX:
     _bt0:
-      Inc(PtrComp(Ptr), MINBPC(Enc));
+      Inc(PtrComp(Ptr), MinBPC(Enc));
 
     BT_LEAD2:
       begin
@@ -1672,7 +1675,7 @@ begin
 
       BT_NMSTRT, BT_HEX, BT_DIGIT, BT_NAME, BT_MINUS:
       _bt1:
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
       BT_LEAD2:
         begin
@@ -1741,7 +1744,7 @@ begin
 
       BT_S, BT_CR, BT_LF:
         begin
-          if NormalCheckPiTarget(Enc, Target, Ptr, @Tok) = 0 then
+          if NormalCheckProcessingInstructionTarget(Enc, Target, Ptr, @Tok) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -1750,7 +1753,7 @@ begin
             Exit;
           end;
 
-          Inc(PtrComp(Ptr), MINBPC(Enc));
+          Inc(PtrComp(Ptr), MinBPC(Enc));
 
           while Ptr <> Stop do
             case ByteType(Enc, Ptr) of
@@ -1831,7 +1834,7 @@ begin
 
               BT_QUEST:
                 begin
-                  Inc(PtrComp(Ptr), MINBPC(Enc));
+                  Inc(PtrComp(Ptr), MinBPC(Enc));
 
                   if Ptr = Stop then
                   begin
@@ -1842,7 +1845,7 @@ begin
 
                   if CharMatches(Enc, Ptr, Integer(ASCII_GT)) <> 0 then
                   begin
-                    NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+                    NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
                     Result := Tok;
                     Exit;
@@ -1850,7 +1853,7 @@ begin
                 end;
 
             else
-              Inc(PtrComp(Ptr), MINBPC(Enc));
+              Inc(PtrComp(Ptr), MinBPC(Enc));
             end;
 
           Result := xtPartial;
@@ -1860,7 +1863,7 @@ begin
 
       BT_QUEST:
         begin
-          if NormalCheckPiTarget(Enc, Target, Ptr, @Tok) = 0 then
+          if NormalCheckProcessingInstructionTarget(Enc, Target, Ptr, @Tok) = 0 then
           begin
             NextTokPtr^ := Ptr;
 
@@ -1869,7 +1872,7 @@ begin
             Exit;
           end;
 
-          Inc(PtrComp(Ptr), MINBPC(Enc));
+          Inc(PtrComp(Ptr), MinBPC(Enc));
 
           if Ptr = Stop then
           begin
@@ -1880,7 +1883,7 @@ begin
 
           if CharMatches(Enc, Ptr, Integer(ASCII_GT)) <> 0 then
           begin
-            NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+            NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
             Result := Tok;
 
@@ -1937,7 +1940,7 @@ begin
 
     BT_NMSTRT, BT_HEX:
     _bt0:
-      Inc(PtrComp(Ptr), MINBPC(Enc));
+      Inc(PtrComp(Ptr), MinBPC(Enc));
 
     BT_LEAD2:
       begin
@@ -2000,7 +2003,7 @@ begin
 
     BT_EXCL:
       begin
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
         if Ptr = Stop then
         begin
@@ -2013,7 +2016,7 @@ begin
           BT_MINUS:
             begin
               Result := NormalScanComment(Enc,
-                PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)), Stop, NextTokPtr);
+                PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)), Stop, NextTokPtr);
 
               Exit;
             end;
@@ -2021,7 +2024,7 @@ begin
           BT_LSQB:
             begin
               Result := NormalScanCdataSection(Enc,
-                PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)), Stop, NextTokPtr);
+                PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)), Stop, NextTokPtr);
 
               Exit;
             end;
@@ -2036,7 +2039,7 @@ begin
 
     BT_QUEST:
       begin
-        Result := NormalScanPi(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
+        Result := NormalScanProcessingInstruction(Enc, PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)),
           Stop, NextTokPtr);
 
         Exit;
@@ -2044,7 +2047,7 @@ begin
 
     BT_SOL:
       begin
-        Result := NormalScanEndTag(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
+        Result := NormalScanEndTag(Enc, PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)),
           Stop, NextTokPtr);
 
         Exit;
@@ -2082,7 +2085,7 @@ begin
 
       BT_NMSTRT, BT_HEX, BT_DIGIT, BT_NAME, BT_MINUS:
       _bt1:
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
       BT_LEAD2:
         begin
@@ -2164,7 +2167,7 @@ begin
 
           HadColon := 1;
 
-          Inc(PtrComp(Ptr), MINBPC(Enc));
+          Inc(PtrComp(Ptr), MinBPC(Enc));
 
           if Ptr = Stop then
           begin
@@ -2189,7 +2192,7 @@ begin
 
             BT_NMSTRT, BT_HEX:
             _bt2:
-              Inc(PtrComp(Ptr), MINBPC(Enc));
+              Inc(PtrComp(Ptr), MinBPC(Enc));
 
             BT_LEAD2:
               begin
@@ -2265,7 +2268,7 @@ begin
 {$ENDIF}
       BT_S, BT_CR, BT_LF:
         begin
-          Inc(PtrComp(Ptr), MINBPC(Enc));
+          Inc(PtrComp(Ptr), MinBPC(Enc));
 
           while Ptr <> Stop do
           begin
@@ -2285,7 +2288,7 @@ begin
 
               BT_NMSTRT, BT_HEX:
               _bt3:
-                Inc(PtrComp(Ptr), MINBPC(Enc));
+                Inc(PtrComp(Ptr), MinBPC(Enc));
 
               BT_LEAD2:
                 begin
@@ -2357,7 +2360,7 @@ begin
 
               BT_S, BT_CR, BT_LF:
                 begin
-                  Inc(PtrComp(Ptr), MINBPC(Enc));
+                  Inc(PtrComp(Ptr), MinBPC(Enc));
 
                   Continue;
                 end;
@@ -2384,7 +2387,7 @@ begin
       BT_GT:
       Gt:
         begin
-          NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+          NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
           Result := xtStartTagNoAtts;
           Exit;
@@ -2393,7 +2396,7 @@ begin
       BT_SOL:
       Sol:
         begin
-          Inc(PtrComp(Ptr), MINBPC(Enc));
+          Inc(PtrComp(Ptr), MinBPC(Enc));
 
           if Ptr <> Stop then
           begin
@@ -2411,7 +2414,7 @@ begin
             Exit;
           end;
 
-          NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+          NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
           Result := xtEmptyElementNoAtts;
 
@@ -2447,7 +2450,7 @@ begin
   case ByteType(Enc, Ptr) of
     BT_MINUS:
       begin
-        Result := NormalScanComment(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
+        Result := NormalScanComment(Enc, PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)),
           Stop, NextTokPtr);
 
         Exit;
@@ -2455,7 +2458,7 @@ begin
 
     BT_LSQB:
       begin
-        NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+        NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
         Result := xtCondSectOpen;
 
@@ -2463,7 +2466,7 @@ begin
       end;
 
     BT_NMSTRT, BT_HEX:
-      Inc(PtrComp(Ptr), MINBPC(Enc));
+      Inc(PtrComp(Ptr), MinBPC(Enc));
 
   else
     begin
@@ -2479,7 +2482,7 @@ begin
     case ByteType(Enc, Ptr) of
       BT_PERCNT:
         begin
-          if PtrComp(Ptr) + MINBPC(Enc) = PtrComp(Stop) then
+          if PtrComp(Ptr) + MinBPC(Enc) = PtrComp(Stop) then
           begin
             Result := xtPartial;
 
@@ -2487,7 +2490,7 @@ begin
           end;
 
           { don't alLow <!ENTITY% foo "whatever"> }
-          case ByteType(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc))) of
+          case ByteType(Enc, PAnsiChar(PtrComp(Ptr) + MinBPC(Enc))) of
             BT_S, BT_CR, BT_LF, BT_PERCNT:
               begin
                 NextTokPtr^ := Ptr;
@@ -2514,7 +2517,7 @@ begin
         end;
 
       BT_NMSTRT, BT_HEX:
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
     else
       begin
@@ -2631,7 +2634,7 @@ begin
 
       BT_QUOT, BT_APOS:
         begin
-          Inc(PtrComp(Ptr), MINBPC(Enc));
+          Inc(PtrComp(Ptr), MinBPC(Enc));
 
           if T <> Open then
             goto _break;
@@ -2661,7 +2664,7 @@ begin
           end;
         end;
     else
-      Inc(PtrComp(Ptr), MINBPC(Enc));
+      Inc(PtrComp(Ptr), MinBPC(Enc));
     end;
 
   _break:
@@ -2686,13 +2689,13 @@ begin
     Exit;
   end;
 
-  if MINBPC(Enc) > 1 then
+  if MinBPC(Enc) > 1 then
   begin
     N := PtrComp(Stop) - PtrComp(Ptr);
 
-    if N and (MINBPC(Enc) - 1) <> 0 then
+    if N and (MinBPC(Enc) - 1) <> 0 then
     begin
-      N := N and not(MINBPC(Enc) - 1);
+      N := N and not(MinBPC(Enc) - 1);
 
       if N = 0 then
       begin
@@ -2709,20 +2712,20 @@ begin
     BT_QUOT:
       begin
         Result := NormalScanLit(BT_QUOT, Enc,
-          PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)), Stop, NextTokPtr);
+          PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)), Stop, NextTokPtr);
         Exit;
       end;
 
     BT_APOS:
       begin
         Result := NormalScanLit(BT_APOS, Enc,
-          PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)), Stop, NextTokPtr);
+          PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)), Stop, NextTokPtr);
         Exit;
       end;
 
     BT_LT:
       begin
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
         if Ptr = Stop then
         begin
@@ -2734,20 +2737,20 @@ begin
           BT_EXCL:
             begin
               Result := NormalScanDecl(Enc,
-                PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)), Stop, NextTokPtr);
+                PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)), Stop, NextTokPtr);
               Exit;
             end;
 
           BT_QUEST:
             begin
-              Result := NormalScanPi(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)
+              Result := NormalScanProcessingInstruction(Enc, PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)
                 ), Stop, NextTokPtr);
               Exit;
             end;
 
           BT_NMSTRT, BT_HEX, BT_NONASCII, BT_LEAD2, BT_LEAD3, BT_LEAD4:
             begin
-              NextTokPtr^ := PAnsiChar(PtrComp(Ptr) - MINBPC(Enc));
+              NextTokPtr^ := PAnsiChar(PtrComp(Ptr) - MinBPC(Enc));
 
               Result := xtInstanceStart;
               Exit;
@@ -2762,7 +2765,7 @@ begin
       end;
 
     BT_CR:
-      if PtrComp(Ptr) + MINBPC(Enc) = PtrComp(Stop) then
+      if PtrComp(Ptr) + MinBPC(Enc) = PtrComp(Stop) then
       begin
         NextTokPtr^ := Stop;
 
@@ -2778,7 +2781,7 @@ begin
     _bt_s:
       begin
         repeat
-          Inc(PtrComp(Ptr), MINBPC(Enc));
+          Inc(PtrComp(Ptr), MinBPC(Enc));
 
           if Ptr = Stop then
             Break;
@@ -2786,7 +2789,7 @@ begin
           case ByteType(Enc, Ptr) of
             BT_CR:
               { don't split CR/LF pair }
-              if PtrComp(Ptr) + MINBPC(Enc) <> PtrComp(Stop) then
+              if PtrComp(Ptr) + MinBPC(Enc) <> PtrComp(Stop) then
               else
                 { fall through }
                 goto _else;
@@ -2811,14 +2814,14 @@ begin
 
     BT_PERCNT:
       begin
-        Result := ScanPercent(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)), Stop,
+        Result := ScanPercent(Enc, PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)), Stop,
           NextTokPtr);
         Exit;
       end;
 
     BT_COMMA:
       begin
-        NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+        NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
         Result := xtComma;
         Exit;
@@ -2826,7 +2829,7 @@ begin
 
     BT_LSQB:
       begin
-        NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+        NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
         Result := xtOpenBracket;
         Exit;
@@ -2834,7 +2837,7 @@ begin
 
     BT_RSQB:
       begin
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
         if Ptr = Stop then
         begin
@@ -2844,16 +2847,16 @@ begin
 
         if CharMatches(Enc, Ptr, Integer(ASCII_RSQB)) <> 0 then
         begin
-          if PtrComp(Ptr) + MINBPC(Enc) = PtrComp(Stop) then
+          if PtrComp(Ptr) + MinBPC(Enc) = PtrComp(Stop) then
           begin
             Result := xtPartial;
             Exit;
           end;
 
-          if CharMatches(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
+          if CharMatches(Enc, PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)),
             Integer(ASCII_GT)) <> 0 then
           begin
-            NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + 2 * MINBPC(Enc));
+            NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + 2 * MinBPC(Enc));
 
             Result := xtCondSectClose;
             Exit;
@@ -2868,44 +2871,44 @@ begin
 
     BT_LPAR:
       begin
-        NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+        NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
-        Result := xtOpen_PAREN;
+        Result := xtOpenParen;
         Exit;
       end;
 
     BT_RPAR:
       begin
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
         if Ptr = Stop then
         begin
-          Result := TXmlTok(-Integer(xtClose_PAREN));
+          Result := TXmlTok(-Integer(xtCloseParen));
           Exit;
         end;
 
         case ByteType(Enc, Ptr) of
           BT_AST:
             begin
-              NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+              NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
-              Result := xtClose_PAREN_ASTERISK;
+              Result := xtCloseParenAsterisk;
               Exit;
             end;
 
           BT_QUEST:
             begin
-              NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+              NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
-              Result := xtClose_PAREN_QUESTION;
+              Result := xtCloseParenQuestion;
               Exit;
             end;
 
           BT_PLUS:
             begin
-              NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+              NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
-              Result := xtClose_PAREN_PLUS;
+              Result := xtCloseParenPlus;
               Exit;
             end;
 
@@ -2913,7 +2916,7 @@ begin
             begin
               NextTokPtr^ := Ptr;
 
-              Result := xtClose_PAREN;
+              Result := xtCloseParen;
               Exit;
             end;
         end;
@@ -2926,7 +2929,7 @@ begin
 
     BT_VERBAR:
       begin
-        NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+        NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
         Result := xtOr;
 
@@ -2935,7 +2938,7 @@ begin
 
     BT_GT:
       begin
-        NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+        NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
         Result := xtDeclClose;
 
@@ -2944,7 +2947,7 @@ begin
 
     BT_NUM:
       begin
-        Result := ScanPoundName(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
+        Result := ScanPoundName(Enc, PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)),
           Stop, NextTokPtr);
 
         Exit;
@@ -3047,26 +3050,26 @@ begin
       begin
         Tok := xtName;
 
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
       end;
 
     BT_DIGIT, BT_NAME, BT_MINUS {$IFDEF XML_NS} , BT_COLON: {$ELSE }: {$ENDIF}
       begin
         Tok := xt_NMTOKEN;
 
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
       end;
 
     BT_NONASCII:
       if IsNMSTRT_CharMinBPC(Enc, Ptr) <> 0 then
       begin
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
         Tok := xtName;
       end
       else if IsNameCharMinBPC(Enc, Ptr) <> 0 then
       begin
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
         Tok := xt_NMTOKEN;
       end
@@ -3102,7 +3105,7 @@ begin
 
       BT_NMSTRT, BT_HEX, BT_DIGIT, BT_NAME, BT_MINUS:
       _bt0:
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
       BT_LEAD2:
         begin
@@ -3182,7 +3185,7 @@ begin
 {$IFDEF XML_NS}
       BT_COLON:
         begin
-          Inc(PtrComp(Ptr), MINBPC(Enc));
+          Inc(PtrComp(Ptr), MinBPC(Enc));
 
           case Tok of
             xtName:
@@ -3212,7 +3215,7 @@ begin
 
                   BT_NMSTRT, BT_HEX, BT_DIGIT, BT_NAME, BT_MINUS:
                   _bt1:
-                    Inc(PtrComp(Ptr), MINBPC(Enc));
+                    Inc(PtrComp(Ptr), MinBPC(Enc));
 
                   BT_LEAD2:
                     begin
@@ -3287,8 +3290,8 @@ begin
               Tok := xt_NMTOKEN;
           end;
         end;
-
 {$ENDIF}
+
       BT_PLUS:
         begin
           if Tok = xt_NMTOKEN then
@@ -3300,7 +3303,7 @@ begin
             Exit;
           end;
 
-          NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+          NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
           Result := xtNamePlus;
 
@@ -3318,7 +3321,7 @@ begin
             Exit;
           end;
 
-          NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+          NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
           Result := xtNameAsterisk;
 
@@ -3336,7 +3339,7 @@ begin
             Exit;
           end;
 
-          NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+          NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
           Result := xtNameQuestion;
 
@@ -3371,13 +3374,13 @@ begin
     Exit;
   end;
 
-  if MINBPC(Enc) > 1 then
+  if MinBPC(Enc) > 1 then
   begin
     N := PtrComp(Stop) - PtrComp(Ptr);
 
-    if N and (MINBPC(Enc) - 1) <> 0 then
+    if N and (MinBPC(Enc) - 1) <> 0 then
     begin
-      N := N and not(MINBPC(Enc) - 1);
+      N := N and not(MinBPC(Enc) - 1);
 
       if N = 0 then
       begin
@@ -3393,7 +3396,7 @@ begin
   case ByteType(Enc, Ptr) of
     BT_LT:
       begin
-        Result := NormalScanLt(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
+        Result := NormalScanLt(Enc, PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)),
           Stop, NextTokPtr);
 
         Exit;
@@ -3401,7 +3404,7 @@ begin
 
     BT_AMP:
       begin
-        Result := NormalScanRef(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
+        Result := NormalScanRef(Enc, PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)),
           Stop, NextTokPtr);
 
         Exit;
@@ -3409,17 +3412,17 @@ begin
 
     BT_CR:
       begin
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
         if Ptr = Stop then
         begin
-          Result := xtTrailing_CR;
+          Result := xtTrailingCR;
 
           Exit;
         end;
 
         if ByteType(Enc, Ptr) = BT_LF then
-          Inc(PtrComp(Ptr), MINBPC(Enc));
+          Inc(PtrComp(Ptr), MinBPC(Enc));
 
         NextTokPtr^ := Ptr;
 
@@ -3430,7 +3433,7 @@ begin
 
     BT_LF:
       begin
-        NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+        NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
         Result := xtDataNewLine;
 
@@ -3439,7 +3442,7 @@ begin
 
     BT_RSQB:
       begin
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
         if Ptr = Stop then
         begin
@@ -3451,7 +3454,7 @@ begin
         if CharMatches(Enc, Ptr, Integer(ASCII_RSQB)) = 0 then
           goto _break;
 
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
         if Ptr = Stop then
         begin
@@ -3462,7 +3465,7 @@ begin
 
         if CharMatches(Enc, Ptr, Integer(ASCII_GT)) = 0 then
         begin
-          Dec(PtrComp(Ptr), MINBPC(Enc));
+          Dec(PtrComp(Ptr), MinBPC(Enc));
 
           goto _break;
         end;
@@ -3548,7 +3551,7 @@ begin
     { INVALID_CASES #define }
 
   else
-    Inc(PtrComp(Ptr), MINBPC(Enc));
+    Inc(PtrComp(Ptr), MinBPC(Enc));
   end;
 
 _break:
@@ -3601,27 +3604,27 @@ _break:
 
       BT_RSQB:
         begin
-          if PtrComp(Ptr) + MINBPC(Enc) <> PtrComp(Stop) then
+          if PtrComp(Ptr) + MinBPC(Enc) <> PtrComp(Stop) then
           begin
-            if CharMatches(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
+            if CharMatches(Enc, PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)),
               Integer(ASCII_RSQB)) = 0 then
             begin
-              Inc(PtrComp(Ptr), MINBPC(Enc));
+              Inc(PtrComp(Ptr), MinBPC(Enc));
 
               goto _break2;
             end;
 
-            if PtrComp(Ptr) + 2 * MINBPC(Enc) <> PtrComp(Stop) then
+            if PtrComp(Ptr) + 2 * MinBPC(Enc) <> PtrComp(Stop) then
             begin
-              if CharMatches(Enc, PAnsiChar(PtrComp(Ptr) + 2 * MINBPC(Enc)),
+              if CharMatches(Enc, PAnsiChar(PtrComp(Ptr) + 2 * MinBPC(Enc)),
                 Integer(ASCII_GT)) = 0 then
               begin
-                Inc(PtrComp(Ptr), MINBPC(Enc));
+                Inc(PtrComp(Ptr), MinBPC(Enc));
 
                 goto _break2;
               end;
 
-              NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + 2 * MINBPC(Enc));
+              NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + 2 * MinBPC(Enc));
 
               Result := xtInvalid;
 
@@ -3644,7 +3647,7 @@ _break:
         end;
 
     else
-      Inc(PtrComp(Ptr), MINBPC(Enc));
+      Inc(PtrComp(Ptr), MinBPC(Enc));
     end;
 
 _break2:
@@ -3693,7 +3696,7 @@ begin
         begin
           if Ptr = Start then
           begin
-            Result := NormalScanRef(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)),
+            Result := NormalScanRef(Enc, PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)),
               Stop, NextTokPtr);
 
             Exit;
@@ -3720,7 +3723,7 @@ begin
         begin
           if Ptr = Start then
           begin
-            NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+            NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
             Result := xtDataNewLine;
 
@@ -3738,17 +3741,17 @@ begin
         begin
           if Ptr = Start then
           begin
-            Inc(PtrComp(Ptr), MINBPC(Enc));
+            Inc(PtrComp(Ptr), MinBPC(Enc));
 
             if Ptr = Stop then
             begin
-              Result := xtTrailing_CR;
+              Result := xtTrailingCR;
 
               Exit;
             end;
 
             if ByteType(Enc, Ptr) = BT_LF then
-              Inc(PtrComp(Ptr), MINBPC(Enc));
+              Inc(PtrComp(Ptr), MinBPC(Enc));
 
             NextTokPtr^ := Ptr;
 
@@ -3768,7 +3771,7 @@ begin
         begin
           if Ptr = Start then
           begin
-            NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+            NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
             Result := xtAttributeValue_S;
 
@@ -3782,7 +3785,7 @@ begin
           Exit;
         end;
     else
-      Inc(PtrComp(Ptr), MINBPC(Enc));
+      Inc(PtrComp(Ptr), MinBPC(Enc));
     end;
 
   NextTokPtr^ := Ptr;
@@ -3818,7 +3821,7 @@ begin
       Exit;
     end;
 
-    Inc(PtrComp(Ptr1), MINBPC(Enc));
+    Inc(PtrComp(Ptr1), MinBPC(Enc));
     Inc(PtrComp(Ptr2));
   end;
 
@@ -3845,7 +3848,7 @@ begin
 
       BT_NONASCII, BT_NMSTRT, {$IFDEF XML_NS}BT_COLON, {$ENDIF}
       BT_HEX, BT_DIGIT, BT_NAME, BT_MINUS:
-        Inc(PtrComp(Ptr), MINBPC(Enc));
+        Inc(PtrComp(Ptr), MinBPC(Enc));
 
     else
       begin
@@ -3871,10 +3874,10 @@ end;
 function NormalGetAtts(Enc: PEncoding; Ptr: PAnsiChar; AttsMax: Integer;
   Atts: PAttribute): Integer;
 type
-  State_enum = (Other, InName, InValue);
+  TStateEnum = (Other, InName, InValue);
 
 var
-  State: State_enum;
+  State: TStateEnum;
   NAtts, Open: Integer;
 begin
   State := InName;
@@ -3882,7 +3885,7 @@ begin
   Open := 0; { defined when state = inValue;
     initialization just to shut up compilers }
 
-  Inc(PtrComp(Ptr), MINBPC(Enc));
+  Inc(PtrComp(Ptr), MinBPC(Enc));
 
   repeat
     case ByteType(Enc, Ptr) of
@@ -3901,7 +3904,7 @@ begin
             State := InName;
           end;
 
-          Inc(PtrComp(Ptr), 2 - MINBPC(Enc));
+          Inc(PtrComp(Ptr), 2 - MinBPC(Enc));
         end;
 
       BT_LEAD3:
@@ -3919,7 +3922,7 @@ begin
             State := InName;
           end;
 
-          Inc(PtrComp(Ptr), 3 - MINBPC(Enc));
+          Inc(PtrComp(Ptr), 3 - MinBPC(Enc));
         end;
 
       BT_LEAD4:
@@ -3937,7 +3940,7 @@ begin
             State := InName;
           end;
 
-          Inc(PtrComp(Ptr), 4 - MINBPC(Enc));
+          Inc(PtrComp(Ptr), 4 - MinBPC(Enc));
         end;
 
       BT_NONASCII, BT_NMSTRT, BT_HEX:
@@ -3959,7 +3962,7 @@ begin
         begin
           if NAtts < AttsMax then
             PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))^.ValuePtr
-              := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+              := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
           State := InValue;
           Open := BT_QUOT;
@@ -3980,7 +3983,7 @@ begin
         begin
           if NAtts < AttsMax then
             PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))^.ValuePtr
-              := PAnsiChar(PtrComp(Ptr) + MINBPC(Enc));
+              := PAnsiChar(PtrComp(Ptr) + MinBPC(Enc));
 
           State := InValue;
           Open := BT_APOS;
@@ -4009,9 +4012,9 @@ begin
           <> #0) and
           ((Ptr = PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
           ^.ValuePtr) or (ByteToASCII(Enc, Ptr) <> Integer(ASCII_SPACE)) or
-          (ByteToASCII(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc)))
+          (ByteToASCII(Enc, PAnsiChar(PtrComp(Ptr) + MinBPC(Enc)))
           = Integer(ASCII_SPACE)) or
-          (ByteType(Enc, PAnsiChar(PtrComp(Ptr) + MINBPC(Enc))) = Open)) then
+          (ByteType(Enc, PAnsiChar(PtrComp(Ptr) + MinBPC(Enc))) = Open)) then
           PAttribute(PtrComp(Atts) + NAtts * SizeOf(TAttribute))
             ^.Normalized := #0;
 
@@ -4033,7 +4036,7 @@ begin
         end;
     end;
 
-    Inc(PtrComp(Ptr), MINBPC(Enc));
+    Inc(PtrComp(Ptr), MinBPC(Enc));
   until False;
 
   { not reached }
@@ -4065,24 +4068,26 @@ begin
 
       BT_LF:
         begin
-          Pos.ColumnNumber := TXmlSize(-1);
-
           Inc(Pos.LineNumber);
-          Inc(PtrComp(Ptr), MINBPC(Enc));
+          Inc(PtrComp(Ptr), MinBPC(Enc));
+
+          Pos.ColumnNumber := 0;
+          Continue;
         end;
 
       BT_CR:
         begin
           Inc(Pos.LineNumber);
-          Inc(PtrComp(Ptr), MINBPC(Enc));
+          Inc(PtrComp(Ptr), MinBPC(Enc));
 
           if (Ptr <> Stop) and (ByteType(Enc, Ptr) = BT_LF) then
-            Inc(PtrComp(Ptr), MINBPC(Enc));
+            Inc(PtrComp(Ptr), MinBPC(Enc));
 
-          Pos.ColumnNumber := TXmlSize(-1);
+          Pos.ColumnNumber := 0;
+          Continue;
         end;
     else
-      Inc(PtrComp(Ptr), MINBPC(Enc));
+      Inc(PtrComp(Ptr), MinBPC(Enc));
     end;
 
     Inc(Pos.ColumnNumber);
@@ -4095,8 +4100,8 @@ label
   _else;
 
 begin
-  Inc(PtrComp(Ptr), MINBPC(Enc));
-  Dec(PtrComp(Stop), MINBPC(Enc));
+  Inc(PtrComp(Ptr), MinBPC(Enc));
+  Dec(PtrComp(Stop), MinBPC(Enc));
 
   while Ptr <> Stop do
   begin
@@ -4133,7 +4138,7 @@ begin
         end;
     end;
 
-    Inc(PtrComp(Ptr), MINBPC(Enc));
+    Inc(PtrComp(Ptr), MinBPC(Enc));
   end;
 
   Result := 1;
@@ -4161,20 +4166,21 @@ const
 
     MinBytesPerChar: 1;
 
-    IsUtf8: #1; IsUtf16: #0); Type_: ({$I asciitab.inc}
-{$I utf8tab.inc});
+    IsUtf8: #1; IsUtf16: #0); Type_: (
+      {$I asciitab.inc}
+      {$I utf8tab.inc}
+    );
 
 {$IFDEF XML_MIN_SIZE}
     ByteType: SbByteType; IsNameMin: IsNever; IsNmstrtMin: IsNever;
     ByteToAscii: SbByteToAscii; CharMatches: SbCharMatches;
-
 {$ENDIF}
     IsName2: Utf8IsName2; IsName3: Utf8IsName3; IsName4: IsNever;
     IsNmstrt2: Utf8IsNmstrt2; IsNmstrt3: Utf8IsNmstrt3; IsNmstrt4: IsNever;
     IsInvalid2: Utf8IsInvalid2; IsInvalid3: Utf8IsInvalid3;
     IsInvalid4: Utf8IsInvalid4);
-
 {$ENDIF}
+
   Utf8_encoding: TNormalEncoding = (Enc: (Scanners: (NormalPrologTok,
     NormalContentTok, NormalCDataSectionTok
     {$IFDEF XML_DTD}, NormalIgnoreSectionTok
@@ -4190,13 +4196,14 @@ const
 
     MinBytesPerChar: 1;
 
-    IsUtf8: #1; IsUtf16: #0); Type_: ({$I asciitab_bt_colon_.inc}
-{$I utf8tab.inc});
+    IsUtf8: #1; IsUtf16: #0); Type_: (
+      {$I asciitab_bt_colon_.inc}
+      {$I utf8tab.inc}
+    );
 
 {$IFDEF XML_MIN_SIZE}
     ByteType: SbByteType; IsNameMin: IsNever; IsNmstrtMin: IsNever;
     ByteToAscii: SbByteToAscii; CharMatches: SbCharMatches;
-
 {$ENDIF}
     IsName2: Utf8IsName2; IsName3: Utf8IsName3; IsName4: IsNever;
     IsNmstrt2: Utf8IsNmstrt2; IsNmstrt3: Utf8IsNmstrt3; IsNmstrt4: IsNever;
@@ -4219,20 +4226,21 @@ const
 
     MinBytesPerChar: 1;
 
-    IsUtf8: #1; IsUtf16: #0); Type_: ({$I iasciitab.inc}
-{$I utf8tab.inc});
+    IsUtf8: #1; IsUtf16: #0); Type_: (
+      {$I iasciitab.inc}
+      {$I utf8tab.inc}
+    );
 
 {$IFDEF XML_MIN_SIZE}
     ByteType: SbByteType; IsNameMin: IsNever; IsNmstrtMin: IsNever;
     ByteToAscii: SbByteToAscii; CharMatches: SbCharMatches;
-
 {$ENDIF}
     IsName2: Utf8IsName2; IsName3: Utf8IsName3; IsName4: IsNever;
     IsNmstrt2: Utf8IsNmstrt2; IsNmstrt3: Utf8IsNmstrt3; IsNmstrt4: IsNever;
     IsInvalid2: Utf8IsInvalid2; IsInvalid3: Utf8IsInvalid3;
     IsInvalid4: Utf8IsInvalid4);
-
 {$ENDIF}
+
   Internal_utf8_encoding: TNormalEncoding =
     (Enc: (Scanners: (NormalPrologTok, NormalContentTok,
     NormalCDataSectionTok {$IFDEF XML_DTD}, NormalIgnoreSectionTok
@@ -4248,13 +4256,14 @@ const
 
     MinBytesPerChar: 1;
 
-    IsUtf8: #1; IsUtf16: #0); Type_: ({$I iasciitab_bt_colon_.inc}
-{$I utf8tab.inc});
+    IsUtf8: #1; IsUtf16: #0); Type_: (
+      {$I iasciitab_bt_colon_.inc}
+      {$I utf8tab.inc}
+    );
 
 {$IFDEF XML_MIN_SIZE}
     ByteType: SbByteType; IsNameMin: IsNever; IsNmstrtMin: IsNever;
     ByteToAscii: SbByteToAscii; CharMatches: SbCharMatches;
-
 {$ENDIF}
     IsName2: Utf8IsName2; IsName3: Utf8IsName3; IsName4: IsNever;
     IsNmstrt2: Utf8IsNmstrt2; IsNmstrt3: Utf8IsNmstrt3; IsNmstrt4: IsNever;
@@ -4263,55 +4272,40 @@ const
 
 {$IFDEF XML_NS}
   Latin1_encoding_ns: TNormalEncoding = (); {..}
-
 {$ENDIF}
   Latin1_encoding: TNormalEncoding = (); {..}
 
 {$IFDEF XML_NS}
   Ascii_encoding_ns: TNormalEncoding = (); {..}
-
 {$ENDIF}
   Ascii_encoding: TNormalEncoding = (); {..}
 
 {$IFDEF XML_NS}
   Little2_encoding_ns: TNormalEncoding = (); {..}
-
 {$ENDIF}
   Little2_encoding: TNormalEncoding = (); {..}
 
 {$IFDEF XML_NS}
   Big2_encoding_ns: TNormalEncoding = (); {..}
-
 {$ENDIF}
   Big2_encoding: TNormalEncoding = (); {..}
 
-  { If this enumeration is changed, getEncodingIndex and encodings
-    must also be changed. }
-  UNKNOWN_ENC = -1;
-  ISO_8859_1_ENC = 0;
-  US_ASCII_ENC = 1;
-  UTF_8_ENC = 2;
-  UTF_16_ENC = 3;
-  UTF_16BE_ENC = 4;
-  UTF_16LE_ENC = 5;
-  NO_ENC = 6; { must match encodingNames up to here }
-
-  KW_ISO_8859_1: array [0..10] of AnsiChar = (ASCII_I, ASCII_S, ASCII_O,
+  CKeywordISO_8859_1: array [0..10] of AnsiChar = (ASCII_I, ASCII_S, ASCII_O,
     ASCII_MINUS, ASCII_8, ASCII_8, ASCII_5, ASCII_9, ASCII_MINUS, ASCII_1, #0);
 
-  KW_US_ASCII: array [0..8] of AnsiChar = (ASCII_U, ASCII_S, ASCII_MINUS, ASCII_A,
+  CKeywordUS_ASCII: array [0..8] of AnsiChar = (ASCII_U, ASCII_S, ASCII_MINUS, ASCII_A,
     ASCII_S, ASCII_C, ASCII_I, ASCII_I, #0);
 
-  KW_UTF_8: array [0..5] of AnsiChar = (ASCII_U, ASCII_T, ASCII_F, ASCII_MINUS,
+  CKeywordUtf8: array [0..5] of AnsiChar = (ASCII_U, ASCII_T, ASCII_F, ASCII_MINUS,
     ASCII_8, #0);
 
-  KW_UTF_16: array [0..6] of AnsiChar = (ASCII_U, ASCII_T, ASCII_F, ASCII_MINUS,
+  CKeywordUtf16: array [0..6] of AnsiChar = (ASCII_U, ASCII_T, ASCII_F, ASCII_MINUS,
     ASCII_1, ASCII_6, #0);
 
-  KW_UTF_16BE: array [0..8] of AnsiChar = (ASCII_U, ASCII_T, ASCII_F, ASCII_MINUS,
+  CKeywordUtf16BE: array [0..8] of AnsiChar = (ASCII_U, ASCII_T, ASCII_F, ASCII_MINUS,
     ASCII_1, ASCII_6, ASCII_B, ASCII_E, #0);
 
-  KW_UTF_16LE: array [0..8] of AnsiChar = (ASCII_U, ASCII_T, ASCII_F, ASCII_MINUS,
+  CKeywordUtf16LE: array [0..8] of AnsiChar = (ASCII_U, ASCII_T, ASCII_F, ASCII_MINUS,
     ASCII_1, ASCII_6, ASCII_L, ASCII_E, #0);
 
 function Streqci(S1, S2: PAnsiChar): Integer;
@@ -4352,50 +4346,48 @@ procedure InitUpdatePosition(Enc: PEncoding; Ptr, Stop: PAnsiChar;
 begin
 end;
 
-function GetEncodingIndex(Name: PAnsiChar): Integer;
+function GetEncodingIndex(Name: PAnsiChar): TEncodingType;
 const
-  EncodingNames: array [0..5] of PAnsiChar = (@KW_ISO_8859_1, @KW_US_ASCII,
-    @KW_UTF_8, @KW_UTF_16, @KW_UTF_16BE, @KW_UTF_16LE);
+  EncodingNames: array [0..5] of PAnsiChar = (@CKeywordISO_8859_1, @CKeywordUS_ASCII,
+    @CKeywordUtf8, @CKeywordUtf16, @CKeywordUtf16BE, @CKeywordUtf16LE);
 
 var
   I: Integer;
 
 begin
   if name = nil then
-    Result := NO_ENC
+    Result := etNone
   else
   begin
     I := 0;
 
     while I < SizeOf(EncodingNames) div SizeOf(EncodingNames[0]) do
     begin
-      if Streqci(name, EncodingNames[I]) <> 0 then
+      if Streqci(Name, EncodingNames[I]) <> 0 then
       begin
-        Result := I;
+        Result := TEncodingType(I);
 
         Exit;
       end;
 
       Inc(I);
-
     end;
 
-    Result := UNKNOWN_ENC;
-
+    Result := etUnknown;
   end;
 end;
 
 { This is what detects the TEncoding.  encodingTable maps from
   TEncoding indices to encodings; int8u(enc.initEnc.isUtf16 ) is the index of
   the external (protocol) specified TEncoding; state is
-  XML_CONTENT_STATE if we're parsing an external text entity, and
-  XML_PROLOG_STATE otherwise. }
+  CXmlContentState if we're parsing an external text entity, and
+  CXmlPrologState otherwise. }
 function InitScan(EncodingTable: PPEncoding; Enc: PInitEncoding;
   State: Integer; Ptr, Stop: PAnsiChar; NextTokPtr: PPAnsiChar): TXmlTok;
 var
   EncPtr: PPEncoding;
 
-  E: Integer;
+  E: TEncodingType;
 
 label
   _003C, _esc;
@@ -4415,7 +4407,7 @@ begin
   begin
 {$IFNDEF XML_DTD} { FIXME }
     { a well-formed document entity must have more than one byte }
-    if State <> XML_CONTENT_STATE then
+    if State <> CXmlContentState then
     begin
       Result := xtPartial;
 
@@ -4426,7 +4418,7 @@ begin
     { so we're parsing an external text entity... }
     { if UTF-16 was externally specified, then we need at least 2 bytes }
     case InitEncIndex(Enc) of
-      UTF_16_ENC, UTF_16LE_ENC, UTF_16BE_ENC:
+      etUTF_16, etUTF_16LE, etUTF_16BE:
         begin
           Result := xtPartial;
 
@@ -4436,7 +4428,7 @@ begin
 
     case Int8u(Ptr^) of
       $FE, $FF, $EF: { possibly first byte of UTF-8 BOM }
-        if (InitEncIndex(Enc) = ISO_8859_1_ENC) and (State = XML_CONTENT_STATE)
+        if (InitEncIndex(Enc) = etISO_8859_1) and (State = CXmlContentState)
         then
         else
           goto _003C;
@@ -4454,12 +4446,12 @@ begin
   else
     case (PtrComp(Ptr^) shl 8) or PByte(PtrComp(Ptr) + 1)^ of
       $FEFF:
-        if (InitEncIndex(Enc) = ISO_8859_1_ENC) and (State = XML_CONTENT_STATE)
+        if (InitEncIndex(Enc) = etISO_8859_1) and (State = CXmlContentState)
         then
         else
         begin
           NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + 2);
-          EncPtr^ := PPEncoding(PtrComp(EncodingTable) + UTF_16BE_ENC *
+          EncPtr^ := PPEncoding(PtrComp(EncodingTable) + Integer(etUTF_16BE) *
             SizeOf(PEncoding))^;
 
           Result := xtBom;
@@ -4469,12 +4461,12 @@ begin
 
       { 00 3C is handled in the default case }
       $3C00:
-        if ((InitEncIndex(Enc) = UTF_16BE_ENC) or
-          (InitEncIndex(Enc) = UTF_16_ENC)) and (State = XML_CONTENT_STATE)
+        if ((InitEncIndex(Enc) = etUTF_16BE) or
+          (InitEncIndex(Enc) = etUTF_16)) and (State = CXmlContentState)
         then
         else
         begin
-          EncPtr^ := PPEncoding(PtrComp(EncodingTable) + UTF_16LE_ENC *
+          EncPtr^ := PPEncoding(PtrComp(EncodingTable) + Integer(etUTF_16LE) *
             SizeOf(PEncoding))^;
           Result := XmlTok_(EncPtr^, State, Ptr, Stop, NextTokPtr);
 
@@ -4482,12 +4474,12 @@ begin
         end;
 
       $FFFE:
-        if (InitEncIndex(Enc) = ISO_8859_1_ENC) and (State = XML_CONTENT_STATE)
+        if (InitEncIndex(Enc) = etISO_8859_1) and (State = CXmlContentState)
         then
         else
         begin
           NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + 2);
-          EncPtr^ := PPEncoding(PtrComp(EncodingTable) + UTF_16LE_ENC *
+          EncPtr^ := PPEncoding(PtrComp(EncodingTable) + Integer(etUTF_16LE) *
             SizeOf(PEncoding))^;
 
           Result := xtBom;
@@ -4503,12 +4495,12 @@ begin
         because it might be a legal data. }
       $EFBB:
         begin
-          if State = XML_CONTENT_STATE then
+          if State = CXmlContentState then
           begin
             E := InitEncIndex(Enc);
 
-            if (E = ISO_8859_1_ENC) or (E = UTF_16BE_ENC) or (E = UTF_16LE_ENC)
-              or (E = UTF_16_ENC) then
+            if (E = etISO_8859_1) or (E = etUTF_16BE) or (E = etUTF_16LE)
+              or (E = etUTF_16) then
               goto _esc;
           end;
 
@@ -4522,7 +4514,7 @@ begin
           if PByte(PtrComp(Ptr) + 2)^ = $BF then
           begin
             NextTokPtr^ := PAnsiChar(PtrComp(Ptr) + 3);
-            EncPtr^ := PPEncoding(PtrComp(EncodingTable) + UTF_8_ENC *
+            EncPtr^ := PPEncoding(PtrComp(EncodingTable) + Integer(etUTF_8) *
               SizeOf(PEncoding))^;
 
             Result := xtBom;
@@ -4539,11 +4531,11 @@ begin
         UTF-16LE. }
       if Ptr^ = #0 then
       begin
-        if (State = XML_CONTENT_STATE) and (InitEncIndex(Enc) = UTF_16LE_ENC)
+        if (State = CXmlContentState) and (InitEncIndex(Enc) = etUTF_16LE)
         then
           goto _esc;
 
-        EncPtr^ := PPEncoding(PtrComp(EncodingTable) + UTF_16BE_ENC *
+        EncPtr^ := PPEncoding(PtrComp(EncodingTable) + Integer(etUTF_16BE) *
           SizeOf(PEncoding))^;
         Result := XmlTok_(EncPtr^, State, Ptr, Stop, NextTokPtr);
 
@@ -4560,17 +4552,17 @@ begin
           whether we needed further bytes. }
         if PByte(PtrComp(Ptr) + 1)^ = 0 then
         begin
-          if State = XML_CONTENT_STATE then
+          if State = CXmlContentState then
             goto _esc;
 
-          EncPtr^ := PPEncoding(PtrComp(EncodingTable) + UTF_16LE_ENC *
+          EncPtr^ := PPEncoding(PtrComp(EncodingTable) + Integer(etUTF_16LE) *
             SizeOf(PEncoding))^;
           Result := XmlTok_(EncPtr^, State, Ptr, Stop, NextTokPtr);
         end;
     end;
 
 _esc:
-  EncPtr^ := PPEncoding(PtrComp(EncodingTable) + InitEncIndex(Enc) *
+  EncPtr^ := PPEncoding(PtrComp(EncodingTable) + IntegeR(InitEncIndex(Enc)) *
     SizeOf(PEncoding))^;
   Result := XmlTok_(EncPtr^, State, Ptr, Stop, NextTokPtr);
 end;
@@ -4751,7 +4743,6 @@ begin
   Result := 1;
 end;
 
-{ doParseXmlDecl }
 function DoParseXmlDecl(EncodingFinder: TEncodingFinder;
   IsGeneralTextEntity: Integer; Enc: PEncoding; Ptr, Stop: PAnsiChar;
   BadPtr, VersionPtr, VersionEndPtr, EncodingName: PPAnsiChar;
@@ -4778,7 +4769,7 @@ begin
     Exit;
   end;
 
-  if XmlNameMatchesAscii(Enc, name, NameEnd, @KW_version[0]) = 0 then
+  if XmlNameMatchesAscii(Enc, name, NameEnd, @CKeyWordVersion[0]) = 0 then
     if IsGeneralTextEntity = 0 then
     begin
       BadPtr^ := name;
@@ -4822,7 +4813,7 @@ begin
     end;
   end;
 
-  if XmlNameMatchesAscii(Enc, name, NameEnd, @KW_encoding[0]) <> 0 then
+  if XmlNameMatchesAscii(Enc, name, NameEnd, @CKeyWordEncoding[0]) <> 0 then
   begin
     C := ToAscii(Enc, Val, Stop);
 
@@ -4859,7 +4850,7 @@ begin
     end;
   end;
 
-  if (XmlNameMatchesAscii(Enc, name, NameEnd, @KW_standalone[0]) = 0) or
+  if (XmlNameMatchesAscii(Enc, name, NameEnd, @CKeyWordStandalone[0]) = 0) or
     (IsGeneralTextEntity <> 0) then
   begin
     BadPtr^ := name;
@@ -4869,12 +4860,12 @@ begin
   end;
 
   if XmlNameMatchesAscii(Enc, Val, PAnsiChar(PtrComp(Ptr) - Enc.MinBytesPerChar),
-    @KW_yes[0]) <> 0 then
+    @CKeyWordYes[0]) <> 0 then
     if Standalone <> nil then
       Standalone^ := 1
     else
   else if XmlNameMatchesAscii(Enc, Val,
-    PAnsiChar(PtrComp(Ptr) - Enc.MinBytesPerChar), @KW_no[0]) <> 0 then
+    PAnsiChar(PtrComp(Ptr) - Enc.MinBytesPerChar), @CKeyWordNo[0]) <> 0 then
     if Standalone <> nil then
       Standalone^ := 0
     else
@@ -4905,16 +4896,16 @@ const
   EncodingsNS: array [0 .. 6] of PEncoding = (@Latin1_encoding_ns.Enc,
     @Ascii_encoding_ns.Enc, @Utf8_encoding_ns.Enc, @Big2_encoding_ns.Enc,
     @Big2_encoding_ns.Enc, @Little2_encoding_ns.Enc, @Utf8_encoding_ns.Enc);
-  { NO_ENC }
+  { etNone }
 {$ENDIF}
   Encodings: array [0 .. 6] of PEncoding = (@Latin1_encoding.Enc,
     @Ascii_encoding.Enc, @Utf8_encoding.Enc, @Big2_encoding.Enc,
-    @Big2_encoding.Enc, @Little2_encoding.Enc, @Utf8_encoding.Enc); { NO_ENC }
+    @Big2_encoding.Enc, @Little2_encoding.Enc, @Utf8_encoding.Enc); { CEncodingNone }
 
 function InitScanProlog(Enc: PEncoding; Ptr, Stop: PAnsiChar;
   NextTokPtr: PPAnsiChar): TXmlTok;
 begin
-  Result := InitScan(@Encodings, PInitEncoding(Enc), XML_PROLOG_STATE, Ptr,
+  Result := InitScan(@Encodings, PInitEncoding(Enc), CXmlPrologState, Ptr,
     Stop, NextTokPtr);
 end;
 
@@ -4926,11 +4917,11 @@ end;
 function XmlInitEncoding(P: PInitEncoding; EncPtr: PPEncoding;
   Name: PAnsiChar): Integer;
 var
-  I: Integer;
+  I: TEncodingType;
 begin
-  I := GetEncodingIndex(name);
+  I := GetEncodingIndex(Name);
 
-  if I = UNKNOWN_ENC then
+  if I = etUnknown then
   begin
     Result := 0;
     Exit;
@@ -4938,8 +4929,8 @@ begin
 
   SetInitEncIndex(P, I);
 
-  P.InitEnc.Scanners[XML_PROLOG_STATE] := @InitScanProlog;
-  P.InitEnc.Scanners[XML_CONTENT_STATE] := @InitScanContent;
+  P.InitEnc.Scanners[CXmlPrologState] := @InitScanProlog;
+  P.InitEnc.Scanners[CXmlContentState] := @InitScanContent;
 
   P.InitEnc.UpdatePosition := @InitUpdatePosition;
 
@@ -4965,7 +4956,7 @@ end;
 
 function XmlGetInternalEncoding: PEncoding;
 begin
-{$IFDEF XML_UNICODE }
+{$IFDEF XML_UNICODE}
   Result := XmlGetUtf16InternalEncoding;
 {$ELSE}
   Result := XmlGetUtf8InternalEncoding;
@@ -5012,13 +5003,13 @@ end;
 function XmlPrologTok(Enc: PEncoding; Ptr, Stop: PAnsiChar;
   NextTokPtr: PPAnsiChar): TXmlTok;
 begin
-  Result := XmlTok_(Enc, XML_PROLOG_STATE, Ptr, Stop, NextTokPtr);
+  Result := XmlTok_(Enc, CXmlPrologState, Ptr, Stop, NextTokPtr);
 end;
 
 function XmlContentTok(Enc: PEncoding; Ptr, Stop: PAnsiChar;
   NextTokPtr: PPAnsiChar): TXmlTok;
 begin
-  Result := XmlTok_(Enc, XML_CONTENT_STATE, Ptr, Stop, NextTokPtr);
+  Result := XmlTok_(Enc, CXmlContentState, Ptr, Stop, NextTokPtr);
 end;
 
 function XmlIsPublicId(Enc: PEncoding; Ptr, Stop: PAnsiChar;
@@ -5056,14 +5047,14 @@ end;
 function XmlAttributeValueTok(Enc: PEncoding; Ptr, Stop: PAnsiChar;
   NextTokPtr: PPAnsiChar): TXmlTok;
 begin
-  Result := XmlLiteralTok(Enc, XML_ATTRIBUTE_VALUE_LITERAL, Ptr, Stop,
+  Result := XmlLiteralTok(Enc, CXmlAttributeValueLiteral, Ptr, Stop,
     NextTokPtr);
 end;
 
 function XmlEntityValueTok(Enc: PEncoding; Ptr, Stop: PAnsiChar;
   NextTokPtr: PPAnsiChar): TXmlTok;
 begin
-  Result := XmlLiteralTok(Enc, XML_ENTITY_VALUE_LITERAL, Ptr, Stop, NextTokPtr);
+  Result := XmlLiteralTok(Enc, CXmlEntityValueLiteral, Ptr, Stop, NextTokPtr);
 end;
 
 function XmlSameName(Enc: PEncoding; Ptr1, Ptr2: PAnsiChar): Integer;
@@ -5071,17 +5062,19 @@ begin
   Result := Enc.SameName(Enc, Ptr1, Ptr2);
 end;
 
-function XmlNameMatchesAscii;
+function XmlNameMatchesAscii(Enc: PEncoding;
+  Ptr1, End1, Ptr2: PAnsiChar): Integer;
 begin
   Result := Enc.NameMatchesAscii(Enc, Ptr1, End1, Ptr2);
 end;
 
-function XmlNameLength;
+function XmlNameLength(Enc: PEncoding; Ptr: PAnsiChar): Integer;
 begin
   Result := Enc.NameLength(Enc, Ptr);
 end;
 
-function XmlGetAttributes;
+function XmlGetAttributes(Enc: PEncoding; Ptr: PAnsiChar; AttsMax: Integer;
+  Atts: PAttribute): Integer;
 begin
   Result := Enc.GetAtts(Enc, Ptr, AttsMax, Atts);
 end;
@@ -5096,7 +5089,10 @@ begin
   Result := Enc.PredefinedEntityName(Enc, Ptr, Stop);
 end;
 
-function XmlParseXmlDeclNS;
+function XmlParseXmlDeclNS(IsGeneralTextEntity: Integer; Enc: PEncoding;
+  Ptr, Stop: PAnsiChar; BadPtr, VersionPtr, VersionEndPtr, EncodingNamePtr
+  : PPAnsiChar; NamedEncodingPtr: PPEncoding;
+  StandalonePtr: PInteger): Integer;
 begin
 end;
 

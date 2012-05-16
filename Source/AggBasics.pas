@@ -311,27 +311,27 @@ function IntersectRectanglesDouble(const R1, R2: TRectDouble): TRectDouble;
 function UniteRectangles(const R1, R2: TRectInteger): TRectInteger;
 function UniteRectanglesDouble(const R1, R2: TRectDouble): TRectDouble;
 
-function IsVertex(CX: Cardinal): Boolean;
-function IsDrawing(CX: Cardinal): Boolean;
-function IsStop(CX: Cardinal): Boolean;
-function IsMove(CX: Cardinal): Boolean;
-function IsLineTo(CX: Cardinal): Boolean;
-function IsMoveTo(CX: Cardinal): Boolean;
-function IsCurve(CX: Cardinal): Boolean;
-function IsCurve3(CX: Cardinal): Boolean;
-function IsCurve4(CX: Cardinal): Boolean;
-function IsEndPoly(CX: Cardinal): Boolean;
-function IsClose(CX: Cardinal): Boolean;
-function IsNextPoly(CX: Cardinal): Boolean;
-function IsClockwise(CX: Cardinal): Boolean;
-function IsCounterClockwise(CX: Cardinal): Boolean;
-function IsOriented(CX: Cardinal): Boolean;
-function IsClosed(CX: Cardinal): Boolean;
+function IsVertex(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function IsDrawing(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function IsStop(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function IsMove(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function IsLineTo(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function IsMoveTo(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function IsCurve(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function IsCurve3(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function IsCurve4(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function IsEndPoly(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function IsClose(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function IsNextPoly(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function IsClockwise(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function IsCounterClockwise(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function IsOriented(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function IsClosed(CX: Cardinal): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 
-function GetCloseFlag(CX: Cardinal): Cardinal;
-function ClearOrientation(CX: Cardinal): Cardinal;
-function GetOrientation(CX: Cardinal): Cardinal;
-function SetOrientation(CX, O: Cardinal): Cardinal;
+function GetCloseFlag(CX: Cardinal): Cardinal; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function ClearOrientation(CX: Cardinal): Cardinal; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function GetOrientation(CX: Cardinal): Cardinal; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function SetOrientation(CX, O: Cardinal): Cardinal; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 
 procedure SwapPointers(A, B: Pointer); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 function IntToDouble(I: Integer): Double;
