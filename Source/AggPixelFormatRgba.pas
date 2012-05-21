@@ -118,6 +118,7 @@ begin
 end;
 
 procedure Order32GammaDirApply(This: TAggPixelFormatProcessor; P: PInt8u);
+  {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 begin
   PInt8u(PtrComp(P) + This.Order.R)^ :=
     Int8u(This.Apply.Dir[PInt8u(PtrComp(P) + This.Order.R)^]);
@@ -128,6 +129,7 @@ begin
 end;
 
 procedure Order32GammaInvApply(This: TAggPixelFormatProcessor; P: PInt8u);
+  {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 begin
   PInt8u(PtrComp(P) + This.Order.R)^ :=
     Int8u(This.Apply.Inv[PInt8u(PtrComp(P) + This.Order.R)^]);

@@ -5,11 +5,17 @@ program GouraudMesh;
 
 {$I AggCompiler.inc}
 
+{-$DEFINE UseLists}
+
 uses
   {$IFDEF USE_FASTMM4}
   FastMM4,
   {$ENDIF}
   SysUtils,
+
+  {$IFDEF UseLists}
+  Classes,
+  {$ENDIF}
 
   AggPlatformSupport, // please add the path to this file manually
 
@@ -19,7 +25,6 @@ uses
   AggMath in '..\..\Source\AggMath.pas',
   AggMathStroke in '..\..\Source\AggMathStroke.pas',
 
-  AggControl in '..\..\Source\AggControl.pas',
   AggRendererBase in '..\..\Source\AggRendererBase.pas',
   AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
   AggConvTransform in '..\..\Source\AggConvTransform.pas',
@@ -42,7 +47,8 @@ const
 type
   PMeshPoint = ^TMeshPoint;
   TMeshPoint = record
-    X, Y, Dx, Dy: Double;
+    X, Y: Double;
+    Delta: TPointDouble;
     Color, DeltaColor: TAggColor;
   end;
 
@@ -65,7 +71,11 @@ type
     FDragIndex: Integer;
     FCellWidth, FCellHeight: Double;
     FDragDelta, FStart: TPointDouble;
+    {$IFDEF UseLists}
+    FVertices, FTriangles, FEdges: TList;
+    {$ELSE}
     FVertices, FTriangles, FEdges: TAggPodBVector;
+    {$ENDIF}
     function GetNumVertices: Cardinal;
     function GetNumEdges: Cardinal;
     function GetNumTriangles: Cardinal;
@@ -140,16 +150,21 @@ type
 
 constructor TMeshControl.Create;
 begin
+  {$IFDEF UseLists}
+  FVertices := TList.Create;
+  FTriangles := TList.Create;
+  FEdges := TList.Create;
+  {$ELSE}
   FVertices := TAggPodBVector.Create(SizeOf(TMeshPoint));
   FTriangles := TAggPodBVector.Create(SizeOf(TMeshTriangle));
   FEdges := TAggPodBVector.Create(SizeOf(TMeshEdge));
+  {$ENDIF}
 
   FCols := 0;
   FRows := 0;
 
   FDragIndex := -1;
-  FDragDelta.X := 0;
-  FDragDelta.y := 0;
+  FDragDelta := PointDouble(0, 0);
 end;
 
 destructor TMeshControl.Destroy;
@@ -164,25 +179,31 @@ procedure TMeshControl.Generate(Cols, Rows: Cardinal;
   CellW, CellH, StartX, StartY: Double);
 var
   I, J: Cardinal;
-  X, Dx, Dy: Double;
+  X: Double;
+  Delta: TPointDouble;
   Pnt : array [0..3] of Integer;
   CurrentCell, LeftCell, BottomCell: Integer;
-  CurrentT, LeftT, BottomT: array [1..2] of Integer;
+  CurrentT, LeftT, BottomT: array [0..1] of Integer;
   C, Dc: TAggColor;
   C1, C2, C3: Int8u;
-  Mp: TMeshPoint;
-  Mt: TMeshTriangle;
-  Me: TMeshEdge;
+  Mp: PMeshPoint;
+  Mt: PMeshTriangle;
+  Me: PMeshEdge;
 begin
   FCols := Cols;
   FRows := Rows;
   FCellWidth := CellW;
   FCellHeight := CellH;
 
-  FStart.X := StartX;
-  FStart.Y := StartY;
+  FStart := PointDouble(StartX, StartY);
 
-  FVertices.RemoveAll;
+  FVertices.Clear;
+
+  {$IFNDEF UseLists}
+  GetMem(Mp, SizeOf(TMeshPoint));
+  GetMem(Mt, SizeOf(TMeshTriangle));
+  GetMem(Me, SizeOf(TMeshEdge));
+  {$ENDIF}
 
   I := 0;
 
@@ -193,8 +214,8 @@ begin
 
     while J < FCols do
     begin
-      Dx := RandomMinMax(-0.5, 0.5);
-      Dy := RandomMinMax(-0.5, 0.5);
+      Delta.X := RandomMinMax(-0.5, 0.5);
+      Delta.Y := RandomMinMax(-0.5, 0.5);
 
       C1 := Random($100);
       C2 := Random($100);
@@ -208,13 +229,15 @@ begin
 
       Dc.FromRgbaInteger(C3, C2, C1);
 
-      Mp.X := X;
-      Mp.Y := StartY;
-      Mp.Dx := Dx;
-      Mp.Dy := Dy;
-      Mp.Color := C;
-      Mp.DeltaColor := Dc;
-      FVertices.Add(@Mp);
+      {$IFDEF UseLists}
+      GetMem(Mp, SizeOf(TMeshPoint));
+      {$ENDIF}
+      Mp^.X := X;
+      Mp^.Y := StartY;
+      Mp^.Delta := Delta;
+      Mp^.Color := C;
+      Mp^.DeltaColor := Dc;
+      FVertices.Add(Mp);
 
       X := X + CellW;
 
@@ -231,8 +254,8 @@ begin
   // | / |
   // |/t1|
   // 1---2
-  FTriangles.RemoveAll;
-  FEdges.RemoveAll;
+  FTriangles.Clear;
+  FEdges.Clear;
 
   I := 0;
 
@@ -247,15 +270,21 @@ begin
       Pnt[2] := Pnt[1] + FCols;
       Pnt[3] := Pnt[0] + FCols;
 
-      Mt.Pnt[0] := Pnt[0];
-      Mt.Pnt[1] := Pnt[1];
-      Mt.Pnt[2] := Pnt[2];
-      FTriangles.Add(@Mt);
+      {$IFDEF UseLists}
+      GetMem(Mt, SizeOf(TMeshTriangle));
+      {$ENDIF}
+      Mt^.Pnt[0] := Pnt[0];
+      Mt^.Pnt[1] := Pnt[1];
+      Mt^.Pnt[2] := Pnt[2];
+      FTriangles.Add(Mt);
 
-      Mt.Pnt[0] := Pnt[2];
-      Mt.Pnt[1] := Pnt[3];
-      Mt.Pnt[2] := Pnt[0];
-      FTriangles.Add(@Mt);
+      {$IFDEF UseLists}
+      GetMem(Mt, SizeOf(TMeshTriangle));
+      {$ENDIF}
+      Mt^.Pnt[0] := Pnt[2];
+      Mt^.Pnt[1] := Pnt[3];
+      Mt^.Pnt[2] := Pnt[0];
+      FTriangles.Add(Mt);
 
       CurrentCell := I * (FCols - 1) + J;
 
@@ -269,63 +298,78 @@ begin
       else
         BottomCell := -1;
 
-      CurrentT[1] := CurrentCell * 2;
-      CurrentT[2] := CurrentT[1] + 1;
+      CurrentT[0] := CurrentCell * 2;
+      CurrentT[1] := CurrentT[0] + 1;
 
       if LeftCell >= 0 then
-        LeftT[1] := LeftCell * 2
+        LeftT[0] := LeftCell * 2
+      else
+        LeftT[0] := -1;
+
+      if LeftCell >= 0 then
+        LeftT[1] := LeftT[0] + 1
       else
         LeftT[1] := -1;
 
-      if LeftCell >= 0 then
-        LeftT[2] := LeftT[1] + 1
+      if BottomCell >= 0 then
+        BottomT[0] := BottomCell * 2
       else
-        LeftT[2] := -1;
+        BottomT[0] := -1;
 
       if BottomCell >= 0 then
-        BottomT[1] := BottomCell * 2
+        BottomT[1] := BottomT[0] + 1
       else
         BottomT[1] := -1;
 
-      if BottomCell >= 0 then
-        BottomT[2] := BottomT[1] + 1
-      else
-        BottomT[2] := -1;
+      {$IFDEF UseLists}
+      GetMem(Me, SizeOf(TMeshEdge));
+      {$ENDIF}
+      Me^.Pnt[0] := Pnt[0];
+      Me^.Pnt[1] := Pnt[1];
+      Me^.Left := CurrentT[0];
+      Me^.Right := BottomT[1];
+      FEdges.Add(Me);
 
-      Me.Pnt[0] := Pnt[0];
-      Me.Pnt[1] := Pnt[1];
-      Me.Left := CurrentT[1];
-      Me.Right := BottomT[2];
-      FEdges.Add(@Me);
+      {$IFDEF UseLists}
+      GetMem(Me, SizeOf(TMeshEdge));
+      {$ENDIF}
+      Me^.Pnt[0] := Pnt[0];
+      Me^.Pnt[1] := Pnt[2];
+      Me^.Left := CurrentT[1];
+      Me^.Right := CurrentT[0];
+      FEdges.Add(Me);
 
-      Me.Pnt[0] := Pnt[0];
-      Me.Pnt[1] := Pnt[2];
-      Me.Left := CurrentT[2];
-      Me.Right := CurrentT[1];
-      FEdges.Add(@Me);
-
-      Me.Pnt[0] := Pnt[0];
-      Me.Pnt[1] := Pnt[3];
-      Me.Left := LeftT[1];
-      Me.Right := CurrentT[2];
-      FEdges.Add(@Me);
+      {$IFDEF UseLists}
+      GetMem(Me, SizeOf(TMeshEdge));
+      {$ENDIF}
+      Me^.Pnt[0] := Pnt[0];
+      Me^.Pnt[1] := Pnt[3];
+      Me^.Left := LeftT[0];
+      Me^.Right := CurrentT[1];
+      FEdges.Add(Me);
 
       if J = FCols - 2 then // Last column
       begin
-        Me.Pnt[0] := Pnt[1];
-        Me.Pnt[1] := Pnt[2];
-        Me.Left := CurrentT[1];
-        Me.Right := -1;
-        FEdges.Add(@Me);
+        {$IFDEF UseLists}
+        GetMem(Me, SizeOf(TMeshEdge));
+        {$ENDIF}
+        Me^.Pnt[0] := Pnt[1];
+        Me^.Pnt[1] := Pnt[2];
+        Me^.Left := CurrentT[0];
+        Me^.Right := -1;
+        FEdges.Add(Me);
       end;
 
       if I = FRows - 2 then // Last row
       begin
-        Me.Pnt[0] := Pnt[2];
-        Me.Pnt[1] := Pnt[3];
-        Me.Left := CurrentT[2];
-        Me.Right := -1;
-        FEdges.Add(@Me);
+        {$IFDEF UseLists}
+        GetMem(Me, SizeOf(TMeshEdge));
+        {$ENDIF}
+        Me^.Pnt[0] := Pnt[2];
+        Me^.Pnt[1] := Pnt[3];
+        Me^.Left := CurrentT[1];
+        Me^.Right := -1;
+        FEdges.Add(Me);
       end;
 
       Inc(J);
@@ -351,38 +395,38 @@ begin
     begin
       Xc := J * FCellWidth + FStart.X;
       Yc := I * FCellHeight + FStart.Y;
-      X1 := Xc - FCellWidth* 0.25;
-      Y1 := Yc - FCellHeight* 0.25;
-      X2 := Xc + FCellWidth* 0.25;
-      Y2 := Yc + FCellHeight* 0.25;
+      X1 := Xc - FCellWidth * 0.25;
+      Y1 := Yc - FCellHeight * 0.25;
+      X2 := Xc + FCellWidth * 0.25;
+      Y2 := Yc + FCellHeight * 0.25;
 
       P := Vertex(J, I);
 
-      P.X := P.X + P.Dx;
-      P.Y := P.Y + P.Dy;
+      P.X := P.X + P.Delta.X;
+      P.Y := P.Y + P.Delta.Y;
 
       if P.X < X1 then
       begin
         P.X := X1;
-        P.Dx := -P.Dx;
+        P.Delta.X := -P.Delta.X;
       end;
 
       if P.Y < Y1 then
       begin
         P.Y := Y1;
-        P.Dy := -P.Dy;
+        P.Delta.Y := -P.Delta.Y;
       end;
 
       if P.X > X2 then
       begin
         P.X := X2;
-        P.Dx := -P.Dx;
+        P.Delta.X := -P.Delta.X;
       end;
 
       if P.Y > Y2 then
       begin
         P.Y := Y2;
-        P.Dy := -P.Dy;
+        P.Delta.Y := -P.Delta.Y;
       end;
 
       Inc(J);
@@ -400,7 +444,11 @@ var
 begin
   I := 1;
 
+  {$IFDEF UseLists}
+  while I < FVertices.Count do
+  {$ELSE}
   while I < FVertices.Size do
+  {$ENDIF}
   begin
     C := @PMeshPoint(FVertices[I]).Color;
     Dc := @PMeshPoint(FVertices[I]).DeltaColor;
@@ -475,7 +523,11 @@ begin
   begin
     I := 0;
 
+    {$IFDEF UseLists}
+    while I < FVertices.Count do
+    {$ELSE}
     while I < FVertices.Size do
+    {$ENDIF}
     begin
       if CalculateDistance(X, Y, PMeshPoint(FVertices[I]).X,
         PMeshPoint(FVertices[I]).Y) < 5 then
@@ -520,7 +572,11 @@ end;
 
 function TMeshControl.GetNumVertices: Cardinal;
 begin
+  {$IFDEF UseLists}
+  Result := FVertices.Count;
+  {$ELSE}
   Result := FVertices.Size;
+  {$ENDIF}
 end;
 
 function TMeshControl.Vertex(I: Cardinal): PMeshPoint;
@@ -535,7 +591,11 @@ end;
 
 function TMeshControl.GetNumTriangles: Cardinal;
 begin
+  {$IFDEF UseLists}
+  Result := FTriangles.Count;
+  {$ELSE}
   Result := FTriangles.Size;
+  {$ENDIF}
 end;
 
 function TMeshControl.Triangle(I: Cardinal): PMeshTriangle;
@@ -545,7 +605,11 @@ end;
 
 function TMeshControl.GetNumEdges: Cardinal;
 begin
+  {$IFDEF UseLists}
+  Result := FEdges.Count;
+  {$ELSE}
   Result := FEdges.Size;
+  {$ENDIF}
 end;
 
 function TMeshControl.Edge(I: Cardinal): PMeshEdge;
@@ -584,8 +648,8 @@ begin
     C2.ApplyGammaDir(Gamma);
     C2.ApplyGammaDir(Gamma);
 
-    Gouraud := TAggSpanGouraudRgba.Create(@C1, @C2, @C3, Pnt[0].X, Pnt[0].Y, Pnt[1].X, Pnt[1].Y,
-      Pnt[2].X, Pnt[2].Y);
+    Gouraud := TAggSpanGouraudRgba.Create(@C1, @C2, @C3, Pnt[0].X, Pnt[0].Y,
+      Pnt[1].X, Pnt[1].Y, Pnt[2].X, Pnt[2].Y);
 
     Gouraud.Prepare;
     FTriangles.Add(@Gouraud);

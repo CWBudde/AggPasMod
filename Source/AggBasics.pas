@@ -228,7 +228,7 @@ type
     class operator NotEqual(const Lhs, Rhs: TRectInteger): Boolean;
     class operator Add(const Lhs, Rhs: TRectInteger): TRectInteger;
     class operator Subtract(const Lhs, Rhs: TRectInteger): TRectInteger;
-    class function Zero: TRectInteger; inline; static;
+    class function Zero: TRectInteger; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF} static;
 
     procedure Normalize;
     function Clip(var Rect: TRectInteger): Boolean;
@@ -261,7 +261,7 @@ type
     class operator Add(const Lhs, Rhs: TRectDouble): TRectDouble;
     class operator Subtract(const Lhs, Rhs: TRectDouble): TRectDouble;
 
-    class function Zero: TRectDouble; inline; static;
+    class function Zero: TRectDouble; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF} static;
 
     class operator Implicit(const Value: TRectInteger): TRectDouble;
 
@@ -359,13 +359,13 @@ function PointDouble(Value: Double): TPointDouble; overload;
   {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 
 function PointIntegerOffset(Point: TPointInteger; Value: Integer)
-  : TPointInteger; inline;
+  : TPointInteger; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 function PointDoubleOffset(Point: TPointDouble; Value: Double): TPointDouble;
-  inline;
+  {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 function PointIntegerScale(Point: TPointInteger; Value: Integer): TPointInteger;
-  inline;
+  {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 function PointDoubleScale(Point: TPointDouble; Value: Double): TPointDouble;
-  inline;
+  {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 
 function QuadDouble(RectDouble: TRectDouble): TQuadDouble;
   {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
@@ -379,6 +379,8 @@ procedure Srand(Seed: Integer);
 function Rand: Integer;
 *)
 
+function EnsureRange(const Value, Min, Max: Integer): Integer;
+  {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 function UnsignedRound(V: Double): Cardinal;
   {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 function IntegerRound(V: Double): Integer;
@@ -1105,7 +1107,7 @@ begin
   Result.Y := Y;
 end;
 
-function PointInteger(Value: Integer): TPointInteger; overload; inline;
+function PointInteger(Value: Integer): TPointInteger;
 begin
   Result.X := Value;
   Result.Y := Value;
@@ -1161,16 +1163,14 @@ begin
 end;
 
 
-(*
-var
-  GRandomSeed: Integer = 1;
-
-function Rand: Integer;
+function EnsureRange(const Value, Min, Max: Integer): Integer;
 begin
-  GRandomSeed := GRandomSeed * 214013 + 2531011;
-  Result := GRandomSeed;
+  Result := Value;
+  if Result < Min then
+    Result := Min;
+  if Result > Max then
+    Result := Max;
 end;
-*)
 
 function UnsignedRound(V: Double): Cardinal;
 begin

@@ -40,7 +40,7 @@ type
   TAggDdaLineInterpolator = record
   private
     FY, FInc, FDeltaY, FFractionShift, YShift: Integer;
-    function GetY: Integer;
+    function GetY: Integer; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
   public
     procedure Initialize(FS: Integer; YS: Integer = 0); overload;
     procedure Initialize(Y1, Y2: Integer; Count: Cardinal; FS: Integer;

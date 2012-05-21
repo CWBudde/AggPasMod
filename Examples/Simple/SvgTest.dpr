@@ -43,8 +43,10 @@ type
   TAggApplication = class(TPlatformSupport)
   private
     FPath: TPathRenderer;
-    FSliderExpand, FSliderGamma: TAggControlSlider;
-    FSliderScale, FSliderRotate: TAggControlSlider;
+    FSliderExpand: TAggControlSlider;
+    FSliderGamma: TAggControlSlider;
+    FSliderScale: TAggControlSlider;
+    FSliderRotate: TAggControlSlider;
     FX, FY: Double;
     FMin, FMax, FDelta: TPointDouble;
     FDragFlag: Boolean;
@@ -269,8 +271,7 @@ end;
 procedure TAggApplication.OnMouseButtonDown(X, Y: Integer;
   Flags: TMouseKeyboardFlags);
 begin
-  FDelta.X := X - FX;
-  FDelta.Y := Y - FY;
+  FDelta := PointDouble(X - FX, Y - FY);
 
   FDragFlag := True;
 end;
@@ -340,7 +341,7 @@ end;
 
 var
   FileName: ShortString;
-  Af   : TApiFile;
+  ApiFile: TApiFile;
 
 begin
   with TAggApplication.Create(pfBgra32, CFlipY) do
@@ -351,8 +352,8 @@ begin
       FileName := Param_str(1)
     else
     begin
-      if ApiOpenFile(Af, FileName) then
-        ApiCloseFile(Af)
+      if ApiOpenFile(ApiFile, FileName) then
+        ApiCloseFile(ApiFile)
       else
       begin
         DisplayMessage('Usage: svg_test <svg_file>');
