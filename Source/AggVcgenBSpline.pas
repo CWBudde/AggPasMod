@@ -340,7 +340,6 @@ _next:
             Result := CAggPathCmdMoveTo
           else
             Result := CAggPathCmdLineTo;
-
           Exit;
         end;
 
@@ -348,14 +347,12 @@ _next:
         begin
           FStatus := siStop;
           Result := CAggPathCmdEndPoly or FClosed;
-
           Exit;
         end;
 
       siStop:
         begin
           Result := CAggPathCmdStop;
-
           Exit;
         end;
     end;

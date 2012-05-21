@@ -1094,7 +1094,7 @@ begin
   FCount := 0;
 end;
 
-procedure TAggCurve4Div.Init;
+procedure TAggCurve4Div.Init(CurvePoints: PAggCurve4Points);
 begin
   Init4(CurvePoints^.Point[0], CurvePoints^.Point[1], CurvePoints^.Point[2],
     CurvePoints^.Point[3]);

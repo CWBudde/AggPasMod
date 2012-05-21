@@ -95,7 +95,7 @@ type
 
     function FindFace(Name: AnsiString): Integer;
 
-    procedure SetHinting(H: Boolean);
+    procedure SetHinting(Value: Boolean);
     procedure SetFlipY(Flip: Boolean);
   protected
     function GetGlyphIndex: Cardinal; override;
@@ -118,8 +118,8 @@ type
     function Attach(FileName: PAnsiChar): Boolean;
 
     function SetCharMap(Map: TAggFreeTypeEncoding): Boolean;
-    function SetHeight(H: Double): Boolean;
-    function SetWidth(W: Double): Boolean;
+    function SetHeight(Value: Double): Boolean;
+    function SetWidth(Value: Double): Boolean;
     procedure SetTransform(Affine: TAggTransAffine);
 
     // Set Gamma
@@ -916,10 +916,10 @@ begin
   end;
 end;
 
-function TAggFontEngineFreetypeBase.SetHeight(H: Double): Boolean;
+function TAggFontEngineFreetypeBase.SetHeight(Value: Double): Boolean;
 begin
   Result := False;
-  FHeight := Trunc(H * 64.0);
+  FHeight := Trunc(Value * 64.0);
 
   if FCurFace <> nil then
   begin
@@ -929,10 +929,10 @@ begin
   end;
 end;
 
-function TAggFontEngineFreetypeBase.SetWidth(W: Double): Boolean;
+function TAggFontEngineFreetypeBase.SetWidth(Value: Double): Boolean;
 begin
   Result := False;
-  FWidth := Trunc(W * 64.0);
+  FWidth := Trunc(Value * 64.0);
 
   if FCurFace <> nil then
   begin
@@ -942,9 +942,9 @@ begin
   end;
 end;
 
-procedure TAggFontEngineFreetypeBase.SetHinting(H: Boolean);
+procedure TAggFontEngineFreetypeBase.SetHinting(Value: Boolean);
 begin
-  FHinting := H;
+  FHinting := Value;
 
   if FCurFace <> nil then
     UpdateSignature;

@@ -177,16 +177,13 @@ end;
 function TAggConvAdaptorVcgen.Vertex(X, Y: PDouble): Cardinal;
 var
   Cmd : Cardinal;
-  Done: Boolean;
 label
-  _acc, _gen, _end;
+  _acc, _gen;
 
 begin
   Cmd := CAggPathCmdStop;
-  Done := False;
 
-  while not Done do
-  begin
+  repeat
     case FStatus of
       siInitial:
         begin
@@ -204,7 +201,6 @@ begin
           if IsStop(FLastCmd) then
           begin
             Result := CAggPathCmdStop;
-
             Exit;
           end;
 
@@ -221,9 +217,7 @@ begin
 
               if IsMoveTo(Cmd) then
               begin
-                FStart.X := X^;
-                FStart.Y := Y^;
-
+                FStart := PointDouble(X^, Y^);
                 Break;
               end;
 
@@ -235,22 +229,18 @@ begin
               if IsStop(Cmd) then
               begin
                 FLastCmd := CAggPathCmdStop;
-
                 Break;
               end;
 
               if IsEndPoly(Cmd) then
               begin
                 FGenerator.AddVertex(X^, Y^, Cmd);
-
                 Break;
               end;
             end;
-
           until False;
 
           FGenerator.Rewind(0);
-
           FStatus := siGenerate;
 
           goto _gen;
@@ -264,16 +254,13 @@ begin
           if IsStop(Cmd) then
           begin
             FStatus := siAccumulate;
-
-            goto _end;
+            Continue;
           end;
 
-          Done := True;
+          Break;
         end;
     end;
-
-  _end:
-  end;
+  until False;
 
   Result := Cmd;
 end;

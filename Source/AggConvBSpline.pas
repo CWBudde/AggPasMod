@@ -71,7 +71,7 @@ begin
   FGenerator.InterpolationStep := Value;
 end;
 
-function TAggConvBSpline.GetInterpolationStep;
+function TAggConvBSpline.GetInterpolationStep: Double;
 begin
   Result := FGenerator.InterpolationStep;
 end;

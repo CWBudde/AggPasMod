@@ -180,40 +180,35 @@ var
   Bmi: PBITMAPINFO;
 
   BmpSize: Cardinal;
-label
-  Bmperr;
-
 begin
   BlockRead(Fd, Bmf, SizeOf(Bmf));
 
-  if Bmf.BfType <> $4D42 then
-    goto Bmperr;
+  try
+    if Bmf.BfType <> $4D42 then
+      raise Exception.Create('Bitmap magic not found');
 
-  BmpSize := Bmf.BfSize - SizeOf(BITMAPFILEHEADER);
+    BmpSize := Bmf.BfSize - SizeOf(BITMAPFILEHEADER);
 
-  AggGetMem(Pointer(Bmi), BmpSize);
-  BlockRead(Fd, Bmi^, BmpSize, Sz);
+    AggGetMem(Pointer(Bmi), BmpSize);
+    BlockRead(Fd, Bmi^, BmpSize, Sz);
 
-  if Sz <> BmpSize then
-    goto Bmperr;
+    if Sz <> BmpSize then
+      raise Exception.Create('Bitmap size mismatch');
 
-  FreeBitmap;
+    FreeBitmap;
 
-  FBitsPerPixel := Bmi.BmiHeader.BiBitCount;
+    FBitsPerPixel := Bmi.BmiHeader.BiBitCount;
 
-  CreateFromBitmap(Bmi);
+    CreateFromBitmap(Bmi);
 
-  FIsInternal := True;
+    FIsInternal := True;
+    Result := True;
+  except
+    if Bmi <> nil then
+      AggFreeMem(Pointer(Bmi), BmpSize);
 
-  Result := True;
-
-  Exit;
-
-Bmperr:
-  if Bmi <> nil then
-    AggFreeMem(Pointer(Bmi), BmpSize);
-
-  Result := False;
+    Result := False;
+  end;
 end;
 
 function TPixelMap.LoadFromBitmap(Filename: TFileName): Boolean;

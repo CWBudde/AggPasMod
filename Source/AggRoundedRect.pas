@@ -322,7 +322,8 @@ begin
   case FStatus of
     0:
       begin
-        FArc.Init(FPoint[0].X + FRadius[0].X, FPoint[0].Y + FRadius[0].Y, FRadius[0].X, FRadius[0].Y, Pi, Pi + Pi * 0.5);
+        FArc.Init(FPoint[0].X + FRadius[0].X, FPoint[0].Y + FRadius[0].Y,
+          FRadius[0].X, FRadius[0].Y, Pi, Pi + Pi * 0.5);
         FArc.Rewind(0);
 
         Inc(FStatus);
@@ -338,14 +339,11 @@ begin
         if IsStop(Cmd) then
         begin
           Inc(FStatus);
-
           goto _2;
-
         end
         else
         begin
           Result := Cmd;
-
           Exit;
         end;
       end;
@@ -353,12 +351,11 @@ begin
     2:
     _2:
       begin
-        FArc.Init(FPoint[1].X - FRadius[1].X, FPoint[0].Y + FRadius[1].Y, FRadius[1].X, FRadius[1].Y,
-          Pi + Pi * 0.5, 0.0);
+        FArc.Init(FPoint[1].X - FRadius[1].X, FPoint[0].Y + FRadius[1].Y,
+          FRadius[1].X, FRadius[1].Y, Pi + Pi * 0.5, 0.0);
         FArc.Rewind(0);
 
         Inc(FStatus);
-
         goto _3;
       end;
 
@@ -370,14 +367,11 @@ begin
         if IsStop(Cmd) then
         begin
           Inc(FStatus);
-
           goto _4;
-
         end
         else
         begin
           Result := CAggPathCmdLineTo;
-
           Exit;
         end;
       end;
@@ -385,11 +379,11 @@ begin
     4:
     _4:
       begin
-        FArc.Init(FPoint[1].X - FRadius[2].X, FPoint[1].Y - FRadius[2].Y, FRadius[2].X, FRadius[2].Y, 0.0, Pi * 0.5);
+        FArc.Init(FPoint[1].X - FRadius[2].X, FPoint[1].Y - FRadius[2].Y,
+          FRadius[2].X, FRadius[2].Y, 0.0, Pi * 0.5);
         FArc.Rewind(0);
 
         Inc(FStatus);
-
         goto _5;
       end;
 
@@ -401,14 +395,11 @@ begin
         if IsStop(Cmd) then
         begin
           Inc(FStatus);
-
           goto _6;
-
         end
         else
         begin
           Result := CAggPathCmdLineTo;
-
           Exit;
         end;
       end;
@@ -416,11 +407,11 @@ begin
     6:
     _6:
       begin
-        FArc.Init(FPoint[0].X + FRadius[3].X, FPoint[1].Y - FRadius[3].Y, FRadius[3].X, FRadius[3].Y, Pi * 0.5, Pi);
+        FArc.Init(FPoint[0].X + FRadius[3].X, FPoint[1].Y - FRadius[3].Y,
+          FRadius[3].X, FRadius[3].Y, Pi * 0.5, Pi);
         FArc.Rewind(0);
 
         Inc(FStatus);
-
         goto _7;
       end;
 
@@ -432,14 +423,11 @@ begin
         if IsStop(Cmd) then
         begin
           Inc(FStatus);
-
           goto _8;
-
         end
         else
         begin
           Result := CAggPathCmdLineTo;
-
           Exit;
         end;
       end;
@@ -448,7 +436,6 @@ begin
     _8:
       begin
         Cmd := CAggPathCmdEndPoly or CAggPathFlagsClose or CAggPathFlagsCcw;
-
         Inc(FStatus);
       end;
   end;

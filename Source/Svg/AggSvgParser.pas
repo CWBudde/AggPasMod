@@ -382,16 +382,12 @@ function HexCardinal(Hexstr: PAnsiChar): Cardinal;
   end;
 
 var
-  H            : ShortString;
-  Fcb          : Byte;
-  Yps, Mul, Num: Cardinal;
-
-label
-  Err, Esc;
+  H: ShortString;
+  Fcb: Byte;
+  Yps, Mul: Cardinal;
 
 const
   Hex: string[16] = '0123456789ABCDEF';
-
 begin
   H := '';
 
@@ -407,10 +403,10 @@ begin
     case H[Length(H)] of
       '0'..'9', 'A'..'F':
       else
-        goto Err;
+        raise Exception.CreateFmt('Invalid character (%d)', [H[Length(H)]]);
     end;
 
-    Num := Pos(H[Length(H)], Hex) - 1;
+    Result := Pos(H[Length(H)], Hex) - 1;
     Yps := 2;
     Mul := Xyint(4, Yps);
 
@@ -420,23 +416,17 @@ begin
         case H[Fcb] of
           '0'..'9', 'A'..'F':
           else
-            goto Err;
+            raise Exception.CreateFmt('Invalid character (%d)', [H[Fcb]]);
         end;
 
-        Inc(Num, (Pos(H[Fcb], Hex) - 1) * Mul);
+        Inc(Result, (Pos(H[Fcb], Hex) - 1) * Mul);
         Inc(Yps, 2);
 
         Mul := Xyint(4, Yps);
       end;
 
-    goto Esc;
+    Exit;
   end;
-
-Err:
-  Num := 0;
-
-Esc:
-  Result := Num;
 end;
 
 function ParseColor(Str: PAnsiChar): TAggColor;
@@ -456,7 +446,6 @@ begin
     U := HexCardinal(Str);
 
     Result.Rgba8 := Rgb8Packed(U);
-
   end
   else
   begin
