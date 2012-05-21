@@ -19,7 +19,7 @@ uses
   AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
   AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
 
-  AggControl in '..\..\Source\AggControl.pas',
+  AggControl in '..\..\Source\Controls\AggControl.pas',
   AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
   AggCheckBoxControl in '..\..\Source\Controls\AggCheckBoxControl.pas',
 

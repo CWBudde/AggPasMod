@@ -19,8 +19,8 @@ uses
 
   AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggControl in '..\..\Source\AggControl.pas',
-  AggSliderControl in '..\..\Source\AggSliderControl.pas',
+  AggControl in '..\..\Source\Controls\AggControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
 
   AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
   AggScanLine in '..\..\Source\AggScanLine.pas',

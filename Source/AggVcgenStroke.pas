@@ -283,27 +283,28 @@ end;
 function TAggVcgenStroke.Vertex(X, Y: PDouble): Cardinal;
 var
   C: PPointDouble;
+  Cmd: Cardinal;
 label
-  _rdy, Out2;
+  Rdy, Out2;
 begin
-  Result := CAggPathCmdLineTo;
+  Cmd := CAggPathCmdLineTo;
 
-  while not IsStop(Result) do
+  while not IsStop(Cmd) do
   begin
     case FStatus of
       seInitial:
         begin
           Rewind(0);
-          goto _rdy;
+          goto Rdy;
         end;
 
       seReady:
         begin
-        _rdy:
+        Rdy:
           if FSourceVertices.Size < 2 + Cardinal(FClosed <> 0) then
           begin
-            Result := CAggPathCmdStop;
-            Exit;
+            Cmd := CAggPathCmdStop;
+            Continue;
           end;
 
           if (FClosed <> 0) then
@@ -311,7 +312,7 @@ begin
           else
             FStatus := seCap1;
 
-          Result := CAggPathCmdMoveTo;
+          Cmd := CAggPathCmdMoveTo;
 
           FSourceVertex := 0;
           FOutVertex := 0;
@@ -350,13 +351,13 @@ begin
             begin
               FPrevStatus := seCloseFirst;
               FStatus := seEndPoly1;
-              Exit;
+              Continue;
             end
             else
           else if FSourceVertex >= FSourceVertices.Size - 1 then
           begin
             FStatus := seCap2;
-            Exit;
+            Continue;
           end;
 
           StrokeCalcJoin(FOutVertices, FSourceVertices.Prev(FSourceVertex),
@@ -377,7 +378,9 @@ begin
       seCloseFirst:
         begin
           FStatus := seOutline2;
-          Result := CAggPathCmdMoveTo;
+
+          Cmd := CAggPathCmdMoveTo;
+
           goto Out2;
         end;
 
@@ -388,7 +391,7 @@ begin
           begin
             FStatus := seEndPoly2;
             FPrevStatus := seStop;
-            Exit;
+            Continue;
           end;
 
           Dec(FSourceVertex);
@@ -409,6 +412,7 @@ begin
       seOutVertices:
         if FOutVertex >= FOutVertices.Size then
           FStatus := FPrevStatus
+
         else
         begin
           C := FOutVertices[FOutVertex];
@@ -418,27 +422,35 @@ begin
           X^ := C.X;
           Y^ := C.Y;
 
+          Result := Cmd;
+
           Exit;
         end;
 
       seEndPoly1:
         begin
           FStatus := FPrevStatus;
+
           Result := CAggPathCmdEndPoly or CAggPathFlagsClose or CAggPathFlagsCcw;
+
           Exit;
         end;
 
       seEndPoly2:
         begin
           FStatus := FPrevStatus;
+
           Result := CAggPathCmdEndPoly or CAggPathFlagsClose or CAggPathFlagsCw;
+
           Exit;
         end;
 
       seStop:
-        Result := CAggPathCmdStop;
+        Cmd := CAggPathCmdStop;
     end;
   end;
+
+  Result := Cmd;
 end;
 
 

@@ -6,6 +6,7 @@ interface
 
 uses
   Math,
+  SysUtils,
   AggBasics,
   AggColor,
   AggPathStorage;
@@ -408,10 +409,8 @@ end;
 
 function HexInt(H: ShortString): Integer;
 var
-  Fcb          : Byte;
-  Yps, Mul, Int: Integer;
-label
-  Err, Esc;
+  Fcb: Byte;
+  Yps, Mul: Integer;
 const
   Hex: string[16] = '0123456789ABCDEF';
 begin
@@ -422,10 +421,10 @@ begin
     case H[Length(H)] of
       '0'..'9', 'A'..'F':
       else
-        goto Err;
+        raise Exception.CreateFmt('Invalid character (%d)', [H[Length(H)]]);
     end;
 
-    Int := Pos(H[Length(H)], Hex) - 1;
+    Result := Pos(H[Length(H)], Hex) - 1;
     Yps := 2;
     Mul := Trunc(Power(4, Yps));
 
@@ -435,23 +434,15 @@ begin
         case H[Fcb] of
           '0'..'9', 'A'..'F':
           else
-            goto Err;
+            raise Exception.CreateFmt('Invalid character (%d)', [H[Fcb]]);
         end;
 
-        Inc(Int, (Pos(H[Fcb], Hex) - 1) * Mul);
+        Inc(Result, (Pos(H[Fcb], Hex) - 1) * Mul);
         Inc(Yps, 2);
 
         Mul := Trunc(Power(4, Yps));
       end;
-
-    goto Esc;
   end;
-
-Err:
-  Int := 0;
-
-Esc:
-  Result := Int;
 end;
 
 procedure Sscanf(P: PAnsiChar; var C: Cardinal);

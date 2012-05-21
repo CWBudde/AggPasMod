@@ -1437,24 +1437,14 @@ begin
 end;
 
 function PoolCopyString(Pool: PStringPool; S: PXmlChar): PXmlChar;
-label
-  _w0;
-
 begin
-  goto _w0;
-
-  while S^ <> TXmlChar(0) do
-  begin
-  _w0:
+  Result := nil;
+  repeat
     if PoolAppendChar(Pool, S^) = 0 then
-    begin
-      Result := nil;
-
       Exit;
-    end;
 
     Inc(PtrComp(S), SizeOf(TXmlChar));
-  end;
+  until S^ = TXmlChar(0);
 
   S := Pool.Start;
   PoolFinish(Pool);

@@ -141,11 +141,10 @@ end;
 
 function TAggVcgenSmoothPoly1.Vertex(X, Y: PDouble): Cardinal;
 label
-  _next, _ready, _polygon;
+  _ready, _polygon;
 begin
   Result := CAggPathCmdLineTo;
 
-_next:
   while not IsStop(Result) do
     case FStatus of
       seInitial:
@@ -161,8 +160,7 @@ _next:
           if FSourceVertices.Size < 2 then
           begin
             Result := CAggPathCmdStop;
-
-            goto _next;
+            Continue;
           end;
 
           if FSourceVertices.Size = 2 then
@@ -189,8 +187,7 @@ _next:
             end;
 
             Result := CAggPathCmdStop;
-
-            goto _next;
+            Continue;
           end;
 
           Result := CAggPathCmdMoveTo;
@@ -225,7 +222,7 @@ _next:
               (FSourceVertices[FSourceVertices.Size - 1]).Pos.Y;
 
             FStatus := seEndPoly;
-            Result := CAggPathResultCurve3;
+            Result := CAggPathCmdCurve3;
 
             Exit;
           end;

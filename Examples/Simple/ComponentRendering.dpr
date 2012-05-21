@@ -14,7 +14,7 @@ uses
 
   AggBasics in '..\..\Source\AggBasics.pas',
 
-  AggSliderControl in '..\..\Source\AggSliderControl.pas',
+  AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
 
   AggColor in '..\..\Source\AggColor.pas',
   AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
@@ -25,7 +25,7 @@ uses
   AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
   AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
   AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
-  AggControl in '..\..\Source\AggControl.pas',
+  AggControl in '..\..\Source\Controls\AggControl.pas',
   AggEllipse in '..\..\Source\AggEllipse.pas';
 
 const
