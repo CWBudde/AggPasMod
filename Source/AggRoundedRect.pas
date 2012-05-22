@@ -74,18 +74,12 @@ implementation
 
 constructor TAggRoundedRect.Create;
 begin
-  FPoint[0].X := 0;
-  FPoint[0].Y := 0;
-  FPoint[1].X := 0;
-  FPoint[1].Y := 0;
-  FRadius[0].X := 0;
-  FRadius[0].Y := 0;
-  FRadius[1].X := 0;
-  FRadius[1].Y := 0;
-  FRadius[2].X := 0;
-  FRadius[2].Y := 0;
-  FRadius[3].X := 0;
-  FRadius[3].Y := 0;
+  FPoint[0] := PointDouble(0);
+  FPoint[1] := PointDouble(0);
+  FRadius[0] := PointDouble(0);
+  FRadius[1] := PointDouble(0);
+  FRadius[2] := PointDouble(0);
+  FRadius[3] := PointDouble(0);
 
   FStatus := 0;
 
@@ -96,18 +90,12 @@ constructor TAggRoundedRect.Create(X1, Y1, X2, Y2, R: Double);
 begin
   Create;
 
-  FPoint[0].X := X1;
-  FPoint[0].Y := Y1;
-  FPoint[1].X := X2;
-  FPoint[1].Y := Y2;
-  FRadius[0].X := R;
-  FRadius[0].Y := R;
-  FRadius[1].X := R;
-  FRadius[1].Y := R;
-  FRadius[2].X := R;
-  FRadius[2].Y := R;
-  FRadius[3].X := R;
-  FRadius[3].Y := R;
+  FPoint[0] := PointDouble(X1, Y1);
+  FPoint[1] := PointDouble(X2, Y2);
+  FRadius[0] := PointDouble(R);
+  FRadius[1] := PointDouble(R);
+  FRadius[2] := PointDouble(R);
+  FRadius[3] := PointDouble(R);
 
   if X1 > X2 then
   begin
@@ -130,10 +118,8 @@ end;
 
 procedure TAggRoundedRect.Rect(X1, Y1, X2, Y2: Double);
 begin
-  FPoint[0].X := X1;
-  FPoint[0].Y := Y1;
-  FPoint[1].X := X2;
-  FPoint[1].Y := Y2;
+  FPoint[0] := PointDouble(X1, Y1);
+  FPoint[1] := PointDouble(X2, Y2);
 
   if X1 > X2 then
   begin
@@ -150,10 +136,8 @@ end;
 
 procedure TAggRoundedRect.Rect(Value: TRectDouble);
 begin
-  FPoint[0].X := Value.X1;
-  FPoint[0].Y := Value.Y1;
-  FPoint[1].X := Value.X2;
-  FPoint[1].Y := Value.Y2;
+  FPoint[0] := PointDouble(Value.X1, Value.Y1);
+  FPoint[1] := PointDouble(Value.X2, Value.Y2);
 
   if Value.X1 > Value.X2 then
   begin
@@ -170,26 +154,18 @@ end;
 
 procedure TAggRoundedRect.Radius(R: Double);
 begin
-  FRadius[0].X := R;
-  FRadius[0].Y := R;
-  FRadius[1].X := R;
-  FRadius[1].Y := R;
-  FRadius[2].X := R;
-  FRadius[2].Y := R;
-  FRadius[3].X := R;
-  FRadius[3].Y := R;
+  FRadius[0] := PointDouble(R);
+  FRadius[1] := PointDouble(R);
+  FRadius[2] := PointDouble(R);
+  FRadius[3] := PointDouble(R);
 end;
 
 procedure TAggRoundedRect.Radius(Rx, Ry: Double);
 begin
-  FRadius[0].X := Rx;
-  FRadius[1].X := Rx;
-  FRadius[2].X := Rx;
-  FRadius[3].X := Rx;
-  FRadius[0].Y := Ry;
-  FRadius[1].Y := Ry;
-  FRadius[2].Y := Ry;
-  FRadius[3].Y := Ry;
+  FRadius[0] := PointDouble(Rx, Ry);
+  FRadius[1] := PointDouble(Rx, Ry);
+  FRadius[2] := PointDouble(Rx, Ry);
+  FRadius[3] := PointDouble(Rx, Ry);
 end;
 
 procedure TAggRoundedRect.Radius(Radius: TPointDouble);
@@ -202,14 +178,10 @@ end;
 
 procedure TAggRoundedRect.Radius(BottomX, BottomY, TopX, TopY: Double);
 begin
-  FRadius[0].X := BottomX;
-  FRadius[1].X := BottomX;
-  FRadius[2].X := TopX;
-  FRadius[3].X := TopX;
-  FRadius[0].Y := BottomY;
-  FRadius[1].Y := BottomY;
-  FRadius[2].Y := TopY;
-  FRadius[3].Y := TopY;
+  FRadius[0] := PointDouble(BottomX, BottomY);
+  FRadius[1] := PointDouble(BottomX, BottomY);
+  FRadius[2] := PointDouble(TopX, TopY);
+  FRadius[3] := PointDouble(TopX, TopY);
 end;
 
 procedure TAggRoundedRect.Radius(Bottom, Top: TPointDouble);
@@ -222,14 +194,10 @@ end;
 
 procedure TAggRoundedRect.Radius(Rx1, Ry1, Rx2, Ry2, Rx3, Ry3, Rx4, Ry4: Double);
 begin
-  FRadius[0].X := Rx1;
-  FRadius[0].Y := Ry1;
-  FRadius[1].X := Rx2;
-  FRadius[1].Y := Ry2;
-  FRadius[2].X := Rx3;
-  FRadius[2].Y := Ry3;
-  FRadius[3].X := Rx4;
-  FRadius[3].Y := Ry4;
+  FRadius[0] := PointDouble(Rx1, Ry1);
+  FRadius[1] := PointDouble(Rx2, Ry2);
+  FRadius[2] := PointDouble(Rx3, Ry3);
+  FRadius[3] := PointDouble(Rx4, Ry4);
 end;
 
 procedure TAggRoundedRect.Radius(Radius1, Radius2, Radius3,
@@ -250,7 +218,6 @@ begin
   Delta.Y := Abs(FPoint[1].X - FPoint[0].X);
 
   K := 1.0;
-
   try
     T := Delta.X / (FRadius[0].X + FRadius[1].X);
 

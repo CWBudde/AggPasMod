@@ -117,7 +117,7 @@ begin
   FCurrentDash := 0;
 end;
 
-procedure TAggVcgenDash.AddDash;
+procedure TAggVcgenDash.AddDash(DashLength, GapLength: Double);
 begin
   if FNumDashes < CMaxDashes then
   begin
@@ -159,7 +159,7 @@ begin
   FClosed := 0;
 end;
 
-procedure TAggVcgenDash.AddVertex;
+procedure TAggVcgenDash.AddVertex(X, Y: Double; Cmd: Cardinal);
 var
   Vd: TAggVertexDistance;
 begin

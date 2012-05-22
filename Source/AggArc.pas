@@ -94,7 +94,7 @@ begin
   Normalize(A1, A2, Ccw);
 end;
 
-procedure TAggArc.Init;
+procedure TAggArc.Init(X, Y, Rx, Ry, A1, A2: Double; Ccw: Boolean = True);
 begin
   FX := X;
   FY := Y;
@@ -151,7 +151,7 @@ begin
   end;
 end;
 
-procedure TAggArc.Normalize;
+procedure TAggArc.Normalize(A1, A2: Double; Ccw: Boolean);
 var
   Ra: Double;
 begin

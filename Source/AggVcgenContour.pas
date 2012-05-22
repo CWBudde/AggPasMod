@@ -182,7 +182,7 @@ begin
   FStatus := siInitial;
 end;
 
-procedure TAggVcgenContour.AddVertex;
+procedure TAggVcgenContour.AddVertex(X, Y: Double; Cmd: Cardinal);
 var
   Vd: TAggVertexDistance;
 begin
