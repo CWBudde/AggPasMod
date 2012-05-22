@@ -30,7 +30,8 @@ package AggPasRunXE2;
 
 requires
   vcl,
-  rtl;
+  rtl,
+  xmlrtl;
 
 contains
   Agg2D in '..\Source\Agg2D.pas',
@@ -73,6 +74,7 @@ contains
   AggEllipse in '..\Source\AggEllipse.pas',
   AggEllipseBresenham in '..\Source\AggEllipseBresenham.pas',
   AggEmbeddedRasterFonts in '..\Source\AggEmbeddedRasterFonts.pas',
+  AggFileUtils in '..\Source\Platform\win\AggFileUtils.pas',
   AggFontCacheManager in '..\Source\AggFontCacheManager.pas',
   AggFontEngine in '..\Source\AggFontEngine.pas',
   AggFontWin32TrueType in '..\Source\AggFontWin32TrueType.pas',
@@ -99,6 +101,7 @@ contains
   AggPixelFormatTransposer in '..\Source\AggPixelFormatTransposer.pas',
   AggPlatformSupport in '..\Source\Platform\win\AggPlatformSupport.pas',
   AggPolygonControl in '..\Source\Controls\AggPolygonControl.pas',
+  AggQuadratureOscillator in '..\Source\AggQuadratureOscillator.pas',
   AggRadioBoxControl in '..\Source\Controls\AggRadioBoxControl.pas',
   AggRasterizerCellsAA in '..\Source\AggRasterizerCellsAA.pas',
   AggRasterizerCompoundAA in '..\Source\AggRasterizerCompoundAA.pas',
@@ -164,6 +167,10 @@ contains
   AggSpanSolid in '..\Source\AggSpanSolid.pas',
   AggSpanSubdivAdaptor in '..\Source\AggSpanSubdivAdaptor.pas',
   AggSplineControl in '..\Source\Controls\AggSplineControl.pas',
+  AggSvgException in '..\Source\Svg\AggSvgException.pas',
+  AggSvgParser in '..\Source\Svg\AggSvgParser.pas',
+  AggSvgPathRenderer in '..\Source\Svg\AggSvgPathRenderer.pas',
+  AggSvgPathTokenizer in '..\Source\Svg\AggSvgPathTokenizer.pas',
   AggTransAffine in '..\Source\AggTransAffine.pas',
   AggTransBilinear in '..\Source\AggTransBilinear.pas',
   AggTransDoublePath in '..\Source\AggTransDoublePath.pas',
@@ -185,7 +192,10 @@ contains
   AggVpGenClipPolyline in '..\Source\AggVpGenClipPolyline.pas',
   AggVpGenSegmentator in '..\Source\AggVpGenSegmentator.pas',
   AggWin32Bmp in '..\Source\Platform\win\AggWin32Bmp.pas',
-  AggFileUtils in '..\Source\Platform\win\AggFileUtils.pas',
-  AggQuadratureOscillator in '..\Source\AggQuadratureOscillator.pas';
+  ExpatBasics in '..\Source\3rd Party\Expat\ExpatBasics.pas',
+  ExpatExternal in '..\Source\3rd Party\Expat\ExpatExternal.pas',
+  Expat in '..\Source\3rd Party\Expat\Expat.pas',
+  xmlrole in '..\Source\3rd Party\Expat\xmlrole.pas',
+  xmltok in '..\Source\3rd Party\Expat\xmltok.pas';
 
 end.

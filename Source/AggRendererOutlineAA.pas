@@ -752,7 +752,7 @@ end;
 constructor TAggDistanceInterpolator3.Create(X1, Y1, X2, Y2, Sx, Sy, Ex, Ey,
   X, Y: Integer);
 begin
-  FDelta.X := PointInteger(X2 - X1, Y2 - Y1);
+  FDelta := PointInteger(X2 - X1, Y2 - Y1);
 
   FDeltaStart.X := LineMedResolution(Sx) - LineMedResolution(X1);
   FDeltaStart.Y := LineMedResolution(Sy) - LineMedResolution(Y1);
@@ -1991,7 +1991,7 @@ begin
     K := Width / FMinWidth;
 
     BaseVal := BaseVal * K;
-    K := 1 / K
+    K := 1 / K;
     CenterWidth := CenterWidth * K;
     SmootherWidth := SmootherWidth * K;
   end;
@@ -2169,7 +2169,7 @@ begin
   Ei.Initialize(R);
 
   Delta[0] := PointInteger(0, -R);
-  Delta[1] := Delta[0]
+  Delta[1] := Delta[0];
   X := ShrInt32(Xc1, CAggLineSubpixelShift);
   Y := ShrInt32(Yc1, CAggLineSubpixelShift);
 

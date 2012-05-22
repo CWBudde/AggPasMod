@@ -152,7 +152,6 @@ end;
 procedure TAggSpanSubdivAdaptor.IncOperator;
 var
   Len: Cardinal;
-
 begin
   FInterpolator.IncOperator;
 

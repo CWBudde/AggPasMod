@@ -342,7 +342,7 @@ end;
 
 { TAggGradientRadialDouble }
 
-function TAggGradientRadialDouble.Calculate;
+function TAggGradientRadialDouble.Calculate(X, Y, D: Integer): Integer;
 begin
   Result := Trunc(Hypot(X, Y));
 end;
@@ -392,7 +392,7 @@ begin
   Result := FFocus.Y / CAggGradientSubpixelSize;
 end;
 
-function TAggGradientRadialFocus.Calculate;
+function TAggGradientRadialFocus.Calculate(X, Y, D: Integer): Integer;
 var
   Solution: TPointDouble;
   Slope, Yint, A, B, C, Det, IntToFocus, CurToFocus: Double;
@@ -577,7 +577,7 @@ end;
 
 { TAggGradientX }
 
-function TAggGradientX.Calculate;
+function TAggGradientX.Calculate(X, Y, D: Integer): Integer;
 begin
   Result := X;
 end;
@@ -585,7 +585,7 @@ end;
 
 { TAggGradientY }
 
-function TAggGradientY.Calculate;
+function TAggGradientY.Calculate(X, Y, D: Integer): Integer;
 begin
   Result := Y;
 end;
@@ -593,7 +593,7 @@ end;
 
 { TAggGradientDiamond }
 
-function TAggGradientDiamond.Calculate;
+function TAggGradientDiamond.Calculate(X, Y, D: Integer): Integer;
 var
   Ax, Ay: Integer;
 begin
@@ -609,7 +609,7 @@ end;
 
 { TAggGradientXY }
 
-function TAggGradientXY.Calculate;
+function TAggGradientXY.Calculate(X, Y, D: Integer): Integer;
 begin
   if D = 0 then
     Result := 0
@@ -620,7 +620,7 @@ end;
 
 { TAggGradientSqrtXY }
 
-function TAggGradientSqrtXY.Calculate;
+function TAggGradientSqrtXY.Calculate(X, Y, D: Integer): Integer;
 begin
   Result := FastSqrt(Abs(X) * Abs(Y));
 end;
@@ -628,7 +628,7 @@ end;
 
 { TAggGradientConic }
 
-function TAggGradientConic.Calculate;
+function TAggGradientConic.Calculate(X, Y, D: Integer): Integer;
 begin
   Result := Trunc(Abs(ArcTan2(Y, X)) * D / Pi);
 end;
@@ -642,7 +642,7 @@ begin
   FGradient := Gradient;
 end;
 
-function TAggGradientRepeatAdaptor.Calculate;
+function TAggGradientRepeatAdaptor.Calculate(X, Y, D: Integer): Integer;
 begin
   if D = 0 then
     Result := 0
@@ -662,7 +662,7 @@ begin
   FGradient := Gradient;
 end;
 
-function TAggGradientReflectAdaptor.Calculate;
+function TAggGradientReflectAdaptor.Calculate(X, Y, D: Integer): Integer;
 var
   D2: Integer;
 begin

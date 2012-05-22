@@ -380,7 +380,9 @@ function Rand: Integer;
 *)
 
 function EnsureRange(const Value, Min, Max: Integer): Integer;
-  {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+  {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF} overload;
+function EnsureRange(const Value, Min, Max: Double): Double;
+  {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF} overload;
 function UnsignedRound(V: Double): Cardinal;
   {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 function IntegerRound(V: Double): Integer;
@@ -1164,6 +1166,15 @@ end;
 
 
 function EnsureRange(const Value, Min, Max: Integer): Integer;
+begin
+  Result := Value;
+  if Result < Min then
+    Result := Min;
+  if Result > Max then
+    Result := Max;
+end;
+
+function EnsureRange(const Value, Min, Max: Double): Double;
 begin
   Result := Value;
   if Result < Min then

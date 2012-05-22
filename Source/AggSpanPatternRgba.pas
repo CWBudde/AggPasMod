@@ -92,7 +92,7 @@ begin
   FWrapModeY.Init(Src.Height);
 end;
 
-procedure TAggSpanPatternRgba.SetSourceImage;
+procedure TAggSpanPatternRgba.SetSourceImage(Src: TAggRenderingBuffer);
 begin
   inherited SetSourceImage(Src);
 

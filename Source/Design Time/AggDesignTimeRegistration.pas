@@ -53,7 +53,7 @@ begin
   RegisterPropertyEditor(TypeInfo(TAggPackedRgba8), nil, '', TAggRgba8Property);
 
   RegisterComponents('AggPas', [TAggLabel, TAggCheckBox, TAggRadioBox,
-    TAggSlider, TAgg2DControl]);
+    TAggSlider, TAgg2DControl, TAggSVG]);
 end;
 
 end.

@@ -92,7 +92,7 @@ begin
   FWrapModeY.Init(Src.Height);
 end;
 
-procedure TAggSpanPatternRgb.SetSourceImage;
+procedure TAggSpanPatternRgb.SetSourceImage(Src: TAggRenderingBuffer);
 begin
   inherited SetSourceImage(Src);
 
@@ -100,7 +100,7 @@ begin
   FWrapModeY.Init(Src.Height);
 end;
 
-function TAggSpanPatternRgb.Generate;
+function TAggSpanPatternRgb.Generate(X, Y: Integer; Len: Cardinal): PAggColor;
 var
   Span: PAggColor;
   Sx: Cardinal;
