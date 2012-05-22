@@ -301,6 +301,7 @@ type
     procedure CMColorChanged(var Message: TLMessage); message CM_COLORCHANGED;
 {$ELSE}
     procedure CMColorChanged(var Message: TMessage); message CM_COLORCHANGED;
+    procedure CalculateTransform;
 {$ENDIF}
   protected
     procedure PaintBuffer; override;
@@ -1331,14 +1332,30 @@ begin
   Invalidate;
 end;
 
+procedure TAggSVG.CalculateTransform;
+var
+  Center: TPointDouble;
+begin
+  Center.X := 0.5 * (FBounds.X1 + FBounds.X2);
+  Center.Y := 0.5 * (FBounds.Y1 + FBounds.Y2);
+
+  FTransform.Reset;
+  FTransform.Translate(-Center.X, -Center.Y);
+  FTransform.Scale(FScale);
+  FTransform.Rotate(FAngle);
+  FTransform.Translate(Center.X, Center.Y);
+end;
+
 procedure TAggSVG.AngleChanged;
 begin
-  FTransform.Rotate(FAngle);
+  CalculateTransform;
+  Invalidate;
 end;
 
 procedure TAggSVG.ScaleChanged;
 begin
-  FTransform.Scale(FScale);
+  CalculateTransform;
+  Invalidate;
 end;
 
 procedure TAggSVG.SetAngle(const Value: Double);

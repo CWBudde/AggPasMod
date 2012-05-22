@@ -2,8 +2,8 @@ object FmSvgViewer: TFmSvgViewer
   Left = 0
   Top = 0
   Caption = 'SVG Viewer'
-  ClientHeight = 120
-  ClientWidth = 228
+  ClientHeight = 272
+  ClientWidth = 378
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,10 +17,11 @@ object FmSvgViewer: TFmSvgViewer
   object AggSVG: TAggSVG
     Left = 0
     Top = 0
-    Width = 228
-    Height = 120
+    Width = 378
+    Height = 272
     Align = alClient
-    OnMouseUp = AggSVGMouseUp
+    OnMouseDown = AggSVGMouseDown
+    OnMouseMove = AggSVGMouseMove
     Scale = 1.000000000000000000
   end
   object OpenDialog: TOpenDialog

@@ -29,6 +29,7 @@ interface
 
 uses
   SysUtils,
+  Expat,
   AnsiStrings,
   AggBasics,
   AggColor,
@@ -37,7 +38,6 @@ uses
   AggSvgException,
   AggTransAffine,
   AggMathStroke,
-  Expat,
   AggFileUtils;
 
 const
@@ -95,6 +95,21 @@ procedure Content(Data: Pointer; S: PAnsiChar; Len: Integer);
 
 implementation
 
+resourcestring
+  RCStrInvalidCharacter = 'Invalid character (%d)';
+  RCStrParseTransformArgs = 'ParseTransformArgs: Invalid syntax';
+  RCStrParseTransformTooManyArgs = 'ParseTransformArgs: Too many arguments';
+  RCStrCouldntAllocateMemory = 'Couldn''t allocate memory for parser';
+  RCStrCouldntOpenFile = 'Couldn''t open file %s';
+  RCStrSAtLineD = '%s at line %d'#13;
+  RCStrParsePolyTooFewCoords = 'ParsePoly: Too few coordinates';
+  RCStrParsePolyOddNumber = 'ParsePoly: Odd number of coordinates';
+  RCStrParseRectInvalidWidth = 'ParseRect: Invalid width: %d';
+  RCStrParseRectInvalidHeight = 'ParseRect: Invalid height: %d';
+  RCStrParseMatrixInvalid = 'ParseMatrix: Invalid number of arguments';
+  RCStrParseRotateInvalid = 'ParseRotate: Invalid number of arguments';
+  RCStrParseColorInvalidColorName = 'ParseColor: Invalid color name %s'#0;
+
 type
   PNamedColor = ^TNamedColor;
   TNamedColor = record
@@ -122,7 +137,7 @@ const
     (name: 'chartreuse'; R: 127; G: 255; B: 0; A: 255),
     (name: 'chocolate'; R: 210; G: 105; B: 30; A: 255),
     (name: 'coral'; R: 255; G: 127; B: 80; A: 255),
-    (name: 'cornfLowerblue'; R: 100; G: 149; B: 237; A: 255),
+    (name: 'cornflowerblue'; R: 100; G: 149; B: 237; A: 255),
     (name: 'cornsilk'; R: 255; G: 248; B: 220; A: 255),
     (name: 'crimson'; R: 220; G: 20; B: 60; A: 255),
     (name: 'cyan'; R: 0; G: 255; B: 255; A: 255),
@@ -160,7 +175,7 @@ const
     (name: 'goldenrod'; R: 218; G: 165; B: 32; A: 255),
     (name: 'gray'; R: 128; G: 128; B: 128; A: 255),
     (name: 'green'; R: 0; G: 128; B: 0; A: 255),
-    (name: 'greenyelLow'; R: 173; G: 255; B: 47; A: 255),
+    (name: 'greenyellow'; R: 173; G: 255; B: 47; A: 255),
     (name: 'grey'; R: 128; G: 128; B: 128; A: 255),
     (name: 'honeydew'; R: 240; G: 255; B: 240; A: 255),
     (name: 'hotpink'; R: 255; G: 105; B: 180; A: 255),
@@ -175,7 +190,7 @@ const
     (name: 'lightblue'; R: 173; G: 216; B: 230; A: 255),
     (name: 'lightcoral'; R: 240; G: 128; B: 128; A: 255),
     (name: 'lightcyan'; R: 224; G: 255; B: 255; A: 255),
-    (name: 'lightgoldenrodyelLow'; R: 250; G: 250; B: 210; A: 255),
+    (name: 'lightgoldenrodyellow'; R: 250; G: 250; B: 210; A: 255),
     (name: 'lightgray'; R: 211; G: 211; B: 211; A: 255),
     (name: 'lightgreen'; R: 144; G: 238; B: 144; A: 255),
     (name: 'lightgrey'; R: 211; G: 211; B: 211; A: 255),
@@ -186,7 +201,7 @@ const
     (name: 'lightslategray'; R: 119; G: 136; B: 153; A: 255),
     (name: 'lightslategrey'; R: 119; G: 136; B: 153; A: 255),
     (name: 'lightsteelblue'; R: 176; G: 196; B: 222; A: 255),
-    (name: 'lightyelLow'; R: 255; G: 255; B: 224; A: 255),
+    (name: 'lightyellow'; R: 255; G: 255; B: 224; A: 255),
     (name: 'lime'; R: 0; G: 255; B: 0; A: 255),
     (name: 'limegreen'; R: 50; G: 205; B: 50; A: 255),
     (name: 'linen'; R: 250; G: 240; B: 230; A: 255),
@@ -250,26 +265,23 @@ const
     (name: 'wheat'; R: 245; G: 222; B: 179; A: 255),
     (name: 'white'; R: 255; G: 255; B: 255; A: 255),
     (name: 'whitesmoke'; R: 245; G: 245; B: 245; A: 255),
-    (name: 'yelLow'; R: 255; G: 255; B: 0; A: 255),
-    (name: 'yelLowgreen'; R: 154; G: 205; B: 50; A: 255),
+    (name: 'yellow'; R: 255; G: 255; B: 0; A: 255),
+    (name: 'yellowgreen'; R: 154; G: 205; B: 50; A: 255),
     (name: 'zzzzzzzzzzz'; R: 0; G: 0; B: 0; A: 0));
 
-  PageEqHigh: ShortString = #1#2#3#4#5#6#7#8#9#10#11#12#13#14#15#16 +
-    #17#18#19#20#21#22#23#24#25#26#27#28#29#30#31#32 +
-    #33#34#35#36#37#38#39#40#41#42#43#44#45#46#47#48 +
-    #49#50#51#52#53#54#55#56#57#58#59#60#61#62#63#64 +
-    #65#66#67#68#69#70#71#72#73#74#75#76#77#78#79#80 +
-    #81#82#83#84#85#86#87#88#89#90#91#92#93#94#95#96 +
-    #65#66#67#68#69#70#71#72#73#74#75#76#77#78#79#80 +
-    #81#82#83#84#85#86#87#88#89#90#123#124#125#126#127#128 +
-    #129#130#131#132#133#134#135#136#137#138#139#140#141#142#143#144 +
-    #145#146#147#148#149#150#151#152#153#154#155#156#157#158#159#160 +
-    #161#162#163#164#165#166#167#168#169#170#171#172#173#174#175#176 +
-    #177#178#179#180#181#182#183#184#185#186#187#188#189#190#191#192 +
-    #193#194#195#196#197#198#199#200#201#202#203#204#205#206#207#208 +
-    #209#210#211#212#213#214#215#216#217#218#219#220#221#222#223#224 +
-    #225#226#227#228#229#230#231#232#233#234#235#236#237#238#239#240 +
-    #241#242#243#244#245#246#247#248#249#250#251#252#253#254#255;
+  PageEqHigh: ShortString = #1#2#3#4#5#6#7#8#9#10#11#12#13#14#15#16#17#18#19 +
+    #20#21#22#23#24#25#26#27#28#29#30#31#32#33#34#35#36#37#38#39#40#41#42#43 +
+    #44#45#46#47#48#49#50#51#52#53#54#55#56#57#58#59#60#61#62#63#64#65#66#67 +
+    #68#69#70#71#72#73#74#75#76#77#78#79#80#81#82#83#84#85#86#87#88#89#90#91 +
+    #92#93#94#95#96#65#66#67#68#69#70#71#72#73#74#75#76#77#78#79#80#81#82#83 +
+    #84#85#86#87#88#89#90#123#124#125#126#127#128#129#130#131#132#133#134 +
+    #135#136#137#138#139#140#141#142#143#144#145#146#147#148#149#150#151#152 +
+    #153#154#155#156#157#158#159#160#161#162#163#164#165#166#167#168#169#170 +
+    #171#172#173#174#175#176#177#178#179#180#181#182#183#184#185#186#187#188 +
+    #189#190#191#192#193#194#195#196#197#198#199#200#201#202#203#204#205#206 +
+    #207#208#209#210#211#212#213#214#215#216#217#218#219#220#221#222#223#224 +
+    #225#226#227#228#229#230#231#232#233#234#235#236#237#238#239#240#241#242 +
+    #243#244#245#246#247#248#249#250#251#252#253#254#255;
 
 procedure StartElement(Data: Pointer; El: PAnsiChar; Attr: PPAnsiChar);
 var
@@ -287,7 +299,7 @@ begin
   else if CompareStr(AnsiString(El), 'path') = 0 then
   begin
     if This.FPathFlag then
-      raise TSvgException.Create('start_element: Nested path');
+      raise TSvgException.Create('StartElement: Nested path');
 
     This.FPath.BeginPath;
     This.ParsePath(Attr);
@@ -403,7 +415,7 @@ begin
     case H[Length(H)] of
       '0'..'9', 'A'..'F':
       else
-        raise Exception.CreateFmt('Invalid character (%d)', [H[Length(H)]]);
+        raise Exception.CreateFmt(RCStrInvalidCharacter, [H[Length(H)]]);
     end;
 
     Result := Pos(H[Length(H)], Hex) - 1;
@@ -416,7 +428,7 @@ begin
         case H[Fcb] of
           '0'..'9', 'A'..'F':
           else
-            raise Exception.CreateFmt('Invalid character (%d)', [H[Fcb]]);
+            raise Exception.CreateFmt(RCStrInvalidCharacter, [H[Fcb]]);
         end;
 
         Inc(Result, (Pos(H[Fcb], Hex) - 1) * Mul);
@@ -433,8 +445,6 @@ function ParseColor(Str: PAnsiChar): TAggColor;
 var
   U: Cardinal;
   P: PNamedColor;
-  M: ShortString;
-
 begin
   while Str^ = ' ' do
     Inc(PtrComp(Str));
@@ -460,11 +470,8 @@ begin
       end;
 
     if P = nil then
-    begin
-      M := 'parseColor: Invalid color name ' + AnsiString(Str) + #0;
-
-      raise TSvgException.Create(M);
-    end;
+      raise TSvgException.Create(Format(RCStrParseColorInvalidColorName,
+        [Str]));
 
     Result.FromRgbaInteger(P.R, P.G, P.B, P.A);
   end;
@@ -483,7 +490,6 @@ begin
   case Ch of
     #97..#122:
       Result := True;
-
   else
     Result := False;
   end;
@@ -508,7 +514,7 @@ begin
     Inc(PtrComp(Ptr));
 
   if Ptr^ = #0 then
-    raise TSvgException.Create('ParseTransformArgs: Invalid syntax');
+    raise TSvgException.Create(RCStrParseTransformArgs);
 
   Stop := Ptr;
 
@@ -516,13 +522,13 @@ begin
     Inc(PtrComp(Stop));
 
   if Stop^ = #0 then
-    raise TSvgException.Create('ParseTransformArgs: Invalid syntax');
+    raise TSvgException.Create(RCStrParseTransformArgs);
 
   while PtrComp(Ptr) < PtrComp(Stop) do
     if IsNumeric(Ptr^) then
     begin
       if Na^ >= Max_na then
-        raise TSvgException.Create('ParseTransformArgs: Too many arguments');
+        raise TSvgException.Create(RCStrParseTransformTooManyArgs);
 
       Value := GetDouble(Ptr);
       PtrDouble := PDouble(PtrComp(Args) + Na^ * SizeOf(Double));
@@ -588,7 +594,7 @@ begin
   P := XmlParserCreate(nil);
 
   if P = nil then
-    raise TSvgException.Create('Couldn''t allocate memory for parser');
+    raise TSvgException.Create(RCStrCouldntAllocateMemory);
 
   XmlSetUserData(P, @Self);
   XmlSetElementHandler(P, @StartElement, @EndElement);
@@ -601,7 +607,7 @@ begin
   if not ApiOpenFile(Af, FileName) then
   begin
     XmlParserFree(P);
-    raise TSvgException.Create(Format('Couldn''t open file %s', [FileName[1]]));
+    raise TSvgException.Create(Format(RCStrCouldntOpenFile, [FileName[1]]));
   end;
 
   Done := False;
@@ -616,7 +622,7 @@ begin
       ApiCloseFile(Af);
       XmlParserFree(P);
 
-      raise TSvgException.Create(Format('%s at line %d'#13, [Cardinal(
+      raise TSvgException.Create(Format(RCStrSAtLineD, [Cardinal(
         XmlErrorString(TXmlError(XmlGetErrorCode(P)))),
         XmlGetCurrentLineNumber(P)]));
     end;
@@ -723,12 +729,12 @@ begin
           * SizeOf(PAnsiChar))^);
 
         if not FTokenizer.Next then
-          raise TSvgException.Create('parse_poly: Too few coordinates');
+          raise TSvgException.Create(RCStrParsePolyTooFewCoords);
 
         X := FTokenizer.LastNumber;
 
         if not FTokenizer.Next then
-          raise TSvgException.Create('parse_poly: Too few coordinates');
+          raise TSvgException.Create(RCStrParsePolyTooFewCoords);
 
         Y := FTokenizer.LastNumber;
 
@@ -739,7 +745,7 @@ begin
           X := FTokenizer.LastNumber;
 
           if not FTokenizer.Next then
-            raise TSvgException.Create('parse_poly: Odd number of coordinates');
+            raise TSvgException.Create(RCStrParsePolyOddNumber);
 
           Y := FTokenizer.LastNumber;
 
@@ -803,10 +809,10 @@ begin
   if (W <> 0.0) and (H <> 0.0) then
   begin
     if W < 0.0 then
-      raise TSvgException.Create('parse_rect: Invalid width: ');
+      raise TSvgException.Create(Format(RCStrParseRectInvalidWidth, [W]));
 
     if H < 0.0 then
-      raise TSvgException.Create('parse_rect: Invalid height: ');
+      raise TSvgException.Create(Format(RCStrParseRectInvalidHeight, [H]));
 
     FPath.MoveTo(X, Y);
     FPath.LineTo(X + W, Y);
@@ -933,7 +939,7 @@ begin
   Len := ParseTransformArgs(Str, @Args, 6, @Na);
 
   if Na <> 6 then
-    raise TSvgException.Create('parse_matrix: Invalid number of arguments');
+    raise TSvgException.Create(RCStrParseMatrixInvalid);
 
   Ta := TAggTransAffine.Create(Args[0], Args[1], Args[2], Args[3], Args[4],
     Args[5]);
@@ -995,7 +1001,7 @@ begin
     end;
   end
   else
-    raise TSvgException.Create('parse_rotate: Invalid number of arguments');
+    raise TSvgException.Create(RCStrParseRotateInvalid);
 
   Result := Len;
 end;

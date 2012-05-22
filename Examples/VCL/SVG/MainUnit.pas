@@ -11,8 +11,13 @@ type
     AggSVG: TAggSVG;
     OpenDialog: TOpenDialog;
     procedure FormShow(Sender: TObject);
-    procedure AggSVGMouseUp(Sender: TObject; Button: TMouseButton;
+    procedure AggSVGMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure AggSVGMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+  private
+    FAngleOffset: Double;
+    FScaleOffset: Double;
   end;
 
 var
@@ -21,14 +26,34 @@ var
 implementation
 
 uses
-  Math;
+  Math, AggBasics;
 
 {$R *.dfm}
 
-procedure TFmSvgViewer.AggSVGMouseUp(Sender: TObject; Button: TMouseButton;
+procedure TFmSvgViewer.AggSVGMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
+var
+  Center, Pnt: TPointDouble;
 begin
-  Invalidate;
+  Center := PointDouble(0.5 * AggSVG.Width, 0.5 * AggSVG.Height);
+  Pnt := PointDouble(X - Center.X, Y - Center.Y);
+  FAngleOffset := ArcTan2(Pnt.Y, Pnt.X) - AggSVG.Angle;
+  FScaleOffset := Hypot(Pnt.X / Center.X, Pnt.Y / Center.Y) / AggSVG.Scale;
+end;
+
+procedure TFmSvgViewer.AggSVGMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+var
+  Center, Pnt: TPointDouble;
+begin
+  if ssLeft in Shift then
+  begin
+    Center := PointDouble(0.5 * AggSVG.Width, 0.5 * AggSVG.Height);
+    Pnt := PointDouble(X - Center.X, Y - Center.Y);
+    AggSVG.Scale := Hypot(Pnt.X / Center.X, Pnt.Y / Center.Y) / FScaleOffset;
+    AggSVG.Angle := ArcTan2(Pnt.Y, Pnt.X) - FAngleOffset;
+    AggSVG.Invalidate;
+  end;
 end;
 
 procedure TFmSvgViewer.FormShow(Sender: TObject);
@@ -43,10 +68,6 @@ begin
   if FileExists(FileName) then
   begin
     AggSVG.LoadFromFile(FileName);
-(*
-    ClientWidth := Round(Abs(AggSVG.Bounds.X2 - AggSVG.Bounds.X1));
-    ClientHeight := Round(Abs(AggSVG.Bounds.Y2 - AggSVG.Bounds.Y1));
-*)
     ClientWidth := Round(Max(AggSVG.Bounds.X1, AggSVG.Bounds.X2));
     ClientHeight := Round(Max(AggSVG.Bounds.Y1, AggSVG.Bounds.Y2));
   end;
