@@ -71,7 +71,6 @@ uses
   AggFontWin32TrueType,
   Windows,
 {$ENDIF}
-
   Math;
 
 type
