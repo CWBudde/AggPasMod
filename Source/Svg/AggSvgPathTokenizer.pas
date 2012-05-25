@@ -96,6 +96,10 @@ type
 
 implementation
 
+resourcestring
+  RCStrNextInvalidChar = 'TPathTokenizer.Next: Invalid Character %c';
+  RCStrParsePathUnexpectedEnd = 'ParsePath: Unexpected end of path';
+
 function Contains(Mask: PAnsiChar; C: Cardinal): Boolean;
   {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 begin
@@ -138,8 +142,7 @@ begin
     not IsNumeric(Cardinal(FPath^)) do
   begin
     if not IsSeparator(Cardinal(FPath^)) then
-      raise TSvgException.Create(Format('TPathTokenizer::next : Invalid '
-        + 'Character %c', [FPath^]));
+      raise TSvgException.Create(Format(RCStrNextInvalidChar, [FPath^]));
 
     Inc(PtrComp(FPath));
   end;
@@ -180,10 +183,10 @@ var
   Buf: array [0..99] of AnsiChar;
 begin
   if not Next then
-    raise TSvgException.Create(PAnsiChar('parse_path: Unexpected end of path'));
+    raise TSvgException.Create(PAnsiChar(RCStrParsePathUnexpectedEnd));
 
   if LastCommand <> Cmd then
-    raise TSvgException.Create(Format('parse_path: Command %c: bad or missing '
+    raise TSvgException.Create(Format('ParsePath: Command %c: bad or missing '
       + 'parameters', [Cmd]));
 
   Result := LastNumber;

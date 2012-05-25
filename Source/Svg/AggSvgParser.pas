@@ -97,6 +97,7 @@ implementation
 
 resourcestring
   RCStrInvalidCharacter = 'Invalid character (%d)';
+  RCStrStartElementNestedPath = 'StartElement: Nested path';
   RCStrParseTransformArgs = 'ParseTransformArgs: Invalid syntax';
   RCStrParseTransformTooManyArgs = 'ParseTransformArgs: Too many arguments';
   RCStrCouldntAllocateMemory = 'Couldn''t allocate memory for parser';
@@ -299,7 +300,7 @@ begin
   else if CompareStr(AnsiString(El), 'path') = 0 then
   begin
     if This.FPathFlag then
-      raise TSvgException.Create('StartElement: Nested path');
+      raise TSvgException.Create(RCStrStartElementNestedPath);
 
     This.FPath.BeginPath;
     This.ParsePath(Attr);
@@ -548,7 +549,7 @@ end;
 
 { TParser }
 
-constructor TParser.Create;
+constructor TParser.Create(Path: TPathRenderer);
 begin
   FPath := Path;
 

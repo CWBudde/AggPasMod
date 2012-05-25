@@ -927,8 +927,7 @@ constructor TAggTransAffineLineSegment.Create(X1, Y1, X2, Y2, Dist: Double);
 var
   Delta: TPointDouble;
 begin
-  Delta.X := X2 - X1;
-  Delta.Y := Y2 - Y1;
+  Delta := PointDouble(X2 - X1, Y2 - Y1);
 
   if Dist > 0 then
     Scale(Hypot(Delta.X, Delta.Y) / Dist);
@@ -960,6 +959,7 @@ end;
 constructor TAggTransAffineReflection.Create(X, Y: Double);
 var
   Nx, Ny: Double;
+  Tmp: Double;
 begin
   if (X = 0) and (Y = 0) then
   begin
@@ -968,8 +968,9 @@ begin
   end
   else
   begin
-    Nx := X / Hypot(X, Y);
-    Ny := Y / Hypot(X, Y);
+    Tmp := 1 / Hypot(X, Y);
+    Nx := X * Tmp;
+    Ny := Y * Tmp;
   end;
 
   inherited Create(Nx, Ny);

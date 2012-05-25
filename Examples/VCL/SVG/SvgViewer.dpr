@@ -1,6 +1,7 @@
 program SvgViewer;
 
 uses
+  FastMM4,
   Forms,
   MainUnit in 'MainUnit.pas' {FmSvgViewer};
 

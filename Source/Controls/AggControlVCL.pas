@@ -1302,6 +1302,7 @@ end;
 
 procedure TAggSVG.LoadFromStream(Stream: TStream);
 begin
+  raise Exception.Create('Not yet implemented!');
   // yet todo
 end;
 

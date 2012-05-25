@@ -971,48 +971,40 @@ begin
 end;
 
 function DtdCreate(Ms: PXmlMemoryHandlingSuite): PDocTypeDeclaration;
-var
-  P: PDocTypeDeclaration;
 begin
-  Ms.MallocFunction(Pointer(P), SizeOf(TDocTypeDeclaration));
+  Ms.MallocFunction(Pointer(Result), SizeOf(TDocTypeDeclaration));
 
-  if P = nil then
-  begin
-    Result := P;
-
+  if Result = nil then
     Exit;
-  end;
 
-  PoolInit(@P.Pool, Ms);
-  PoolInit(@P.EntityValuePool, Ms);
+  PoolInit(@Result.Pool, Ms);
+  PoolInit(@Result.EntityValuePool, Ms);
 
-  HashTableInit(@P.GeneralEntities, Ms);
-  HashTableInit(@P.ElementTypes, Ms);
-  HashTableInit(@P.AttributeIds, Ms);
-  HashTableInit(@P.Prefixes, Ms);
+  HashTableInit(@Result.GeneralEntities, Ms);
+  HashTableInit(@Result.ElementTypes, Ms);
+  HashTableInit(@Result.AttributeIds, Ms);
+  HashTableInit(@Result.Prefixes, Ms);
 
 {$IFDEF XML_DTD}
-  P.ParamEntityRead := CXmlFalse;
-  HashTableInit(@P.ParamEntities, Ms);
+  Result.ParamEntityRead := CXmlFalse;
+  HashTableInit(@Result.ParamEntities, Ms);
 {$ENDIF}
 
-  P.DefaultPrefix.Name := nil;
-  P.DefaultPrefix.TBinding := nil;
+  Result.DefaultPrefix.Name := nil;
+  Result.DefaultPrefix.TBinding := nil;
 
-  P.In_eldecl := CXmlFalse;
-  P.ScaffIndex := nil;
-  P.ScaffAlloc := 0;
-  P.Scaffold := nil;
-  P.ScaffLevel := 0;
-  P.ScaffSize := 0;
-  P.ScaffCount := 0;
-  P.ContentStringLen := 0;
+  Result.In_eldecl := CXmlFalse;
+  Result.ScaffIndex := nil;
+  Result.ScaffAlloc := 0;
+  Result.Scaffold := nil;
+  Result.ScaffLevel := 0;
+  Result.ScaffSize := 0;
+  Result.ScaffCount := 0;
+  Result.ContentStringLen := 0;
 
-  P.KeepProcessing := CXmlTrue;
-  P.HasParamEntityRefs := CXmlFalse;
-  P.Standalone := CXmlFalse;
-
-  Result := P;
+  Result.KeepProcessing := CXmlTrue;
+  Result.HasParamEntityRefs := CXmlFalse;
+  Result.Standalone := CXmlFalse;
 end;
 
 procedure DtdDestroy(P: PDocTypeDeclaration; IsDocEntity: TXmlBool;
@@ -1394,12 +1386,9 @@ end;
 function PoolAppend(Pool: PStringPool; Enc: PEncoding;
   Ptr, Stop: PAnsiChar): PXmlChar;
 begin
+  Result := nil;
   if (Pool.Ptr = nil) and (PoolGrow(Pool) = 0) then
-  begin
-    Result := nil;
-
     Exit;
-  end;
 
   repeat
     XmlConvert(Enc, @Ptr, Stop, PPIntChar(@Pool.Ptr), PIntChar(Pool.Stop));
@@ -1408,7 +1397,7 @@ begin
       Break;
 
     if PoolGrow(Pool) = 0 then
-      Result := nil;
+      Exit;
   until False;
 
   Result := Pool.Start;
@@ -1417,19 +1406,13 @@ end;
 function PoolStoreString(Pool: PStringPool; Enc: PEncoding;
   Ptr, Stop: PAnsiChar): PXmlChar;
 begin
-  if PoolAppend(Pool, Enc, Ptr, Stop) = nil then
-  begin
-    Result := nil;
+  Result := nil;
 
+  if PoolAppend(Pool, Enc, Ptr, Stop) = nil then
     Exit;
-  end;
 
   if (Pool.Ptr = Pool.Stop) and (PoolGrow(Pool) = 0) then
-  begin
-    Result := nil;
-
     Exit;
-  end;
 
   Pool.Ptr^ := TXmlChar(0);
   Inc(PtrComp(Pool.Ptr));
@@ -1439,6 +1422,7 @@ end;
 function PoolCopyString(Pool: PStringPool; S: PXmlChar): PXmlChar;
 begin
   Result := nil;
+
   repeat
     if PoolAppendChar(Pool, S^) = 0 then
       Exit;
@@ -1540,14 +1524,11 @@ var
   Step, NewPower: Int8u;
   NewV: PPNamed;
 begin
+  Result := nil;
   if Table.Size = 0 then
   begin
     if CreateSize = 0 then
-    begin
-      Result := nil;
-
       Exit;
-    end;
 
     Table.Power := CInitPower;
 
@@ -1561,8 +1542,6 @@ begin
     if Table.V = nil then
     begin
       Table.Size := 0;
-
-      Result := nil;
 
       Exit;
     end
@@ -1586,7 +1565,6 @@ begin
         ^^.Name) <> 0 then
       begin
         Result := PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^;
-
         Exit;
       end;
 
@@ -1600,11 +1578,7 @@ begin
     end;
 
     if CreateSize = 0 then
-    begin
-      Result := nil;
-
       Exit;
-    end;
 
     { check for overfLow (table is half full) }
     if Table.Used shr (Table.Power - 1) <> 0 then
@@ -1617,11 +1591,7 @@ begin
       Table.Mem.MallocFunction(Pointer(NewV), TableSize);
 
       if NewV = nil then
-      begin
-        Result := nil;
-
         Exit;
-      end;
 
       FillChar(NewV^, TableSize, 0);
 
@@ -1681,11 +1651,7 @@ begin
     SizeOf(PNamed))^), CreateSize);
 
   if PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^ = nil then
-  begin
-    Result := nil;
-
     Exit;
-  end;
 
   FillChar(PPNamed(PtrComp(Table.V) + I * SizeOf(PNamed))^^,
     CreateSize, 0);
@@ -1701,7 +1667,6 @@ end;
 procedure NormalizePublicId(PublicId: PXmlChar);
 var
   P, S: PXmlChar;
-
 begin
   P := PublicId;
   S := PublicId;
@@ -1789,7 +1754,6 @@ begin
         Result := CXmlFalse;
 
         Exit;
-
       end;
 
       TTag.Alloc := BufSize;
@@ -1809,18 +1773,15 @@ begin
       TTag.Buf := Temp;
       TTag.BufEnd := PAnsiChar(PtrComp(Temp) + BufSize);
       RawNameBuf := PAnsiChar(PtrComp(Temp) + NameLen);
-
     end;
 
     Move(TTag.RawName^, RawNameBuf^, TTag.RawNameLength);
 
     TTag.RawName := RawNameBuf;
     TTag := TTag.Parent;
-
   end;
 
   Result := CXmlTrue;
-
 end;
 
 { Precondition: all arguments must be non-NULL;
@@ -2602,13 +2563,11 @@ begin
           Result := xePartialChar;
           Exit;
         end;
-
     else
       begin
         Result := xeJunkAfterDocElement;
         Exit;
       end;
-
     end;
 
     Parser.EventPtr := Next;
@@ -3426,47 +3385,36 @@ end;
 function GetAttributeId(Parser: TXmlParser; Enc: PEncoding;
   Start, Stop: PAnsiChar): PAttributeID;
 var
-  TDocTypeDeclaration: PDocTypeDeclaration;
+  DocTypeDeclaration: PDocTypeDeclaration;
   Id: PAttributeID;
   Name: PXmlChar;
   I, J: Integer;
 begin
+  Result := nil;
+
   { save one level of indirection }
-  TDocTypeDeclaration := Parser.DocTypeDeclaration;
+  DocTypeDeclaration := Parser.DocTypeDeclaration;
 
-  if PoolAppendChar(@TDocTypeDeclaration.Pool, XML_T(#0)) = 0 then
-  begin
-    Result := nil;
-
+  if PoolAppendChar(@DocTypeDeclaration.Pool, XML_T(#0)) = 0 then
     Exit;
-  end;
 
-  name := PoolStoreString(@TDocTypeDeclaration.Pool, Enc, Start, Stop);
+  Name := PoolStoreString(@DocTypeDeclaration.Pool, Enc, Start, Stop);
 
-  if name = nil then
-  begin
-    Result := nil;
-
+  if Name = nil then
     Exit;
-  end;
 
   { skip quotation mark - its storage will be re-used (like in name[-1]) }
   Inc(PtrComp(name), SizeOf(TXmlChar));
 
-  Id := PAttributeID(Lookup(@TDocTypeDeclaration.AttributeIds, name, SizeOf(TAttributeID)));
-
+  Id := PAttributeID(Lookup(@DocTypeDeclaration.AttributeIds, name, SizeOf(TAttributeID)));
   if Id = nil then
-  begin
-    Result := nil;
-
     Exit;
-  end;
 
   if Id.Name <> name then
-    PoolDiscard(@TDocTypeDeclaration.Pool)
+    PoolDiscard(@DocTypeDeclaration.Pool)
   else
   begin
-    PoolFinish(@TDocTypeDeclaration.Pool);
+    PoolFinish(@DocTypeDeclaration.Pool);
 
     if Parser.NameSpace = 0 then
     else if (PXmlChar(PtrComp(name) + 0 * SizeOf(TXmlChar))^ = XML_T('x'))
@@ -3478,9 +3426,9 @@ begin
       (PXmlChar(PtrComp(name) + 5 * SizeOf(TXmlChar))^ = XML_T(':'))) then
     begin
       if PXmlChar(PtrComp(name) + 5 * SizeOf(TXmlChar))^ = XML_T(#0) then
-        Id.TPrefix := @TDocTypeDeclaration.DefaultPrefix
+        Id.TPrefix := @DocTypeDeclaration.DefaultPrefix
       else
-        Id.TPrefix := PPrefix(Lookup(@TDocTypeDeclaration.Prefixes,
+        Id.TPrefix := PPrefix(Lookup(@DocTypeDeclaration.Prefixes,
           PXmlChar(PtrComp(name) + 6 * SizeOf(TXmlChar)), SizeOf(TPrefix)));
 
       Id.Xmlns := CXmlTrue;
@@ -3489,42 +3437,32 @@ begin
     begin
       I := 0;
 
-      while PXmlChar(PtrComp(name) + I * SizeOf(TXmlChar))^ <>
-        TXmlChar(0) do
+      while PXmlChar(PtrComp(name) + I * SizeOf(TXmlChar))^ <> TXmlChar(0) do
       begin
         { attributes without TPrefix are *not* in the default namespace }
-        if PXmlChar(PtrComp(name) + I * SizeOf(TXmlChar))^ = XML_T(':')
-        then
+        if PXmlChar(PtrComp(name) + I * SizeOf(TXmlChar))^ = XML_T(':') then
         begin
           J := 0;
 
           while J < I do
           begin
-            if PoolAppendChar(@TDocTypeDeclaration.Pool,
+            if PoolAppendChar(@DocTypeDeclaration.Pool,
               PXmlChar(PtrComp(name) + J * SizeOf(TXmlChar))^) = 0 then
-            begin
-              Result := nil;
-
               Exit;
-            end;
 
             Inc(J);
           end;
 
-          if PoolAppendChar(@TDocTypeDeclaration.Pool, XML_T(#0)) = 0 then
-          begin
-            Result := nil;
-
+          if PoolAppendChar(@DocTypeDeclaration.Pool, XML_T(#0)) = 0 then
             Exit;
-          end;
 
-          Id.TPrefix := PPrefix(Lookup(@TDocTypeDeclaration.Prefixes, PoolStart(@TDocTypeDeclaration.Pool),
+          Id.TPrefix := PPrefix(Lookup(@DocTypeDeclaration.Prefixes, PoolStart(@DocTypeDeclaration.Pool),
             SizeOf(TPrefix)));
 
-          if Id.TPrefix.Name = PoolStart(@TDocTypeDeclaration.Pool) then
-            PoolFinish(@TDocTypeDeclaration.Pool)
+          if Id.TPrefix.Name = PoolStart(@DocTypeDeclaration.Pool) then
+            PoolFinish(@DocTypeDeclaration.Pool)
           else
-            PoolDiscard(@TDocTypeDeclaration.Pool);
+            PoolDiscard(@DocTypeDeclaration.Pool);
 
           Break;
         end;
@@ -3573,7 +3511,6 @@ begin
           Result := xeNone;
 
           Exit;
-
         end;
 
       xtInvalid:
@@ -3609,7 +3546,7 @@ begin
           then
             goto _break;
 
-          N := XmlEncode(N, PIntChar(Buf));
+          N := XmlEncode(N, PIntChar(@Buf[0]));
 
           if N = 0 then
           begin
@@ -3634,7 +3571,6 @@ begin
 
             Inc(I);
           end;
-
         end;
 
       xtDataChars:
@@ -3877,12 +3813,11 @@ function ReportComment(Parser: TXmlParser; Enc: PEncoding;
 var
   Data: PXmlChar;
 begin
+  Result := 1;
   if @Parser.CommentHandler = nil then
   begin
     if @Parser.DefaultHandler <> nil then
       ReportDefault(Parser, Enc, Start, Stop);
-
-    Result := 1;
 
     Exit;
   end;
@@ -3894,7 +3829,6 @@ begin
   if Data = nil then
   begin
     Result := 0;
-
     Exit;
   end;
 
@@ -3903,8 +3837,6 @@ begin
   Parser.CommentHandler(Parser.HandlerArg, Data);
 
   PoolClear(@Parser.TempPool);
-
-  Result := 1;
 end;
 
 function DoProlog(Parser: TXmlParser; Enc: PEncoding; S, Stop: PAnsiChar;
