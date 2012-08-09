@@ -69,16 +69,16 @@ type
 
   TDashedLine = class
   private
-    FRas: TAggRasterizerScanLineAA;
-    FRen: TAggRendererScanLineAASolid;
+    FRasterizer: TAggRasterizerScanLineAA;
+    FRenderer: TAggCustomRendererScanLine;
     FScanLine: TAggCustomScanLine;
     FSource: TSimpleVertexSource;
     FDash: TAggConvDash;
 
     FStroke, FDashStroke: TAggConvStroke;
   public
-    constructor Create(Ras: TAggRasterizerScanLineAA;
-      Ren: TAggRendererScanLineAASolid; Sl: TAggCustomScanLine);
+    constructor Create(Rasterizer: TAggRasterizerScanLineAA;
+      Renderer: TAggCustomRendererScanLine; Scanline: TAggCustomScanLine);
     destructor Destroy; override;
 
     procedure Draw(X1, Y1, X2, Y2, LineWidth, DashLength: Double);
@@ -98,7 +98,6 @@ type
     FGradientX: TAggGradientX;
     FSpanAllocator: TAggSpanAllocator;
     FSpanInterpolator: TAggSpanInterpolatorLinear;
-    FDashGradient: TDashedLine;
 
     FCircle: TAggCircle;
     FSliderGamma: TAggControlSlider;
@@ -240,14 +239,14 @@ end;
 
 { DashedLine }
 
-constructor TDashedLine.Create(Ras: TAggRasterizerScanLineAA;
-  Ren: TAggRendererScanLineAASolid; Sl: TAggCustomScanLine);
+constructor TDashedLine.Create(Rasterizer: TAggRasterizerScanLineAA;
+  Renderer: TAggCustomRendererScanLine; ScanLine: TAggCustomScanLine);
 begin
   inherited Create;
 
-  FRas := Ras;
-  FRen := Ren;
-  FScanLine := Sl;
+  FRasterizer := Rasterizer;
+  FRenderer := Renderer;
+  FScanLine := ScanLine;
 
   FSource := TSimpleVertexSource.Create;
   FDash := TAggConvDash.Create(FSource);
@@ -267,7 +266,7 @@ end;
 procedure TDashedLine.Draw(X1, Y1, X2, Y2, LineWidth, DashLength: Double);
 begin
   FSource.Init(X1 + 0.5, Y1 + 0.5, X2 + 0.5, Y2 + 0.5);
-  FRas.Reset;
+  FRasterizer.Reset;
 
   if DashLength > 0.0 then
   begin
@@ -277,17 +276,17 @@ begin
     FDashStroke.Width := LineWidth;
     FDashStroke.LineCap := lcRound;
 
-    FRas.AddPath(FDashStroke);
+    FRasterizer.AddPath(FDashStroke);
   end
   else
   begin
     FStroke.Width := LineWidth;
     FStroke.LineCap := lcRound;
 
-    FRas.AddPath(FStroke);
+    FRasterizer.AddPath(FStroke);
   end;
 
-  RenderScanLines(FRas, FScanLine, FRen);
+  RenderScanLines(FRasterizer, FScanLine, FRenderer);
 end;
 
 
@@ -309,7 +308,6 @@ begin
   FGradientMatrix := TAggTransAffine.Create;
   FSpanAllocator := TAggSpanAllocator.Create;
   FSpanInterpolator := TAggSpanInterpolatorLinear.Create(FGradientMatrix);
-  FDashGradient := TDashedLine.Create(FRasterizer, FRenScan, FScanLine);
 
   FCircle := TAggCircle.Create;
   FSliderGamma := TAggControlSlider.Create(3, 3, 477, 8, not FlipY);
@@ -324,7 +322,6 @@ begin
   FSliderGamma.Free;
   FCircle.Free;
 
-  FDashGradient.Free;
   FSpanInterpolator.Free;
   FSpanAllocator.Free;
   FGradientMatrix.Free;
@@ -366,28 +363,31 @@ begin
 
   // radial line test
   Dash := TDashedLine.Create(FRasterizer, FRenScan, FScanLine);
-
-  Center.X := 0.5 * Width;
-  Center.Y := 0.5 * Height;
-
-  Rgba.FromRgbaDouble(1, 1, 1, 0.2);
-  FRenScan.SetColor(@Rgba);
-
-  with TAggQuadratureOscillator.Create(Deg2Rad(2)) do
   try
-    Cm := Min(Center.X, Center.Y);
-    for I := 180 downto 1 do
-    begin
-      if I < 90 then
-        Dash.Draw(Center.X + Cm * Sine, Center.Y + Cm * Cosine, Center.X,
-          Center.Y, 1, I)
-      else
-        Dash.Draw(Center.X + Cm * Sine, Center.Y + Cm * Cosine, Center.X,
-          Center.Y, 1, 0);
-      Next;
+    Center.X := 0.5 * Width;
+    Center.Y := 0.5 * Height;
+
+    Rgba.FromRgbaDouble(1, 1, 1, 0.2);
+    FRenScan.SetColor(@Rgba);
+
+    with TAggQuadratureOscillator.Create(Deg2Rad(2)) do
+    try
+      Cm := Min(Center.X, Center.Y);
+      for I := 180 downto 1 do
+      begin
+        if I < 90 then
+          Dash.Draw(Center.X + Cm * Sine, Center.Y + Cm * Cosine, Center.X,
+            Center.Y, 1, I)
+        else
+          Dash.Draw(Center.X + Cm * Sine, Center.Y + Cm * Cosine, Center.X,
+            Center.Y, 1, 0);
+        Next;
+      end;
+    finally
+      Free;
     end;
   finally
-    Free;
+    Dash.Free;
   end;
 
   // Initialize Gradients
@@ -397,6 +397,7 @@ begin
     FGradientX, GradientColors, 0, 100);
 
   RenGradient := TAggRendererScanLineAA.Create(FRendererBase, SpanGradient);
+  Dash := TDashedLine.Create(FRasterizer, RenGradient, FScanLine);
 
   // Top patterns
   for I := 1 to 20 do
@@ -438,7 +439,7 @@ begin
     Y2 := 100.5;
 
     CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
-    FDashGradient.Draw(X1, Y1, X2, Y2, I, 0);
+    Dash.Draw(X1, Y1, X2, Y2, I, 0);
 
     Rgba.FromRgbaInteger($FF, 0, 0, $FF);
     Rgbb.FromRgbaInteger(0, 0, $FF, $FF);
@@ -451,7 +452,7 @@ begin
     Y2 := 107;
 
     CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
-    FDashGradient.Draw(X1, Y1, X2, Y2, 1, 0);
+    Dash.Draw(X1, Y1, X2, Y2, 1, 0);
 
     // fractional line lengths V (red/blue)
     X1 := 18 + 4 * I;
@@ -460,7 +461,7 @@ begin
     Y2 := 112.5 + I * 0.15;
 
     CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
-    FDashGradient.Draw(X1, Y1, X2, Y2, 1.0, 0);
+    Dash.Draw(X1, Y1, X2, Y2, 1.0, 0);
 
     // fractional line positioning (red)
     Rgba.FromRgbaInteger($FF, 0, 0, $FF);
@@ -473,7 +474,7 @@ begin
     Y2 := 120 + (I - 1) * 3.1;
 
     CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
-    FDashGradient.Draw(X1, Y1, X2, Y2, 1.0, 0);
+    Dash.Draw(X1, Y1, X2, Y2, 1.0, 0);
 
     // fractional line width 2..0 (green)
     Rgba.FromRgbaInteger(0, $FF, 0, $FF);
@@ -486,7 +487,7 @@ begin
     Y2 := 118 + I * 3;
 
     CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
-    FDashGradient.Draw(X1, Y1, X2, Y2, 2.0 - (I - 1) * 0.1, 0);
+    Dash.Draw(X1, Y1, X2, Y2, 2.0 - (I - 1) * 0.1, 0);
 
     // stippled fractional width 2..0 (blue)
     Rgba.FromRgbaInteger(0, 0, $FF, $FF);
@@ -499,14 +500,14 @@ begin
     Y2 := 119 + I * 3;
 
     CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
-    FDashGradient.Draw(X1, Y1, X2, Y2, 2.0 - (I - 1) * 0.1, 3.0);
+    Dash.Draw(X1, Y1, X2, Y2, 2.0 - (I - 1) * 0.1, 3.0);
 
     // integral line width, horz aligned (mipmap test)
     FRenScan.SetColor(CRgba8White);
 
     if I <= 10 then
-      Dash.Draw(125.5, 119.5 + (I + 2) * (I * 0.5), 135.5,
-        119.5 + (I + 2) * (I * 0.5), I, 0.0);
+      Dash.Draw(125.5, 119.5 + (I + 2) * (I * 0.5), 135.5, 119.5 +
+        (I + 2) * (I * 0.5), I, 0.0);
 
     // fractional line width 0..2, 1 px H
     // -----------------
@@ -569,7 +570,11 @@ var
 
   Text: string;
 
+  Dash: TDashedLine;
   GradientColors: TAggPodAutoArray; // The Gradient colors
+
+  SpanGradient: TAggSpanGradient;
+  RenGradient: TAggRendererScanLineAA;
 
   SpanGouraud: TAggSpanGouraudRgba;
   RenGouraud : TAggRendererScanLineAA;
@@ -603,20 +608,29 @@ begin
   FGradientMatrix.Reset;
   GradientColors := TAggPodAutoArray.Create(256, SizeOf(TAggColor));
 
-  StartTimer;
-  for I := 0 to 1999 do
-  begin
-    X1 := Width * Random;
-    Y1 := Height * Random;
-    X2 := X1 + 0.5 * Width * (Random - 0.5);
-    Y2 := Y1 + 0.5 * Height * (Random - 0.5);
+  SpanGradient := TAggSpanGradient.Create(FSpanAllocator, FSpanInterpolator,
+    FGradientX, GradientColors, 0, 100);
 
-    FillColorArray(GradientColors, RandomRgba8($80 + Random($80)), RandomRgba8);
+  RenGradient := TAggRendererScanLineAA.Create(FRendererBase, SpanGradient);
+  Dash := TDashedLine.Create(FRasterizer, RenGradient, FScanLine);
+  try
+    StartTimer;
+    for I := 0 to 1999 do
+    begin
+      X1 := Width * Random;
+      Y1 := Height * Random;
+      X2 := X1 + 0.5 * Width * (Random - 0.5);
+      Y2 := Y1 + 0.5 * Height * (Random - 0.5);
 
-    CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
-    FDashGradient.Draw(X1, Y1, X2, Y2, 10, 0);
+      FillColorArray(GradientColors, RandomRgba8($80 + Random($80)), RandomRgba8);
+
+      CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
+      Dash.Draw(X1, Y1, X2, Y2, 10, 0);
+    end;
+    T2 := GetElapsedTime;
+  finally
+    Dash.Free;
   end;
-  T2 := GetElapsedTime;
 
   // Gouraud triangles
   SpanGouraud := TAggSpanGouraudRgba.Create(FSpanAllocator);

@@ -309,7 +309,6 @@ end;
 procedure TAggApplication.OnIdle;
 var
   I: Cardinal;
-
 begin
   for I := 0 to FNumPoints - 1 do
   begin
@@ -378,9 +377,9 @@ begin
 
   if ParamCount > 0 then
   begin
-    Val(Paramstr(1), NumPoints, Err);
+    Val(ParamStr(1), NumPoints, Err);
 
-    if NumPoints = 0 then
+    if NumPoints <= 0 then
       NumPoints := CDefaultNumPoints;
 
     if NumPoints > 20000 then

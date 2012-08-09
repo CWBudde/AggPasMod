@@ -430,9 +430,9 @@ type
     procedure VerticalLineRel(Dy: Double);
 
     procedure ArcTo(Rx, Ry, Angle: Double; LargeArcFlag, SweepFlag: Boolean;
-      X, Y: Double);
+      X, Y: Double); overload;
     procedure ArcRel(Rx, Ry, Angle: Double; LargeArcFlag, SweepFlag: Boolean;
-      Dx, Dy: Double);
+      Dx, Dy: Double); overload;
 
     procedure QuadricCurveTo(XCtrl, YCtrl, XTo, YTo: Double); overload;
     procedure QuadricCurveRel(DxCtrl, DyCtrl, DxTo, DyTo: Double); overload;
@@ -512,6 +512,8 @@ type
     property FillEvenOdd: Boolean read FEvenOddFlag write SetFillEvenOdd;
     property FlipText: Boolean read GetFlipText write SetFlipText;
     property TextHints: Boolean read FTextHints write SetTextHints;
+    property HorizontalTextAlignment: TAggTextAlignmentHorizontal read FTextAlignX write FTextAlignX;
+    property VerticalTextAlignment: TAggTextAlignmentVertical read FTextAlignY write FTextAlignY;
     property ImageResample: TAggImageResample read FImageResample write SetImageResample;
     property Row[Y: Cardinal]: PInt8U read GetRow;
 

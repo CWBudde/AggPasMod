@@ -44,8 +44,9 @@ type
   private
     F1, FDelta: TPointDouble;
 
-    FRed1, FGreen1, FBlue1, FAlpha1, FDeltaRed, FDeltaGreen, FDeltaBlue,
-    FDeltaAlpha, FRed, FGreen, FBlue, FAlpha, FX: Integer;
+    FRed1, FGreen1, FBlue1, FAlpha1: Integer;
+    FDeltaRed, FDeltaGreen, FDeltaBlue, FDeltaAlpha: Integer;
+    FRed, FGreen, FBlue, FAlpha, FX: Integer;
   public
     procedure Init(C1, C2: PAggCoordType);
     procedure Calc(Y: Double);
@@ -77,18 +78,18 @@ implementation
 
 procedure TAggRgbaCalc.Init(C1, C2: PAggCoordType);
 var
-  Dy: Double;
+  DeltaY: Double;
 begin
   F1.X := C1.X - 0.5;
   F1.Y := C1.Y - 0.5;
   FDelta.X := C2.X - C1.X;
 
-  Dy := C2.Y - C1.Y;
+  DeltaY := C2.Y - C1.Y;
 
-  if Dy < 1E-5 then
+  if DeltaY < 1E-5 then
     FDelta.Y := 1E5
   else
-    FDelta.Y := 1.0 / Dy;
+    FDelta.Y := 1.0 / DeltaY;
 
   FRed1 := C1.Color.Rgba8.R;
   FGreen1 := C1.Color.Rgba8.G;
