@@ -306,7 +306,7 @@ begin
       PolygonMatrix.Scale(FSliderPolygonScale.Value);
       PolygonMatrix.Translate(FPolygonCenter.X, FPolygonCenter.Y);
 
-      R := FInitialWidth / 3.0 - 8.0;
+      R := InitialWidth / 3.0 - 8.0;
 
       BuildStar(FPolygonCenter.X, FPolygonCenter.Y, R, R / 1.45, 14);
 
@@ -370,7 +370,7 @@ end;
 procedure TAggApplication.OnInit;
 begin
   inherited;
-  FPolygonCenter := PointDouble(FInitialWidth * 0.5, FInitialHeight * 0.5);
+  FPolygonCenter := PointDouble(InitialWidth * 0.5, InitialHeight * 0.5);
   GeneratePattern;
 end;
 
@@ -407,7 +407,7 @@ begin
     PolygonMatrix.Scale(FSliderPolygonScale.Value);
     PolygonMatrix.Translate(FPolygonCenter.X, FPolygonCenter.Y);
 
-    R := FInitialWidth / 3.0 - 8.0;
+    R := InitialWidth / 3.0 - 8.0;
 
     BuildStar(FPolygonCenter.X, FPolygonCenter.Y, R, R / 1.45, 14);
 

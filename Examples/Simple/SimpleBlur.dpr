@@ -293,7 +293,7 @@ begin
           Mtx.Scale(FScale, FScale);
           Mtx.Rotate(FAngle + Pi);
           Mtx.Skew(FSkew.X * 1E-3, FSkew.Y * 1E-3);
-          Mtx.Translate(FInitialWidth * 0.125, FInitialHeight * 0.5);
+          Mtx.Translate(InitialWidth * 0.125, InitialHeight * 0.5);
           Mtx.Multiply(GetTransAffineResizing);
 
           ScanLinePacked := TAggScanLinePacked8.Create;
@@ -314,7 +314,7 @@ begin
             Inv.Free;
           end;
 
-          Mtx.Translate(FInitialWidth * 0.5, 0);
+          Mtx.Translate(InitialWidth * 0.5, 0);
           Mtx.Multiply(GetTransAffineResizing);
 
           Profile := TAggLineProfileAA.Create;

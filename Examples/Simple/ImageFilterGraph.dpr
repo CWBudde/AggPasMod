@@ -322,9 +322,9 @@ begin
 
       // Render
       Coord.X1 := 125;
-      Coord.X2 := FInitialWidth - 15;
+      Coord.X2 := InitialWidth - 15;
       Coord.Y1 := 10;
-      Coord.Y2 := FInitialHeight - 10;
+      Coord.Y2 := InitialHeight - 10;
       CenterX := Coord.CenterX;
 
       P := TAggPathStorage.Create;

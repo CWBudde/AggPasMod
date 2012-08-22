@@ -146,10 +146,10 @@ var
   R, R1, R2, Dx, Dy: Double;
   Nr, I: Cardinal;
 begin
-  R := FInitialWidth;
+  R := InitialWidth;
 
-  if FInitialHeight < R then
-    R := FInitialHeight;
+  if InitialHeight < R then
+    R := InitialHeight;
 
   R1 := R / 3 - 8;
   R2 := R1 / 1.45;
@@ -170,12 +170,12 @@ end;
 
 procedure TAggApplication.OnInit;
 begin
-  FImageCenter.X := FInitialWidth * 0.5;
-  FImageCenter.Y := FInitialHeight * 0.5;
+  FImageCenter.X := InitialWidth * 0.5;
+  FImageCenter.Y := InitialHeight * 0.5;
 
-  FPolygonC.x := FInitialWidth * 0.5;
+  FPolygonC.x := InitialWidth * 0.5;
   FImageC.X := FPolygonC.x;
-  FPolygonC.y := FInitialHeight * 0.5;
+  FPolygonC.y := InitialHeight * 0.5;
   FImageC.y := FPolygonC.y;
 end;
 

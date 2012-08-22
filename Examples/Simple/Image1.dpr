@@ -132,20 +132,20 @@ begin
     // Calc
     SrcMatrix := TAggTransAffine.Create;
 
-    SrcMatrix.Translate(-FInitialWidth * 0.5 - 10, -FInitialHeight * 0.5 - 30);
+    SrcMatrix.Translate(-InitialWidth * 0.5 - 10, -InitialHeight * 0.5 - 30);
     SrcMatrix.Rotate(Deg2Rad(FSliderAngle.Value));
 
     SrcMatrix.Scale(FSliderScale.Value);
-    SrcMatrix.Translate(FInitialWidth * 0.5, FInitialHeight * 0.5 + 20);
+    SrcMatrix.Translate(InitialWidth * 0.5, InitialHeight * 0.5 + 20);
     SrcMatrix.Multiply(GetTransAffineResizing);
 
     ImgMatrix := TAggTransAffine.Create;
 
-    ImgMatrix.Translate(-FInitialWidth * 0.5 + 10, -FInitialHeight * 0.5 + 30);
+    ImgMatrix.Translate(-InitialWidth * 0.5 + 10, -InitialHeight * 0.5 + 30);
     ImgMatrix.Rotate(Deg2Rad(FSliderAngle.Value));
 
     ImgMatrix.Scale(FSliderScale.Value);
-    ImgMatrix.Translate(FInitialWidth * 0.5, FInitialHeight * 0.5 + 20);
+    ImgMatrix.Translate(InitialWidth * 0.5, InitialHeight * 0.5 + 20);
 
     ImgMatrix.Multiply(GetTransAffineResizing);
     ImgMatrix.Invert;
@@ -174,13 +174,13 @@ begin
     }
 
     // Render
-    Radius := FInitialWidth;
+    Radius := InitialWidth;
 
-    if FInitialHeight - 60 < Radius then
-      Radius := FInitialHeight - 60;
+    if InitialHeight - 60 < Radius then
+      Radius := InitialHeight - 60;
 
-    Circle := TAggCircle.Create(FInitialWidth * 0.5 + 10,
-      FInitialHeight * 0.5 + 30, Radius * 0.5 + 16, 200);
+    Circle := TAggCircle.Create(InitialWidth * 0.5 + 10,
+      InitialHeight * 0.5 + 30, Radius * 0.5 + 16, 200);
 
     ConvTransform := TAggConvTransform.Create(Circle, SrcMatrix);
     try

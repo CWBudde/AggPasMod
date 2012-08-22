@@ -171,9 +171,9 @@ begin
       // Compute
       SourceMatrix := TAggTransAffine.Create;
 
-      SourceMatrix.Translate(-FInitialWidth * 0.5, -FInitialHeight * 0.5);
+      SourceMatrix.Translate(-InitialWidth * 0.5, -InitialHeight * 0.5);
       SourceMatrix.Rotate(Deg2Rad(10));
-      SourceMatrix.Translate(FInitialWidth * 0.5, FInitialHeight * 0.5);
+      SourceMatrix.Translate(InitialWidth * 0.5, InitialHeight * 0.5);
 
       SourceMatrix.Multiply(GetTransAffineResizing);
 
@@ -211,8 +211,8 @@ begin
             RenderScanLines(Ras, Sl, RenScan);
           end;
 
-          Ellipse.Initialize(FInitialWidth * 0.5, FInitialHeight * 0.5,
-            FInitialWidth / 1.9, FInitialHeight / 1.9, 200);
+          Ellipse.Initialize(InitialWidth * 0.5, InitialHeight * 0.5,
+            InitialWidth / 1.9, InitialHeight / 1.9, 200);
 
           Tr := TAggConvTransform.Create(Ellipse, SourceMatrix);
           try

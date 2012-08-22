@@ -202,8 +202,8 @@ end;
 
 procedure TAggApplication.OnInit;
 begin
-  FMouse.Y := FInitialHeight * 0.5;
-  FMouse.X := FInitialWidth * 0.5;
+  FMouse.Y := InitialHeight * 0.5;
+  FMouse.X := InitialWidth * 0.5;
 end;
 
 procedure TAggApplication.OnDraw;
@@ -252,7 +252,7 @@ begin
       // center being in the origin (0,0) and you can't
       // change it. But you can apply arbitrary transformations
       // to the Gradient (see below).
-      Center := PointDouble(FInitialWidth * 0.5, FInitialHeight * 0.5);
+      Center := PointDouble(InitialWidth * 0.5, InitialHeight * 0.5);
       R := 100;
 
       // Focal center. Defined in the Gradient coordinates,

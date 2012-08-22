@@ -451,8 +451,8 @@ begin
           Ps[0] := TAggPathStorage.Create;
           Ps[1] := TAggPathStorage.Create;
           try
-            X := FX - FInitialWidth * 0.5 + 100;
-            Y := FY - FInitialHeight * 0.5 + 100;
+            X := FX - InitialWidth * 0.5 + 100;
+            Y := FY - InitialHeight * 0.5 + 100;
 
             Ps[0].MoveTo(X + 140, Y + 145);
             Ps[0].LineTo(X + 225, Y + 44);
@@ -507,8 +507,8 @@ begin
             try
               Stroke.Width := 15.0;
 
-              X := FX - FInitialWidth * 0.5 + 100;
-              Y := FY - FInitialHeight * 0.5 + 100;
+              X := FX - InitialWidth * 0.5 + 100;
+              Y := FY - InitialHeight * 0.5 + 100;
 
               Ps[0].MoveTo(X + 140, Y + 145);
               Ps[0].LineTo(X + 225, Y + 44);
@@ -567,8 +567,8 @@ begin
               Matrix[0].Scale(2.0);
 
               Matrix[1].Assign(Matrix[0]);
-              Matrix[1].Translate(FX - FInitialWidth * 0.5,
-                FY - FInitialHeight * 0.5);
+              Matrix[1].Translate(FX - InitialWidth * 0.5,
+                FY - InitialHeight * 0.5);
 
               TransGreatBritainPoly := TAggConvTransform.Create(GreatBritainPoly,
                 Matrix[0]);

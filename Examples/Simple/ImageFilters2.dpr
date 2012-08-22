@@ -282,7 +282,7 @@ begin
             Pixf.ApplyGammaInv(Gamma, CAggOrderBgr);
 
             Start := PointDouble(5, 235);
-            Stop := PointDouble(195, FInitialHeight - 5);
+            Stop := PointDouble(195, InitialHeight - 5);
 
             PathStorage := TAggPathStorage.Create;
             Stroke := TAggConvStroke.Create(PathStorage);
