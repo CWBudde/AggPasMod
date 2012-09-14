@@ -111,8 +111,7 @@ begin
 
   FOldGamma := FSliderGamma.Value;
 
-  FMouse.X := 200;
-  FMouse.Y := 200;
+  FMouse := PointDouble(200, 200);
 
   // create and build gradient look-up table
   FGradientLUT := TAggGradientLut.Create(1024);
@@ -202,8 +201,7 @@ end;
 
 procedure TAggApplication.OnInit;
 begin
-  FMouse.Y := InitialHeight * 0.5;
-  FMouse.X := InitialWidth * 0.5;
+  FMouse := PointDouble(InitialWidth * 0.5, InitialHeight * 0.5);
 end;
 
 procedure TAggApplication.OnDraw;
@@ -216,11 +214,11 @@ var
 
   Circle: TAggCircle;
 
-  Estr  : TAggConvStroke;
+  Estr: TAggConvStroke;
   Etrans: TAggConvTransform;
 
-  Center: TPointDouble;
-  R, Fx, Fy, Tm: Double;
+  Center, FocalCenter: TPointDouble;
+  R, Tm: Double;
 
   GfStd: TAggGradientRadialFocus;
   GfExt: TAggGradientRadialFocusExtended;
@@ -257,17 +255,16 @@ begin
 
       // Focal center. Defined in the Gradient coordinates,
       // that is, with respect to the origin (0,0)
-      Fx := FMouse.X - Center.X;
-      Fy := FMouse.Y - Center.Y;
+      FocalCenter := PointDouble(FMouse.X - Center.X, FMouse.Y - Center.Y);
 
       if FCheckBoxExtend.Status then
       begin
-        GfExt := TAggGradientRadialFocusExtended.Create(R, Fx, Fy);
+        GfExt := TAggGradientRadialFocusExtended.Create(R, FocalCenter.x, FocalCenter.y);
         GradientAdaptor := TAggGradientReflectAdaptor.Create(GfExt);
       end
       else
       begin
-        GfStd := TAggGradientRadialFocus.Create(R, Fx, Fy);
+        GfStd := TAggGradientRadialFocus.Create(R, FocalCenter.x, FocalCenter.y);
         GradientAdaptor := TAggGradientReflectAdaptor.Create(GfStd);
       end;
 

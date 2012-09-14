@@ -74,6 +74,7 @@ uses
   Math;
 
 type
+  TAggPixelFormat = (pfRGBA, pfBGRA);
   PAggColorRgba8 = ^TAggColorRgba8;
   TAggColorRgba8 = TAggRgba8;
 
@@ -292,14 +293,14 @@ type
     property Rasterizer: TAggRasterizerScanLineAA read FRasterizer;
     property Path: TAggPathStorage read FPath;
   public
-    constructor Create; overload; virtual;
+    constructor Create(PixelFormat: TAggPixelFormat = pfBGRA); overload; virtual;
     constructor Create(Buffer: PInt8u; Width, Height: Cardinal;
-      Stride: Integer); overload; virtual;
+      Stride: Integer; PixelFormat: TAggPixelFormat = pfBGRA); overload; virtual;
     destructor Destroy; override;
 
     // Setup
     procedure Attach(Buffer: PInt8u; Width, Height: Cardinal;
-      Stride: Integer); overload;
+     Stride: Integer); overload;
     procedure Attach(Img: TAgg2DImage); overload;
 
     procedure ClipBox(X1, Y1, X2, Y2: Double); overload;
@@ -628,18 +629,32 @@ end;
 
 { TAgg2D }
 
-constructor TAgg2D.Create;
+constructor TAgg2D.Create(PixelFormat: TAggPixelFormat = pfBGRA);
 begin
   FGammaAgg2D := nil;
 
   FRenderingBuffer := TAggRenderingBuffer.Create;
 
-  PixelFormatBgra32(FPixelFormat, FRenderingBuffer);
-  PixelFormatCustomBlendRgba(FPixelFormatComp, FRenderingBuffer,
-    @BlendModeAdaptorRgba, CAggOrderBgra);
-  PixelFormatBgra32(FPixelFormatPre, FRenderingBuffer);
-  PixelFormatCustomBlendRgba(FPixelFormatCompPre, FRenderingBuffer,
-    @BlendModeAdaptorRgba, CAggOrderBgra);
+  case PixelFormat of
+    pfRGBA:
+      begin
+        PixelFormatRgba32(FPixelFormat, FRenderingBuffer);
+        PixelFormatCustomBlendRgba(FPixelFormatComp, FRenderingBuffer,
+          @BlendModeAdaptorRgba, CAggOrderRgba);
+        PixelFormatRgba32(FPixelFormatPre, FRenderingBuffer);
+        PixelFormatCustomBlendRgba(FPixelFormatCompPre, FRenderingBuffer,
+          @BlendModeAdaptorRgba, CAggOrderRgba);
+      end;
+    pfBGRA:
+      begin
+        PixelFormatBgra32(FPixelFormat, FRenderingBuffer);
+        PixelFormatCustomBlendRgba(FPixelFormatComp, FRenderingBuffer,
+          @BlendModeAdaptorRgba, CAggOrderBgra);
+        PixelFormatBgra32(FPixelFormatPre, FRenderingBuffer);
+        PixelFormatCustomBlendRgba(FPixelFormatCompPre, FRenderingBuffer,
+          @BlendModeAdaptorRgba, CAggOrderBgra);
+      end;
+  end;
 
   FRendererBase := TAggRendererBase.Create(FPixelFormat);
   FRendererBaseComp := TAggRendererBase.Create(FPixelFormatComp);
@@ -743,9 +758,9 @@ begin
 end;
 
 constructor TAgg2D.Create(Buffer: PInt8u; Width, Height: Cardinal;
-  Stride: Integer);
+  Stride: Integer; PixelFormat: TAggPixelFormat = pfBGRA);
 begin
-  Create;
+  Create(PixelFormat);
   Attach(Buffer, Width, Height, Stride);
 end;
 

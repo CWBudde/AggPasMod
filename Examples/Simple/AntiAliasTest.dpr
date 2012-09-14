@@ -345,12 +345,12 @@ var
 
   I: Integer;
 
-  Dash: TDashedLine;
+  Dash: array [0..1] of TDashedLine;
 
   Center: TPointDouble;
   Cm, X1, Y1, X2, Y2: Double;
 
-  GradientColors: TAggPodAutoArray; // The Gradient colors
+  GradientColors: TAggPodAutoArray; // the gradient colors
 
   SpanGradient: TAggSpanGradient;
   RenGradient: TAggRendererScanLineAA;
@@ -362,7 +362,7 @@ begin
   FGamma.Gamma := FSliderGamma.Value;
 
   // radial line test
-  Dash := TDashedLine.Create(FRasterizer, FRenScan, FScanLine);
+  Dash[0] := TDashedLine.Create(FRasterizer, FRenScan, FScanLine);
   try
     Center.X := 0.5 * Width;
     Center.Y := 0.5 * Height;
@@ -376,182 +376,181 @@ begin
       for I := 180 downto 1 do
       begin
         if I < 90 then
-          Dash.Draw(Center.X + Cm * Sine, Center.Y + Cm * Cosine, Center.X,
+          Dash[0].Draw(Center.X + Cm * Sine, Center.Y + Cm * Cosine, Center.X,
             Center.Y, 1, I)
         else
-          Dash.Draw(Center.X + Cm * Sine, Center.Y + Cm * Cosine, Center.X,
+          Dash[0].Draw(Center.X + Cm * Sine, Center.Y + Cm * Cosine, Center.X,
             Center.Y, 1, 0);
         Next;
       end;
     finally
       Free;
     end;
+
+    // Initialize Gradients
+    FGradientMatrix.Reset;
+    GradientColors := TAggPodAutoArray.Create(256, SizeOf(TAggColor));
+    SpanGradient := TAggSpanGradient.Create(FSpanAllocator, FSpanInterpolator,
+      FGradientX, GradientColors, 0, 100);
+
+    RenGradient := TAggRendererScanLineAA.Create(FRendererBase, SpanGradient);
+    Dash[1] := TDashedLine.Create(FRasterizer, RenGradient, FScanLine);
+
+    // Top patterns
+    for I := 1 to 20 do
+    begin
+      FRenScan.SetColor(CRgba8White);
+
+      // integral point sizes 1..20
+      FCircle.Initialize(PointDouble(20.5 + I * (I + 1), 20.5), 0.5 * I, 8 + I);
+
+      FRasterizer.Reset;
+      FRasterizer.AddPath(FCircle);
+
+      RenderScanLines(FRasterizer, FScanLine, FRenScan);
+
+      // fractional point sizes 0..2
+      FCircle.Initialize(PointDouble(18.5 + 4 * I, 33.5), 0.05 * I, 8);
+
+      FRasterizer.Reset;
+      FRasterizer.AddPath(FCircle);
+
+      RenderScanLines(FRasterizer, FScanLine, FRenScan);
+
+      // fractional point positioning
+      FCircle.Initialize(PointDouble(18.4 + 4.1 * I, 27.4 + 0.1 * I), 0.5, 8);
+
+      FRasterizer.Reset;
+      FRasterizer.AddPath(FCircle);
+
+      RenderScanLines(FRasterizer, FScanLine, FRenScan);
+
+      // integral line widths 1..20
+      Rgba.White;
+      Rgbb.FromRgbaDouble(I mod 2, (I mod 3) * 0.5, (I mod 5) * 0.25);
+      FillColorArray(GradientColors, @Rgba, @Rgbb);
+
+      X1 := 20 + I * (I + 1);
+      Y1 := 40.5;
+      X2 := 20 + I * (I + 1) + (I - 1) * 4;
+      Y2 := 100.5;
+
+      CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
+      Dash[1].Draw(X1, Y1, X2, Y2, I, 0);
+
+      Rgba.FromRgbaInteger($FF, 0, 0, $FF);
+      Rgbb.FromRgbaInteger(0, 0, $FF, $FF);
+      FillColorArray(GradientColors, @Rgba, @Rgbb);
+
+      // fractional line lengths H (red/blue)
+      X1 := 17.5 + 4 * I;
+      Y1 := 107;
+      X2 := 17.5 + 4.15 * I;
+      Y2 := 107;
+
+      CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
+      Dash[1].Draw(X1, Y1, X2, Y2, 1, 0);
+
+      // fractional line lengths V (red/blue)
+      X1 := 18 + 4 * I;
+      Y1 := 112.5;
+      X2 := 18 + 4 * I;
+      Y2 := 112.5 + I * 0.15;
+
+      CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
+      Dash[1].Draw(X1, Y1, X2, Y2, 1.0, 0);
+
+      // fractional line positioning (red)
+      Rgba.FromRgbaInteger($FF, 0, 0, $FF);
+      Rgbb.White;
+      FillColorArray(GradientColors, @Rgba, @Rgbb);
+
+      X1 := 21.5;
+      Y1 := 120 + (I - 1) * 3.1;
+      X2 := 52.5;
+      Y2 := 120 + (I - 1) * 3.1;
+
+      CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
+      Dash[1].Draw(X1, Y1, X2, Y2, 1.0, 0);
+
+      // fractional line width 2..0 (green)
+      Rgba.FromRgbaInteger(0, $FF, 0, $FF);
+      Rgbb.White;
+      FillColorArray(GradientColors, @Rgba, @Rgbb);
+
+      X1 := 52.5;
+      Y1 := 118 + I * 3;
+      X2 := 83.5;
+      Y2 := 118 + I * 3;
+
+      CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
+      Dash[1].Draw(X1, Y1, X2, Y2, 2.0 - (I - 1) * 0.1, 0);
+
+      // stippled fractional width 2..0 (blue)
+      Rgba.FromRgbaInteger(0, 0, $FF, $FF);
+      Rgbb.White;
+      FillColorArray(GradientColors, @Rgba, @Rgbb);
+
+      X1 := 83.5;
+      Y1 := 119 + I * 3;
+      X2 := 114.5;
+      Y2 := 119 + I * 3;
+
+      CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
+      Dash[1].Draw(X1, Y1, X2, Y2, 2.0 - (I - 1) * 0.1, 3.0);
+
+      // integral line width, horz aligned (mipmap test)
+      FRenScan.SetColor(CRgba8White);
+
+      if I <= 10 then
+        Dash[0].Draw(125.5, 119.5 + (I + 2) * (I * 0.5), 135.5, 119.5 +
+          (I + 2) * (I * 0.5), I, 0.0);
+
+      // fractional line width 0..2, 1 px H
+      // -----------------
+      Dash[0].Draw(17.5 + 4 * I, 192, 18.5 + 4 * I, 192, I * 0.1, 0);
+
+      // fractional line positioning, 1 px H
+      // -----------------
+      Dash[0].Draw(17.5 + 4.1 * I - 0.1, 186, 18.5 + 4.1 * I - 0.1, 186, 1, 0);
+    end;
+
+    // Triangles
+    for I := 1 to 13 do
+    begin
+      Rgba.White;
+      Rgbb.FromRgbaDouble(I mod 2, (I mod 3) * 0.5, (I mod 5) * 0.25);
+      FillColorArray(GradientColors, @Rgba, @Rgbb);
+
+      CalculatLinearGradientTransform(Width - 150, Height - 20 - I * (I + 1.5),
+        Width - 20, Height - 20 - I * (I + 1), FGradientMatrix);
+
+      FRasterizer.Reset;
+      FRasterizer.MoveToDouble(Width - 150, Height - 20 - I * (I + 1.5));
+      FRasterizer.LineToDouble(Width - 20, Height - 20 - I * (I + 1));
+      FRasterizer.LineToDouble(Width - 20, Height - 20 - I * (I + 2));
+
+      RenderScanLines(FRasterizer, FScanLine, RenGradient);
+    end;
+
+    // Reset AA Gamma and render the controls
+    GammaPower := TAggGammaPower.Create(1.0);
+    try
+      FRasterizer.Gamma(GammaPower);
+
+      RenderControl(FRasterizer, FScanLine, FRenScan, FSliderGamma);
+    finally
+      GammaPower.Free;
+    end;
+
+    // Free AGG resources
+    RenGradient.Free;
+    GradientColors.Free;
+    SpanGradient.Free;
   finally
-    Dash.Free;
+    Dash[0].Free;
   end;
-
-  // Initialize Gradients
-  FGradientMatrix.Reset;
-  GradientColors := TAggPodAutoArray.Create(256, SizeOf(TAggColor));
-  SpanGradient := TAggSpanGradient.Create(FSpanAllocator, FSpanInterpolator,
-    FGradientX, GradientColors, 0, 100);
-
-  RenGradient := TAggRendererScanLineAA.Create(FRendererBase, SpanGradient);
-  Dash := TDashedLine.Create(FRasterizer, RenGradient, FScanLine);
-
-  // Top patterns
-  for I := 1 to 20 do
-  begin
-    FRenScan.SetColor(CRgba8White);
-
-    // integral point sizes 1..20
-    FCircle.Initialize(PointDouble(20.5 + I * (I + 1), 20.5), 0.5 * I, 8 + I);
-
-    FRasterizer.Reset;
-    FRasterizer.AddPath(FCircle);
-
-    RenderScanLines(FRasterizer, FScanLine, FRenScan);
-
-    // fractional point sizes 0..2
-    FCircle.Initialize(PointDouble(18.5 + 4 * I, 33.5), 0.05 * I, 8);
-
-    FRasterizer.Reset;
-    FRasterizer.AddPath(FCircle);
-
-    RenderScanLines(FRasterizer, FScanLine, FRenScan);
-
-    // fractional point positioning
-    FCircle.Initialize(PointDouble(18.4 + 4.1 * I, 27.4 + 0.1 * I), 0.5, 8);
-
-    FRasterizer.Reset;
-    FRasterizer.AddPath(FCircle);
-
-    RenderScanLines(FRasterizer, FScanLine, FRenScan);
-
-    // integral line widths 1..20
-    Rgba.White;
-    Rgbb.FromRgbaDouble(I mod 2, (I mod 3) * 0.5, (I mod 5) * 0.25);
-    FillColorArray(GradientColors, @Rgba, @Rgbb);
-
-    X1 := 20 + I * (I + 1);
-    Y1 := 40.5;
-    X2 := 20 + I * (I + 1) + (I - 1) * 4;
-    Y2 := 100.5;
-
-    CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
-    Dash.Draw(X1, Y1, X2, Y2, I, 0);
-
-    Rgba.FromRgbaInteger($FF, 0, 0, $FF);
-    Rgbb.FromRgbaInteger(0, 0, $FF, $FF);
-    FillColorArray(GradientColors, @Rgba, @Rgbb);
-
-    // fractional line lengths H (red/blue)
-    X1 := 17.5 + 4 * I;
-    Y1 := 107;
-    X2 := 17.5 + 4.15 * I;
-    Y2 := 107;
-
-    CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
-    Dash.Draw(X1, Y1, X2, Y2, 1, 0);
-
-    // fractional line lengths V (red/blue)
-    X1 := 18 + 4 * I;
-    Y1 := 112.5;
-    X2 := 18 + 4 * I;
-    Y2 := 112.5 + I * 0.15;
-
-    CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
-    Dash.Draw(X1, Y1, X2, Y2, 1.0, 0);
-
-    // fractional line positioning (red)
-    Rgba.FromRgbaInteger($FF, 0, 0, $FF);
-    Rgbb.White;
-    FillColorArray(GradientColors, @Rgba, @Rgbb);
-
-    X1 := 21.5;
-    Y1 := 120 + (I - 1) * 3.1;
-    X2 := 52.5;
-    Y2 := 120 + (I - 1) * 3.1;
-
-    CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
-    Dash.Draw(X1, Y1, X2, Y2, 1.0, 0);
-
-    // fractional line width 2..0 (green)
-    Rgba.FromRgbaInteger(0, $FF, 0, $FF);
-    Rgbb.White;
-    FillColorArray(GradientColors, @Rgba, @Rgbb);
-
-    X1 := 52.5;
-    Y1 := 118 + I * 3;
-    X2 := 83.5;
-    Y2 := 118 + I * 3;
-
-    CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
-    Dash.Draw(X1, Y1, X2, Y2, 2.0 - (I - 1) * 0.1, 0);
-
-    // stippled fractional width 2..0 (blue)
-    Rgba.FromRgbaInteger(0, 0, $FF, $FF);
-    Rgbb.White;
-    FillColorArray(GradientColors, @Rgba, @Rgbb);
-
-    X1 := 83.5;
-    Y1 := 119 + I * 3;
-    X2 := 114.5;
-    Y2 := 119 + I * 3;
-
-    CalculatLinearGradientTransform(X1, Y1, X2, Y2, FGradientMatrix);
-    Dash.Draw(X1, Y1, X2, Y2, 2.0 - (I - 1) * 0.1, 3.0);
-
-    // integral line width, horz aligned (mipmap test)
-    FRenScan.SetColor(CRgba8White);
-
-    if I <= 10 then
-      Dash.Draw(125.5, 119.5 + (I + 2) * (I * 0.5), 135.5, 119.5 +
-        (I + 2) * (I * 0.5), I, 0.0);
-
-    // fractional line width 0..2, 1 px H
-    // -----------------
-    Dash.Draw(17.5 + 4 * I, 192, 18.5 + 4 * I, 192, I * 0.1, 0);
-
-    // fractional line positioning, 1 px H
-    // -----------------
-    Dash.Draw(17.5 + 4.1 * I - 0.1, 186, 18.5 + 4.1 * I - 0.1, 186, 1, 0);
-  end;
-
-  // Triangles
-  for I := 1 to 13 do
-  begin
-    Rgba.White;
-    Rgbb.FromRgbaDouble(I mod 2, (I mod 3) * 0.5, (I mod 5) * 0.25);
-    FillColorArray(GradientColors, @Rgba, @Rgbb);
-
-    CalculatLinearGradientTransform(Width - 150, Height - 20 - I * (I + 1.5),
-      Width - 20, Height - 20 - I * (I + 1), FGradientMatrix);
-
-    FRasterizer.Reset;
-    FRasterizer.MoveToDouble(Width - 150, Height - 20 - I * (I + 1.5));
-    FRasterizer.LineToDouble(Width - 20, Height - 20 - I * (I + 1));
-    FRasterizer.LineToDouble(Width - 20, Height - 20 - I * (I + 2));
-
-    RenderScanLines(FRasterizer, FScanLine, RenGradient);
-  end;
-
-  // Reset AA Gamma and render the controls
-  GammaPower := TAggGammaPower.Create(1.0);
-  try
-    FRasterizer.Gamma(GammaPower);
-
-    RenderControl(FRasterizer, FScanLine, FRenScan, FSliderGamma);
-  finally
-    GammaPower.Free;
-  end;
-
-  // Free AGG resources
-  RenGradient.Free;
-  GradientColors.Free;
-  SpanGradient.Free;
-
-  Dash.Free;
+  Dash[1].Free;
 end;
 
 procedure TAggApplication.OnResize(Width, Height: Integer);
