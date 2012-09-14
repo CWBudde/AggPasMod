@@ -277,7 +277,8 @@ type
     FFillColor: TAggColorRgba8;
     FLineColor: TAggColorRgba8;
 
-    FPixelFormat: TAggPixelFormatProcessor;
+    FPixelFormat: TAggPixelFormat;
+    FPixelFormatProc: TAggPixelFormatProcessor;
     FPixelFormatComp: TAggPixelFormatProcessor;
     FPixelFormatPre: TAggPixelFormatProcessor;
     FPixelFormatCompPre: TAggPixelFormatProcessor;
@@ -635,10 +636,11 @@ begin
 
   FRenderingBuffer := TAggRenderingBuffer.Create;
 
+  FPixelFormat := PixelFormat;
   case PixelFormat of
     pfRGBA:
       begin
-        PixelFormatRgba32(FPixelFormat, FRenderingBuffer);
+        PixelFormatRgba32(FPixelFormatProc, FRenderingBuffer);
         PixelFormatCustomBlendRgba(FPixelFormatComp, FRenderingBuffer,
           @BlendModeAdaptorRgba, CAggOrderRgba);
         PixelFormatRgba32(FPixelFormatPre, FRenderingBuffer);
@@ -647,7 +649,7 @@ begin
       end;
     pfBGRA:
       begin
-        PixelFormatBgra32(FPixelFormat, FRenderingBuffer);
+        PixelFormatBgra32(FPixelFormatProc, FRenderingBuffer);
         PixelFormatCustomBlendRgba(FPixelFormatComp, FRenderingBuffer,
           @BlendModeAdaptorRgba, CAggOrderBgra);
         PixelFormatBgra32(FPixelFormatPre, FRenderingBuffer);
@@ -656,7 +658,7 @@ begin
       end;
   end;
 
-  FRendererBase := TAggRendererBase.Create(FPixelFormat);
+  FRendererBase := TAggRendererBase.Create(FPixelFormatProc);
   FRendererBaseComp := TAggRendererBase.Create(FPixelFormatComp);
   FRendererBasePre := TAggRendererBase.Create(FPixelFormatPre);
   FRendererBaseCompPre := TAggRendererBase.Create(FPixelFormatCompPre);
@@ -819,7 +821,7 @@ begin
   FFontEngine.Free;
   FFontCacheManager.Free;
 
-  FPixelFormat.Free;
+  FPixelFormatProc.Free;
   FPixelFormatComp.Free;
   FPixelFormatPre.Free;
   FPixelFormatCompPre.Free;
@@ -3089,8 +3091,14 @@ begin
     if Gr.FImageFilter = ifNoFilter then
     begin
       Clr.Clear;
-      Sg := TAggSpanImageFilterRgbaNN.Create(Gr.FAllocator, Img.FRenderingBuffer,
-        @Clr, Interpolator, CAggOrderRgba);
+      case Gr.FPixelFormat of
+        pfRGBA:
+          Sg := TAggSpanImageFilterRgbaNN.Create(Gr.FAllocator,
+            Img.FRenderingBuffer, @Clr, Interpolator, CAggOrderRgba);
+        pfBGRA:
+          Sg := TAggSpanImageFilterRgbaNN.Create(Gr.FAllocator,
+            Img.FRenderingBuffer, @Clr, Interpolator, CAggOrderBgra);
+      end;
       try
         Sc := TAggSpanConverter.Create(Sg, Blend);
         try
@@ -3122,9 +3130,16 @@ begin
       if Resample then
       begin
         Clr.Clear;
-        Sa := TAggSpanImageResampleRgbaAffine.Create(Gr.FAllocator,
-          Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT,
-          CAggOrderRgba);
+        case Gr.FPixelFormat of
+          pfRGBA:
+            Sa := TAggSpanImageResampleRgbaAffine.Create(Gr.FAllocator,
+              Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT,
+              CAggOrderRgba);
+          pfBGRA:
+            Sa := TAggSpanImageResampleRgbaAffine.Create(Gr.FAllocator,
+              Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT,
+              CAggOrderBgra);
+        end;
         try
           Sc := TAggSpanConverter.Create(Sa, Blend);
           try
@@ -3144,8 +3159,14 @@ begin
       else if Gr.FImageFilter = ifBilinear then
       begin
         Clr.Clear;
-        Sb := TAggSpanImageFilterRgbaBilinear.Create(Gr.FAllocator,
-          Img.FRenderingBuffer, @Clr, Interpolator, CAggOrderRgba);
+        case GR.FPixelFormat of
+          pfRGBA:
+            Sb := TAggSpanImageFilterRgbaBilinear.Create(Gr.FAllocator,
+              Img.FRenderingBuffer, @Clr, Interpolator, CAggOrderRgba);
+          pfBGRA:
+            Sb := TAggSpanImageFilterRgbaBilinear.Create(Gr.FAllocator,
+              Img.FRenderingBuffer, @Clr, Interpolator, CAggOrderBgra);
+        end;
         try
           Sc := TAggSpanConverter.Create(Sb, Blend);
           try
@@ -3165,9 +3186,16 @@ begin
       else if Gr.FImageFilterLUT.Diameter = 2 then
       begin
         Clr.Clear;
-        S2 := TAggSpanImageFilterRgba2x2.Create(Gr.FAllocator,
-          Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT,
-          CAggOrderRgba);
+        case GR.FPixelFormat of
+          pfRGBA:
+            S2 := TAggSpanImageFilterRgba2x2.Create(Gr.FAllocator,
+              Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT,
+              CAggOrderRgba);
+          pfBGRA:
+            S2 := TAggSpanImageFilterRgba2x2.Create(Gr.FAllocator,
+              Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT,
+              CAggOrderBgra);
+        end;
         try
           Sc := TAggSpanConverter.Create(S2, Blend);
           try
@@ -3187,8 +3215,16 @@ begin
       else
       begin
         Clr.Clear;
-        Si := TAggSpanImageFilterRgba.Create(Gr.FAllocator, Img.FRenderingBuffer,
-          @Clr, Interpolator, Gr.FImageFilterLUT, CAggOrderRgba);
+        case GR.FPixelFormat of
+          pfRGBA:
+            Si := TAggSpanImageFilterRgba.Create(Gr.FAllocator,
+              Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT,
+              CAggOrderRgba);
+          pfBGRA:
+            Si := TAggSpanImageFilterRgba.Create(Gr.FAllocator,
+              Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT,
+              CAggOrderBgra);
+        end;
         try
           Sc := TAggSpanConverter.Create(Si, Blend);
           try
