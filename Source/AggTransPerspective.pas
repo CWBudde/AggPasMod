@@ -156,6 +156,8 @@ type
       overload;
     function QuadToRect(Q: PAggQuadrilateral; Rect: TRectDouble): Boolean;
       overload;
+    function QuadToRect(var Q: TAggQuadrilateral; Rect: TRectDouble): Boolean;
+      overload;
 
     // Map square (0,0,1,1) to the quadrilateral and vice versa
     function SquareToQuad(Q: PAggQuadrilateral): Boolean;
@@ -684,6 +686,15 @@ var
 begin
   Dst := QuadDouble(RectDouble(X1, Y1, X2, Y2));
   Result := QuadToQuad(Q, @Dst);
+end;
+
+function TAggTransPerspective.QuadToRect(var Q: TAggQuadrilateral;
+  Rect: TRectDouble): Boolean;
+var
+  Dst: TQuadDouble;
+begin
+  Dst := QuadDouble(Rect);
+  Result := QuadToQuad(@Q, @Dst);
 end;
 
 function TAggTransPerspective.QuadToRect(Q: PAggQuadrilateral;

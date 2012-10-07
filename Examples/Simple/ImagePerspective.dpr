@@ -133,15 +133,6 @@ begin
   Delta := PointDouble(Width * 0.5 - Bounds.CenterX,
     Height * 0.5 - Bounds.CenterY);
 
-  { FInteractiveQuad.xn[0] := Floor(x1 + Delta.X + 50);
-    FInteractiveQuad.yn[0] := Floor(y1 + Delta.Y + 50);
-    FInteractiveQuad.xn[1] := Floor(x2 + Delta.X);
-    FInteractiveQuad.yn[1] := Floor(y1 + Delta.Y);
-    FInteractiveQuad.xn[2] := Floor(x2 + Delta.X);
-    FInteractiveQuad.yn[2] := Floor(y2 + Delta.Y);
-    FInteractiveQuad.xn[3] := Floor(x1 + Delta.X);
-    FInteractiveQuad.yn[3] := Floor(y2 + Delta.Y); { }
-
   FInteractiveQuad.Point[0] := PointDouble(100 + 50);
   FInteractiveQuad.Point[1] := PointDouble(Width - 100, 100);
   FInteractiveQuad.Point[2] := PointDouble(Width - 100, Height - 100);
