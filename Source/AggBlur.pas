@@ -505,13 +505,12 @@ begin
 
     G1.Calculate(B, B1, B2, B3, G0^, G0^, G0^, G0^);
 
-    PGaussCalculator(FSum2[Wm - 1])
-      .Calculate(B, B1, B2, B3, PGaussCalculator(FSum1[Wm - 1])^,
-      G1^, G1^, G1^);
+    PGaussCalculator(FSum2[Wm - 1]).Calculate(B, B1, B2, B3,
+      PGaussCalculator(FSum1[Wm - 1])^, G1^, G1^, G1^);
 
-    PGaussCalculator(FSum2[Wm - 2])
-      .Calculate(B, B1, B2, B3, PGaussCalculator(FSum1[Wm - 2])^,
-      PGaussCalculator(FSum2[Wm - 1])^, G1^, G1^);
+    PGaussCalculator(FSum2[Wm - 2]).Calculate(B, B1, B2, B3,
+      PGaussCalculator(FSum1[Wm - 2])^, PGaussCalculator(FSum2[Wm - 1])^,
+      G1^, G1^);
 
     G1.ToPixel(PAggColor(FBuffer[Wm]));
 
@@ -531,8 +530,7 @@ begin
         PGaussCalculator(FSum2[X + 2])^,
         PGaussCalculator(FSum2[X + 3])^);
 
-      PGaussCalculator(FSum2[X])
-        .ToPixel(PAggColor(FBuffer[X]));
+      PGaussCalculator(FSum2[X]).ToPixel(PAggColor(FBuffer[X]));
 
       Dec(X);
     end;

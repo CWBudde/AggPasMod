@@ -59,7 +59,6 @@ type
     constructor Create(PixelFormat: TPixelFormat; FlipY: Boolean);
     destructor Destroy; override;
 
-    procedure OnInit; override;
     procedure OnDraw; override;
 
     procedure OnKey(X, Y: Integer; Key: Cardinal; Flags: TMouseKeyboardFlags);
@@ -92,10 +91,6 @@ begin
   Finalize(FGmText);
 
   inherited;
-end;
-
-procedure TAggApplication.OnInit;
-begin
 end;
 
 procedure TAggApplication.OnDraw;
