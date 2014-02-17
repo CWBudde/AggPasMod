@@ -694,7 +694,7 @@ begin
 
   FillChar(FKeymap[0], SizeOf(FKeymap), 0);
 
-  FKeymap[VK_PAUSE] := kcPause;
+//  FKeymap[VK_PAUSE] := kcPause;
   FKeymap[VK_CLEAR] := kcClear;
 
   FKeymap[VK_NUMPAD0] := kcPad0;
