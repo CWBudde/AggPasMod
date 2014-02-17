@@ -10,7 +10,7 @@
       <SearchPaths>
         <IncludeFiles Value="..\Source"/>
         <OtherUnitFiles Value="..\Source;..\Source\Controls;..\Source\Platform\win;..\Source\3rd Party\GPC"/>
-        <UnitOutputDirectory Value="..\UnitCache\$(TargetCPU)-$(TargetOS)\"/>
+        <UnitOutputDirectory Value="..\UnitCache\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
       <Parsing>
         <SyntaxOptions>
@@ -46,7 +46,7 @@ McSeemagg@yahoo.com
 http://www.antigrain.com
 ----------------------------------------------------------------------------
 "/>
-    <Files Count="184">
+    <Files Count="183">
       <Item1>
         <Filename Value="..\Source\AggVpGenSegmentator.pas"/>
         <UnitName Value="AggVpGenSegmentator"/>
@@ -740,49 +740,45 @@ http://www.antigrain.com
         <UnitName Value="AggControl"/>
       </Item173>
       <Item174>
-        <Filename Value="..\Source\Controls\AggControlVCL.pas"/>
-        <UnitName Value="AggControlVCL"/>
-      </Item174>
-      <Item175>
         <Filename Value="..\Source\Controls\AggGammaControl.pas"/>
         <UnitName Value="AggGammaControl"/>
-      </Item175>
-      <Item176>
+      </Item174>
+      <Item175>
         <Filename Value="..\Source\Controls\AggGammaSpline.pas"/>
         <UnitName Value="AggGammaSpline"/>
-      </Item176>
-      <Item177>
+      </Item175>
+      <Item176>
         <Filename Value="..\Source\Controls\AggPolygonControl.pas"/>
         <UnitName Value="AggPolygonControl"/>
-      </Item177>
-      <Item178>
+      </Item176>
+      <Item177>
         <Filename Value="..\Source\Controls\AggRadioBoxControl.pas"/>
         <UnitName Value="AggRadioBoxControl"/>
-      </Item178>
-      <Item179>
+      </Item177>
+      <Item178>
         <Filename Value="..\Source\Controls\AggScaleControl.pas"/>
         <UnitName Value="AggScaleControl"/>
-      </Item179>
-      <Item180>
+      </Item178>
+      <Item179>
         <Filename Value="..\Source\Controls\AggSliderControl.pas"/>
         <UnitName Value="AggSliderControl"/>
-      </Item180>
-      <Item181>
+      </Item179>
+      <Item180>
         <Filename Value="..\Source\Platform\win\AggWin32Bmp.pas"/>
         <UnitName Value="AggWin32Bmp"/>
-      </Item181>
-      <Item182>
+      </Item180>
+      <Item181>
         <Filename Value="..\Source\Platform\win\AggFileUtils.pas"/>
         <UnitName Value="AggFileUtils"/>
-      </Item182>
-      <Item183>
+      </Item181>
+      <Item182>
         <Filename Value="..\Source\Platform\win\AggPlatformSupport.pas"/>
         <UnitName Value="AggPlatformSupport"/>
-      </Item183>
-      <Item184>
+      </Item182>
+      <Item183>
         <Filename Value="..\Source\3rd Party\GPC\gpc.pas"/>
         <UnitName Value="GPC"/>
-      </Item184>
+      </Item183>
     </Files>
     <Type Value="RunTimeOnly"/>
     <RequiredPkgs Count="1">

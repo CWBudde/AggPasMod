@@ -49,9 +49,9 @@ uses
   AggVcgenSmoothPoly1, AggVcgenStroke, AggVcgenVertexSequence, 
   AggVertexSequence, AggVertexSource, AggVpGen, AggVpGenClipPolygon, 
   AggVpGenClipPolyline, AggSplineControl, Agg2DControl, AggBezierControl, 
-  AggCheckBoxControl, AggControl, AggControlVCL, AggGammaControl, 
-  AggGammaSpline, AggPolygonControl, AggRadioBoxControl, AggScaleControl, 
-  AggSliderControl, AggWin32Bmp, AggFileUtils, AggPlatformSupport, GPC;
+  AggCheckBoxControl, AggControl, AggGammaControl, AggGammaSpline, 
+  AggPolygonControl, AggRadioBoxControl, AggScaleControl, AggSliderControl, 
+  AggWin32Bmp, AggFileUtils, AggPlatformSupport, GPC;
 
 implementation
 
