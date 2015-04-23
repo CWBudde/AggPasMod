@@ -1,4 +1,4 @@
-package AggPasDesXE2;
+package AggPasDesXE3;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -33,10 +33,10 @@ requires
   designide,
   vcl,
   rtl,
-  AggPasRunXE2;
+  AggPasRunXE3;
 
 contains
-  AggDesignTimeColor in '..\Source\Design Time\AggDesignTimeColor.pas' {/  AggDesignTimeMisc in '..\Source\Design Time\AggDesignTimeMisc.pas';},
+  AggDesignTimeColor in '..\Source\Design Time\AggDesignTimeColor.pas',
   AggDesignTimeRegistration in '..\Source\Design Time\AggDesignTimeRegistration.pas';
 
 end.

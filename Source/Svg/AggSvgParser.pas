@@ -909,24 +909,26 @@ procedure TParser.ParseTransform(Str: PAnsiChar);
 begin
   while Str^ <> #0 do
   begin
-    if IsLower(Str^) then
-      if StrLComp(PAnsiChar(Str), 'matrix', 6) = 0 then
-        Inc(PtrComp(Str), ParseMatrix(Str))
-      else if StrLComp(PAnsiChar(Str), 'translate', 9) = 0 then
-        Inc(PtrComp(Str), ParseTranslate(Str))
-      else if StrLComp(PAnsiChar(Str), 'rotate', 6) = 0 then
-        Inc(PtrComp(Str), ParseRotate(Str))
-      else if StrLComp(PAnsiChar(Str), 'scale', 5) = 0 then
-        Inc(PtrComp(Str), ParseScale(Str))
-      else if StrLComp(PAnsiChar(Str), 'skewX', 5) = 0 then
-        Inc(PtrComp(Str), ParseSkewX(Str))
-      else if StrLComp(PAnsiChar(Str), 'skewY', 5) = 0 then
-        Inc(PtrComp(Str), ParseSkewY(Str))
+    case Str^ of
+      'm':
+        if System.SysUtils.StrLComp(PAnsiChar(Str), 'matrix', 6) = 0 then
+          Inc(PtrComp(Str), ParseMatrix(Str));
+      't':
+        if System.SysUtils.StrLComp(PAnsiChar(Str), 'translate', 9) = 0 then
+          Inc(PtrComp(Str), ParseTranslate(Str));
+      'r':
+        if System.SysUtils.StrLComp(PAnsiChar(Str), 'rotate', 6) = 0 then
+          Inc(PtrComp(Str), ParseRotate(Str));
+      's':
+        if System.SysUtils.StrLComp(PAnsiChar(Str), 'scale', 5) = 0 then
+          Inc(PtrComp(Str), ParseScale(Str))
+        else if System.SysUtils.StrLComp(PAnsiChar(Str), 'skewX', 5) = 0 then
+          Inc(PtrComp(Str), ParseSkewX(Str))
+        else if System.SysUtils.StrLComp(PAnsiChar(Str), 'skewY', 5) = 0 then
+          Inc(PtrComp(Str), ParseSkewY(Str));
       else
-        Inc(PtrComp(Str))
-
-    else
-      Inc(PtrComp(Str));
+        Inc(PtrComp(Str));
+    end;
   end;
 end;
 

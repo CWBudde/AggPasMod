@@ -1,4 +1,4 @@
-package AggPasDesXE2;
+package AggPasDesXE7;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
