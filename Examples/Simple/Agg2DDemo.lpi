@@ -35,7 +35,7 @@
     </RunParams>
     <Units Count="1">
       <Unit0>
-        <Filename Value="C:\Users\Public\Code\AggPas24\Examples\Simple\Agg2DDemo.dpr"/>
+        <Filename Value="Agg2DDemo.dpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
     </Units>
@@ -44,7 +44,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="..\..\Binaries\Agg2DDemo.exe"/>
+      <Filename Value="..\..\Binaries\Agg2DDemo"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="..\..\Source;$(ProjOutDir)"/>

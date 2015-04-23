@@ -35,7 +35,7 @@
     </RunParams>
     <Units Count="1">
       <Unit0>
-        <Filename Value="C:\Users\Public\Code\AggPas24\Examples\Simple\TransCurve1.dpr"/>
+        <Filename Value="TransCurve1.dpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
     </Units>
@@ -44,7 +44,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="..\..\Binaries\TransCurve1.exe"/>
+      <Filename Value="..\..\Binaries\TransCurve1"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="..\..\Source;$(ProjOutDir)"/>

@@ -35,7 +35,7 @@
     </RunParams>
     <Units Count="1">
       <Unit0>
-        <Filename Value="C:\Users\Public\Code\AggPas24\Examples\Simple\ImageAlpha.dpr"/>
+        <Filename Value="ImageAlpha.dpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
     </Units>
@@ -44,7 +44,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="..\..\Binaries\ImageAlpha.exe"/>
+      <Filename Value="..\..\Binaries\ImageAlpha"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="..\..\Source;$(ProjOutDir)"/>
