@@ -1,14 +1,15 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <Package Version="4">
     <PathDelim Value="\"/>
     <Name Value="AggPasDesLaz"/>
+    <Type Value="RunAndDesignTime"/>
     <CompilerOptions>
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
         <IncludeFiles Value="..\Source"/>
-        <OtherUnitFiles Value="..\Source;..\Source\Controls;..\Source\Platform\Win;..\Source\Design Time"/>
+        <OtherUnitFiles Value="..\Source;..\Source\Svg;..\Source\3rd Party\Expat;..\Source\Controls;..\Source\Platform\Win;..\Source\Design Time"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
       <Parsing>
@@ -16,12 +17,6 @@
           <SyntaxMode Value="Delphi"/>
         </SyntaxOptions>
       </Parsing>
-      <Other>
-        <CompilerMessages>
-          <MsgFileName Value=""/>
-        </CompilerMessages>
-        <CompilerPath Value="$(CompPath)"/>
-      </Other>
     </CompilerOptions>
     <Files Count="2">
       <Item1>
@@ -34,7 +29,6 @@
         <UnitName Value="AggDesignTimeRegistration"/>
       </Item2>
     </Files>
-    <Type Value="RunAndDesignTime"/>
     <RequiredPkgs Count="2">
       <Item1>
         <PackageName Value="IDEIntf"/>

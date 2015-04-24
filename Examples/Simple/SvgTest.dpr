@@ -47,7 +47,7 @@ type
     FSliderGamma: TAggControlSlider;
     FSliderScale: TAggControlSlider;
     FSliderRotate: TAggControlSlider;
-    FX, FY: Double;
+    FPos: TPointDouble;
     FMin, FMax, FDelta: TPointDouble;
     FDragFlag: Boolean;
   public
@@ -87,8 +87,7 @@ begin
   FMax := PointDouble(0, 0);
   FDelta := PointDouble(0, 0);
 
-  FX := 0.0;
-  FY := 0.0;
+  FPos := PointDouble(0, 0);
 
   FDragFlag := False;
 
@@ -189,8 +188,8 @@ begin
         Mtx.Translate((FMin.X + FMax.X) * -0.5, (FMin.Y + FMax.Y) * -0.5);
         Mtx.Scale(FSliderScale.Value);
         Mtx.Rotate(Deg2Rad(FSliderRotate.Value));
-        Mtx.Translate((FMin.X + FMax.X) * 0.5 + FX,
-          (FMin.Y + FMax.Y) * 0.5 + FY + 30);
+        Mtx.Translate((FMin.X + FMax.X) * 0.5 + FPos.X,
+          (FMin.Y + FMax.Y) * 0.5 + FPos.Y + 30);
 
         FPath.Expand(FSliderExpand.Value);
 
@@ -261,8 +260,8 @@ begin
 
   if FDragFlag then
   begin
-    FX := X - FDelta.X;
-    FY := Y - FDelta.Y;
+    FPos.X := X - FDelta.X;
+    FPos.Y := Y - FDelta.Y;
 
     ForceRedraw;
   end;
@@ -271,7 +270,7 @@ end;
 procedure TAggApplication.OnMouseButtonDown(X, Y: Integer;
   Flags: TMouseKeyboardFlags);
 begin
-  FDelta := PointDouble(X - FX, Y - FY);
+  FDelta := PointDouble(X - FPos.X, Y - FPos.Y);
 
   FDragFlag := True;
 end;
@@ -299,7 +298,7 @@ begin
       Mtx.Scale(FSliderScale.Value);
       Mtx.Rotate(Deg2Rad(FSliderRotate.Value));
       Mtx.Translate((FMin.X + FMax.X) * 0.5, (FMin.Y + FMax.Y) * 0.5);
-      Mtx.Translate(FX, FY);
+      Mtx.Translate(FPos.X, FPos.Y);
 
       Mtx.StoreTo(@M);
     finally

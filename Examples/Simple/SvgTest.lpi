@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
     <Version Value="9"/>
@@ -48,7 +48,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="..\..\Source;$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\Source;..\..\Source\Controls;..\..\Source\Platform\Win"/>
+      <OtherUnitFiles Value="..\..\Source;..\..\Source\Controls;..\..\Source\Platform\Win;..\..\Source\svg"/>
       <UnitOutputDirectory Value="..\..\UnitCache\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
@@ -75,12 +75,6 @@
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerMessages>
-        <UseMsgFile Value="True"/>
-      </CompilerMessages>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

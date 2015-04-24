@@ -1647,12 +1647,12 @@ begin
 
   RegisterClass(Wc);
 
-  Wflags := WS_OVERLAPPED or WS_CAPTION or WS_SYSMENU or WS_MINIMIZEBOX;
+  WFlags := WS_OVERLAPPED or WS_CAPTION or WS_SYSMENU or WS_MINIMIZEBOX;
 
   if wfResize in FWindowFlags then
-    Wflags := Wflags or WS_THICKFRAME or WS_MAXIMIZEBOX;
+    WFlags := WFlags or WS_THICKFRAME or WS_MAXIMIZEBOX;
 
-  FSpecific.FHwnd := CreateWindow('AGGAppClass', @FCaption[1], Wflags, 10,
+  FSpecific.FHwnd := CreateWindow('AGGAppClass', @FCaption[1], WFlags, 10,
     10, AWidth, AHeight, 0, 0, HInstance, 0);
 
   if FSpecific.FHwnd = 0 then
@@ -1940,21 +1940,16 @@ end;
 function TPlatformSupport.FileSource(Path, FileName: ShortString): ShortString;
 var
   F: file;
-  E: Integer;
 begin
   Result := FileName;
-
-  E := IOResult;
 
   AssignFile(F, Result);
   Reset(F, 1);
 
-  if Ioresult <> 0 then
+  if IOResult <> 0 then
     Result := Path + '\' + FileName;
 
   Close(F);
-
-  E := IOResult;
 end;
 
 end.

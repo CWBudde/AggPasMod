@@ -88,8 +88,8 @@ type
     function Vertex(X, Y: PDouble): Cardinal; override;
 
     property Operation: TAggGpcOp read FOperation write FOperation;
-    property Source1: TAggVertexSource read FSource1 write FSource1;
-    property Source2: TAggVertexSource read FSource2 write FSource2;
+    property SourceA: TAggVertexSource read FSourceA write FSourceA;
+    property SourceB: TAggVertexSource read FSourceB write FSourceB;
   end;
 
 implementation

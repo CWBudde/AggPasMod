@@ -28,12 +28,13 @@ interface
 
 uses
   {$IFDEF FPC} LCLIntf, LMessages, {$IFDEF MSWindows} Windows, {$ENDIF} {$ELSE}
-  Windows, {$ENDIF} Classes, Controls, Messages, Graphics, SysUtils, XMLIntf,
-  XMLDoc, AggBasics, AggColor, AggWin32Bmp, AggPlatformSupport, AggPixelFormat,
-  AggPixelFormatRgba, AggRenderScanLines, AggRendererBase, AggRenderingBuffer,
-  AggRasterizerScanLineAA, AggRendererScanLine, AggScanLinePacked,
-  AggControl, AggSliderControl, AggCheckBoxControl, AggRadioBoxControl,
-  AggGsvText, AggTransAffine, AggSvgParser, AggSvgPathRenderer;
+  Windows, XMLIntf, XMLDoc, {$ENDIF} Classes, Controls, Messages, Graphics,
+  SysUtils, AggBasics, AggColor, AggWin32Bmp, AggPlatformSupport,
+  AggPixelFormat, AggPixelFormatRgba, AggRenderScanLines, AggRendererBase,
+  AggRenderingBuffer, AggRasterizerScanLineAA, AggRendererScanLine,
+  AggScanLinePacked, AggControl, AggSliderControl, AggCheckBoxControl,
+  AggRadioBoxControl, AggGsvText, AggTransAffine, AggSvgParser,
+  AggSvgPathRenderer;
 
 type
   TAggCustomControl = class(TCustomControl)

@@ -38,8 +38,10 @@ type
     FMessage: PAnsiChar;
   public
     constructor Create; overload;
-    constructor Create(Text: AnsiString); overload;
+    constructor Create(const Text: AnsiString); overload;
     constructor Create(Exc: PSvgException); overload;
+
+    constructor CreateFmt(const Text: AnsiString; const Args: array of const);
 
     procedure Free;
     function GetMessage: PAnsiChar;
@@ -57,7 +59,7 @@ begin
   FMessage := nil;
 end;
 
-constructor TSvgException.Create(Text: AnsiString);
+constructor TSvgException.Create(const Text: AnsiString);
 var
   Max: Integer;
 begin
@@ -94,6 +96,12 @@ begin
 
       PInt8(PtrComp(FMessage) + Max)^ := 0;
     end;
+end;
+
+constructor TSvgException.CreateFmt(const Text: AnsiString;
+  const Args: array of const);
+begin
+  Create(Format(Text, Args));
 end;
 
 procedure TSvgException.Free;

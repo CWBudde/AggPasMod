@@ -30,7 +30,6 @@ interface
 uses
   SysUtils,
   Expat,
-  AnsiStrings,
   AggBasics,
   AggColor,
   AggSvgPathTokenizer,
@@ -318,7 +317,7 @@ begin
     This.ParsePoly(Attr, True);
 
   // else
-  // if StrComp(PAnsiChar(el ) ,'<OTHER_ELEMENTS>' ) = 0 then
+  // if StrComp(PAnsiChar(El), '<OTHER_ELEMENTS>') = 0 then
   // begin
   // end
   // ...
@@ -338,7 +337,7 @@ begin
     This.FPathFlag := False;
 
   // else
-  // if CompareStr(AnsiString(el ) ,'<OTHER_ELEMENTS>' ) = 0 then
+  // if CompareStr(AnsiString(El), '<OTHER_ELEMENTS>') = 0 then
   // begin
   // end
   // ...
@@ -413,11 +412,8 @@ begin
 
   if Length(H) > 0 then
   begin
-    case H[Length(H)] of
-      '0'..'9', 'A'..'F':
-      else
-        raise Exception.CreateFmt(RCStrInvalidCharacter, [H[Length(H)]]);
-    end;
+    if not CharInSet(H[Length(H)], ['0'..'9', 'A'..'F']) then
+      raise TSvgException.CreateFmt(RCStrInvalidCharacter, [H[Length(H)]]);
 
     Result := Pos(H[Length(H)], Hex) - 1;
     Yps := 2;
@@ -426,11 +422,8 @@ begin
     if Length(H) > 1 then
       for Fcb := Length(H) - 1 downto 1 do
       begin
-        case H[Fcb] of
-          '0'..'9', 'A'..'F':
-          else
-            raise Exception.CreateFmt(RCStrInvalidCharacter, [H[Fcb]]);
-        end;
+        if not CharInSet(H[Fcb], ['0'..'9', 'A'..'F']) then
+          raise TSvgException.CreateFmt(RCStrInvalidCharacter, [H[Fcb]]);
 
         Inc(Result, (Pos(H[Fcb], Hex) - 1) * Mul);
         Inc(Yps, 2);
@@ -471,8 +464,7 @@ begin
       end;
 
     if P = nil then
-      raise TSvgException.Create(Format(RCStrParseColorInvalidColorName,
-        [Str]));
+      raise TSvgException.CreateFmt(RCStrParseColorInvalidColorName, [Str]);
 
     Result.FromRgbaInteger(P.R, P.G, P.B, P.A);
   end;
@@ -488,12 +480,7 @@ end;
 
 function IsLower(Ch: AnsiChar): Boolean;
 begin
-  case Ch of
-    #97..#122:
-      Result := True;
-  else
-    Result := False;
-  end;
+  Result := CharInSet(Ch, [#97..#122]);
 end;
 
 function IsNumeric(Ch: AnsiChar): Boolean;
@@ -608,7 +595,7 @@ begin
   if not ApiOpenFile(Af, FileName) then
   begin
     XmlParserFree(P);
-    raise TSvgException.Create(Format(RCStrCouldntOpenFile, [FileName[1]]));
+    raise TSvgException.CreateFmt(RCStrCouldntOpenFile, [FileName[1]]);
   end;
 
   Done := False;
@@ -623,9 +610,9 @@ begin
       ApiCloseFile(Af);
       XmlParserFree(P);
 
-      raise TSvgException.Create(Format(RCStrSAtLineD, [Cardinal(
+      raise TSvgException.CreateFmt(RCStrSAtLineD, [Cardinal(
         XmlErrorString(TXmlError(XmlGetErrorCode(P)))),
-        XmlGetCurrentLineNumber(P)]));
+        XmlGetCurrentLineNumber(P)]);
     end;
   until Done;
 
@@ -810,10 +797,10 @@ begin
   if (W <> 0.0) and (H <> 0.0) then
   begin
     if W < 0.0 then
-      raise TSvgException.Create(Format(RCStrParseRectInvalidWidth, [W]));
+      raise TSvgException.CreateFmt(RCStrParseRectInvalidWidth, [W]);
 
     if H < 0.0 then
-      raise TSvgException.Create(Format(RCStrParseRectInvalidHeight, [H]));
+      raise TSvgException.CreateFmt(RCStrParseRectInvalidHeight, [H]);
 
     FPath.MoveTo(X, Y);
     FPath.LineTo(X + W, Y);
@@ -911,20 +898,20 @@ begin
   begin
     case Str^ of
       'm':
-        if System.SysUtils.StrLComp(PAnsiChar(Str), 'matrix', 6) = 0 then
+        if StrLComp(PAnsiChar(Str), 'matrix', 6) = 0 then
           Inc(PtrComp(Str), ParseMatrix(Str));
       't':
-        if System.SysUtils.StrLComp(PAnsiChar(Str), 'translate', 9) = 0 then
+        if StrLComp(PAnsiChar(Str), 'translate', 9) = 0 then
           Inc(PtrComp(Str), ParseTranslate(Str));
       'r':
-        if System.SysUtils.StrLComp(PAnsiChar(Str), 'rotate', 6) = 0 then
+        if StrLComp(PAnsiChar(Str), 'rotate', 6) = 0 then
           Inc(PtrComp(Str), ParseRotate(Str));
       's':
-        if System.SysUtils.StrLComp(PAnsiChar(Str), 'scale', 5) = 0 then
+        if StrLComp(PAnsiChar(Str), 'scale', 5) = 0 then
           Inc(PtrComp(Str), ParseScale(Str))
-        else if System.SysUtils.StrLComp(PAnsiChar(Str), 'skewX', 5) = 0 then
+        else if StrLComp(PAnsiChar(Str), 'skewX', 5) = 0 then
           Inc(PtrComp(Str), ParseSkewX(Str))
-        else if System.SysUtils.StrLComp(PAnsiChar(Str), 'skewY', 5) = 0 then
+        else if StrLComp(PAnsiChar(Str), 'skewY', 5) = 0 then
           Inc(PtrComp(Str), ParseSkewY(Str));
       else
         Inc(PtrComp(Str));
