@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
     <Version Value="9"/>
@@ -60,7 +60,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="..\..\..\Source;$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\..\Source;..\..\..\Source\Controls;..\..\..\Source\Platform\Win;..\..\..\Source\3rd Party\GPC"/>
+      <OtherUnitFiles Value="..\..\..\Source;..\..\..\Source\3rd Party\Expat;..\..\..\Source\Svg;..\..\..\Source\Controls;..\..\..\Source\Platform\Win;..\..\..\Source\3rd Party\GPC"/>
       <UnitOutputDirectory Value="..\..\..\UnitCache\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

@@ -48,6 +48,11 @@ uses
   AggRendererScanLine,
   AggRenderScanLines;
 
+{$IFDEF FPC}
+  {$IF FPC_FULLVERSION > 20700}
+       {$DEFINE FPC_RECORD_CONSTRUCTOR}
+  {$ENDIF}
+{$ENDIF}
 
 type
   TAggConvCount = class(TAggVertexSource)
@@ -66,7 +71,7 @@ type
 
   // Basic path attributes
   PPathAttributesRecord = ^TPathAttributesRecord;
-  TPathAttributesRecord = record
+  TPathAttributesRecord = {$IFDEF FPC_RECORD_CONSTRUCTOR} record {$ELSE} object {$ENDIF}
   private
     Index: Cardinal;
 
