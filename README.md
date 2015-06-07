@@ -24,5 +24,21 @@ Based on:
 AggPasMod
 ---------
 Based on AggPas, which is itself based on the Anti-Grain Geometry, this project offers support for the latest Delphi Versions (XE and above) and contains some helper classes (VCL components and FireMonkey interface).
-Initially, I started the port only to see how it compares performance wise. However, it took more than 3 weeks to update the project into the current form. Since I also added several improvments (assembler optimizations,  better code readability, some helper classes), I decided to release my fork of the AggPas port.
+
+Initially, the AggPas port had been modernized only to see how it compares performance wise. However, after many weeks of work and several improvments (assembler optimizations, better code readability, some helper classes), it was decided to release this modernized version of the AggPas port independently.
+
 The project was hosted on SourceForge and has been moved to GitHub. 
+
+License
+-------
+
+The the (modernized) port is licensed under the same terms as the original library:
+
+  Anti-Grain Geometry - Version 2.4 (Public License)
+  Copyright (C) 2002-2005 Maxim Shemanarev (http:www.antigrain.com)
+  Contact: McSeem@antigrain.com / McSeemAgg@yahoo.com
+
+  Permission to copy, use, modify, sell and distribute this software
+  is granted provided this copyright notice appears in all copies.
+  This software is provided "as is" without express or implied
+  warranty, and with no claim as to its suitability for any purpose.

@@ -49,9 +49,7 @@ uses
   AggRenderScanLines;
 
 {$IFDEF FPC}
-  {$IF FPC_FULLVERSION > 20700}
-       {$DEFINE FPC_RECORD_CONSTRUCTOR}
-  {$ENDIF}
+  {$DEFINE FPC_RECORD_CONSTRUCTOR}
 {$ENDIF}
 
 type
