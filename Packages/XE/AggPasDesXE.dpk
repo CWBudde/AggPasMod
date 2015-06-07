@@ -1,6 +1,5 @@
-package AggPasDesXE;
+package AggPasDes;
 
-{$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
@@ -26,6 +25,7 @@ package AggPasDesXE;
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Anti-Grain Geometry Design Time Package'}
+{$LIBSUFFIX 'XE'}
 {$DESIGNONLY}
 {$IMPLICITBUILD ON}
 
@@ -36,7 +36,7 @@ requires
   AggPasRunXE;
 
 contains
-  AggDesignTimeColor in '..\Source\Design Time\AggDesignTimeColor.pas' {/  AggDesignTimeMisc in '..\Source\Design Time\AggDesignTimeMisc.pas';},
-  AggDesignTimeRegistration in '..\Source\Design Time\AggDesignTimeRegistration.pas';
+  AggDesignTimeColor in '..\..\Source\Design Time\AggDesignTimeColor.pas',
+  AggDesignTimeRegistration in '..\..\Source\Design Time\AggDesignTimeRegistration.pas';
 
 end.
