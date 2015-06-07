@@ -419,10 +419,10 @@ type
     procedure MultyMatrix(const M: TMatrix); override;
 
     { clipping }
-    procedure SetClipRects(const ARects: array of TRectF); override;
+    procedure SetClipRects(const ARects: array of TRectF); // override;
     procedure IntersectClipRect(const ARect: TRectF); override;
     procedure ExcludeClipRect(const ARect: TRectF); override;
-    procedure ResetClipRect; override;
+    procedure ResetClipRect; // override;
 
     { drawing }
     procedure DrawLine(const APt1, APt2: TPointF; const AOpacity: Single); override;
