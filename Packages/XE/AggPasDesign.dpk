@@ -1,4 +1,4 @@
-package AggPasDes;
+package AggPasDesign;
 
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
@@ -33,7 +33,7 @@ requires
   designide,
   vcl,
   rtl,
-  AggPasRunXE;
+  AggPasRun;
 
 contains
   AggDesignTimeColor in '..\..\Source\Design Time\AggDesignTimeColor.pas',
