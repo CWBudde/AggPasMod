@@ -13,6 +13,7 @@ object FmClock: TFmClock
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
+  OnKeyDown = FormKeyDown
   PixelsPerInch = 96
   TextHeight = 13
   object Agg2DControl: TAgg2DControl
@@ -21,8 +22,8 @@ object FmClock: TFmClock
     Width = 400
     Height = 400
     Align = alClient
-    OnClick = Agg2DControlClick
     OnPaint = Agg2DControlPaint
+    OnMouseDown = Agg2DControlMouseDown
   end
   object Timer: TTimer
     OnTimer = TimerTimer

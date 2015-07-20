@@ -311,6 +311,7 @@ end;
 destructor TPathRenderer.Destroy;
 var
   Index: Integer;
+  PathAttributesRecordPtr: PPathAttributesRecord;
 begin
   FCurved.Free;
   FCurvedCount.Free;
@@ -319,8 +320,14 @@ begin
   FCurvedTrans.Free;
   FCurvedTransContour.Free;
 
-  for Index := 0 to FAttrStorage.Size - 1 do
-    PPathAttributesRecord(FAttrStorage.ItemPointer[Index])^.FTransform.Free;
+  if FAttrStorage.Size > 0 then
+    for Index := 0 to FAttrStorage.Size - 1 do
+      if Assigned(FAttrStorage.ItemPointer[Index]) then
+      begin
+        PathAttributesRecordPtr := PPathAttributesRecord(FAttrStorage.ItemPointer[Index]);
+        if Assigned(PathAttributesRecordPtr^.FTransform) then
+          PathAttributesRecordPtr^.FTransform.Free;
+      end;
 
   FAttrStack.Free;
   FAttrStorage.Free;

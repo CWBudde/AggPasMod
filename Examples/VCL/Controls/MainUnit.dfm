@@ -18,7 +18,7 @@ object FmAggPasControlsdemo: TFmAggPasControlsdemo
   TextHeight = 13
   object AggLabel: TAggLabel
     Left = 111
-    Top = 31
+    Top = 32
     Width = 140
     Height = 22
     Anchors = [akLeft, akBottom]
@@ -50,6 +50,7 @@ object FmAggPasControlsdemo: TFmAggPasControlsdemo
     Width = 73
     Height = 14
     Anchors = [akLeft, akBottom]
+    Caption = ''
     TextColor = -16777216
     InactiveColor = -16777216
     ActiveColor = -16777114

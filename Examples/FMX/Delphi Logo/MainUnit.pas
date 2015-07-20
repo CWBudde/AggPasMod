@@ -5,7 +5,7 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.Objects,
-  FMX.Canvas.AggPas,
+  FMX.Canvas.AggPas, {$IF CompilerVersion >= 15} FMX.Graphics, {$ENDIF}
   FMX.Layouts;
 
 type
@@ -91,8 +91,10 @@ end;
 
 procedure TFmDelphiLogo.LayoutScalePaint(Sender: TObject; Canvas: TCanvas;
   const ARect: TRectF);
+(*
 var
   Polygon: TPolygon;
+*)
 begin
 (*
 //  Canvas.ClearRect(RectF(12, 12, 59, 59), TAlphaColorRec.Aqua);

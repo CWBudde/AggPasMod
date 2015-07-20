@@ -346,7 +346,7 @@ begin
     GetCustomColors;
     ColorDialog.Options := [cdShowHelp];
 {$ENDIF}
-    ColorDialog.Color := WinColor(Rgb8Packed(GetOrdValue));
+    ColorDialog.Color := WinColor(Rgb8Packed(Cardinal(GetOrdValue)));
     ColorDialog.HelpContext := 25010;
     if ColorDialog.Execute then
       SetOrdValue(ColorToAggRgba8(ColorDialog.Color).ABGR);
@@ -379,7 +379,7 @@ var
   ColorRgba8: TAggRgba8;
 begin
   try
-    ColorRgba8.ABGR := GetOrdValue;
+    ColorRgba8.ABGR := Cardinal(GetOrdValue);
     Result := AggColorManager.GetColorName(ColorRgba8);
   except
     on E: Exception do ShowMessage(E.Message);

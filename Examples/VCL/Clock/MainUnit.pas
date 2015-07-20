@@ -12,8 +12,9 @@ type
     Timer: TTimer;
     procedure TimerTimer(Sender: TObject);
     procedure Agg2DControlPaint(Sender: TObject);
-    procedure Agg2DControlClick(Sender: TObject);
-  private
+    procedure Agg2DControlMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   protected
     procedure WMNCHitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
   public
@@ -28,16 +29,30 @@ implementation
 {$R *.dfm}
 
 uses
-  Math;
-
-procedure TFmClock.Agg2DControlClick(Sender: TObject);
-begin
-
-end;
+  Math, dialogs;
 
 procedure TFmClock.Agg2DControlPaint(Sender: TObject);
 begin
   PaintClock(Agg2DControl.Agg2D);
+end;
+
+procedure TFmClock.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    Close;
+end;
+
+procedure TFmClock.Agg2DControlMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+const
+  SC_DRAGMOVE = $F012;
+begin
+  if Button = mbLeft then
+  begin
+    ReleaseCapture;
+    Perform(WM_SYSCOMMAND, SC_DRAGMOVE, 0);
+  end;
 end;
 
 procedure TFmClock.PaintClock(Agg2D: TAgg2D);
@@ -110,49 +125,6 @@ end;
 procedure TFmClock.WMNCHitTest(var Message: TWMNCHitTest);
 begin
   Message.Result := HTCAPTION;
-end;
-
-procedure TFmClock.Agg2DControlClick(Sender: TObject);
-var
-  BlendFunction: TBlendFunction;
-  BitmapPos: TPoint;
-  BitmapSize: TSize;
-  TempAgg2D: TAgg2D;
-  Radius: Double;
-  exStyle: DWORD;
-  Bitmap: TBitmap;
-  ScanLine: PAggRgba8;
-  X, Y: Integer;
-begin
-  // Enable window layering
-  exStyle := GetWindowLongA(Handle, GWL_EXSTYLE);
-  if (exStyle and WS_EX_LAYERED = 0) then
-    SetWindowLong(Handle, GWL_EXSTYLE, exStyle or WS_EX_LAYERED);
-
-  Bitmap := TBitmap.Create;
-  try
-    Bitmap.PixelFormat := pf32bit;
-    Bitmap.SetSize(ClientWidth, ClientHeight);
-
-    Agg2DControl.DrawTo(Bitmap.Canvas.Handle);
-
-    // Position bitmap on form
-    BitmapPos := Point(0, 0);
-    BitmapSize.cx := Bitmap.Width;
-    BitmapSize.cy := Bitmap.Height;
-
-    // Setup alpha blending parameters
-    BlendFunction.BlendOp := AC_SRC_OVER;
-    BlendFunction.BlendFlags := 0;
-    BlendFunction.SourceConstantAlpha := 255;
-    BlendFunction.AlphaFormat := AC_SRC_ALPHA;
-
-    // ... and action!
-    UpdateLayeredWindow(Handle, 0, nil, @BitmapSize, Bitmap.Canvas.Handle,
-      @BitmapPos, 0, @BlendFunction, ULW_ALPHA);
-  finally
-    Bitmap.Free;
-  end;
 end;
 
 end.
