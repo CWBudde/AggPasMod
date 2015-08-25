@@ -1,0 +1,33 @@
+{
+        "search_pathes": 
+    [
+        {
+            "pathes": "3rd Party\\Expat;3rd Party\\GPC;Controls;Platform;Svg",
+            "platforms": "Win32;Win64;OSX32"
+        }
+    ],
+    "browsing_pathes": 
+    [
+        {
+            "pathes": "3rd Party\\Expat;3rd Party\\GPC;Controls;Platform;Svg",
+            "platforms": "Win32;Win64;OSX32"
+        }
+    ],
+
+    "source_folders":
+    [
+        {
+            "folder": "source",
+            "base": "source",
+            "recursive": true,
+            "filter": "*;*.*"
+        }
+    ],
+
+    "projects":
+    [
+        {
+            "project": "Examples\\VCL\\Agg2D\\DemoAgg2D.dproj"
+        }
+    ]
+}

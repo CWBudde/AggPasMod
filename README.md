@@ -29,6 +29,16 @@ Initially, the AggPas port had been modernized only to see how it compares perfo
 
 The project was hosted on SourceForge and has been moved to GitHub. 
 
+
+Installation
+------------
+Once the project has been checked out or downloaded, it can be installed in the IDE by installing the runtime and the design-time packages for the given Delphi/Lazarus version. However, before that some directories must be known by the IDE. Please specify these manually until the packages complile. 
+
+Alternatively the packages can be obtained and installed via GetIt (XE8). 
+
+Recently Delphinus-Support has also been added to support older Delphi versions (see https://github.com/Memnarch/Delphinus for more information).
+
+
 License
 -------
 
