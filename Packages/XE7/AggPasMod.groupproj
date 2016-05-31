@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{9EB2A1C5-244F-4405-B8A3-5B4119DDF01E}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="AggPasRun.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="AggPasDesign.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="AggPasRun">
+        <MSBuild Projects="AggPasRun.dproj"/>
+    </Target>
+    <Target Name="AggPasRun:Clean">
+        <MSBuild Projects="AggPasRun.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="AggPasRun:Make">
+        <MSBuild Projects="AggPasRun.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="AggPasDesign">
+        <MSBuild Projects="AggPasDesign.dproj"/>
+    </Target>
+    <Target Name="AggPasDesign:Clean">
+        <MSBuild Projects="AggPasDesign.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="AggPasDesign:Make">
+        <MSBuild Projects="AggPasDesign.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="AggPasRun;AggPasDesign"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="AggPasRun:Clean;AggPasDesign:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="AggPasRun:Make;AggPasDesign:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
