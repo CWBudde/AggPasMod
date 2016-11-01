@@ -21,6 +21,9 @@ unit AggBasics;
 //  warranty, and with no claim as to its suitability for any purpose.        //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+//  B.Verhue 1-11-2016                                                        //
+//  - Added the TAggBytes type for replacement of AnsiString                  //
+////////////////////////////////////////////////////////////////////////////////
 
 interface
 
@@ -60,6 +63,14 @@ type
 
   PInt8uArray2 = ^TInt8uArray2;
   TInt8uArray2 = array [0..1] of Int8u;
+
+  // Substitute for AnsiString
+  PAggBytes = ^TAggBytes;
+{$IFDEF FPC}
+  TAggBytes = array of Byte;
+{$ELSE}
+  TAggBytes = TArray<byte>;
+{$ENDIF}
 
   TInt16uAccess = record
     Low, High: Int8u;

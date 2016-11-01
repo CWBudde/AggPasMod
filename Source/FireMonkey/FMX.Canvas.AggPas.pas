@@ -4,7 +4,7 @@ unit FMX.Canvas.AggPas;
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
 //    Maintained by Christian-W. Budde (Christian@savioursofsoul.de)          //
-//    Copyright (c) 2012-2015                                                      //
+//    Copyright (c) 2012-2015                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -35,6 +35,13 @@ unit FMX.Canvas.AggPas;
 //  by Embarcardero                                                           //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+//  B.Verhue 1-11-2016                                                        //
+//                                                                            //
+//  - Added buffering system and BeginScene Endscne methods                   //
+//  - Moved font engine to class var                                          //
+//  - Added text layout claa                                                  //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
 
 interface
 
@@ -47,10 +54,52 @@ implementation
 {$WARNINGS ON}
 {$HINTS ON}
 
+{$IFNDEF VER230}
+  {$LEGACYIFEND ON}
+{$ENDIF}
+
+// See also Agg2D.pas
+{$DEFINE AGG2D_USE_FREETYPE}
+
+// CompilerVersion23: XE2
+// CompilerVersion24: XE3
+// CompilerVersion25: XE4
+// CompilerVersion26: XE5
+// CompilerVersion27: XE6
+// ..
+
 uses
-  Winapi.Windows, FMX.Types, System.Types, System.Classes, System.SysUtils,
-  System.UITypes, System.Math,
-  {$IF CompilerVersion >= 15} FMX.Graphics, System.Math.Vectors, {$ENDIF}
+  {$IFDEF IOS}
+  FMX.Platform.iOS,
+  {$ELSE}
+  {$IFDEF MACOS}
+  Macapi.CoreGraphics,
+  Macapi.CocoaTypes,
+  FMX.Platform.Mac,
+  {$ENDIF MACOS}
+  {$ENDIF IOS}
+  {$IFDEF MSWINDOWS}
+  Winapi.Windows,
+  FMX.Platform.Win,
+  {$ENDIF}
+  {$IFDEF ANDROID}
+  FMX.Platform.Android,
+  {$ENDIF}
+  FMX.Types,
+  System.Types,
+  System.UIConsts,
+  System.Classes,
+  System.SysUtils,
+  System.UITypes,
+  System.Math,
+  {$IF CompilerVersion > 23}
+  FMX.Graphics,
+  FMX.TextLayout,
+  FMX.PixelFormats,
+  {$IFEND}
+  {$IF CompilerVersion >= 27}
+  System.Math.Vectors,
+  {$IFEND}
   AggBasics,
   AggMath,
   AggArray,
@@ -79,25 +128,23 @@ uses
   AggArc,
   AggBezierArc,
   AggRoundedRect,
-  AggFontEngine,
-  AggFontCacheManager,
   AggPixelFormat,
   AggPixelFormatRgba,
   AggColor,
   AggMathStroke,
   AggImageFilters,
   AggRenderScanLines,
-
-{$IFDEF USE_FREETYPE}
+  AggFontEngine,
+  AggFontCacheManager,
+{$IFDEF AGG2D_USE_FREETYPE}
   AggFontFreeType,
 {$ELSE}
   AggFontWin32TrueType,
 {$ENDIF}
-
   AggVertexSource;
 
 const
-  CAntiAliasGamma : Double = 1;
+  CAntiAliasGamma: Double = 1;
 
 type
   TAggBrushType = (btSolid, btGradientLinear, btGradientRadial, btBitmap);
@@ -114,7 +161,6 @@ type
 {$ELSE }
   TAggFontEngine = TAggFontEngineWin32TrueTypeInt32;
 {$ENDIF}
-
 
   TCanvasAggPasImage = class
   private
@@ -159,15 +205,76 @@ type
     procedure Assign(Source: TPersistent); override;
   end;
 
-
   TGetPixel = function(const X, Y: Single): TAlphaColor of object;
+
+{$IF CompilerVersion <= 23}
+  TBitmapData = record
+    Data: pointer;
+    Width: integer;
+    Height: integer;
+    Pitch: integer;
+  end;
+
+  TRegion = array of TRectF;
+  TTextRange = TRectF;
+
+  TTextLayoutAggPas = class;
+
+  TTextLayout = class
+  private
+    FText: string;
+    FTextRect: TRectF;
+    FTopLeft: TPointF;
+    FFont: TFont;
+    FWordWrap: boolean;
+    FHorizontalAlign: TTextAlign;
+    FVerticalAlign: TTextAlign;
+    FOpacity: single;
+    procedure SetFont(const aValue: TFont);
+    procedure SetHorizontalAlign(const Value: TTextAlign);
+    procedure SetVerticalAlign(const Value: TTextAlign);
+  protected
+    procedure DoRenderLayout; virtual; abstract;
+    procedure DoDrawLayout(const ACanvas: TCanvas); virtual; abstract;
+    function GetTextHeight: Single; virtual; abstract;
+    function GetTextWidth: Single; virtual; abstract;
+    function GetTextRect: TRectF; virtual; abstract;
+    function DoPositionAtPoint(const APoint: TPointF): Integer; virtual; abstract;
+    function DoRegionForRange(const ARange: TTextRange): TRegion; virtual; abstract;
+  public
+    constructor Create(const ACanvas: TCanvas = nil); virtual;
+    destructor Destroy; override;
+
+    procedure ConvertToPath(const APath: TPathData); virtual; abstract;
+
+    property Text: string read FText write FText;
+    property TextRect: TRectF read GetTextRect;
+    property TextWidth: Single read GetTextWidth;
+    property TopLeft: TPointF read FTopLeft write FTopLeft;
+    property Font: TFont read FFont write SetFont;
+    property WordWrap: boolean read FWordWrap write FWordWrap;
+    property HorizontalAlign: TTextAlign read FHorizontalAlign write SetHorizontalAlign;
+    property VerticalAlign: TTextAlign read FVerticalAlign write SetVerticalAlign;
+    property Opacity: Single read FOpacity write FOpacity;
+  end;
+{$IFEND}
 
   TCanvasAggPas = class(TCanvas)
   private
+{$IF CompilerVersion <= 23}
     FBitmapInfo: TBitmapInfo;
     FBufferBitmap: THandle;
+{$IFEND}
+{$IFDEF MACOS}
+    FBitmapContext: CGContextRef;
+    FImage: CGImageRef;
+{$ENDIF}
+    FBitmapData: TBitmapData;
+    FContextHandle: THandle;
+    FClipRects: PClipRects;
+
     FClipRect: TRectF;
-    FFontHandle: HFONT;
+    FSceneCount: integer;
 
     FFillImage: TCanvasAggPasImage;
     FPatternWrapX, FPatternWrapY: TAggWrapMode;
@@ -201,10 +308,13 @@ type
     FGradientD1: Double;
     FGradientD2: Double;
 
+    {$IF CompilerVersion <= 23}
+    FTextLayout: TTextLayoutAggPas;
     FTextHints: Boolean;
     FFontHeight: Double;
     FFontAscent: Double;
     FFontDescent: Double;
+    {$IFEND}
 
     FImageFilter: TAggImageFilterType;
     FImageResample: TAggImageResample;
@@ -227,12 +337,10 @@ type
     FPathTransform: TAggConvTransform;
     FStrokeTransform: TAggConvTransform;
 
-{$IFNDEF AGG2D_USE_FREETYPE}
-    FFontDC: HDC;
-{$ENDIF}
-
-    FFontEngine: TAggFontEngine;
-    FFontCacheManager: TAggFontCacheManager;
+    FOpacity: single;
+    FFillVisible: boolean;
+    FStrokeVisible: boolean;
+    FStrokeThickness: single;
 
     // Other Pascal-specific members
     FGammaNone: TAggGammaNone;
@@ -257,8 +365,10 @@ type
       Parl: PDouble); overload;
     procedure SetImageFilter(F: TAggImageFilterType);
 
-    procedure SetImageResample(F: TAggImageResample); overload;
+    {$IF CompilerVersion <= 23}
     procedure SetTextHints(Value: Boolean); overload;
+    {$IFEND}
+    procedure SetImageResample(F: TAggImageResample); overload;
     procedure SetFillEvenOdd(EvenOddFlag: Boolean); overload;
     procedure SetBlendMode(Value: TAggBlendMode);
     procedure SetImageBlendMode(Value: TAggBlendMode);
@@ -268,14 +378,17 @@ type
 
     function CreateSaveState: TCanvasSaveState; override;
 
+    {$IF CompilerVersion > 23}
+    procedure MapBuffer;
+    procedure UnmapBuffer;
+    {$IFEND}
+
     procedure InternalRenderImage(Img: TCanvasAggPasImage;
       RendererBase: TAggRendererBase; Interpolator: TAggSpanInterpolatorLinear);
 
     procedure CopyPath(APath: TPathData);
 
-    procedure PrepareStroke;
-    procedure PrepareGradient(ABrush: TBrush; ARect: TRectF);
-    function PrepareColor(ABrush: TBrush; const ARect: TRectF): Boolean;
+    procedure PrepareGradient(AGradient: TGradient; ARect: TRectF);
 
     procedure UpdateTransformation;
     procedure UpdateApproximationScale;
@@ -315,15 +428,17 @@ type
       voXMidYMid); overload;
 
     // Text
-    procedure SetFont(FileName: TFileName; Height: Double; Bold: Boolean = False;
-      Italic: Boolean = False; Angle: Double = 0);
+    {$IF CompilerVersion <= 23}
+    //procedure SetFont(FileName: TFileName; Height: Double; Bold: Boolean = False;
+    //  Italic: Boolean = False; Angle: Double = 0);
 
-    function TextWidth(Str: PAnsiChar): Double; overload;
-    function TextWidth(Str: AnsiString): Double; overload;
+    //function TextWidth(Str: PAnsiChar): Double; overload;
+    //function TextWidth(Str: AnsiString): Double; overload;
+    {$IFEND}
 
     // Path commands
     procedure RenderPath(ARect: TRectF; AOpacity: Single;
-      FillFlag: Boolean = True); overload;
+      const ABrush: TBrush; FillFlag: Boolean = True); overload;
 
     // Image Transformations
     procedure TransformImage(Img: TCanvasAggPasImage; ImgX1, ImgY1, ImgX2,
@@ -358,6 +473,16 @@ type
     procedure TransformImagePath(Img: TCanvasAggPasImage;
       Parallelogram: PDouble); overload;
 
+    procedure ApplyFill(const ABrush: TBrush; ARect: TRectF; const AOpacity: Single);
+    {$IF CompilerVersion <= 23}
+    procedure ApplyStroke(const AStroke: TBrush; const AStrokeThickness: Single;
+      const AStrokeCap: TStrokeCap; const ADashArray: TDashArray;
+      const ADashOffset: single; const AStrokeJoin: TStrokeJoin; ARect: TRectF;
+      const AOpacity: Single);
+    {$ELSE}
+    procedure ApplyStroke(const AStroke: TStrokeBrush; ARect: TRectF; const AOpacity: Single);
+    {$IFEND}
+
     // Image Blending (no transformations available)
     procedure BlendImage(Img: TCanvasAggPasImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer;
       DstX, DstY: Double; Alpha: Cardinal = 255); overload;
@@ -382,57 +507,77 @@ type
     function WorldToScreen(Scalar: Double): Double; overload;
     function ScreenToWorld(Scalar: Double): Double; overload;
 
-    {$IF CompilerVersion < 15}
+    {$IF CompilerVersion <= 23}
     procedure FillPolygon(const APolygon: TPolygon; const AOpacity: Single); override;
     procedure DrawPolygon(const APolygon: TPolygon; const AOpacity: Single); override;
+    {$IFEND}
+
+    {$IFNDEF AGG2D_USE_FREETYPE }
+    procedure FontChanged(Sender: TObject); override;
     {$ENDIF}
 
-    procedure FontChanged(Sender: TObject); override;
-
     { Bitmaps }
-    {$IF CompilerVersion < 15}
+    {$IF CompilerVersion <= 23}
     procedure UpdateBitmapHandle(ABitmap: TBitmap); override;
     procedure DestroyBitmapHandle(ABitmap: TBitmap); override;
     procedure FreeBuffer; override;
 
     class function GetBitmapScanline(Bitmap: TBitmap; Y: Integer): PAlphaColorArray; override;
-    {$ENDIF}
+
+    property TextHints: Boolean read FTextHints write SetTextHints;
+    {$IFEND}
 
     property ImageBlendColor: TAggRgba8 read FImageBlendColor write SetImageBlendColor;
     property ImageFilter: TAggImageFilterType read FImageFilter write SetImageFilter;
     property BlendMode: TAggBlendMode read FBlendMode write SetBlendMode;
     property FillEvenOdd: Boolean read FEvenOddFlag write SetFillEvenOdd;
-    property TextHints: Boolean read FTextHints write SetTextHints;
     property ImageResample: TAggImageResample read FImageResample write SetImageResample;
     property Row[Y: Cardinal]: PInt8U read GetRow;
 
     property ImageBlendMode: TAggBlendMode read FImageBlendMode write SetImageBlendMode;
   public
-    {$IF CompilerVersion < 15}
+    {$IF CompilerVersion <= 24}
     constructor CreateFromWindow(const AParent: THandle; const AWidth,
       AHeight: Integer); override;
     constructor CreateFromBitmap(const ABitmap: TBitmap); override;
     {$ELSE}
     constructor CreateFromWindow(const AParent: TWindowHandle; const AWidth, AHeight: Integer;
-      const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault); virtual;
-    constructor CreateFromBitmap(const ABitmap: TBitmap; const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault); virtual;
-    {$ENDIF}
+      const AQuality: TCanvasQuality = {$IF CompilerVersion <= 26} TCanvasQuality.ccSystemDefault
+                                       {$ELSE} TCanvasQuality.SystemDefault {$IFEND}); override;
+    constructor CreateFromBitmap(const ABitmap: TBitmap;
+      const AQuality: TCanvasQuality = {$IF CompilerVersion <= 26} TCanvasQuality.ccSystemDefault
+                                       {$ELSE} TCanvasQuality.SystemDefault {$IFEND}); override;
+    {$IFEND}
     constructor CreateFromPrinter(const APrinter: TAbstractPrinter); override;
     destructor Destroy; override;
 
+    {$IF CompilerVersion <= 23}
     { buffer }
-    {$IF CompilerVersion < 15}
     procedure ResizeBuffer(const AWidth, AHeight: Integer); override;
     procedure FlushBufferRect(const X, Y: Integer; const Context; const ARect: TRectF); override;
-    {$ENDIF}
+
+    function DoBeginScene(const AClipRects: PClipRects = nil): Boolean; virtual;
+    {$ELSE}
+    { Bitmaps }
+    class procedure DoInitializeBitmap(const Bitmap: TBitmap); override;
+    class procedure DoFinalizeBitmap(const Bitmap: TBitmap); override;
+    class function DoMapBitmap(const Bitmap: TBitmap; const Access: TMapAccess; var Data: TBitmapData): Boolean; override;
+    class procedure DoUnmapBitmap(const Bitmap: TBitmap; var Data: TBitmapData); override;
+
+    function DoBeginScene(const AClipRects: PClipRects = nil; AContextHandle: THandle = 0): Boolean; override;
+    procedure DoEndScene; override;
+
+    procedure SetSize(const AWidth, AHeight: Integer); override;
+    {$IFEND}
+
     procedure Clear(const Color: TAlphaColor); override;
     procedure ClearRect(const ARect: TRectF; const AColor: TAlphaColor = 0); override;
 
     { matrix }
     procedure SetMatrix(const M: TMatrix); override;
-    {$IF CompilerVersion < 15}
+    {$IF CompilerVersion <= 23}
     procedure MultyMatrix(const M: TMatrix); override;
-    {$ENDIF}
+    {$IFEND}
 
     { clipping }
     procedure SetClipRects(const ARects: array of TRectF); // override;
@@ -441,7 +586,7 @@ type
     procedure ResetClipRect; // override;
 
     { drawing }
-    {$IF CompilerVersion < 15}
+    {$IF CompilerVersion <= 23}
     procedure DrawLine(const APt1, APt2: TPointF; const AOpacity: Single); override;
     procedure FillRect(const ARect: TRectF; const XRadius, YRadius: Single;
       const ACorners: TCorners; const AOpacity: Single;
@@ -479,13 +624,50 @@ type
     procedure DoDrawRect(const ARect: TRectF; const AOpacity: Single; const ABrush: TStrokeBrush); override;
     procedure DoDrawPath(const APath: TPathData; const AOpacity: Single; const ABrush: TStrokeBrush); override;
     procedure DoDrawEllipse(const ARect: TRectF; const AOpacity: Single; const ABrush: TStrokeBrush); override;
-    {$ENDIF}
+    {$IFEND}
     function PtInPath(const APoint: TPointF; const APath: TPathData): Boolean; override;
+  end;
+
+  TTextLayoutAggPas = class(TTextLayout)
+  class var
+    {$IFNDEF AGG2D_USE_FREETYPE}
+    FFontHandle: HFONT;
+    FFontDC: HDC;
+    {$ENDIF}
+    FFontEngine: TAggFontEngine;
+    FFontCacheManager: TAggFontCacheManager;
+  private
+    FLeft: Single;
+    FTop: Single;
+    FHeight: Single;
+    FWidth: Single;
+
+    FTextHints: Boolean;
+
+    procedure SetFont(FileName: TFileName; Height: Double; Bold: Boolean = False;
+      Italic: Boolean = False; Angle: Double = 0);
+    function MeasureRange(const APos, ALength: Integer): TRegion;
+  protected
+    procedure DoRenderLayout; override;
+    procedure DoDrawLayout(const ACanvas: TCanvas); override;
+    function GetTextHeight: Single; override;
+    function GetTextWidth: Single; override;
+    function GetTextRect: TRectF; override;
+    function DoPositionAtPoint(const APoint: TPointF): Integer; override;
+    function DoRegionForRange(const ARange: TTextRange): TRegion; override;
+
+    class constructor Create;
+    class destructor Destroy;
+  public
+    constructor Create(const ACanvas: TCanvas = nil); override;
+    destructor Destroy; override;
+    //
+    procedure ConvertToPath(const APath: TPathData); override;
   end;
 
   TAggSpanConvImageBlend = class(TAggSpanConvertor)
   private
-    FMode : TAggBlendMode;
+    FMode: TAggBlendMode;
     FColor: TAggRgba8;
     FPixel: TAggPixelFormatProcessor; // FPixelFormatCompPre
   public
@@ -558,6 +740,41 @@ begin
   Result.Bottom := Max(Max(P1.Y, P2.Y), Max(P3.Y, P4.Y));
 end;
 
+{$IFDEF MACOS}
+type
+  TRGBFloat = packed record
+    r, g, b, a: single;
+  end;
+
+var
+  MyColorSpace: CGColorSpaceRef;
+
+function ColorSpace: CGColorSpaceRef;
+begin
+  if MyColorSpace = nil then
+    MyColorSpace := CGColorSpaceCreateDeviceRGB;
+  Result := MyColorSpace;
+end;
+
+function CGColor(const C: TAlphaColor; Opacity: single = 1): TRGBFloat;
+var
+  cc: TAlphaColor;
+begin
+  cc := MakeColor(C, Opacity);
+  Result.a := TAlphaColorRec(cc).a / $FF;
+  Result.r := TAlphaColorRec(cc).r / $FF;
+  Result.g := TAlphaColorRec(cc).g / $FF;
+  Result.b := TAlphaColorRec(cc).b / $FF;
+end;
+
+function CGRectFromRect(const R: TRectF): CGRect;
+begin
+  Result.origin.x := R.Left;
+  Result.origin.Y := R.Top;
+  Result.size.Width := R.Right - R.Left;
+  Result.size.Height := R.Bottom - R.Top;
+end;
+{$ENDIF}
 
 { TCanvasAggPasImage }
 
@@ -615,7 +832,6 @@ begin
   PixelFormatProcessor.DeMultiply;
 end;
 
-
 { TCanvasAggPasRasterizerGamma }
 
 constructor TCanvasAggPasRasterizerGamma.Create(Alpha, Gamma: Double);
@@ -637,46 +853,58 @@ begin
   Result := FAlpha.FuncOperatorGamma(FGamma.FuncOperatorGamma(X));
 end;
 
-
 { TCanvasAggPas }
 
-{$IF CompilerVersion < 15}
+{$IF CompilerVersion <= 24}
 constructor TCanvasAggPas.CreateFromWindow(const AParent: THandle; const AWidth,
   AHeight: Integer);
 {$ELSE}
 constructor TCanvasAggPas.CreateFromWindow(const AParent: TWindowHandle;
   const AWidth, AHeight: Integer;
-  const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault);
-{$ENDIF}
+  const AQuality: TCanvasQuality =
+    {$IF CompilerVersion <= 26}
+      TCanvasQuality.ccSystemDefault
+    {$ELSE}
+      TCanvasQuality.SystemDefault
+    {$IFEND});
+{$IFEND}
 begin
   InitializeAggPas;
 
-{$IF CompilerVersion < 15}
-  FBuffered := True;
-{$ENDIF}
   inherited;
+
+{$IF CompilerVersion > 23}
+  MapBuffer;
+{$ELSE}
+  FBuffered := True;
+  FTextLayout := TTextLayoutAggPas.Create;
+{$IFEND}
+
   ResetClipRect;
 end;
 
-{$IF CompilerVersion < 15}
+{$IF CompilerVersion <= 24}
 constructor TCanvasAggPas.CreateFromBitmap(const ABitmap: TBitmap);
 {$ELSE}
 constructor TCanvasAggPas.CreateFromBitmap(const ABitmap: TBitmap;
-  const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault);
-{$ENDIF}
+  const AQuality: TCanvasQuality =
+    {$IF CompilerVersion <= 26}
+      TCanvasQuality.ccSystemDefault
+    {$ELSE}
+      TCanvasQuality.SystemDefault
+    {$IFEND});
+{$IFEND}
 begin
   InitializeAggPas;
 
   inherited;
-{$IF CompilerVersion < 15}
-  FBitmap := ABitmap;
 
-  Attach(PInt8u(ABitmap.ScanLine[0]), ABitmap.Width, ABitmap.Height,
-    4 * ABitmap.Width);
+{$IF CompilerVersion > 23}
+  MapBuffer;
+{$ELSE}
+  FTextLayout := TTextLayoutAggPas.Create;
+{$IFEND}
 
-  UpdateBitmapHandle(FBitmap);
-  FBufferBits := ABitmap.StartLine;
-{$ENDIF}
   ResetClipRect;
 end;
 
@@ -688,8 +916,6 @@ end;
 
 destructor TCanvasAggPas.Destroy;
 begin
-//  FPixelMap.Free;
-
   FRendererBase.Free;
   FRendererBaseComp.Free;
   FRendererBasePre.Free;
@@ -738,24 +964,22 @@ begin
   FConvCurve.Free;
   FConvStroke.Free;
 
-  FFontEngine.Free;
-  FFontCacheManager.Free;
-
   FPixelFormat.Free;
   FPixelFormatComp.Free;
   FPixelFormatPre.Free;
   FPixelFormatCompPre.Free;
 
-{$IFNDEF AGG2D_USE_FREETYPE}
-  ReleaseDC(0, FFontDC);
-{$ENDIF}
+{$IF CompilerVersion <= 23}
+  FTextLayout.Free;
+{$IFEND}
 
-  DeleteObject(FFontHandle);
   inherited;
 end;
 
 procedure TCanvasAggPas.InitializeAggPas;
 begin
+  FSceneCount := 0;
+
   FGammaAgg2D := nil;
 
   FRenderingBuffer := TAggRenderingBuffer.Create;
@@ -806,7 +1030,6 @@ begin
 
   FImageFilterLUT := TAggImageFilter.Create(FImageFilterBilinear, True);
 
-
   // gradients
   FBrushType := btSolid;
 
@@ -821,7 +1044,6 @@ begin
   FGradientInterpolator := TAggSpanInterpolatorLinear.Create(
     FGradientMatrix);
 
-
   // vertex sources
   FPath := TAggPathStorage.Create;
   FTransform := TAggTransAffine.Create;
@@ -833,34 +1055,40 @@ begin
   FPathTransform := TAggConvTransform.Create(FConvCurve, FTransform);
   FStrokeTransform := TAggConvTransform.Create(FConvStroke, FTransform);
 
-
-{$IFDEF AGG2D_USE_FREETYPE}
-  FFontEngine := TAggFontEngineFreetypeInt32.Create;
-{$ELSE}
-  FFontDC := GetDC(0);
-
-  FFontEngine := TAggFontEngineWin32TrueTypeInt32.Create(FFontDC);
-{$ENDIF}
-
-
   // initialize variables
   FBlendMode := bmAlpha;
   FImageBlendMode := bmDestination;
 
+{$IF CompilerVersion <= 23}
   FTextHints := True;
   FFontHeight := 0;
   FFontAscent := 0;
   FFontDescent := 0;
+{$IFEND}
 
   FImageFilter := ifBilinear;
   FImageResample := irNever;
 
   FEvenOddFlag := False;
-  FFontEngine.FlipY := True;
-  FFontCacheManager := TAggFontCacheManager.Create(FFontEngine);
 end;
 
-{$IF CompilerVersion < 15}
+{$IF CompilerVersion <= 23}
+
+procedure TCanvasAggPas.FreeBuffer;
+begin
+  if FBuffered then
+  begin
+    if FBufferHandle = 0 then
+      Exit;
+    if FBufferHandle <> 0 then
+      DeleteDC(FBufferHandle);
+    FBufferHandle := 0;
+    if FBufferBitmap <> 0 then
+      DeleteObject(FBufferBitmap);
+    FBufferBitmap := 0;
+  end;
+end;
+
 procedure TCanvasAggPas.ResizeBuffer(const AWidth, AHeight: Integer);
 begin
   if (AWidth = FWidth) and (AHeight = FHeight) then
@@ -945,21 +1173,128 @@ begin
   Winapi.Windows.BitBlt(DstDC, X + R.Left, y + R.Top, R.Right - R.Left,
     R.Bottom - R.Top, FBufferHandle, R.Left, R.Top, SRCCOPY);
 end;
+
+function TCanvasAggPas.DoBeginScene(const AClipRects: PClipRects): Boolean;
+begin
+  Result := inherited DoBeginScene(AClipRects);
+  if Result and (AClipRects <> nil) then
+    SetClipRects(AClipRects^);
+end;
+
+{$ELSE}
+
+procedure TCanvasAggPas.MapBuffer;
+begin
+  if assigned(Bitmap) then
+  begin
+    Bitmap.Map(TMapAccess.maReadWrite, FBitmapData);
+    Attach(FBitmapData.Data, FBitmapData.Width, FBitmapData.Height, FBitmapData.Pitch);
+  end else begin
+{$IFDEF MSWINDOWS}
+    if assigned(Parent) then
+    begin
+      WindowHandleToPlatform(Parent).CreateBuffer(Width, Height);
+      Attach(WindowHandleToPlatform(Parent).BufferBits, Width, Height, Width * 4);
+    end;
 {$ENDIF}
+{$IFDEF MACOS}
+    if assigned(Parent) then
+    begin
+      GetMem(FBitmapData.Data, Width * Height * 4);
+      FBitmapContext := CGBitmapContextCreate(FBitmapData.Data, Width, Height, 8,
+          Width * 4, ColorSpace, kCGImageAlphaPremultipliedLast);
+      Attach(FBitmapData.Data, Width, Height, Width * 4);
+    end;
+{$ENDIF}
+  end;
+end;
+
+procedure TCanvasAggPas.UnmapBuffer;
+begin
+  if assigned(Bitmap) then
+  begin
+    Bitmap.Unmap(FBitmapData);
+  end else begin
+{$IFDEF MSWINDOWS}
+{$ENDIF}
+{$IFDEF MACOS}
+    if assigned(Parent) then
+    begin
+      if assigned(FBitmapContext) then
+      begin
+        CGImageRelease(FBitmapContext);
+        FBitmapContext := nil;
+      end;
+      if assigned(FBitmapData.Data) then
+      begin
+        FreeMem(FBitmapData.Data);
+        FBitmapData.Data := nil;
+      end;
+    end;
+{$ENDIF}
+  end;
+end;
+
+procedure TCanvasAggPas.SetSize(const AWidth, AHeight: Integer);
+begin
+  UnmapBuffer;
+  inherited;
+  MapBuffer;
+end;
+
+function TCanvasAggPas.DoBeginScene(const AClipRects: PClipRects = nil; AContextHandle: THandle = 0): Boolean;
+begin
+  FContextHandle := AContextHandle;
+  FClipRects := AClipRects;
+
+  if FSceneCount = 0 then
+    MapBuffer;
+  Inc(FSceneCount);
+
+  Result := inherited DoBeginScene(AClipRects);
+end;
+
+procedure TCanvasAggPas.DoEndScene;
+var
+{$IFDEF MSWINDOWS}
+  R: TRect;
+{$ELSE}
+  R: CGRect;
+{$ENDIF}
+  I: Integer;
+begin
+  inherited;
+
+  Dec(FSceneCount);
+  if FSceneCount <= 0 then
+  begin
+    if Assigned(Parent) and (FContextHandle <> 0) then
+    begin
+{$IFDEF MSWINDOWS}
+      if Assigned(FClipRects) then
+      begin
+        for I := 0 to High(FClipRects^) do
+        begin
+          R := FClipRects^[I].Round;
+          Winapi.Windows.BitBlt(FContextHandle, R.Left, R.Top, R.Width, R.Height, WindowHandleToPlatform(Parent).BufferHandle, R.Left, R.Top, SRCCOPY);
+        end;
+      end else
+        Winapi.Windows.BitBlt(FContextHandle, 0, 0, Width, Height, WindowHandleToPlatform(Parent).BufferHandle, 0, 0, SRCCOPY);
+{$ENDIF}
+{$IFDEF MACOS}
+      R := CGRectFromRect(RectF(0, 0, Width, Height));
+      FImage := CGBitmapContextCreateImage(FBitmapContext);
+      CGContextDrawImage(CGContextRef(FContextHandle), R, FImage);
+{$ENDIF}
+    end;
+    UnmapBuffer;
+    FSceneCount := 0;
+  end;
+end;
+{$IFEND}
 
 procedure TCanvasAggPas.Clear(const Color: TAlphaColor);
 begin
-(*
-  FPath.RemoveAll;
-  FPath.MoveTo(0, 0);
-  FPath.LineTo(FWidth, 0);
-  FPath.LineTo(FWidth, FHeight);
-  FPath.LineTo(0, FHeight);
-  FPath.ClosePolygon;
-
-//  FillColor := AlphaColorToAggColor(Color);
-  RenderPath(RectF(0, 0, FWidth, FHeight), 1);
-*)
   FRendererBase.Clear(AlphaColorToAggColor(Color));
 end;
 
@@ -969,25 +1304,6 @@ var
   Clr: TAggColor;
 begin
   IntersectRect(R, ARect, FClipRect);
-
-(*
-  FPath.RemoveAll;
-  FPath.MoveTo(ARect.Left, ARect.Top);
-  FPath.LineTo(ARect.Right, ARect.Top);
-  FPath.LineTo(ARect.Right, ARect.Bottom);
-  FPath.LineTo(ARect.Left, ARect.Bottom);
-  FPath.ClosePolygon;
-
-  FRasterizer.Reset;
-  UpdateRasterizerGamma(1);
-  FBrushType := btSolid;
-  FAggColor := AlphaColorToAggColor(AColor);
-  if FAggColor.A <> 0 then
-  begin
-    FRasterizer.AddPath(FPathTransform);
-    Render;
-  end;
-*)
 
   Clr.FromRgba8(AlphaColorToAggColor(AColor));
   FRendererBase.CopyBar(Round(ARect.Left), Round(ARect.Top), Round(ARect.Right),
@@ -1018,13 +1334,13 @@ begin
   UpdateTransformation;
 end;
 
-{$IF CompilerVersion < 15}
+{$IF CompilerVersion <= 23}
 procedure TCanvasAggPas.MultyMatrix(const M: TMatrix);
 begin
   FMatrix := MatrixMultiply(M, FMatrix);
   UpdateTransformation;
 end;
-{$ENDIF}
+{$IFEND}
 
 procedure TCanvasAggPas.SetClipRects(const ARects: array of TRectF);
 var
@@ -1175,9 +1491,9 @@ begin
         end;
       end;
     TBrushKind.bkResource: ;
-{$IF CompilerVersion < 15}
+{$IF CompilerVersion <= 24}
     TBrushKind.bkGrab: ;
-{$ENDIF}
+{$IFEND}
   end;
 end;
 
@@ -1185,7 +1501,6 @@ procedure TCanvasAggPas.InternalRenderImage(Img: TCanvasAggPasImage;
   RendererBase: TAggRendererBase; Interpolator: TAggSpanInterpolatorLinear);
 var
   Blend: TAggSpanConvImageBlend;
-
   Si: TAggSpanImageFilterRgba;
   Sg: TAggSpanImageFilterRgbaNN;
   Sb: TAggSpanImageFilterRgbaBilinear;
@@ -1575,6 +1890,200 @@ begin
   ScreenToWorld(X, Y);
 end;
 
+procedure TCanvasAggPas.ApplyFill(const ABrush: TBrush; ARect: TRectF;
+  const AOpacity: Single);
+begin
+  Fill.Assign(ABrush);
+  FOpacity := AOpacity;
+  FFillVisible := False;
+
+  with ABrush do
+  begin
+    case Kind of
+      TBrushKind.bkSolid:
+        begin
+          FAggColor := AlphaColorToAggColor(Color, AOpacity);
+          FFillVisible := FAggColor.A <> 0;
+        end;
+      TBrushKind.bkGradient:
+        begin
+          PrepareGradient(ABrush.Gradient, ARect);
+          FFillVisible := True;
+        end;
+    end;
+  end;
+end;
+
+{$IF CompilerVersion <= 23}
+procedure TCanvasAggPas.ApplyStroke(const AStroke: TBrush;
+  const AStrokeThickness: Single; const AStrokeCap: TStrokeCap;
+  const ADashArray: TDashArray; const ADashOffset: single;
+  const AStrokeJoin: TStrokeJoin; ARect: TRectF; const AOpacity: Single);
+var
+  i, l, k: integer;
+  GapLength, DashLength: Double;
+begin
+  FStrokeThickness := aStrokeThickness;
+  FConvStroke.Width := FStrokeThickness;
+  FOpacity := aOpacity;
+
+  Stroke.Assign(aStroke);
+  Stroke.Color := MakeColor(Stroke.Color, FOpacity);
+  FStrokeVisible := False;
+
+  with aStroke do
+  begin
+    case Kind of
+      TBrushKind.bkSolid:
+        begin
+          FAggColor := AlphaColorToAggColor(Color, FOpacity);
+          FStrokeVisible := FAggColor.A <> 0;
+        end;
+      TBrushKind.bkGradient:
+        begin
+          PrepareGradient(AStroke.Gradient, ARect);
+          FFillVisible := True;
+        end;
+    end;
+  end;
+
+  case aStrokeJoin of
+    TStrokeJoin.sjMiter:
+      FConvStroke.LineJoin := ljMiter;
+    TStrokeJoin.sjRound:
+      FConvStroke.LineJoin := ljRound;
+    TStrokeJoin.sjBevel:
+      FConvStroke.LineJoin := ljBevel;
+  end;
+
+  case aStrokeCap of
+    TStrokeCap.scFlat:
+      FConvStroke.LineCap := lcButt;
+    TStrokeCap.scRound:
+      FConvStroke.LineCap := lcRound;
+  end;
+
+  FConvStroke.MiterLimit := 0;
+
+  if Length(aDashArray) = 0 then
+    FConvStroke.Source := FConvCurve
+  else
+  begin
+    FConvStroke.Source := FConvDash;
+    FConvDash.RemoveAllDashes;
+    FConvDash.DashStart := aDashOffset;
+
+    l := Length(aDashArray);
+    if Odd(l) then
+      k := l * 2
+    else
+      k := l;
+
+    i := 0;
+    while i < k do
+    begin
+      DashLength := aDashArray[i mod l];
+      Inc(i);
+      GapLength := aDashArray[i mod l];
+      Inc(i);
+
+      if DashLength = 0 then
+      begin
+        FConvStroke.Source := FConvCurve;
+        exit;
+      end;
+
+      FConvDash.AddDash(
+        DashLength * aStrokeThickness,
+        GapLength * aStrokeThickness);
+    end;
+  end;
+end;
+{$ELSE}
+procedure TCanvasAggPas.ApplyStroke(const AStroke: TStrokeBrush; ARect: TRectF;
+  const AOpacity: Single);
+var
+  i, l, k: integer;
+  GapLength, DashLength: Double;
+begin
+  FStrokeThickness := aStroke.Thickness;
+  FConvStroke.Width := FStrokeThickness;
+  FOpacity := aOpacity;
+
+  Stroke.Assign(aStroke);
+  Stroke.Color := MakeColor(Stroke.Color, FOpacity);
+  FStrokeVisible := False;
+
+  with aStroke do
+  begin
+    case Kind of
+      TBrushKind.bkSolid:
+        begin
+          FAggColor := AlphaColorToAggColor(Color, FOpacity);
+          FStrokeVisible := FAggColor.A <> 0;
+        end;
+      TBrushKind.bkGradient:
+        begin
+          PrepareGradient(AStroke.Gradient, ARect);
+          FFillVisible := True;
+        end;
+    end;
+  end;
+
+  case aStroke.Join of
+    TStrokeJoin.sjMiter:
+      FConvStroke.LineJoin := ljMiter;
+    TStrokeJoin.sjRound:
+      FConvStroke.LineJoin := ljRound;
+    TStrokeJoin.sjBevel:
+      FConvStroke.LineJoin := ljBevel;
+  end;
+
+  case aStroke.Cap of
+    TStrokeCap.scFlat:
+      FConvStroke.LineCap := lcButt;
+    TStrokeCap.scRound:
+      FConvStroke.LineCap := lcRound;
+  end;
+
+  FConvStroke.MiterLimit := 0;
+
+  if Length(aStroke.DashArray) = 0 then
+    FConvStroke.Source := FConvCurve
+  else
+  begin
+    FConvStroke.Source := FConvDash;
+    FConvDash.RemoveAllDashes;
+    FConvDash.DashStart := aStroke.DashOffset;
+
+    l := Length(aStroke.DashArray);
+    if Odd(l) then
+      k := l * 2
+    else
+      k := l;
+
+    i := 0;
+    while i < k do
+    begin
+      DashLength := aStroke.DashArray[i mod l];
+      Inc(i);
+      GapLength := aStroke.DashArray[i mod l];
+      Inc(i);
+
+      if DashLength = 0 then
+      begin
+        FConvStroke.Source := FConvCurve;
+        exit;
+      end;
+
+      FConvDash.AddDash(
+        DashLength * aStroke.Thickness,
+        GapLength * aStroke.Thickness);
+    end;
+  end;
+end;
+{$IFEND}
+
 function TCanvasAggPas.InBox(WorldX, WorldY: Double): Boolean;
 begin
   WorldToScreen(@WorldX, @WorldY);
@@ -1615,55 +2124,74 @@ begin
   SetImageBlendColor(Clr);
 end;
 
-procedure TCanvasAggPas.PrepareGradient(ABrush: TBrush; ARect: TRectF);
+procedure TCanvasAggPas.PrepareGradient(AGradient: TGradient; ARect: TRectF);
 var
   I: Integer;
   Temp: array [0..1] of Double;
+  H: Double;
   PClr: PAggColor;
   AlphaColor: TAlphaColor;
+  M: TAggParallelogram;
 const
   CByteScale = 1 / 255;
 begin
-  case ABrush.Gradient.Style of
+  case AGradient.Style of
     TGradientStyle.gsLinear:
       begin
         for I := 0 to 255 do
         begin
           PClr := FGradientColors[I];
-          AlphaColor := ABrush.Gradient.InterpolateColor(I * CByteScale);
-          PClr^.FromRgbaInteger(TAlphaColorRec(AlphaColor).R,
-            TAlphaColorRec(AlphaColor).G, TAlphaColorRec(AlphaColor).B,
+          AlphaColor := AGradient.InterpolateColor(I * CByteScale);
+          PClr^.FromRgbaInteger(
+            TAlphaColorRec(AlphaColor).R,
+            TAlphaColorRec(AlphaColor).G,
+            TAlphaColorRec(AlphaColor).B,
             Trunc(TAlphaColorRec(AlphaColor).A));
         end;
 
         FGradientMatrix.Reset;
 
-        with ABrush.Gradient do
+        with AGradient do
         begin
-          FGradientMatrix.Reset;
           Temp[0] := StopPosition.Point.X - StartPosition.Point.X;
           Temp[1] := StopPosition.Point.Y - StartPosition.Point.Y;
 
+          H := Hypot(Temp[0] * aRect.Width, Temp[1] * aRect.Height);
+          if H = 0 then
+            exit;
+
           FGradientD1 := 0;
-          FGradientD2 := Hypot(Temp[0] * ARect.Width, Temp[1] * ARect.Height);
+          FGradientD2 := Hypot(Temp[0] * H, Temp[1] * H);
           FGradientMatrix.Rotate(ArcTan2(Temp[1], Temp[0]));
-          FGradientMatrix.Translate(ARect.Left +
-            StartPosition.Point.X * ARect.Width, ARect.Top +
-            StartPosition.Point.Y * ARect.Height);
+          FGradientMatrix.Scale(aRect.Width / H, aRect.Height / H);
+          FGradientMatrix.Translate(
+            ARect.Left + StartPosition.Point.X * ARect.Width,
+            ARect.Top +  StartPosition.Point.Y * ARect.Height);
+
           FGradientMatrix.Multiply(FTransform);
           FGradientMatrix.Invert;
         end;
 
         FBrushType := btGradientLinear;
       end;
+
     TGradientStyle.gsRadial:
       begin
+        M[0] := aGradient.RadialTransform.Matrix.m11;
+        M[1] := aGradient.RadialTransform.Matrix.m12;
+        M[2] := aGradient.RadialTransform.Matrix.m21;
+        M[3] := aGradient.RadialTransform.Matrix.m22;
+        M[4] := aGradient.RadialTransform.Matrix.m31;
+        M[5] := aGradient.RadialTransform.Matrix.m32;
+
         for I := 0 to 255 do
         begin
           PClr := FGradientColors[I];
-          AlphaColor := ABrush.Gradient.InterpolateColor(1 - I * CByteScale);
-          PClr^.FromRgbaInteger(TAlphaColorRec(AlphaColor).R,
-            TAlphaColorRec(AlphaColor).G, TAlphaColorRec(AlphaColor).B,
+          AlphaColor := AGradient.InterpolateColor(1 - I * CByteScale);
+          PClr^.FromRgbaInteger(
+            TAlphaColorRec(AlphaColor).R,
+            TAlphaColorRec(AlphaColor).G,
+            TAlphaColorRec(AlphaColor).B,
             Trunc(TAlphaColorRec(AlphaColor).A));
         end;
 
@@ -1672,10 +2200,13 @@ begin
         Temp[0] := 0.5 / FGradientD2;
 
         FGradientMatrix.Reset;
-        with ABrush.Gradient.RadialTransform do
+        with AGradient.RadialTransform do
         begin
-          FGradientMatrix.Scale(ARect.Width * Temp[0], ARect.Height * Temp[0]);
-          FGradientMatrix.Translate(RotationCenter.X * RectWidth(ARect),
+          FGradientMatrix.Scale(
+            ARect.Width * Temp[0],
+            ARect.Height * Temp[0]);
+          FGradientMatrix.Translate(
+            RotationCenter.X * RectWidth(ARect),
             RotationCenter.Y * RectHeight(ARect));
         end;
         FGradientMatrix.Multiply(FTransform);
@@ -1814,106 +2345,8 @@ begin
   Result := FRenderingBuffer.Row(Y);
 end;
 
-procedure TCanvasAggPas.SetFont(FileName: TFileName; Height: Double;
-  Bold: Boolean = False; Italic: Boolean = False; Angle: Double = 0);
-var
-  B: Integer;
-begin
-  FFontHeight := Height;
-
-{$IFDEF AGG2D_USE_FREETYPE}
-  FFontEngine.LoadFont(PAnsiChar(FileName), 0, grOutline)
-  FFontEngine.Hinting := FTextHints;
-
-  if Ch = fcVector then
-    FFontEngine.SetHeight(Height)
-  else
-    FFontEngine.SetHeight(WorldToScreen(Height));
-{$ELSE}
-  FFontEngine.Hinting := FTextHints;
-
-  if Bold then
-    B := 700
-  else
-    B := 400;
-
-  FFontEngine.CreateFont(PAnsiChar(FileName), grOutline, Height, 0, B,
-    Italic)
-{$ENDIF}
-end;
-
-procedure TCanvasAggPas.SetTextHints(Value: Boolean);
-begin
-  FTextHints := Value;
-end;
-
-function TCanvasAggPas.TextWidth(Str: PAnsiChar): Double;
-var
-  X, Y : Double;
-  First: Boolean;
-  Glyph: PAggGlyphCache;
-begin
-  X := 0;
-  Y := 0;
-
-  First := True;
-
-  while Str^ <> #0 do
-  begin
-    Glyph := FFontCacheManager.Glyph(Int32u(Str^));
-
-    if Glyph <> nil then
-    begin
-      if not First then
-        FFontCacheManager.AddKerning(@X, @Y);
-
-      X := X + Glyph.AdvanceX;
-      Y := Y + Glyph.AdvanceY;
-
-      First := False;
-    end;
-
-    Inc(PtrComp(Str));
-  end;
-
-  Result := X
-end;
-
-function TCanvasAggPas.TextWidth(Str: AnsiString): Double;
-var
-  X, Y : Double;
-  First: Boolean;
-  Glyph: PAggGlyphCache;
-  I: Integer;
-begin
-  X := 0;
-  Y := 0;
-
-  First := True;
-
-  for I := 1 to Length(Str) do
-  begin
-    Glyph := FFontCacheManager.Glyph(Int32u(Str[I]));
-
-    if Glyph <> nil then
-    begin
-      if not First then
-        FFontCacheManager.AddKerning(@X, @Y);
-
-      X := X + Glyph.AdvanceX;
-      Y := Y + Glyph.AdvanceY;
-
-      First := False;
-    end;
-  end;
-
-  Result := X;
-end;
-
 procedure TCanvasAggPas.RenderPath(ARect: TRectF; AOpacity: Single;
-  FillFlag: Boolean = True);
-var
-  ColorVisible: Boolean;
+ const ABrush: TBrush; FillFlag: Boolean = True);
 begin
   FRasterizer.Reset;
 
@@ -1923,8 +2356,10 @@ begin
 
   if FillFlag then
   begin
-    ColorVisible := PrepareColor(Fill, ARect);
-    if ColorVisible then
+{$IF CompilerVersion <= 23}
+    ApplyFill(ABrush, ARect, AOpacity);
+{$IFEND}
+    if FFillVisible then
     begin
       FRasterizer.AddPath(FPathTransform);
       Render(Fill);
@@ -1932,9 +2367,11 @@ begin
   end
   else
   begin
-    PrepareStroke;
-    ColorVisible := PrepareColor(Stroke, ARect);
-    if ColorVisible and (StrokeThickness > 0) then
+{$IF CompilerVersion <= 23}
+    ApplyStroke(ABrush, StrokeThickness, StrokeCap, FDash, FDashOffset,
+      StrokeJoin,  ARect, AOpacity);
+{$IFEND}
+    if FStrokeVisible and (StrokeThickness > 0) then
     begin
       FRasterizer.AddPath(FStrokeTransform);
       Render(Stroke);
@@ -2248,7 +2685,98 @@ begin
     FClipRect.Bottom);
 end;
 
-{$IF CompilerVersion < 15}
+procedure TCanvasAggPas.SetTextHints(Value: Boolean);
+begin
+  FTextHints := Value;
+end;
+
+{$IF CompilerVersion <= 23}
+{procedure TCanvasAggPas.SetFont(FileName: TFileName; Height: Double;
+  Bold: Boolean = False; Italic: Boolean = False; Angle: Double = 0);
+var
+  B: Integer;
+begin
+  FFontHeight := Height;
+
+$IFDEF AGG2D_USE_FREETYPE
+  FFontEngine.LoadFont(PAnsiChar(FileName), 0, grOutline);
+  FFontEngine.Hinting := FTextHints;
+  FFontEngine.SetHeight(Height)
+$ELSE
+  FFontEngine.Hinting := FTextHints;
+
+  if Bold then
+    B := 700
+  else
+    B := 400;
+
+  FFontEngine.CreateFont(PAnsiChar(FileName), grOutline, Height, 0, B, Italic)
+$ENDIF
+end;
+
+function TCanvasAggPas.TextWidth(Str: PAnsiChar): Double;
+var
+  X, Y : Double;
+  First: Boolean;
+  Glyph: PAggGlyphCache;
+begin
+  X := 0;
+  Y := 0;
+
+  First := True;
+
+  while Str^ <> #0 do
+  begin
+    Glyph := FFontCacheManager.Glyph(Int32u(Str^));
+
+    if Glyph <> nil then
+    begin
+      if not First then
+        FFontCacheManager.AddKerning(@X, @Y);
+
+      X := X + Glyph.AdvanceX;
+      Y := Y + Glyph.AdvanceY;
+
+      First := False;
+    end;
+
+    Inc(PtrComp(Str));
+  end;
+
+  Result := X
+end;
+
+function TCanvasAggPas.TextWidth(Str: AnsiString): Double;
+var
+  X, Y : Double;
+  First: Boolean;
+  Glyph: PAggGlyphCache;
+  I: Integer;
+begin
+  X := 0;
+  Y := 0;
+
+  First := True;
+
+  for I := 1 to Length(Str) do
+  begin
+    Glyph := FFontCacheManager.Glyph(Int32u(Str[I]));
+
+    if Glyph <> nil then
+    begin
+      if not First then
+        FFontCacheManager.AddKerning(@X, @Y);
+
+      X := X + Glyph.AdvanceX;
+      Y := Y + Glyph.AdvanceY;
+
+      First := False;
+    end;
+  end;
+
+  Result := X;
+end;}
+
 procedure TCanvasAggPas.DrawLine(const APt1, APt2: TPointF;
   const AOpacity: Single);
 begin
@@ -2256,7 +2784,7 @@ begin
 
   FPath.MoveTo(APt1.X, APt1.Y);
   FPath.LineTo(APt2.X, APt2.Y);
-  RenderPath(RectF(APt1.X, APt1.Y, APt2.X, APt2.Y), AOpacity, False);
+  RenderPath(RectF(APt1.X, APt1.Y, APt2.X, APt2.Y), AOpacity, Stroke, False);
 end;
 
 procedure TCanvasAggPas.FillRect(const ARect: TRectF; const XRadius,
@@ -2308,7 +2836,7 @@ begin
   end;
   FPath.ClosePolygon;
 
-  RenderPath(ARect, AOpacity);
+  RenderPath(ARect, AOpacity, Fill);
 end;
 
 procedure TCanvasAggPas.DrawEllipse(const ARect: TRectF; const AOpacity: Single);
@@ -2326,7 +2854,7 @@ begin
   end;
   FPath.ClosePolygon;
 
-  RenderPath(ARect, AOpacity, False);
+  RenderPath(ARect, AOpacity, Stroke, False);
 end;
 
 function TCanvasAggPas.LoadFontFromStream(AStream: TStream): Boolean;
@@ -2352,7 +2880,7 @@ begin
   end;
 end;
 
-procedure TCanvasAggPas.MeasureText(var ARect: TRectF; const AText: string;
+{procedure TCanvasAggPas.MeasureText(var ARect: TRectF; const AText: string;
   const WordWrap: Boolean; const Flags: TFillTextFlags; const ATextAlign,
   AVTextAlign: TTextAlign);
 var
@@ -2439,9 +2967,29 @@ begin
 
   ARect.Right := ARect.Left + CurPos.X;
   ARect.Bottom := ARect.Top + FFontEngine.Height + CurPos.Y;
+end;}
+
+procedure TCanvasAggPas.MeasureText(var ARect: TRectF; const AText: string;
+  const WordWrap: Boolean; const Flags: TFillTextFlags; const ATextAlign,
+  AVTextAlign: TTextAlign);
+var
+  Region: TRegion;
+begin
+  ARect := RectF(0, 0, 0, 0);
+  if AText = '' then
+    exit;
+
+  FTextLayout.Text := AText;
+  FTextLayout.WordWrap := WordWrap;
+  FTextLayout.HorizontalAlign := ATextAlign;
+  FTextLayout.VerticalAlign := AVTextAlign;
+
+  Region := FTextLayout.MeasureRange(1, Length(AText));
+  if Length(Region) > 0 then
+    ARect := Region[0];
 end;
 
-function TCanvasAggPas.TextToPath(Path: TPathData; const ARect: TRectF;
+{function TCanvasAggPas.TextToPath(Path: TPathData; const ARect: TRectF;
   const AText: string; const WordWrap: Boolean; const ATextAlign,
   AVTextAlign: TTextAlign): Boolean;
 var
@@ -2563,8 +3111,23 @@ begin
   end;
 
   Result := True;
+end;}
+
+function TCanvasAggPas.TextToPath(Path: TPathData; const ARect: TRectF;
+  const AText: string; const WordWrap: Boolean; const ATextAlign,
+  AVTextAlign: TTextAlign): Boolean;
+begin
+  if AText = '' then
+    exit;
+
+  FTextLayout.Text := AText;
+  FTextLayout.WordWrap := WordWrap;
+  FTextLayout.HorizontalAlign := ATextAlign;
+  FTextLayout.VerticalAlign := AVTextAlign;
+
+  FTextLayout.ConvertToPath(Path);
 end;
-{$ENDIF}
+{$IFEND}
 
 function TCanvasAggPas.PtInPath(const APoint: TPointF;
   const APath: TPathData): Boolean;
@@ -2572,24 +3135,23 @@ begin
   Result := False;
 end;
 
-{$IF CompilerVersion < 15}
+{$IF CompilerVersion <= 23}
 procedure TCanvasAggPas.FillPath(const APath: TPathData; const AOpacity: Single);
 begin
   CopyPath(APath);
-  RenderPath(APath.GetBounds, AOpacity);
+  RenderPath(APath.GetBounds, AOpacity, Fill);
 end;
 
 procedure TCanvasAggPas.DrawPath(const APath: TPathData; const AOpacity: Single);
 begin
   CopyPath(APath);
-  RenderPath(APath.GetBounds, AOpacity, False);
+  RenderPath(APath.GetBounds, AOpacity, Stroke, False);
 end;
 
 procedure TCanvasAggPas.DrawBitmap(const ABitmap: TBitmap; const SrcRect,
   DstRect: TRectF; const AOpacity: Single; const HighSpeed: Boolean);
 var
   CanvasAggPasImage: TCanvasAggPasImage;
-
   Clr: TAggColor;
   Mtx: TAggTransAffine;
   Parl: TAggParallelogram;
@@ -2712,7 +3274,7 @@ begin
   FPath.AddPoly(@PolygonDouble[0], Length(APolygon));
   FPath.ClosePolygon;
 
-  RenderPath(Rect, AOpacity);
+  RenderPath(Rect, AOpacity, Fill);
 end;
 
 procedure TCanvasAggPas.DrawPolygon(const APolygon: TPolygon;
@@ -2750,7 +3312,7 @@ begin
   FPath.RemoveAll;
   FPath.AddPoly(@PolygonDouble[0], Length(APolygon));
 
-  RenderPath(Rect, AOpacity, False);
+  RenderPath(Rect, AOpacity, Stroke, False);
 end;
 
 class function TCanvasAggPas.GetBitmapScanline(Bitmap: TBitmap;
@@ -2787,22 +3349,6 @@ begin
     ABitmap.HandleRemove(Self);
   end;
 end;
-
-procedure TCanvasAggPas.FreeBuffer;
-begin
-  if FBuffered then
-  begin
-    if FBufferHandle = 0 then
-      Exit;
-    if FBufferHandle <> 0 then
-      DeleteDC(FBufferHandle);
-    FBufferHandle := 0;
-    if FBufferBitmap <> 0 then
-      DeleteObject(FBufferBitmap);
-    FBufferBitmap := 0;
-  end;
-end;
-
 {$ELSE}
 
 procedure TCanvasAggPas.DoFillRect(const ARect: TRectF; const AOpacity: Single;
@@ -2815,18 +3361,58 @@ begin
 
   Path := TPathData.Create;
   try
-    Path.AddRectangle(ARect, 0, 0, AllCorners, TCornerType.Bevel);
+    Path.AddRectangle(ARect, 0, 0, AllCorners,
+      {$IF CompilerVersion <= 26}
+        TCornerType.ctBevel
+      {$ELSE}
+        TCornerType.Bevel
+      {$IFEND});
+    ApplyFill(ABrush, ARect, AOpacity);
     DoFillPath(Path, AOpacity, ABrush);
   finally
     Path.Free;
   end;
 end;
 
+class procedure TCanvasAggPas.DoFinalizeBitmap(const Bitmap: TBitmap);
+begin
+  FreeMem(pointer(Bitmap.Handle));
+end;
+
+class procedure TCanvasAggPas.DoInitializeBitmap(const Bitmap: TBitmap);
+var
+  Ptr: pointer;
+begin
+  GetMem(Ptr, Bitmap.Width * Bitmap.Height * 4);
+
+  (Bitmap as IBitmapAccess).Handle := THandle(Ptr);
+  (Bitmap as IBitmapAccess).PixelFormat := TPixelFormat.pfA8R8G8B8;
+end;
+
+class function TCanvasAggPas.DoMapBitmap(const Bitmap: TBitmap;
+  const Access: TMapAccess; var Data: TBitmapData): Boolean;
+begin
+  Data.Create(Bitmap.Width, Bitmap.Height, Bitmap.PixelFormat);
+  Data.Data := pointer(Bitmap.Handle);
+  Data.Pitch := Bitmap.Width * 4;
+  Result := True;
+end;
+
+class procedure TCanvasAggPas.DoUnmapBitmap(const Bitmap: TBitmap;
+  var Data: TBitmapData);
+begin
+  inherited;
+end;
+
 procedure TCanvasAggPas.DoFillPath(const APath: TPathData;
   const AOpacity: Single; const ABrush: TBrush);
+var
+  Rect: TRectF;
 begin
+  Rect := APath.GetBounds;
+  ApplyFill(ABrush, Rect, AOpacity);
   CopyPath(APath);
-  RenderPath(APath.GetBounds, AOpacity);
+  RenderPath(Rect, AOpacity, ABrush);
 end;
 
 procedure TCanvasAggPas.DoFillEllipse(const ARect: TRectF;
@@ -2846,14 +3432,14 @@ begin
   end;
   FPath.ClosePolygon;
 
-  RenderPath(ARect, AOpacity);
+  ApplyFill(ABrush, ARect, AOpacity);
+  RenderPath(ARect, AOpacity, ABrush);
 end;
 
 procedure TCanvasAggPas.DoDrawBitmap(const ABitmap: TBitmap; const SrcRect,
   DstRect: TRectF; const AOpacity: Single; const HighSpeed: Boolean = False);
 var
-  CanvasAggPasImage: TCanvasAggPasImage;
-
+  //CanvasAggPasImage: TCanvasAggPasImage;
   Clr: TAggColor;
   Mtx: TAggTransAffine;
   Parl: TAggParallelogram;
@@ -2861,10 +3447,17 @@ var
   SpanConverter: TAggSpanConverter;
   SpanImageResample: TAggSpanImageResampleRgbaAffine;
   Blend: TAggSpanConvImageBlend;
-  BitmapData: TAggRendererScanLineAA;
-  BitmalData: TBitmapData;
+  //BitmapData: TAggRendererScanLineAA;
+  //BitmalData: TBitmapData;
   RendererScanLineAA: TAggRendererScanLineAA;
+  BitmapBuffer: TAggRenderingBuffer;
 begin
+  if (SrcRect.Width <= 0) or (SrcRect.Height <= 0)
+  or (DstRect.Width <= 0) or (DstRect.Height <= 0)
+  then
+    exit;
+
+
 (*
   TODO !!!
 
@@ -2879,6 +3472,8 @@ begin
   CanvasAggPasImage := TCanvasAggPasImage.Create(PInt8U(ABitmap.Image.ScanLine[0]),
     ABitmap.Width, ABitmap.Height, 4 * ABitmap.Width);
 *)
+
+  BitmapBuffer := TCanvasAggPas(aBitmap.Canvas).FRenderingBuffer;
   try
     FPath.RemoveAll;
     FPath.MoveTo(DstRect.Left, DstRect.Top);
@@ -2910,7 +3505,7 @@ begin
         try
           Clr.Clear;
           SpanImageResample := TAggSpanImageResampleRgbaAffine.Create(
-            FAllocator, CanvasAggPasImage.FRenderingBuffer, @Clr, Interpolator,
+            FAllocator, {CanvasAggPasImage.FRenderingBuffer}BitmapBuffer, @Clr, Interpolator,
             FImageFilterLUT, CAggOrderBgra);
           try
             SpanConverter := TAggSpanConverter.Create(SpanImageResample, Blend);
@@ -2938,17 +3533,22 @@ begin
       Mtx.Free;
     end;
   finally
-    CanvasAggPasImage.Free;
+    //CanvasAggPasImage.Free;
   end;
 end;
 
 procedure TCanvasAggPas.DoDrawLine(const APt1, APt2: TPointF; const AOpacity: Single; const ABrush: TStrokeBrush);
+var
+  Rect: TRectF;
 begin
   FPath.RemoveAll;
-
   FPath.MoveTo(APt1.X, APt1.Y);
   FPath.LineTo(APt2.X, APt2.Y);
-  RenderPath(RectF(APt1.X, APt1.Y, APt2.X, APt2.Y), AOpacity, False);
+
+  Rect := RectF(APt1.X, APt1.Y, APt2.X, APt2.Y);
+
+  ApplyStroke(ABrush, Rect, AOpacity);
+  RenderPath(Rect, AOpacity, ABrush, False);
 end;
 
 procedure TCanvasAggPas.DoDrawRect(const ARect: TRectF; const AOpacity: Single; const ABrush: TStrokeBrush);
@@ -2957,7 +3557,14 @@ var
 begin
   Path := TPathData.Create;
   try
-    Path.AddRectangle(ARect, 0, 0, AllCorners, TCornerType.Bevel);
+    Path.AddRectangle(ARect, 0, 0, AllCorners,
+      {$IF CompilerVersion <= 26}
+        TCornerType.ctBevel
+      {$ELSE}
+        TCornerType.Bevel
+      {$IFEND});
+
+    ApplyStroke(ABrush, ARect, AOpacity);
     DoDrawPath(Path, AOpacity, ABrush);
   finally
     Path.Free;
@@ -2965,9 +3572,14 @@ begin
 end;
 
 procedure TCanvasAggPas.DoDrawPath(const APath: TPathData; const AOpacity: Single; const ABrush: TStrokeBrush);
+var
+  Rect: TRectF;
 begin
   CopyPath(APath);
-  RenderPath(APath.GetBounds, AOpacity, False);
+  Rect := APath.GetBounds;
+
+  ApplyStroke(ABrush, Rect, AOpacity);
+  RenderPath(Rect, AOpacity, ABrush, False);
 end;
 
 procedure TCanvasAggPas.DoDrawEllipse(const ARect: TRectF; const AOpacity: Single; const ABrush: TStrokeBrush);
@@ -2985,10 +3597,12 @@ begin
   end;
   FPath.ClosePolygon;
 
-  RenderPath(ARect, AOpacity, False);
+  ApplyStroke(ABrush, ARect, AOpacity);
+  RenderPath(ARect, AOpacity, ABrush, False);
 end;
-{$ENDIF}
+{$IFEND}
 
+{$IFNDEF AGG2D_USE_FREETYPE }
 procedure TCanvasAggPas.FontChanged(Sender: TObject);
 var
   LF: TLogFont;
@@ -3019,6 +3633,7 @@ begin
   end;
   FFontHandle := CreateFontIndirect(LF);
 end;
+{$ENDIF}
 
 function TCanvasAggPas.CreateSaveState: TCanvasSaveState;
 begin
@@ -3037,9 +3652,6 @@ begin
     begin
       Bounds := GetBounds;
       R := Bounds;
-{$IF CompilerVersion < 15}
-      FitRect(R, RectF(0, 0, 100, 100));
-{$ENDIF}
       I := 0;
       FPath.RemoveAll;
       while i < Count do
@@ -3068,81 +3680,6 @@ begin
     end;
 end;
 
-function TCanvasAggPas.PrepareColor(ABrush: TBrush; const ARect: TRectF): Boolean;
-begin
-  Result := False;
-  with ABrush do
-  begin
-    case Kind of
-      TBrushKind.bkSolid:
-        begin
-          FAggColor := AlphaColorToAggColor(Color);
-          Result := FAggColor.A <> 0;
-          FBrushType := btSolid;
-        end;
-{$IF CompilerVersion < 15}
-      TBrushKind.bkGrab:
-        begin
-        end;
-{$ENDIF}
-      TBrushKind.bkBitmap:
-        begin
-{$IF CompilerVersion < 15}
-          with ABrush.Bitmap.Bitmap do
-            FFillImage.Attach(PInt8u(ScanLine[0]), Width, Height, 4 * Width);
-{$ENDIF}
-          Result := True;
-        end;
-      TBrushKind.bkGradient:
-        begin
-          PrepareGradient(ABrush, ARect);
-          Result := True;
-        end;
-    end;
-  end;
-end;
-
-procedure TCanvasAggPas.PrepareStroke;
-var
-  LineWidth: Double;
-  Index: Integer;
-begin
-  LineWidth := StrokeThickness;
-  FConvStroke.Width := LineWidth;
-
-{$IF CompilerVersion < 15}
-  case StrokeJoin of
-    TStrokeJoin.sjMiter:
-      FConvStroke.LineJoin := ljMiter;
-
-    TStrokeJoin.sjRound:
-      FConvStroke.LineJoin := ljRound;
-
-    TStrokeJoin.sjBevel:
-      FConvStroke.LineJoin := ljBevel;
-  end;
-
-  case StrokeCap of
-    TStrokeCap.scFlat :
-      FConvStroke.LineCap := lcSquare;
-    TStrokeCap.scRound :
-      FConvStroke.LineCap := lcRound;
-  end;
-
-  if StrokeDash = TStrokeDash.sdSolid then
-    FConvStroke.Source := FConvCurve
-  else
-  begin
-    FConvStroke.Source := FConvDash;
-    FConvDash.RemoveAllDashes;
-    for Index := 0 to (Length(FDash) div 2) - 1 do
-      FConvDash.AddDash(Max(0.01, (FDash[2 * Index] - 1) * LineWidth),
-        (FDash[2 * Index + 1] + 1) * LineWidth);
-  end;
-{$ENDIF}
-end;
-
-
 { TCanvasAggPasSaveState }
 
 procedure TCanvasAggPasSaveState.Assign(Source: TPersistent);
@@ -3164,13 +3701,12 @@ end;
 procedure SetAggPasDefault;
 begin
   GlobalUseDirect2D := False;
-{$IF CompilerVersion < 15}
+{$IF CompilerVersion <= 23}
   DefaultCanvasClass := TCanvasAggPas;
 {$ELSE}
   TCanvasManager.RegisterCanvas(TCanvasAggPas, True, False);
-{$ENDIF}
+{$IFEND}
 end;
-
 
 { TAggSpanConvImageBlend }
 
@@ -3220,10 +3756,393 @@ begin
   end;
 end;
 
+{$IF CompilerVersion <= 23}
+
+{ TTextLayout }
+
+constructor TTextLayout.Create(const ACanvas: TCanvas = nil);
+begin
+  FText := '';
+  FTextRect := RectF(0, 0, 0, 0);
+  FTopLeft := PointF(0, 0);
+  FFont := TFont.Create;
+  FWordWrap := False;
+  FHorizontalAlign := TTextAlign.taLeading;
+  FVerticalAlign := TTextAlign.taLeading;
+  FOpacity := 1;
+end;
+
+destructor TTextLayout.Destroy;
+begin
+  FFont.Free;
+end;
+
+procedure TTextLayout.SetFont(const aValue: TFont);
+begin
+  FFont.Assign(aValue);
+end;
+
+procedure TTextLayout.SetHorizontalAlign(const Value: TTextAlign);
+begin
+  FHorizontalAlign := Value;
+end;
+
+procedure TTextLayout.SetVerticalAlign(const Value: TTextAlign);
+begin
+  FVerticalAlign := Value;
+end;
+{$IFEND}
+
+{ TTextLayoutAggPas }
+
+procedure TTextLayoutAggPas.ConvertToPath(const APath: TPathData);
+var
+  Asc: Double;
+  CurPos, Last: TPointDouble;
+  Glyph: PAggGlyphCache;
+  I: Integer;
+  PX, PY: Double;
+  Cmd: Cardinal;
+  Str: AnsiString;
+  VertexSource: TAggVertexSource;
+begin
+  if Text = '' then
+    exit;
+
+  SetFont(Font.Family, Font.Size, TFontStyle.fsBold in Font.Style,
+    TFontStyle.fsItalic in Font.Style, 0);
+
+  Str := AnsiString(Text);
+
+  if Str = '' then
+    Exit;
+
+  Asc := FHeight;
+  Glyph := FFontCacheManager.Glyph(Int32u('H'));
+
+  if Glyph <> nil then
+    Asc := Glyph.Bounds.Y2 - Glyph.Bounds.Y1;
+
+  if FFontEngine.FlipY then
+    Asc := -Asc;
+
+  // update alignment
+  if WordWrap then
+  begin
+    CurPos.X := TextRect.Left;
+    CurPos.Y := TextRect.Top - Asc;
+  end
+  else
+  begin
+    case HorizontalAlign of
+      TTextAlign.taLeading:
+        CurPos.X := TextRect.Left;
+      TTextAlign.taTrailing:
+        CurPos.X := TextRect.Right - TextWidth;
+      TTextAlign.taCenter:
+        CurPos.X := 0.5 * (TextRect.Right - TextRect.Left - TextWidth);
+    end;
+
+    case VerticalAlign of
+      TTextAlign.taLeading:
+        CurPos.Y := TextRect.Top - Asc;
+      TTextAlign.taTrailing:
+        CurPos.Y := TextRect.Bottom;
+      TTextAlign.taCenter:
+        CurPos.Y := 0.5 * (TextRect.Bottom - TextRect.Top - Asc);
+    end;
+  end;
+
+  if False then
+  begin
+    CurPos.X := Trunc(CurPos.X);
+    CurPos.Y := Trunc(CurPos.Y);
+  end;
+
+  VertexSource := FFontCacheManager.PathAdaptor;
+  I := 0;
+
+  while PAnsiChar(PtrComp(Str) + I * SizeOf(AnsiChar))^ <> #0 do
+  begin
+    Glyph := FFontCacheManager.Glyph
+      (Int32u(PAnsiChar(PtrComp(Str) + I * SizeOf(AnsiChar))^));
+
+    if Glyph <> nil then
+    begin
+      if I <> 0 then
+        FFontCacheManager.AddKerning(@CurPos.X, @CurPos.Y);
+
+      FFontCacheManager.InitEmbeddedAdaptors(Glyph, CurPos.X, CurPos.Y);
+      if Glyph.DataType = gdOutline then
+      begin
+        VertexSource.Rewind(0);
+        repeat
+          Cmd := VertexSource.Vertex(@PX, @PY);
+          case Cmd and CAggPathCmdMask of
+            CAggPathCmdStop:
+              APath.ClosePath;
+            CAggPathCmdMoveTo:
+              APath.MoveTo(PointF(PX, PY));
+            CAggPathCmdLineTo:
+              APath.LineTo(PointF(PX, PY));
+            CAggPathCmdCurve3:
+              begin
+              APath.CurveTo(PointF(Last.X, Last.Y), PointF(Last.X, Last.Y),
+                PointF(PX, PY));
+              end;
+            CAggPathCmdCurve4:
+              APath.CurveTo(PointF(Last.X, Last.Y), PointF(Last.X, Last.Y),
+                PointF(PX, PY));
+            CAggPathCmdEndPoly:
+              APath.ClosePath;
+            else
+              raise Exception.Create('not implemented');
+          end;
+          Last.X := PX;
+          Last.Y := PY;
+        until IsStop(Cmd);
+      end;
+
+      CurPos.X := CurPos.X + Glyph.AdvanceX;
+      CurPos.Y := CurPos.Y + Glyph.AdvanceY;
+
+      if WordWrap and (CurPos.X > TextRect.Right) then
+      begin
+        CurPos.X := 0;
+        CurPos.Y := CurPos.Y - Asc;
+      end;
+    end;
+    Inc(I);
+  end;
+end;
+
+constructor TTextLayoutAggPas.Create(const ACanvas: TCanvas);
+begin
+  inherited;
+
+  FLeft := 0;
+  FTop := 0;
+  FHeight := 0;
+  FWidth := 0;
+
+  FFontEngine.FlipY := True;
+end;
+
+class constructor TTextLayoutAggPas.Create;
+begin
+  inherited;
+
+{$IFDEF AGG2D_USE_FREETYPE}
+  FFontEngine := TAggFontEngineFreetypeInt32.Create;
+{$ELSE}
+  FFontDC := GetDC(0);
+  FFontEngine := TAggFontEngineWin32TrueTypeInt32.Create(FFontDC);
+{$ENDIF}
+  FFontCacheManager := TAggFontCacheManager.Create(FFontEngine);
+end;
+
+destructor TTextLayoutAggPas.Destroy;
+begin
+  inherited;
+end;
+
+class destructor TTextLayoutAggPas.Destroy;
+begin
+{$IFNDEF AGG2D_USE_FREETYPE}
+  ReleaseDC(0, FFontDC);
+  DeleteObject(FFontHandle);
+{$ENDIF}
+  FFontEngine.Free;
+  FFontCacheManager.Free;
+
+  inherited;
+end;
+
+procedure TTextLayoutAggPas.DoDrawLayout(const ACanvas: TCanvas);
+var
+  Path: TPathData;
+begin
+  if Text = '' then
+    exit;
+
+  if aCanvas is TCanvasAggPas then
+  begin
+
+    Path := TPathData.Create;
+    try
+      ConvertToPath(Path);
+      aCanvas.FillPath(Path, Opacity);
+    finally
+      Path.Free;
+    end;
+  end;
+end;
+
+function TTextLayoutAggPas.DoPositionAtPoint(const APoint: TPointF): Integer;
+begin
+  // Stub
+  Result := 0;
+end;
+
+function TTextLayoutAggPas.DoRegionForRange(const ARange: TTextRange): TRegion;
+begin
+  // Stub
+end;
+
+procedure TTextLayoutAggPas.DoRenderLayout;
+begin
+  SetFont(
+    Font.Family,
+    Font.Size,
+    TFontStyle.fsBold in Font.Style,
+    TFontStyle.fsItalic in Font.Style,
+    0);
+end;
+
+function TTextLayoutAggPas.GetTextHeight: Single;
+begin
+  Result := FHeight;
+end;
+
+function TTextLayoutAggPas.GetTextRect: TRectF;
+begin
+  Result := TRectF.Create(FLeft, FTop, FLeft + FWidth, FTop + FHeight);
+  Result.Offset(TopLeft);
+end;
+
+function TTextLayoutAggPas.GetTextWidth: Single;
+begin
+  Result := FWidth;
+end;
+
+function TTextLayoutAggPas.MeasureRange(const APos, ALength: Integer): TRegion;
+var
+  Asc: Double;
+  Str: AnsiString;
+  CurPos: TPointDouble;
+  Glyph: PAggGlyphCache;
+  I: Integer;
+begin
+  SetLength(Result, 0);
+
+  SetFont(Font.Family, Font.Size, TFontStyle.fsBold in Font.Style,
+    TFontStyle.fsItalic in Font.Style, 0);
+
+  if Text = '' then
+    Exit;
+
+  Str := AnsiString(Text);
+
+  Asc := FFontEngine.GetHeight;
+  Glyph := FFontCacheManager.Glyph(Int32u('H'));
+
+  if Glyph <> nil then
+    Asc := Glyph.Bounds.Y2 - Glyph.Bounds.Y1;
+
+  if FFontEngine.FlipY then
+    Asc := -Asc;
+
+  // update alignment
+  if WordWrap then
+  begin
+    CurPos.X := TextRect.Left;
+    CurPos.Y := TextRect.Top - Asc;
+  end
+  else
+  begin
+    case HorizontalAlign of
+      TTextAlign.taLeading:
+        CurPos.X := TextRect.Left;
+      TTextAlign.taTrailing:
+        CurPos.X := TextRect.Right - TextWidth;
+      TTextAlign.taCenter:
+        CurPos.X := 0.5 * (TextRect.Right - TextRect.Left - TextWidth);
+    end;
+
+    case VerticalAlign of
+      TTextAlign.taLeading:
+        CurPos.Y := TextRect.Top - Asc;
+      TTextAlign.taTrailing:
+        CurPos.Y := TextRect.Bottom;
+      TTextAlign.taCenter:
+        CurPos.Y := 0.5 * (TextRect.Bottom - TextRect.Top - Asc);
+    end;
+  end;
+
+  if False then
+  begin
+    CurPos.X := Trunc(CurPos.X);
+    CurPos.Y := Trunc(CurPos.Y);
+  end;
+
+  I := 0;
+  while (I < APos + ALength) and (PAnsiChar(PtrComp(Str) + I * SizeOf(AnsiChar))^ <> #0) do
+  begin
+    if I = APos then
+    begin
+      SetLength(Result, Length(Result) + 1);
+      Result[High(Result)] := RectF(CurPos.X, CurPos.Y, CurPos.X, CurPos.Y);
+    end;
+
+
+    Glyph := FFontCacheManager.Glyph
+      (Int32u(PAnsiChar(PtrComp(Str) + I * SizeOf(AnsiChar))^));
+
+    if Glyph <> nil then
+    begin
+      if I <> 0 then
+        FFontCacheManager.AddKerning(@CurPos.X, @CurPos.Y);
+
+      FFontCacheManager.InitEmbeddedAdaptors(Glyph, CurPos.X, CurPos.Y);
+
+      CurPos.X := CurPos.X + Glyph.AdvanceX;
+      CurPos.Y := CurPos.Y + Glyph.AdvanceY;
+
+      if WordWrap and (CurPos.X > TextRect.Right) then
+      begin
+        CurPos.X := 0;
+        CurPos.Y := CurPos.Y + Asc;
+      end;
+    end;
+    Inc(I);
+  end;
+
+  if I > APos then
+  begin
+    Result[High(Result)].Right := CurPos.X;
+    Result[High(Result)].Bottom := CurPos.Y;
+  end;
+end;
+
+procedure TTextLayoutAggPas.SetFont(FileName: TFileName; Height: Double; Bold,
+  Italic: Boolean; Angle: Double);
+var
+  B: Integer;
+begin
+  FHeight := Height;
+
+{$IFDEF AGG2D_USE_FREETYPE}
+  FFontEngine.LoadFont('C:\Windows\Fonts\arial.ttf'{PAnsiChar(FileName)}, 0, grOutline);
+  FFontEngine.Hinting := FTextHints;
+  FFontEngine.SetHeight(Height)
+{$ELSE}
+  FFontEngine.Hinting := FTextHints;
+
+  if Bold then
+    B := 700
+  else
+    B := 400;
+
+  FFontEngine.CreateFont(PAnsiChar(FileName), grOutline, Height, 0, B, Italic)
+{$ENDIF}
+end;
 
 initialization
 {$IFNDEF DISABLEAUTOINITIALIZE}
   SetAggPasDefault;
+{$IF CompilerVersion > 23}
+  TTextLayoutManager.RegisterTextLayout(TTextLayoutAggPas, TCanvasAggPas);
+{$IFEND}
 {$ENDIF}
 
 end.

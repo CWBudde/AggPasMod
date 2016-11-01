@@ -4,7 +4,7 @@ unit AggFontEngine;
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
 //    Maintained by Christian-W. Budde (Christian@savioursofsoul.de)          //
-//    Copyright (c) 2012-2015                                                      //
+//    Copyright (c) 2012-2015                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -20,6 +20,9 @@ unit AggFontEngine;
 //  This software is provided "as is" without express or implied              //
 //  warranty, and with no claim as to its suitability for any purpose.        //
 //                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+//  B.Verhue 1-11-2016                                                        //
+//  - Replaced AnsiString with byte array and AnsiChar with byte              //
 ////////////////////////////////////////////////////////////////////////////////
 
 interface
@@ -60,7 +63,7 @@ type
     function AddKerning(First, Second: Cardinal; X, Y: PDouble): Boolean;
       virtual; abstract;
 
-    function GetFontSignature: AnsiString; virtual; abstract;
+    function GetFontSignature: TAggBytes; virtual; abstract;
     function GetBounds: PRectInteger; virtual; abstract;
 
     property Flag32: Boolean read GetFlag32;

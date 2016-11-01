@@ -4,7 +4,7 @@ unit AggFontCacheManager;
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
 //    Maintained by Christian-W. Budde (Christian@savioursofsoul.de)          //
-//    Copyright (c) 2012-2015                                                      //
+//    Copyright (c) 2012-2015                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -20,6 +20,9 @@ unit AggFontCacheManager;
 //  This software is provided "as is" without express or implied              //
 //  warranty, and with no claim as to its suitability for any purpose.        //
 //                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+//  B.Verhue 1-11-2016                                                        //
+//  - Replaced AnsiString with byte array and AnsiChar with byte              //
 ////////////////////////////////////////////////////////////////////////////////
 
 interface
@@ -56,12 +59,12 @@ type
   private
     FAllocator: TAggPodAllocator;
     FGlyphs: array [0..256] of PPAggGlyphCache;
-    FFontSignature: AnsiString;
+    FFontSignature: TAggBytes;
   public
-    constructor Create(FontSignature: AnsiString);
+    constructor Create(FontSignature: TAggBytes);
     destructor Destroy; override;
 
-    function FontIs(FontSignature: AnsiString): Boolean;
+    function FontIs(FontSignature: TAggBytes): Boolean;
 
     function FindGlyph(GlyphCode: Cardinal): PAggGlyphCache;
 
@@ -79,7 +82,7 @@ type
     constructor Create(MaxFonts: Cardinal = 32);
     destructor Destroy; override;
 
-    procedure SetFont(FontSignature: AnsiString; ResetCache: Boolean = False);
+    procedure SetFont(FontSignature: TAggBytes; ResetCache: Boolean = False);
     function GetFont: TAggFontCache;
 
     function FindGlyph(GlyphCode: Cardinal): PAggGlyphCache;
@@ -88,7 +91,7 @@ type
       DataType: TAggGlyphData; var Bounds: TRectInteger; AdvanceX, AdvanceY: Double)
       : PAggGlyphCache;
 
-    function FindFont(FontSignature: AnsiString): Integer;
+    function FindFont(FontSignature: TAggBytes): Integer;
   end;
 
   TAggFontCacheManager = class
@@ -136,11 +139,11 @@ implementation
 
 { TAggFontCache }
 
-constructor TAggFontCache.Create(FontSignature: AnsiString);
+constructor TAggFontCache.Create(FontSignature: TAggBytes);
 begin
   FAllocator := TAggPodAllocator.Create(CAggBlockSize);
 
-  FFontSignature := FontSignature;
+  FFontSignature := Copy(FontSignature, 1, Length(FontSignature));
   FillChar(FGlyphs, SizeOf(FGlyphs), 0);
 end;
 
@@ -150,9 +153,11 @@ begin
   inherited;
 end;
 
-function TAggFontCache.FontIs(FontSignature: AnsiString): Boolean;
+function TAggFontCache.FontIs(FontSignature: TAggBytes): Boolean;
 begin
-  Result := FontSignature = FFontSignature;
+  Result := (Length(FFontSignature) = Length(FontSignature))
+        and (CompareMem(@FontSignature[0], @FFontSignature[0], Length(FontSignature)));
+
   inherited;
 end;
 
@@ -245,7 +250,7 @@ begin
   inherited;
 end;
 
-procedure TAggFontCachePool.SetFont(FontSignature: AnsiString;
+procedure TAggFontCachePool.SetFont(FontSignature: TAggBytes;
   ResetCache: Boolean = False);
 var
   Idx: Integer;
@@ -310,7 +315,7 @@ begin
     Result := nil;
 end;
 
-function TAggFontCachePool.FindFont(FontSignature: AnsiString): Integer;
+function TAggFontCachePool.FindFont(FontSignature: TAggBytes): Integer;
 var
   I: Cardinal;
   F: PAggFontCache;

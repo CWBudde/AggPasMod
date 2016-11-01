@@ -4,7 +4,7 @@ unit AggFontFreeType;
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
 //    Maintained by Christian-W. Budde (Christian@savioursofsoul.de)          //
-//    Copyright (c) 2012-2015                                                      //
+//    Copyright (c) 2012-2015                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -20,6 +20,11 @@ unit AggFontFreeType;
 //  This software is provided "as is" without express or implied              //
 //  warranty, and with no claim as to its suitability for any purpose.        //
 //                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+//  B.Verhue 1-11-2016                                                        //
+//  - Replaced AnsiString with byte array and AnsiChar with byte              //
+//  - Used TEncodig class to convert from string to bytes and vice versa      //
+//  - Relpaced pointer lists with dynamic arrays                              //
 ////////////////////////////////////////////////////////////////////////////////
 
 interface
@@ -45,30 +50,28 @@ uses
   AggBitsetIterator;
 
 type
-  PAggFaceName = ^TAggFaceName;
-  TAggFaceName = AnsiString;
-
   TAggFontEngineFreetypeBase = class(TAggCustomFontEngine)
   private
     FFlag32: Boolean;
 
     FChangeStamp, FLastError: Integer;
 
-    FFaceName: TAggFaceName;
+    FFaceName: TAggBytes;
     FFaceIndex: Cardinal;
     FCharMap: TAggFreeTypeEncoding;
-    FSignature: TAggFaceName;
+    FSignature: TAggBytes;
 
     FHeight, FWidth: Cardinal;
 
     FHinting, FFlipY, FLibraryInitialized: Boolean;
 
     FLibrary: PAggFreeTypeLibrary; // handle to library
-    FFaces: PPAggFreeTypeFace; // A pool of font faces
 
-    FFaceNames: PAggFaceName;
+    FFaces: array of PAggFreeTypeFace; // A pool of font faces
+    FFaceNames: array of TAggBytes;
     FNumFaces, FMaxFaces: Cardinal;
     FCurFace: PAggFreeTypeFace; // handle to the current face object
+
     FResolution: Integer;
 
     FGlyphRendering: TAggGlyphRendering;
@@ -93,7 +96,7 @@ type
     procedure UpdateCharSize;
     procedure UpdateSignature;
 
-    function FindFace(Name: AnsiString): Integer;
+    function FindFace(Name: TAggBytes): Integer;
 
     procedure SetHinting(Value: Boolean);
     procedure SetFlipY(Flip: Boolean);
@@ -111,11 +114,11 @@ type
     // Set font parameters
     procedure SetResolution(Dpi: Cardinal);
 
-    function LoadFont(FontName: PAnsiChar; FaceIndex: Cardinal;
-      RenType: TAggGlyphRendering; FontMem: PAnsiChar = nil;
+    function LoadFont(FontName: string; FaceIndex: Cardinal;
+      RenType: TAggGlyphRendering; FontMem: PAggFreeTypeByte = nil;
       FontMemSize: Integer = 0): Boolean;
 
-    function Attach(FileName: PAnsiChar): Boolean;
+    function Attach(FileName: string): Boolean;
 
     function SetCharMap(Map: TAggFreeTypeEncoding): Boolean;
     function SetHeight(Value: Double): Boolean;
@@ -128,7 +131,7 @@ type
     // Accessors
     function GetLastError: Integer;
     function GetResolution: Cardinal;
-    function GetName: AnsiString;
+    function GetName: string;
     function GetNum_faces: Cardinal;
     function GetCharMap: TAggFreeTypeEncoding;
     function GetHeight: Double;
@@ -137,7 +140,7 @@ type
     function GetDescender: Double;
 
     // Interface mandatory to implement for TAggFontCacheManager
-    function GetFontSignature: AnsiString; override;
+    function GetFontSignature: TAggBytes; override;
     function GetBounds: PRectInteger; override;
     function ChangeStamp: Integer; override;
 
@@ -274,13 +277,13 @@ var
 
   Point, Limit: PAggFreeTypeVector;
 
-  Tags: PAnsiChar;
+  Tags: PAggFreeTypeByte;
 
   N, // index of contour in outline
   First, // index of first point in contour
   Last: Integer; // index of last point in contour
 
-  Tag: AnsiChar; // current point's state
+  Tag: TAggFreeTypeByte; // current point's state
 
 label
   Do_Conic, Close;
@@ -302,22 +305,22 @@ begin
     V_control := V_start;
 
     Point := PAggFreeTypeVector(PtrComp(Outline.Points) + First * SizeOf(TAggFreeTypeVector));
-    Tags := PAnsiChar(PtrComp(Outline.Tags) + First * SizeOf(AnsiChar));
+    Tags := PAggFreeTypeByte(PtrComp(Outline.Tags) + First * SizeOf(TAggFreeTypeByte));
     Tag := FreeTypeCurveTag(Tags^);
 
     // A contour cannot start with a cubic control point!
-    if Tag = AnsiChar(CAggFreeTypeCurveTagCubic) then
+    if Tag = CAggFreeTypeCurveTagCubic then
     begin
       Result := False;
       Exit;
     end;
 
     // check first point to determine origin
-    if Tag = AnsiChar(CAggFreeTypeCurveTagConic) then
+    if Tag = CAggFreeTypeCurveTagConic then
     begin
       // first point is conic control. Yes, this happens.
-      if FreeTypeCurveTag(PAnsiChar(PtrComp(Outline.Tags) + Last)^)
-        = AnsiChar(CAggFreeTypeCurveTagOn) then
+      if FreeTypeCurveTag(PAggFreeTypeByte(PtrComp(Outline.Tags) + Last)^)
+        = CAggFreeTypeCurveTagOn then
       begin
         // start at last point if it is on the curve
         V_start := V_last;
@@ -358,7 +361,7 @@ begin
 
       case Tag of
         // emit a single LineTo
-        AnsiChar(CAggFreeTypeCurveTagOn):
+        CAggFreeTypeCurveTagOn:
           begin
             X1 := Int26p6ToDouble(Point.X);
             Y1 := Int26p6ToDouble(Point.Y);
@@ -373,7 +376,7 @@ begin
           end;
 
         // consume conic arcs
-        AnsiChar(CAggFreeTypeCurveTagConic):
+        CAggFreeTypeCurveTagConic:
           begin
             V_control.X := Point.X;
             V_control.Y := Point.Y;
@@ -389,7 +392,7 @@ begin
               Vec.X := Point.X;
               Vec.Y := Point.Y;
 
-              if Tag = AnsiChar(CAggFreeTypeCurveTagOn) then
+              if Tag = CAggFreeTypeCurveTagOn then
               begin
                 X1 := Int26p6ToDouble(V_control.X);
                 Y1 := Int26p6ToDouble(V_control.Y);
@@ -411,7 +414,7 @@ begin
                 Continue;
               end;
 
-              if Tag <> AnsiChar(CAggFreeTypeCurveTagConic) then
+              if Tag <> CAggFreeTypeCurveTagConic then
               begin
                 Result := False;
 
@@ -467,8 +470,7 @@ begin
       else
         begin
           if (PtrComp(Point) + SizeOf(TAggFreeTypeVector) > PtrComp(Limit)) or
-            (FreeTypeCurveTag(PAnsiChar(PtrComp(Tags) + 1)^) <>
-            AnsiChar(CAggFreeTypeCurveTagCubic)) then
+            (FreeTypeCurveTag(PAggFreeTypeByte(PtrComp(Tags) + 1)^) <> CAggFreeTypeCurveTagCubic) then
           begin
             Result := False;
 
@@ -676,9 +678,9 @@ begin
   FFaceIndex := 0;
 
   FCharMap := CAggFreeTypeEncodingNone;
-  FFaceName := '';
+  SetLength(FFaceName, 0);
 
-  FSignature := '';
+  SetLength(FSignature, 0);
 
   FHeight := 0;
   FWidth := 0;
@@ -689,8 +691,8 @@ begin
 
   FLibrary := nil;
 
-  AggGetMem(Pointer(FFaces), MaxFaces * SizeOf(PAggFreeTypeFace));
-  AggGetMem(Pointer(FFaceNames), MaxFaces * SizeOf(TAggFaceName));
+  SetLength(FFaces, 0);
+  SetLength(FFaceNames, 0);
 
   FNumFaces := 0;
   FMaxFaces := MaxFaces;
@@ -734,15 +736,15 @@ var
 begin
   I := 0;
 
-  while I < FNumFaces do
+  while I < Length(FFaces) do
   begin
-    FreeTypeDoneFace(PPAggFreeTypeFace(PtrComp(FFaces) + I * SizeOf(PAggFreeTypeFace))^);
+    FreeTypeDoneFace(FFaces[I]);
 
     Inc(I);
   end;
 
-  AggFreeMem(Pointer(FFaceNames), FMaxFaces * SizeOf(TAggFaceName));
-  AggFreeMem(Pointer(FFaces), FMaxFaces * SizeOf(PAggFreeTypeFace));
+  Finalize(FFaceNames);
+  Finalize(FFaces);
 
   if FLibraryInitialized then
     FreeTypeDone(FLibrary);
@@ -769,84 +771,70 @@ begin
   UpdateCharSize;
 end;
 
-function TAggFontEngineFreetypeBase.LoadFont(FontName: PAnsiChar;
-  FaceIndex: Cardinal; RenType: TAggGlyphRendering; FontMem: PAnsiChar = nil;
+function TAggFontEngineFreetypeBase.LoadFont(FontName: string;
+  FaceIndex: Cardinal; RenType: TAggGlyphRendering; FontMem: PAggFreeTypeByte = nil;
   FontMemSize: Integer = 0): Boolean;
 var
   Idx: Integer;
 begin
   Result := False;
 
+  if FontName = '' then
+    exit;
+
+  FFaceName := TEncoding.UTF8.GetBytes(FontName);
+
   if FLibraryInitialized then
   begin
     FLastError := 0;
 
-    Idx := FindFace(FontName);
+    Idx := FindFace(FFaceName);
 
     if Idx >= 0 then
     begin
-      FCurFace := PPAggFreeTypeFace(PtrComp(FFaces) + Idx *
-        SizeOf(PAggFreeTypeFace))^;
-      FFaceName := PAggFaceName(PtrComp(FFaceNames) + Idx * SizeOf(TAggFaceName))^;
+      FCurFace := FFaces[Idx];
     end
     else
     begin
       if FNumFaces >= FMaxFaces then
       begin
-        FreeTypeDoneFace(FFaces^);
+        FreeTypeDoneFace(FFaces[0]);
 
-        Move(PPAggFreeTypeFace(PtrComp(FFaces) + SizeOf(PAggFreeTypeFace))^, FFaces^,
-          (FMaxFaces - 1) * SizeOf(PAggFreeTypeFace));
-
-        Move(PAggFaceName(PtrComp(FFaceNames) + SizeOf(TAggFaceName))^,
-          FFaceNames^, (FMaxFaces - 1) * SizeOf(TAggFaceName));
+        Move(FFaces[1], FFaces[0], (Length(FFaces) - 1) * SizeOF(PAggFreeTypeFace));
+        Move(FFaceNames[1], FFaceNames[0], (Length(FFaceNames) - 1) * SizeOf(TAggBytes));
 
         Dec(FNumFaces);
       end;
 
       if (FontMem <> nil) and (FontMemSize > 0) then
-        FLastError := FreeTypeNewMemoryFace(FLibrary, PAggFreeTypeByte(FontMem),
-          FontMemSize, FaceIndex,
-          PPAggFreeTypeFace(PtrComp(FFaces) + FNumFaces *
-          SizeOf(PAggFreeTypeFace))^)
+        FLastError := FreeTypeNewMemoryFace(
+          FLibrary,
+          PAggFreeTypeByte(FontMem),
+          FontMemSize,
+          FaceIndex,
+          FCurFace)
       else
-        FLastError := FreeTypeNewFace(FLibrary, FontName, FaceIndex,
-          PPAggFreeTypeFace(PtrComp(FFaces) + FNumFaces *
-          SizeOf(PAggFreeTypeFace))^);
+        FLastError := FreeTypeNewFace(
+          FLibrary,
+          @FFaceName[0],
+          FaceIndex,
+          FCurFace);
 
       if FLastError = 0 then
       begin
-(*
-        PAggFaceName(PtrComp(FFaceNames) +
-          FNumFaces * SizeOf(TAggFaceName)).Size := StrLen(FontName) + 1;
+        SetLength(FFaceNames, Length(FFaceNames) + 1);
+        SetLength(FFaceNames[Length(FFaceNames) - 1], Length(FFaceName));
+        Move(FFaceName[0], FFaceNames[Length(FFaceNames) - 1][0], Length(FFaceName));
 
-        AggGetMem(Pointer(PAggFaceName(PtrComp(FFaceNames) + FNumFaces *
-          SizeOf(TAggFaceName)).Name),
-          PAggFaceName(PtrComp(FFaceNames) + FNumFaces *
-          SizeOf(TAggFaceName)).Size);
-
-        StrCopy(PAnsiChar(PAggFaceName(PtrComp(FFaceNames) + FNumFaces *
-          SizeOf(TAggFaceName)).Name), FontName);
-*)
-
-        FCurFace := PPAggFreeTypeFace(PtrComp(FFaces) + FNumFaces *
-          SizeOf(PAggFreeTypeFace))^;
-(*
-        FName := PAnsiChar(PAggFaceName(PtrComp(FFaceNames) + FNumFaces *
-          SizeOf(TAggFaceName)).Name);
-*)
+        SetLength(FFaces, Length(FFaces) + 1);
+        FFaces[Length(FFaces) - 1] := FCurFace;
 
         Inc(FNumFaces);
       end
       else
       begin
-(*
-        PAnsiChar(PAggFaceName(PtrComp(FFaceNames) + FNumFaces *
-          SizeOf(TAggFaceName)).Name) := nil;
-*)
-
         FCurFace := nil;
-        FFaceName := '';
+        SetLength(FFaceName, 0);
       end;
     end;
 
@@ -885,13 +873,16 @@ begin
   end;
 end;
 
-function TAggFontEngineFreetypeBase.Attach(FileName: PAnsiChar): Boolean;
+function TAggFontEngineFreetypeBase.Attach(FileName: string): Boolean;
+var
+  AnsiFileName: TAggBytes;
 begin
   Result := False;
 
   if FCurFace <> nil then
   begin
-    FLastError := FreeTypeAttachFile(FCurFace, FileName);
+    AnsiFileName := TEncoding.UTF8.GetBytes(FileName);
+    FLastError := FreeTypeAttachFile(FCurFace, @AnsiFileName[0]);
 
     Result := FLastError = 0;
   end;
@@ -981,9 +972,9 @@ begin
   Result := FResolution;
 end;
 
-function TAggFontEngineFreetypeBase.GetName: AnsiString;
+function TAggFontEngineFreetypeBase.GetName: string;
 begin
-  Result := FFaceName;
+  Result := TEncoding.UTF8.GetString(FFaceName);
 end;
 
 function TAggFontEngineFreetypeBase.GetNum_faces: Cardinal;
@@ -1025,7 +1016,7 @@ begin
     Result := 0.0;
 end;
 
-function TAggFontEngineFreetypeBase.GetFontSignature: AnsiString;
+function TAggFontEngineFreetypeBase.GetFontSignature: TAggBytes;
 begin
   Result := FSignature;
 end;
@@ -1046,7 +1037,7 @@ begin
 
   if FHinting then
     FLastError := FreeTypeLoadGlyph(FCurFace, FGlyphIndex,
-      CAggFreeTypeLoadDefault { } { FT_LOAD_FORCE_AUTOHINT{ } )
+      CAggFreeTypeLoadDefault)
   else
     FLastError := FreeTypeLoadGlyph(FCurFace, FGlyphIndex,
       CAggFreeTypeLoadNoHinting);
@@ -1350,21 +1341,19 @@ end;
 procedure TAggFontEngineFreetypeBase.UpdateSignature;
 var
   NameLength, GammaHash, I: Cardinal;
-
   GammaTable: array [0..CAggAntiAliasingNum - 1] of Int8u;
-
   MatrixData: TAggParallelogram;
-  Str: AnsiString;
+  Str: string;
 begin
-  if (FCurFace <> nil) and (FFaceName <> '') then
+  if (FCurFace <> nil) and (Length(FFaceName) <> 0) then
   begin
     NameLength := Length(FFaceName);
 
     GammaHash := 0;
 
-    if (FGlyphRendering = grNativeGray8) or
-      (FGlyphRendering = grAggMono) or
-      (FGlyphRendering = grAggGray8) then
+    if (FGlyphRendering = grNativeGray8)
+    or (FGlyphRendering = grAggMono)
+    or (FGlyphRendering = grAggGray8) then
     begin
       for I := 0 to CAggAntiAliasingNum - 1 do
         GammaTable[I] := FRasterizer.ApplyGamma(I);
@@ -1372,8 +1361,17 @@ begin
       GammaHash := Calc_crc32(@GammaTable, SizeOf(GammaTable));
     end;
 
-    Str := Format('%s,%u,%d,%d,%d:%dx%d,%d,%d,%x', [FFaceName,
-      FCharMap, FFaceIndex, Integer(FGlyphRendering), FResolution, FHeight,
+    Str := '';
+    I := 0;
+    while (I < Length(FFaceName)) and (FFaceName[I] <> 0) do
+    begin
+      Str := Str + Char(FFaceName[I]);
+      Inc(I);
+    end;
+
+    Str := Str + Format(',%d%d%d%d,%d,%d,%d:%dx%d,%d,%d,%x', [
+      FCharMap[0], FCharMap[1], FCharMap[2], FCharMap[3],
+      FFaceIndex, Integer(FGlyphRendering), FResolution, FHeight,
       FWidth, Integer(FHinting), Integer(FFlipY), GammaHash]);
 
     if (FGlyphRendering = grOutline) or
@@ -1391,36 +1389,32 @@ begin
         DoubleToPlainFixedPoint(MatrixData[5])]);
     end;
 
-    FSignature := Str;
+    FSignature := TEncoding.UTF8.GetBytes(Str + #0);
 
     Inc(FChangeStamp);
   end;
 end;
 
-function TAggFontEngineFreetypeBase.FindFace(Name: AnsiString): Integer;
+function TAggFontEngineFreetypeBase.FindFace(Name: TAggBytes): Integer;
 var
   I: Cardinal;
-  N: PAggFaceName;
 begin
   Result := -1;
 
-  N := FFaceNames;
   I := 0;
 
-  while I < FNumFaces do
+  while I < Length(FFaceNames) do
   begin
-    if Name = N^ then
+    if (Length(Name) = Length(FFaceNames[I]))
+    and CompareMem(@Name[0], @FFaceNames[I][0], Length(Name)) then
     begin
       Result := I;
-
       Exit;
     end;
 
-    Inc(PtrComp(N), SizeOf(TAggFaceName));
     Inc(I);
   end;
 end;
-
 
 { TAggFontEngineFreetypeInt16 }
 
@@ -1428,7 +1422,6 @@ constructor TAggFontEngineFreetypeInt16.Create(MaxFaces: Cardinal = 32);
 begin
   inherited Create(False, MaxFaces);
 end;
-
 
 { TAggFontEngineFreetypeInt32 }
 

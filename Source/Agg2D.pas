@@ -27,7 +27,7 @@ interface
 {$I AggCompiler.inc}
 
 // With this define uncommented you can use FreeType font engine
-{-$DEFINE AGG2D_USE_FREETYPE }
+{$DEFINE AGG2D_USE_FREETYPE }
 
 uses
   AggBasics,
