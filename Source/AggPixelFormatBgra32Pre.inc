@@ -47,7 +47,7 @@ asm
 
     // P^.A := Int8u(CAggBaseMask - ((Alpha * (CAggBaseMask - P^.A)) shr CAggBaseShift
     MOV     EAX, CAggBaseMask
-    MOVZX   EDX, [EDI]
+    MOVZX   EDX, [EDI + $3]
     SUB     EAX, EDX
     IMUL    EAX, EBX
     SHR     EAX, $08
@@ -86,7 +86,7 @@ asm
 
     // P^.A := Int8u(CAggBaseMask - ((Alpha * (CAggBaseMask - P^.A)) shr CAggBaseShift
     MOV     EAX, CAggBaseMask
-    MOVZX   EDX, [RCX]
+    MOVZX   EDX, [RCX + $3]
     SUB     EAX, EDX
     IMUL    EAX, R10
     SHR     EAX, $08
