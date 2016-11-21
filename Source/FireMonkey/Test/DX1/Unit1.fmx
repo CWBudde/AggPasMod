@@ -1,0 +1,611 @@
+object Form1: TForm1
+  Left = 0
+  Top = 0
+  Caption = 'Delphi FMX Aggpas canvas'
+  ClientHeight = 476
+  ClientWidth = 640
+  FormFactor.Width = 1680
+  FormFactor.Height = 1050
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  DesignerMasterStyle = 0
+  object TabControl1: TTabControl
+    Align = Client
+    Size.Width = 640.000000000000000000
+    Size.Height = 476.000000000000000000
+    Size.PlatformDefault = False
+    TabHeight = 20.000000000000000000
+    TabIndex = 2
+    TabOrder = 0
+    TabPosition = Top
+    object TabItem1: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = False
+      Size.Width = 54.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      Text = 'Stroke'
+      object Path2: TPath
+        Data.Path = {
+          0300000000000000000000000000C841010000000000C8410000000001000000
+          000048420000C841}
+        Position.X = 156.000000000000000000
+        Position.Y = 25.000000000000000000
+        Size.Width = 89.000000000000000000
+        Size.Height = 73.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Thickness = 12.000000000000000000
+        Stroke.Cap = Round
+        Stroke.Join = Round
+      end
+      object Path3: TPath
+        Data.Path = {
+          0300000000000000000000000000C841010000000000C8410000000001000000
+          000048420000C841}
+        Position.X = 280.000000000000000000
+        Position.Y = 24.000000000000000000
+        Size.Width = 89.000000000000000000
+        Size.Height = 73.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Thickness = 12.000000000000000000
+        Stroke.Cap = Round
+        Stroke.Join = Bevel
+      end
+      object Path1: TPath
+        Data.Path = {
+          0300000000000000000000000000C841010000000000C8410000000001000000
+          000048420000C841}
+        Position.X = 28.000000000000000000
+        Position.Y = 25.000000000000000000
+        Size.Width = 89.000000000000000000
+        Size.Height = 73.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Thickness = 12.000000000000000000
+      end
+      object Label2: TLabel
+        Position.X = 16.000000000000000000
+        Position.Y = 109.000000000000000000
+        Size.Width = 120.000000000000000000
+        Size.Height = 15.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.HorzAlign = Center
+        Text = 'Flat cap, miter join'
+      end
+      object Label3: TLabel
+        Position.X = 144.000000000000000000
+        Position.Y = 109.000000000000000000
+        Size.Width = 120.000000000000000000
+        Size.Height = 15.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.HorzAlign = Center
+        Text = 'Round cap, round join'
+      end
+      object Label4: TLabel
+        Position.X = 264.000000000000000000
+        Position.Y = 109.000000000000000000
+        Size.Width = 120.000000000000000000
+        Size.Height = 15.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.HorzAlign = Center
+        Text = 'Round cap, bevel join'
+      end
+      object Line1: TLine
+        LineType = Top
+        Position.X = 423.000000000000000000
+        Position.Y = 11.000000000000000000
+        Size.Width = 145.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Thickness = 8.000000000000000000
+      end
+      object Line2: TLine
+        LineType = Top
+        Position.X = 423.000000000000000000
+        Position.Y = 35.000000000000000000
+        Size.Width = 145.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Thickness = 8.000000000000000000
+        Stroke.Dash = Dash
+      end
+      object Line3: TLine
+        LineType = Top
+        Position.X = 423.000000000000000000
+        Position.Y = 59.000000000000000000
+        Size.Width = 145.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Thickness = 8.000000000000000000
+        Stroke.Dash = DashDot
+      end
+      object Line4: TLine
+        LineType = Top
+        Position.X = 423.000000000000000000
+        Position.Y = 83.000000000000000000
+        Size.Width = 145.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Thickness = 8.000000000000000000
+        Stroke.Dash = DashDotDot
+      end
+      object Line5: TLine
+        LineType = Top
+        Position.X = 423.000000000000000000
+        Position.Y = 107.000000000000000000
+        Size.Width = 145.000000000000000000
+        Size.Height = 17.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Thickness = 8.000000000000000000
+        Stroke.Dash = Dot
+      end
+      object Circle2: TCircle
+        Fill.Kind = None
+        Position.X = 118.000000000000000000
+        Position.Y = 146.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Color = claRed
+        Stroke.Thickness = 12.000000000000000000
+      end
+      object Circle3: TCircle
+        Fill.Kind = None
+        Position.X = 158.000000000000000000
+        Position.Y = 146.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Color = claBlue
+        Stroke.Thickness = 12.000000000000000000
+      end
+      object Circle4: TCircle
+        Fill.Kind = None
+        Opacity = 0.750000000000000000
+        Position.X = 198.000000000000000000
+        Position.Y = 146.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Color = claRed
+        Stroke.Thickness = 12.000000000000000000
+      end
+      object Circle5: TCircle
+        Fill.Kind = None
+        Opacity = 0.750000000000000000
+        Position.X = 238.000000000000000000
+        Position.Y = 146.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Color = claBlue
+        Stroke.Thickness = 12.000000000000000000
+      end
+      object Circle6: TCircle
+        Fill.Kind = None
+        Opacity = 0.500000000000000000
+        Position.X = 278.000000000000000000
+        Position.Y = 146.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Color = claRed
+        Stroke.Thickness = 12.000000000000000000
+      end
+      object Circle7: TCircle
+        Fill.Kind = None
+        Opacity = 0.500000000000000000
+        Position.X = 318.000000000000000000
+        Position.Y = 146.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Color = claBlue
+        Stroke.Thickness = 12.000000000000000000
+      end
+      object Circle8: TCircle
+        Fill.Kind = None
+        Opacity = 0.250000000000000000
+        Position.X = 358.000000000000000000
+        Position.Y = 146.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Color = claRed
+        Stroke.Thickness = 12.000000000000000000
+      end
+      object Circle9: TCircle
+        Fill.Kind = None
+        Opacity = 0.250000000000000000
+        Position.X = 398.000000000000000000
+        Position.Y = 146.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Color = claBlue
+        Stroke.Thickness = 12.000000000000000000
+      end
+      object Ellipse2: TEllipse
+        Position.X = 103.000000000000000000
+        Position.Y = 259.000000000000000000
+        Size.Width = 185.000000000000000000
+        Size.Height = 113.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = Gradient
+        Stroke.Gradient.Points = <
+          item
+            Color = claRed
+            Offset = 0.000000000000000000
+          end
+          item
+            Color = xFFFFFF55
+            Offset = 0.262820512056350700
+          end
+          item
+            Color = claLime
+            Offset = 0.503205120563507100
+          end
+          item
+            Color = claAqua
+            Offset = 0.743589758872985800
+          end
+          item
+            Color = claBlue
+            Offset = 1.000000000000000000
+          end>
+        Stroke.Gradient.StartPosition.Y = 0.366025418043136600
+        Stroke.Gradient.StopPosition.X = 1.000000000000000000
+        Stroke.Gradient.StopPosition.Y = 0.633974611759185800
+        Stroke.Thickness = 24.000000000000000000
+      end
+      object Ellipse3: TEllipse
+        Position.X = 319.000000000000000000
+        Position.Y = 256.000000000000000000
+        Size.Width = 185.000000000000000000
+        Size.Height = 121.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = Gradient
+        Stroke.Gradient.Points = <
+          item
+            Color = claRed
+            Offset = 0.000000000000000000
+          end
+          item
+            Color = xFFFFFF55
+            Offset = 0.032051283866167070
+          end
+          item
+            Color = claLime
+            Offset = 0.067307695746421810
+          end
+          item
+            Color = claAqua
+            Offset = 0.102564103901386300
+          end
+          item
+            Color = claBlue
+            Offset = 0.137820512056350700
+          end>
+        Stroke.Gradient.Style = Radial
+        Stroke.Thickness = 24.000000000000000000
+      end
+    end
+    object TabItem2: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = False
+      Size.Width = 34.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      Text = 'Fill'
+      object Ellipse4: TEllipse
+        Fill.Kind = Gradient
+        Fill.Gradient.Points = <
+          item
+            Color = claRed
+            Offset = 0.000000000000000000
+          end
+          item
+            Color = claYellow
+            Offset = 0.266025632619857800
+          end
+          item
+            Color = claLime
+            Offset = 0.512820541858673100
+          end
+          item
+            Color = claAqua
+            Offset = 0.724358975887298600
+          end
+          item
+            Color = claBlue
+            Offset = 1.000000000000000000
+          end>
+        Fill.Gradient.StartPosition.X = 0.500000000000000000
+        Fill.Gradient.StartPosition.Y = 1.000000000000000000
+        Fill.Gradient.StopPosition.X = 0.500000000000000000
+        Fill.Gradient.StopPosition.Y = 0.000000000000000000
+        Position.X = 103.000000000000000000
+        Position.Y = 235.000000000000000000
+        Size.Width = 185.000000000000000000
+        Size.Height = 113.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+      end
+      object Ellipse1: TEllipse
+        Fill.Kind = Gradient
+        Fill.Gradient.Points = <
+          item
+            Color = claRed
+            Offset = 0.000000000000000000
+          end
+          item
+            Color = claYellow
+            Offset = 0.266025632619857800
+          end
+          item
+            Color = claLime
+            Offset = 0.512820541858673100
+          end
+          item
+            Color = claAqua
+            Offset = 0.724358975887298600
+          end
+          item
+            Color = claBlue
+            Offset = 1.000000000000000000
+          end>
+        Fill.Gradient.Style = Radial
+        Position.X = 319.000000000000000000
+        Position.Y = 235.000000000000000000
+        Size.Width = 185.000000000000000000
+        Size.Height = 113.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+      end
+      object Circle1: TCircle
+        Fill.Color = claRed
+        Position.X = 101.000000000000000000
+        Position.Y = 117.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+      end
+      object Circle10: TCircle
+        Fill.Color = claBlue
+        Position.X = 149.000000000000000000
+        Position.Y = 117.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+      end
+      object Circle11: TCircle
+        Fill.Color = claRed
+        Opacity = 0.750000000000000000
+        Position.X = 197.000000000000000000
+        Position.Y = 117.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+      end
+      object Circle12: TCircle
+        Fill.Color = claBlue
+        Opacity = 0.750000000000000000
+        Position.X = 237.000000000000000000
+        Position.Y = 117.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+      end
+      object Circle13: TCircle
+        Fill.Color = claBlue
+        Opacity = 0.500000000000000000
+        Position.X = 317.000000000000000000
+        Position.Y = 117.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+      end
+      object Circle14: TCircle
+        Fill.Color = claBlue
+        Opacity = 0.250000000000000000
+        Position.X = 397.000000000000000000
+        Position.Y = 117.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+      end
+      object Circle15: TCircle
+        Fill.Color = claRed
+        Opacity = 0.500000000000000000
+        Position.X = 277.000000000000000000
+        Position.Y = 117.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+      end
+      object Circle16: TCircle
+        Fill.Color = claRed
+        Opacity = 0.250000000000000000
+        Position.X = 357.000000000000000000
+        Position.Y = 117.000000000000000000
+        Size.Width = 91.000000000000000000
+        Size.Height = 79.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+      end
+    end
+    object TabItem3: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = True
+      Size.Width = 69.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      Text = 'Text & font'
+      object Label1: TLabel
+        Align = Top
+        StyledSettings = []
+        Size.Width = 640.000000000000000000
+        Size.Height = 57.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 48.000000000000000000
+        TextSettings.HorzAlign = Center
+        Text = 'Font renderer'
+      end
+      object ComboBox1: TComboBox
+        DisableFocusEffect = False
+        ListBoxResource = 'transparentlistboxstyle'
+        Position.X = 159.000000000000000000
+        Position.Y = 78.000000000000000000
+        Size.Width = 193.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        OnChange = ComboBox1Change
+      end
+      object Path4: TPath
+        Align = Bottom
+        Fill.Kind = Gradient
+        Fill.Gradient.Points = <
+          item
+            Color = xFFFF050E
+            Offset = 0.000000000000000000
+          end
+          item
+            Color = claWhite
+            Offset = 1.000000000000000000
+          end>
+        Fill.Gradient.StartPosition.X = 0.500000000000000000
+        Fill.Gradient.StartPosition.Y = 1.000000000000000000
+        Fill.Gradient.StopPosition.X = 0.500000000000000000
+        Fill.Gradient.StopPosition.Y = 0.000000000000000000
+        Position.Y = 320.000000000000000000
+        Size.Width = 640.000000000000000000
+        Size.Height = 136.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Color = claDarkblue
+        Stroke.Thickness = 4.000000000000000000
+        Stroke.Join = Round
+      end
+      object Label5: TLabel
+        Position.X = 96.000000000000000000
+        Position.Y = 82.000000000000000000
+        Size.Width = 73.000000000000000000
+        Size.Height = 15.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'Select font:'
+      end
+      object Memo1: TMemo
+        Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+        DataDetectorTypes = []
+        Lines.Strings = (
+          'FreeType is a freely '
+          'available software library to '
+          'render fonts.'
+          ''
+          'It is written in C, designed '
+          'to be small, efficient, highly '
+          'customizable, and portable '
+          'while capable of producing '
+          'high-quality output (glyph '
+          'images) of most vector and '
+          'bitmap font formats.')
+        StyledSettings = []
+        TextSettings.WordWrap = True
+        Position.X = 431.000000000000000000
+        Position.Y = 139.000000000000000000
+        Size.Width = 169.000000000000000000
+        Size.Height = 129.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 4
+        Viewport.Width = 149.000000000000000000
+        Viewport.Height = 125.000000000000000000
+      end
+      object Rectangle1: TRectangle
+        Fill.Kind = None
+        Position.X = 23.000000000000000000
+        Position.Y = 155.000000000000000000
+        Size.Width = 105.000000000000000000
+        Size.Height = 89.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object Text1: TText
+        Position.X = 23.000000000000000000
+        Position.Y = 155.000000000000000000
+        Size.Width = 105.000000000000000000
+        Size.Height = 89.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'Align left top'
+        TextSettings.HorzAlign = Leading
+        TextSettings.VertAlign = Leading
+      end
+      object Rectangle2: TRectangle
+        Fill.Kind = None
+        Position.X = 143.000000000000000000
+        Position.Y = 155.000000000000000000
+        Size.Width = 105.000000000000000000
+        Size.Height = 89.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object Rectangle3: TRectangle
+        Fill.Kind = None
+        Position.X = 263.000000000000000000
+        Position.Y = 155.000000000000000000
+        Size.Width = 105.000000000000000000
+        Size.Height = 89.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object Text2: TText
+        Position.X = 143.000000000000000000
+        Position.Y = 155.000000000000000000
+        Size.Width = 105.000000000000000000
+        Size.Height = 89.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'Align center'
+      end
+      object Text3: TText
+        Position.X = 263.000000000000000000
+        Position.Y = 155.000000000000000000
+        Size.Width = 105.000000000000000000
+        Size.Height = 89.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'Align right bottom'
+        TextSettings.HorzAlign = Trailing
+        TextSettings.VertAlign = Trailing
+      end
+      object ComboBox2: TComboBox
+        DisableFocusEffect = False
+        ListBoxResource = 'transparentlistboxstyle'
+        Position.X = 428.000000000000000000
+        Position.Y = 78.000000000000000000
+        Size.Width = 100.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 11
+        OnChange = ComboBox2Change
+      end
+      object Label6: TLabel
+        Position.X = 360.000000000000000000
+        Position.Y = 81.000000000000000000
+        Size.Width = 65.000000000000000000
+        Size.Height = 15.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'Select size:'
+      end
+    end
+  end
+end

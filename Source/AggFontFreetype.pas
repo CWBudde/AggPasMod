@@ -22,9 +22,11 @@ unit AggFontFreeType;
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 //  B.Verhue 1-11-2016                                                        //
+//                                                                            //
 //  - Replaced AnsiString with byte array and AnsiChar with byte              //
 //  - Used TEncodig class to convert from string to bytes and vice versa      //
 //  - Relpaced pointer lists with dynamic arrays                              //
+//                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
 interface
@@ -32,7 +34,8 @@ interface
 {$I AggCompiler.inc}
 
 uses
-  SysUtils, Math,
+  SysUtils,
+  Math,
   AggFontFreeTypeLib,
   AggBasics,
   AggFontEngine,
@@ -106,6 +109,9 @@ type
     function GetDataType: TAggGlyphData; override;
     function GetAdvanceX: Double; override;
     function GetAdvanceY: Double; override;
+    function GetAscender: Double; override;
+    function GetDescender: Double; override;
+    function GetDefaultLineSpacing: Double; override;
     function GetFlag32: Boolean; override;
   public
     constructor Create(AFlag32: Boolean; MaxFaces: Cardinal = 32);
@@ -113,6 +119,12 @@ type
 
     // Set font parameters
     procedure SetResolution(Dpi: Cardinal);
+
+    // Get some name info to enable font selection
+    function GetNameInfo(Face: PAggFreeTypeFace; var FontFamily, FontSubFamily,
+      UniqueFontID, FullFontName: string): boolean; overload;
+    function GetNameInfo(FontName: string; var FontFamily, FontSubFamily,
+      UniqueFontID, FullFontName: string): boolean; overload;
 
     function LoadFont(FontName: string; FaceIndex: Cardinal;
       RenType: TAggGlyphRendering; FontMem: PAggFreeTypeByte = nil;
@@ -136,8 +148,6 @@ type
     function GetCharMap: TAggFreeTypeEncoding;
     function GetHeight: Double;
     function GetWidth: Double;
-    function GetAscender: Double;
-    function GetDescender: Double;
 
     // Interface mandatory to implement for TAggFontCacheManager
     function GetFontSignature: TAggBytes; override;
@@ -152,6 +162,7 @@ type
 
     property FlipY: Boolean read FFlipY write SetFlipY;
     property Hinting: Boolean read FHinting write SetHinting;
+    property Height: Double read GetHeight;
   end;
 
   // ------------------------------------------------FontEngineFreetypeInt16
@@ -664,7 +675,6 @@ begin
   end;
 end;
 
-
 { TAggFontEngineFreetypeBase }
 
 constructor TAggFontEngineFreetypeBase.Create(AFlag32: Boolean;
@@ -771,6 +781,76 @@ begin
   UpdateCharSize;
 end;
 
+function TAggFontEngineFreetypeBase.GetNameInfo(Face: PAggFreeTypeFace;
+  var FontFamily, FontSubFamily, UniqueFontID, FullFontName: string): boolean;
+var
+  NameCount: TAggFreeTypeUInt;
+  SfntName: TAggFreeTypeSfntName;
+
+  function ConvertFontName: string;
+  var
+    i: integer;
+    NameBuffer: TAggBytes;
+  begin
+    Result := '';
+    SetLength(NameBuffer, SfntName.StrLen);
+    for i := 0 to SFntName.StrLen - 1 do
+      NameBuffer[i] := PByteArray(SfntName.Str)^[i];
+
+    // TODO check more encoding combinations
+    case SfntName.PlatformID of
+    0: case SfntName.EncodingID of
+       3: Result := TEncoding.BigEndianUnicode.GetString(NameBuffer);
+       end;
+    1: case SfntName.EncodingID of
+       0: Result := TEncoding.ANSI.GetString(NameBuffer);
+       end;
+    3: case SfntName.EncodingID of
+       1: Result := TEncoding.BigEndianUnicode.GetString(NameBuffer);
+       end;
+    end;
+  end;
+
+begin
+  // See http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=iws-chapter08#3054f18b
+
+  Result := False;
+
+  NameCount := FreeTypeGetSfntNameCount(Face);
+  if NameCount < 5 then
+    exit;
+
+  Result := True;
+
+  if FreeTypeGetSfntName(Face, 1, SfntName) = 0 then
+    FontFamily := ConvertFontName;
+
+  if FreeTypeGetSfntName(Face, 2, SfntName) = 0 then
+    FontSubFamily := ConvertFontName;
+
+  if FreeTypeGetSfntName(Face, 3, SfntName) = 0 then
+    UniqueFontID := ConvertFontName;
+
+  if FreeTypeGetSfntName(Face, 4, SfntName) = 0 then
+    FullFontName := ConvertFontName;
+end;
+
+function TAggFontEngineFreetypeBase.GetNameInfo(FontName: string;
+  var FontFamily, FontSubFamily, UniqueFontID, FullFontName: string): boolean;
+var
+  Face: PAggFreeTypeFace;
+  NameBuffer: TAggBytes;
+begin
+  Result := False;
+  NameBuffer := TEncoding.UTF8.GetBytes(FontName + #0);
+  if FreeTypeNewFace(FLibrary, @NameBuffer[0], 0, Face) = 0 then
+    try
+      Result := GetNameInfo(Face, FontFamily, FontSubFamily, UniqueFontID, FullFontName);
+    finally
+      FreeTypeDoneFace(Face);
+    end;
+end;
+
 function TAggFontEngineFreetypeBase.LoadFont(FontName: string;
   FaceIndex: Cardinal; RenType: TAggGlyphRendering; FontMem: PAggFreeTypeByte = nil;
   FontMemSize: Integer = 0): Boolean;
@@ -782,7 +862,7 @@ begin
   if FontName = '' then
     exit;
 
-  FFaceName := TEncoding.UTF8.GetBytes(FontName);
+  FFaceName := TEncoding.UTF8.GetBytes(FontName + #0);
 
   if FLibraryInitialized then
   begin
@@ -802,6 +882,8 @@ begin
 
         Move(FFaces[1], FFaces[0], (Length(FFaces) - 1) * SizeOF(PAggFreeTypeFace));
         Move(FFaceNames[1], FFaceNames[0], (Length(FFaceNames) - 1) * SizeOf(TAggBytes));
+        SetLength(FFaces, Length(FFaces) - 1);
+        SetLength(FFaceNames, Length(FFaceNames) - 1);
 
         Dec(FNumFaces);
       end;
@@ -1003,15 +1085,24 @@ end;
 function TAggFontEngineFreetypeBase.GetAscender: Double;
 begin
   if FCurFace <> nil then
-    Result := FCurFace.Ascender * GetHeight / FCurFace.Height
+    Result := FCurFace.Ascender * GetHeight / FCurFace.UnitsPerEM
   else
+    Result := 0.0;
+end;
+
+function TAggFontEngineFreetypeBase.GetDefaultLineSpacing: Double;
+begin
+  if FCurFace <> nil then
+  begin
+    Result := FCurFace.Height * GetHeight / FCurFace.UnitsPerEM;
+  end else
     Result := 0.0;
 end;
 
 function TAggFontEngineFreetypeBase.GetDescender: Double;
 begin
   if FCurFace <> nil then
-    Result := FCurFace.Descender * GetHeight / FCurFace.Height
+    Result := FCurFace.Descender * GetHeight / FCurFace.UnitsPerEM
   else
     Result := 0.0;
 end;

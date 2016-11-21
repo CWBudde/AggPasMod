@@ -52,6 +52,9 @@ type
     function GetDataType: TAggGlyphData; virtual; abstract;
     function GetAdvanceX: Double; virtual; abstract;
     function GetAdvanceY: Double; virtual; abstract;
+    function GetAscender: Double; virtual; abstract;
+    function GetDescender: Double; virtual; abstract;
+    function GetDefaultLineSpacing: Double; virtual; abstract;
     function GetFlag32: Boolean; virtual; abstract;
   public
     // Interface mandatory to implement for TAggFontCacheManager
@@ -72,6 +75,9 @@ type
     property DataType: TAggGlyphData read GetDataType;
     property AdvanceX: Double read GetAdvanceX;
     property AdvanceY: Double read GetAdvanceY;
+    property Ascender: Double read GetAscender;
+    property Descender: Double read GetDescender;
+    property DefaultLineSpacing: Double read GetDefaultLineSpacing;
   end;
 
 implementation

@@ -4,7 +4,7 @@ unit AggFontFreeTypeLib;
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
 //    Maintained by Christian-W. Budde (Christian@savioursofsoul.de)          //
-//    Copyright (c) 2012-2015                                                      //
+//    Copyright (c) 2012-2015                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -21,9 +21,11 @@ unit AggFontFreeTypeLib;
 //  warranty, and with no claim as to its suitability for any purpose.        //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
 //  B.Verhue 1-11-2016                                                        //
 //  - Replaced AnsiString with byte array and AnsiChar with byte              //
 //  - Added MACOS ifdef with optional underscore prefix                       //
+//                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
 interface
@@ -246,6 +248,17 @@ type
     PlatformID, EncodingID: TAggFreeTypeUShort;
   end;
 
+  PAggFreeTypeSfntName = ^TAggFreeTypeSfntName;
+  TAggFreeTypeSfntName = packed record
+    PlatformID: TAggFreeTypeUShort;
+    EncodingID: TAggFreeTypeUShort;
+    LanguageID: TAggFreeTypeUShort;
+    NameID: TAggFreeTypeUShort;
+
+    Str: PAggFreeTypeByte;
+    StrLen: TAggFreeTypeUInt;
+  end;
+
 function FreeTypeCurveTag(Flag: TAggFreeTypeByte): TAggFreeTypeByte;
 function FreeTypeIsScalable(Face: PAggFreeTypeFace): Boolean;
 function FreeTypeHasKerning(Face: PAggFreeTypeFace): Boolean;
@@ -307,6 +320,16 @@ function FreeTypeSetPixelSizes(Face: PAggFreeTypeFace;
   Pixel_width, Pixel_height: TAggFreeTypeUInt): TAggFreeTypeError; cdecl;
   external CAggFreeTypeLibrary
   name CAggFreeTypePrefix + 'FT_Set_Pixel_Sizes';
+
+function FreeTypeGetSfntNameCount(Aface: PAggFreeTypeFace): TAggFreeTypeUInt; cdecl;
+  external CAggFreeTypeLibrary
+  name CAggFreeTypePrefix + 'FT_Get_Sfnt_Name_Count';
+
+function FreeTypeGetSfntName(Aface: PAggFreeTypeFace; AIdx: TAggFreeTypeUInt;
+  var AName: TAggFreeTypeSfntName):TAggFreeTypeUInt; cdecl;
+  external CAggFreeTypeLibrary
+  name CAggFreeTypePrefix + 'FT_Get_Sfnt_Name';
+
 
 implementation
 
