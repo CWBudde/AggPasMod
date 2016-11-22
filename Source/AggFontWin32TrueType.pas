@@ -21,6 +21,13 @@ unit AggFontWin32TrueType;
 //  warranty, and with no claim as to its suitability for any purpose.        //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+//  B.Verhue 1-11-2016                                                        //
+//                                                                            //
+//  - Replaced AnsiString with byte array and AnsiChar with byte              //
+//  - Used TEncodig class to convert from string to bytes and vice versa      //
+//  - Relpaced pointer lists with dynamic arrays                              //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
 
 interface
 
@@ -58,7 +65,7 @@ type
   PFixed = ^TFixed;
 
   PAggFontName = ^TAggFontName;
-  TAggFontName = AnsiString;
+  TAggFontName = TAggBytes;
 
   TAggFontEngineWin32TrueTypeBase = class(TAggCustomFontEngine)
   private
@@ -69,8 +76,10 @@ type
     FFonts: HFONT_ptr;
 
     FNumFonts, FMaxFonts: Cardinal;
-    FFontNames: PAggFontName;
+    FFontNames: array of TAggBytes;
     FCurrentFont: HFONT;
+    FTextMetric: TTextMetricA;
+    FTextMetricValid: boolean;
 
     FChangeStamp: Integer;
     FTypeFace: TAggFontName;
@@ -121,13 +130,13 @@ type
     procedure LoadKerningPairs;
     procedure SortKerningPairs;
 
-    function FindFont(Name: AnsiString): Integer;
+    function FindFont(Name: TAggBytes): Integer;
 
     procedure SetFlipY(Flip: Boolean);
     procedure SetHinting(H: Boolean);
 
     // Accessors
-    function GetTypeFace: AnsiString;
+    function GetTypeFace: TAggBytes;
     function GetHeight: Double;
     function GetWidth: Double;
 
@@ -147,13 +156,16 @@ type
     function GetFlag32: Boolean; override;
     function GetAdvanceX: Double; override;
     function GetAdvanceY: Double; override;
+    function GetAscender: Double; override;
+    function GetDescender: Double; override;
+    function GetDefaultLineSpacing: Double; override;
   public
     constructor Create(AFlag32: Boolean; Dc: HDC; MaxFonts: Cardinal = 32);
     destructor Destroy; override;
 
-    function CreateFont(ATypeFace: AnsiString; RenType: TAggGlyphRendering):
+    function CreateFont(ATypeFace: string; RenType: TAggGlyphRendering):
       Boolean; overload;
-    function CreateFont(ATypeface: AnsiString; RenType: TAggGlyphRendering;
+    function CreateFont(ATypeface: string; RenType: TAggGlyphRendering;
       Height: Double; Width: Double = 0.0; Weight: Integer = FW_REGULAR;
       Italic: Boolean = False; CharSet: DWORD = ANSI_CHARSET;
       APitchAndFamily: DWORD = FF_DONTCARE): Boolean; overload;
@@ -163,7 +175,7 @@ type
     procedure SetTransform(Mtx: TAggTransAffine);
 
     // Interface mandatory to implement for TAggFontCacheManager
-    function GetFontSignature: AnsiString; override;
+    function GetFontSignature: TAggBytes; override;
     function ChangeStamp: Integer; override;
 
     function PrepareGlyph(GlyphCode: Cardinal): Boolean; override;
@@ -177,7 +189,7 @@ type
     property FlipY: Boolean read FFlipY write SetFlipY;
     property Hinting: Boolean read FHinting write SetHinting;
     property Resolution: Cardinal read FResolution write SetResolution;
-    property TypeFace: AnsiString read GetTypeFace;
+    property TypeFace: TAggBytes read GetTypeFace;
     property Height: Double read GetHeight write SetHeight;
     property Width: Double read GetWidth write SetWidth;
     property Weight: Integer read FWeight write SetWeight;
@@ -575,18 +587,20 @@ begin
   else
     FOldFont := 0;
 
+  FTextMetricValid := False;
+
   AggGetMem(Pointer(FFonts), SizeOf(HFONT) * MaxFonts);
 
   FNumFonts := 0;
   FMaxFonts := MaxFonts;
 
-  AggGetMem(Pointer(FFontNames), SizeOf(TAggFontName) * MaxFonts);
+  SetLength(FFontNames, 0);
 
   FCurrentFont := 0;
   FChangeStamp := 0;
 
-  FTypeFace := '';
-  FSignature := '';
+  SetLength(FTypeFace, 0);
+  SetLength(FSignature, 0);
 
   FHeight := 0;
   FWidth := 0;
@@ -643,7 +657,6 @@ destructor TAggFontEngineWin32TrueTypeBase.Destroy;
 var
   I: Cardinal;
   F: HFONT_ptr;
-  N: PAggFontName;
 begin
   AggFreeMem(Pointer(FKerningPairs), FMaxKerningPairs *
     SizeOf(TKerningPair));
@@ -654,7 +667,6 @@ begin
 
   I := 0;
   F := FFonts;
-  N := FFontNames;
 
   while I < FNumFonts do
   begin
@@ -663,7 +675,7 @@ begin
     Inc(I);
   end;
 
-  AggFreeMem(Pointer(FFontNames), SizeOf(TAggFontName) * FMaxFonts);
+  Finalize(FFontNames);
   AggFreeMem(Pointer(FFonts), SizeOf(HFONT) * FMaxFonts);
 
   FPath16.Free;
@@ -725,10 +737,10 @@ begin
   FHinting := H;
 end;
 
-function TAggFontEngineWin32TrueTypeBase.CreateFont(ATypeface: AnsiString;
+function TAggFontEngineWin32TrueTypeBase.CreateFont(ATypeface: string;
   RenType: TAggGlyphRendering): Boolean;
 var
-  Len: Cardinal;
+  //Len: Cardinal;
 
   H, W, Index: Integer;
 
@@ -737,7 +749,7 @@ var
 begin
   if FDc <> 0 then
   begin
-    Len := Length(ATypeface);
+    {Len := Length(ATypeface);
 
     if Len > FTypeFaceLength then
     begin
@@ -753,9 +765,9 @@ begin
 
       FTypeFaceLength := Len + 32 - 1;
 *)
-    end;
+    end;}
 
-    FTypeFace := ATypeface;
+    FTypeFace := TEncoding.UTF8.GetBytes(ATypeface + #0);
 
     H := FHeight;
     W := FWidth;
@@ -776,6 +788,9 @@ begin
     begin
       FCurrentFont := HFONT_ptr(PtrComp(FFonts) + Index * SizeOf(HFONT))^;
       SelectObject(FDc, FCurrentFont);
+
+      FTextMetricValid := GetTextMetricsA(FDc, FTextMetric);
+
       FNumKerningPairs := 0;
       Result := True;
       Exit;
@@ -795,7 +810,7 @@ begin
         CLIP_DEFAULT_PRECIS, // clipping precision
         ANTIALIASED_QUALITY, // output quality
         FPitchAndFamily, // pitch and family
-        PAnsiChar(FTypeFace) // typeface name
+        @FTypeFace[0] // typeface name
         );
 
       if FCurrentFont <> 0 then
@@ -810,24 +825,31 @@ begin
           Move(HFONT_ptr(PtrComp(FFonts) + 1 * SizeOf(HFONT))^, FFonts^,
             (FMaxFonts - 1) * SizeOf(HFONT));
 
-          Move(PAggFontName(PtrComp(FFontNames) + SizeOf(TAggFontName))^,
-            FFontNames^, (FMaxFonts - 1) * SizeOf(TAggFontName));
+          //Move(PAggFontName(PtrComp(FFontNames) + SizeOf(TAggFontName))^,
+          //  FFontNames^, (FMaxFonts - 1) * SizeOf(TAggFontName));
+          Move(FFontNames[1], FFontNames[0], (Length(FFontNames) - 1) * SizeOf(TAggBytes));
+          SetLength(FFontNames, Length(FFontNames) - 1);
 
           FNumFonts := FMaxFonts - 1;
         end;
 
         UpdateSignature;
 
-        N := PAggFontName(PtrComp(FFontNames) + FNumFonts * SizeOf(TAggFontName));
-        F := HFONT_ptr(PtrComp(FFonts) + FNumFonts * SizeOf(HFONT));
+        //N := PAggFontName(PtrComp(FFontNames) + FNumFonts * SizeOf(TAggFontName));
+        //Move(FSignature, N^, SizeOf(TAggFontName));
+        SetLength(FFontNames, Length(FFontNames) + 1);
+        SetLength(FFontNames[Length(FFontNames) - 1], Length(FSignature));
+        Move(FSignature[0], FFontNames[Length(FFontNames) - 1][0], Length(FSignature));
 
-        Move(FSignature, N^, SizeOf(TAggFontName));
+        F := HFONT_ptr(PtrComp(FFonts) + FNumFonts * SizeOf(HFONT));
 
         F^ := FCurrentFont;
 
         Inc(FNumFonts);
 
         SelectObject(FDc, FCurrentFont);
+
+        FTextMetricValid := GetTextMetricsA(FDc, FTextMetric);
 
         FNumKerningPairs := 0;
 
@@ -841,7 +863,7 @@ begin
   Result := False;
 end;
 
-function TAggFontEngineWin32TrueTypeBase.CreateFont(ATypeface: AnsiString;
+function TAggFontEngineWin32TrueTypeBase.CreateFont(ATypeface: string;
   RenType: TAggGlyphRendering; Height: Double; Width: Double = 0.0;
   Weight: Integer = FW_REGULAR; Italic: Boolean = False;
   CharSet: DWORD = ANSI_CHARSET; APitchAndFamily: DWORD = FF_DONTCARE): Boolean;
@@ -867,7 +889,7 @@ begin
   FAffine.AssignAll(Mtx);
 end;
 
-function TAggFontEngineWin32TrueTypeBase.GetTypeFace: AnsiString;
+function TAggFontEngineWin32TrueTypeBase.GetTypeFace: TAggBytes;
 begin
   Result := FTypeFace;
 end;
@@ -882,7 +904,7 @@ begin
   Result := FWidth;
 end;
 
-function TAggFontEngineWin32TrueTypeBase.GetFontSignature: AnsiString;
+function TAggFontEngineWin32TrueTypeBase.GetFontSignature: TAggBytes;
 begin
   Result := FSignature;
 end;
@@ -1150,6 +1172,22 @@ begin
   Result := FDataType;
 end;
 
+function TAggFontEngineWin32TrueTypeBase.GetDefaultLineSpacing: Double;
+begin
+  if FTextMetricValid then
+    Result := FTextMetric.tmHeight + FTextMetric.tmExternalLeading
+  else
+    Result := FHeight;
+end;
+
+function TAggFontEngineWin32TrueTypeBase.GetDescender: Double;
+begin
+  if FTextMetricValid then
+    Result := FTextMetric.tmDescent
+  else
+    Result := FHeight;
+end;
+
 function TAggFontEngineWin32TrueTypeBase.GetBounds: PRectInteger;
 begin
   Result := @FBounds;
@@ -1163,6 +1201,14 @@ end;
 function TAggFontEngineWin32TrueTypeBase.GetAdvanceY: Double;
 begin
   Result := FAdvanceY;
+end;
+
+function TAggFontEngineWin32TrueTypeBase.GetAscender: Double;
+begin
+  if FTextMetricValid then
+    Result := FTextMetric.tmAscent
+  else
+    Result := FHeight;
 end;
 
 procedure TAggFontEngineWin32TrueTypeBase.WriteGlyphTo(Data: PInt8u);
@@ -1248,7 +1294,7 @@ var
   GammaHash, I: Cardinal;
   GammaTable: array [0..CAggAntiAliasingNum - 1] of Int8u;
   MatrixData: TAggParallelogram;
-  Str: AnsiString;
+  Str: string;
 begin
   if (FDc <> 0) and (FCurrentFont <> 0) then
   begin
@@ -1264,8 +1310,21 @@ begin
       GammaHash := CalcCrc32(@GammaTable, SizeOf(GammaTable));
     end;
 
-    Str := Format('%s,%u,%d,%u:%dx%d,%d,%d,%d,%d,%u,%x', [FTypeFace,
-      FCharSet, Integer(FGlyphRendering), FResolution, FHeight,
+    //Str := Format('%s,%u,%d,%u:%dx%d,%d,%d,%d,%d,%u,%x', [FTypeFace,
+    //  FCharSet, Integer(FGlyphRendering), FResolution, FHeight,
+    //  FWidth, FWeight, Integer(FItalic), Integer(FHinting), Integer(FFlipY),
+    //  FPitchAndFamily, GammaHash]);
+
+    Str := '';
+    I := 0;
+    while (i < Length(FTypeFace)) and (FTypeFace[I] <> 0) do
+    begin
+      Str := Str + Char(FTypeFace[I]);
+      Inc(I);
+    end;
+
+    Str := Str + Format(',%u,%d,%u:%dx%d,%d,%d,%d,%d,%u,%x', [FCharSet,
+      Integer(FGlyphRendering), FResolution, FHeight,
       FWidth, FWeight, Integer(FItalic), Integer(FHinting), Integer(FFlipY),
       FPitchAndFamily, GammaHash]);
 
@@ -1284,7 +1343,7 @@ begin
         DoubleToPlainFixedPoint(MatrixData[5])]);
     end;
 
-    FSignature := Str;
+    FSignature := TEncoding.UTF8.GetBytes(Str + #0);
     Inc(FChangeStamp);
   end;
 end;
@@ -1357,12 +1416,12 @@ begin
   end;
 end;
 
-function TAggFontEngineWin32TrueTypeBase.FindFont(Name: AnsiString): Integer;
+function TAggFontEngineWin32TrueTypeBase.FindFont(Name: TAggBytes): Integer;
 var
   I: Cardinal;
-  N: PAggFontName;
+  //N: PAggFontName;
 begin
-  N := FFontNames;
+  {N := FFontNames;
   I := 0;
 
   while I < FNumFonts do
@@ -1378,7 +1437,22 @@ begin
     Inc(I);
   end;
 
+  Result := -1;}
   Result := -1;
+
+  I := 0;
+
+  while I < Length(FFontNames) do
+  begin
+    if (Length(Name) = Length(FFontNames[I]))
+    and CompareMem(@Name[0], @FFontNames[I][0], Length(Name)) then
+    begin
+      Result := I;
+      Exit;
+    end;
+
+    Inc(I);
+  end;
 end;
 
 constructor TAggFontEngineWin32TrueTypeInt16.Create;

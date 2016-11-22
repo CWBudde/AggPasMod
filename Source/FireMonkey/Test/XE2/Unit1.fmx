@@ -1,0 +1,513 @@
+object Form1: TForm1
+  Left = 0
+  Top = 0
+  Caption = 'Delphi FMX Aggpas canvas'
+  ClientHeight = 476
+  ClientWidth = 640
+  Visible = False
+  OnCreate = FormCreate
+  StyleLookup = 'backgroundstyle'
+  object TabControl1: TTabControl
+    Align = alClient
+    Width = 640.000000000000000000
+    Height = 476.000000000000000000
+    TabOrder = 0
+    TabIndex = 2
+    TabHeight = 20.000000000000000000
+    object TabItem1: TTabItem
+      Width = 80.000000000000000000
+      Height = 20.000000000000000000
+      TabOrder = 0
+      Index = 0
+      Text = 'Stroke'
+      WordWrap = False
+      object Path2: TPath
+        Position.Point = '(156,25)'
+        Width = 89.000000000000000000
+        Height = 73.000000000000000000
+        StrokeCap = scRound
+        StrokeJoin = sjRound
+        StrokeThickness = 12.000000000000000000
+        Data.Path = {
+          0300000000000000000000000000C841010000000000C8410000000001000000
+          000048420000C841}
+      end
+      object Path3: TPath
+        Position.Point = '(280,24)'
+        Width = 89.000000000000000000
+        Height = 73.000000000000000000
+        StrokeCap = scRound
+        StrokeJoin = sjBevel
+        StrokeThickness = 12.000000000000000000
+        Data.Path = {
+          0300000000000000000000000000C841010000000000C8410000000001000000
+          000048420000C841}
+      end
+      object Path1: TPath
+        Position.Point = '(28,25)'
+        Width = 89.000000000000000000
+        Height = 73.000000000000000000
+        StrokeThickness = 12.000000000000000000
+        Data.Path = {
+          0300000000000000000000000000C841010000000000C8410000000001000000
+          000048420000C841}
+      end
+      object Label2: TLabel
+        Position.Point = '(16,109)'
+        Width = 120.000000000000000000
+        Height = 15.000000000000000000
+        TabOrder = 3
+        TextAlign = taCenter
+        Text = 'Flat cap, miter join'
+      end
+      object Label3: TLabel
+        Position.Point = '(144,109)'
+        Width = 120.000000000000000000
+        Height = 15.000000000000000000
+        TabOrder = 4
+        TextAlign = taCenter
+        Text = 'Round cap, round join'
+      end
+      object Label4: TLabel
+        Position.Point = '(264,109)'
+        Width = 120.000000000000000000
+        Height = 15.000000000000000000
+        TabOrder = 5
+        TextAlign = taCenter
+        Text = 'Round cap, bevel join'
+      end
+      object Line1: TLine
+        Position.Point = '(423,11)'
+        Width = 145.000000000000000000
+        Height = 17.000000000000000000
+        StrokeThickness = 8.000000000000000000
+        LineType = ltTop
+      end
+      object Line2: TLine
+        Position.Point = '(423,35)'
+        Width = 145.000000000000000000
+        Height = 17.000000000000000000
+        StrokeDash = sdDash
+        StrokeThickness = 8.000000000000000000
+        LineType = ltTop
+      end
+      object Line3: TLine
+        Position.Point = '(423,59)'
+        Width = 145.000000000000000000
+        Height = 17.000000000000000000
+        StrokeDash = sdDashDot
+        StrokeThickness = 8.000000000000000000
+        LineType = ltTop
+      end
+      object Line4: TLine
+        Position.Point = '(423,83)'
+        Width = 145.000000000000000000
+        Height = 17.000000000000000000
+        StrokeDash = sdDashDotDot
+        StrokeThickness = 8.000000000000000000
+        LineType = ltTop
+      end
+      object Line5: TLine
+        Position.Point = '(423,107)'
+        Width = 145.000000000000000000
+        Height = 17.000000000000000000
+        StrokeDash = sdDot
+        StrokeThickness = 8.000000000000000000
+        LineType = ltTop
+      end
+      object Circle2: TCircle
+        Position.Point = '(118,146)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Fill.Kind = bkNone
+        Stroke.Color = claRed
+        StrokeThickness = 12.000000000000000000
+      end
+      object Circle3: TCircle
+        Position.Point = '(158,146)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Fill.Kind = bkNone
+        Stroke.Color = claBlue
+        StrokeThickness = 12.000000000000000000
+      end
+      object Circle4: TCircle
+        Position.Point = '(198,146)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Opacity = 0.750000000000000000
+        Fill.Kind = bkNone
+        Stroke.Color = claRed
+        StrokeThickness = 12.000000000000000000
+      end
+      object Circle5: TCircle
+        Position.Point = '(238,146)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Opacity = 0.750000000000000000
+        Fill.Kind = bkNone
+        Stroke.Color = claBlue
+        StrokeThickness = 12.000000000000000000
+      end
+      object Circle6: TCircle
+        Position.Point = '(278,146)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Opacity = 0.500000000000000000
+        Fill.Kind = bkNone
+        Stroke.Color = claRed
+        StrokeThickness = 12.000000000000000000
+      end
+      object Circle7: TCircle
+        Position.Point = '(318,146)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Opacity = 0.500000000000000000
+        Fill.Kind = bkNone
+        Stroke.Color = claBlue
+        StrokeThickness = 12.000000000000000000
+      end
+      object Circle8: TCircle
+        Position.Point = '(358,146)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Opacity = 0.250000000000000000
+        Fill.Kind = bkNone
+        Stroke.Color = claRed
+        StrokeThickness = 12.000000000000000000
+      end
+      object Circle9: TCircle
+        Position.Point = '(398,146)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Opacity = 0.250000000000000000
+        Fill.Kind = bkNone
+        Stroke.Color = claBlue
+        StrokeThickness = 12.000000000000000000
+      end
+      object Ellipse2: TEllipse
+        Position.Point = '(103,259)'
+        Width = 185.000000000000000000
+        Height = 113.000000000000000000
+        Stroke.Kind = bkGradient
+        Stroke.Gradient.Points = <
+          item
+            Color = claRed
+          end
+          item
+            Color = xFFFFFF55
+            Offset = 0.262820512056350700
+          end
+          item
+            Color = claLime
+            Offset = 0.503205120563507100
+          end
+          item
+            Color = claAqua
+            Offset = 0.743589758872985800
+          end
+          item
+            Color = claBlue
+            Offset = 1.000000000000000000
+          end>
+        Stroke.Gradient.StartPosition.Point = '(9.85569670319819E-9,0.366025418043137)'
+        Stroke.Gradient.StopPosition.Point = '(1,0.633974611759186)'
+        StrokeThickness = 24.000000000000000000
+      end
+      object Ellipse3: TEllipse
+        Position.Point = '(319,256)'
+        Width = 185.000000000000000000
+        Height = 121.000000000000000000
+        Stroke.Kind = bkGradient
+        Stroke.Gradient.Points = <
+          item
+            Color = claRed
+          end
+          item
+            Color = xFFFFFF55
+            Offset = 0.070512823760509490
+          end
+          item
+            Color = claLime
+            Offset = 0.147435903549194300
+          end
+          item
+            Color = claAqua
+            Offset = 0.211538463830947900
+          end
+          item
+            Color = claBlue
+            Offset = 0.266025632619857800
+          end>
+        Stroke.Gradient.Style = gsRadial
+        StrokeThickness = 36.000000000000000000
+      end
+    end
+    object TabItem2: TTabItem
+      Position.Point = '(80,0)'
+      Width = 80.000000000000000000
+      Height = 20.000000000000000000
+      TabOrder = 1
+      Index = 1
+      Text = 'Fill'
+      WordWrap = False
+      object Ellipse4: TEllipse
+        Position.Point = '(103,235)'
+        Width = 185.000000000000000000
+        Height = 113.000000000000000000
+        Fill.Kind = bkGradient
+        Fill.Gradient.Points = <
+          item
+            Color = claRed
+          end
+          item
+            Color = claYellow
+            Offset = 0.266025632619857800
+          end
+          item
+            Color = claLime
+            Offset = 0.512820541858673100
+          end
+          item
+            Color = claAqua
+            Offset = 0.724358975887298600
+          end
+          item
+            Color = claBlue
+            Offset = 1.000000000000000000
+          end>
+        Fill.Gradient.StartPosition.Point = '(0.5,1)'
+        Fill.Gradient.StopPosition.Point = '(0.5,0)'
+        Stroke.Kind = bkNone
+        StrokeThickness = 24.000000000000000000
+      end
+      object Ellipse1: TEllipse
+        Position.Point = '(319,235)'
+        Width = 185.000000000000000000
+        Height = 113.000000000000000000
+        Fill.Kind = bkGradient
+        Fill.Gradient.Points = <
+          item
+            Color = claRed
+          end
+          item
+            Color = claYellow
+            Offset = 0.266025632619857800
+          end
+          item
+            Color = claLime
+            Offset = 0.512820541858673100
+          end
+          item
+            Color = claAqua
+            Offset = 0.724358975887298600
+          end
+          item
+            Color = claBlue
+            Offset = 1.000000000000000000
+          end>
+        Fill.Gradient.Style = gsRadial
+        Stroke.Kind = bkNone
+        StrokeThickness = 24.000000000000000000
+      end
+      object Circle1: TCircle
+        Position.Point = '(101,117)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Fill.Color = claRed
+        Stroke.Kind = bkNone
+        StrokeThickness = 12.000000000000000000
+      end
+      object Circle10: TCircle
+        Position.Point = '(149,117)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Fill.Color = claBlue
+        Stroke.Kind = bkNone
+        StrokeThickness = 12.000000000000000000
+      end
+      object Circle11: TCircle
+        Position.Point = '(197,117)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Opacity = 0.750000000000000000
+        Fill.Color = claRed
+        Stroke.Kind = bkNone
+        StrokeThickness = 12.000000000000000000
+      end
+      object Circle12: TCircle
+        Position.Point = '(237,117)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Opacity = 0.750000000000000000
+        Fill.Color = claBlue
+        Stroke.Kind = bkNone
+        StrokeThickness = 12.000000000000000000
+      end
+      object Circle13: TCircle
+        Position.Point = '(317,117)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Opacity = 0.500000000000000000
+        Fill.Color = claBlue
+        Stroke.Kind = bkNone
+        StrokeThickness = 12.000000000000000000
+      end
+      object Circle14: TCircle
+        Position.Point = '(397,117)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Opacity = 0.250000000000000000
+        Fill.Color = claBlue
+        Stroke.Kind = bkNone
+        StrokeThickness = 12.000000000000000000
+      end
+      object Circle15: TCircle
+        Position.Point = '(277,117)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Opacity = 0.500000000000000000
+        Fill.Color = claRed
+        Stroke.Kind = bkNone
+        StrokeThickness = 12.000000000000000000
+      end
+      object Circle16: TCircle
+        Position.Point = '(357,117)'
+        Width = 91.000000000000000000
+        Height = 79.000000000000000000
+        Opacity = 0.250000000000000000
+        Fill.Color = claRed
+        Stroke.Kind = bkNone
+        StrokeThickness = 12.000000000000000000
+      end
+    end
+    object TabItem3: TTabItem
+      Position.Point = '(160,0)'
+      Width = 80.000000000000000000
+      Height = 20.000000000000000000
+      TabOrder = 2
+      Index = 2
+      Text = 'Tezxt & font'
+      WordWrap = False
+      object Label1: TLabel
+        Align = alTop
+        Width = 640.000000000000000000
+        Height = 57.000000000000000000
+        TabOrder = 0
+        Font.Size = 48.000000000000000000
+        TextAlign = taCenter
+        Text = 'Font renderer'
+      end
+      object ComboBox1: TComboBox
+        Position.Point = '(159,78)'
+        Width = 193.000000000000000000
+        Height = 22.000000000000000000
+        TabOrder = 1
+        ItemIndex = -1
+        OnChange = ComboBox1Change
+      end
+      object Path4: TPath
+        Align = alBottom
+        Position.Point = '(0,320)'
+        Width = 640.000000000000000000
+        Height = 136.000000000000000000
+        Fill.Kind = bkGradient
+        Fill.Gradient.Points = <
+          item
+            Color = xFFFF050E
+          end
+          item
+            Color = claWhite
+            Offset = 1.000000000000000000
+          end>
+        Fill.Gradient.StartPosition.Point = '(0.5,1)'
+        Fill.Gradient.StopPosition.Point = '(0.5,0)'
+        Stroke.Color = claDarkblue
+        StrokeJoin = sjRound
+        StrokeThickness = 4.000000000000000000
+      end
+      object Label5: TLabel
+        Position.Point = '(96,82)'
+        Width = 73.000000000000000000
+        Height = 15.000000000000000000
+        TabOrder = 3
+        Text = 'Select font:'
+      end
+      object Memo1: TMemo
+        Position.Point = '(431,139)'
+        Width = 169.000000000000000000
+        Height = 129.000000000000000000
+        TabOrder = 4
+        Lines.Strings = (
+          'FreeType is a freely '
+          'available software library to '
+          'render fonts.'
+          ''
+          'It is written in C, designed '
+          'to be small, efficient, highly '
+          'customizable, and portable '
+          'while capable of producing '
+          'high-quality output (glyph '
+          'images) of most vector and '
+          'bitmap font formats.')
+        WordWrap = True
+        KeyboardType = vktDefault
+      end
+      object Rectangle1: TRectangle
+        Position.Point = '(23,155)'
+        Width = 105.000000000000000000
+        Height = 89.000000000000000000
+        Fill.Kind = bkNone
+      end
+      object Text1: TText
+        Position.Point = '(23,155)'
+        Width = 105.000000000000000000
+        Height = 89.000000000000000000
+        HorzTextAlign = taLeading
+        VertTextAlign = taLeading
+        Text = 'Align left top'
+      end
+      object Rectangle2: TRectangle
+        Position.Point = '(143,155)'
+        Width = 105.000000000000000000
+        Height = 89.000000000000000000
+        Fill.Kind = bkNone
+      end
+      object Rectangle3: TRectangle
+        Position.Point = '(263,155)'
+        Width = 105.000000000000000000
+        Height = 89.000000000000000000
+        Fill.Kind = bkNone
+      end
+      object Text2: TText
+        Position.Point = '(143,155)'
+        Width = 105.000000000000000000
+        Height = 89.000000000000000000
+        Text = 'Align center'
+      end
+      object Text3: TText
+        Position.Point = '(263,155)'
+        Width = 105.000000000000000000
+        Height = 89.000000000000000000
+        HorzTextAlign = taTrailing
+        VertTextAlign = taTrailing
+        Text = 'Align right bottom'
+      end
+      object ComboBox2: TComboBox
+        Position.Point = '(428,78)'
+        Width = 100.000000000000000000
+        Height = 22.000000000000000000
+        TabOrder = 11
+        ItemIndex = -1
+        OnChange = ComboBox2Change
+      end
+      object Label6: TLabel
+        Position.Point = '(360,81)'
+        Width = 65.000000000000000000
+        Height = 15.000000000000000000
+        TabOrder = 12
+        Text = 'Select size:'
+      end
+    end
+  end
+end
