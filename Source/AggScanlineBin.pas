@@ -4,7 +4,7 @@ unit AggScanLineBin;
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
 //    Maintained by Christian-W. Budde (Christian@savioursofsoul.de)          //
-//    Copyright (c) 2012-2015                                                      //
+//    Copyright (c) 2012-2015                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -42,6 +42,18 @@ type
 
   TAggScanLineBin = class(TAggCustomScanLine)
   private
+    type
+      TConstIterator = class(TAggCustomSpan)
+      private
+        FSpan: PAggSpanBin;
+      protected
+        function GetX: Integer; override;
+        function GetLength: Integer; override;
+      public
+        constructor Create(aScanline: TAggScanLineBin);
+        procedure IncOperator; override;
+      end;
+  private
     FMaxLength: Cardinal;
     FLastX, FY: Integer;
 
@@ -49,7 +61,8 @@ type
   protected
     function GetY: Integer; override;
     function GetNumSpans: Cardinal; override;
-    function GetSizeOfSpan: Cardinal; override;
+    //function GetSizeOfSpan: Cardinal; override;
+    //function GetIsPlainSpan: Boolean; override;
   public
     constructor Create;
     destructor Destroy; override;
@@ -61,11 +74,34 @@ type
     procedure AddCell(X: Integer; Cover: Cardinal); override;
     procedure AddSpan(X: Integer; Len, Cover: Cardinal); override;
 
-    function GetBegin: Pointer; override;
+    function GetBegin: TAggCustomSpan; override;
   end;
 
 implementation
 
+{ TAggScanLineBin.TConstIterator }
+
+constructor TAggScanLineBin.TConstIterator.Create(aScanline: TAggScanLineBin);
+begin
+  inherited Create;
+
+  FSpan := PAggSpanBin(PtrComp(aScanline.FSpans) + SizeOf(TAggSpanBin));
+end;
+
+function TAggScanLineBin.TConstIterator.GetLength: Integer;
+begin
+  Result := FSpan.Len;
+end;
+
+function TAggScanLineBin.TConstIterator.GetX: Integer;
+begin
+  Result := FSpan.X;
+end;
+
+procedure TAggScanLineBin.TConstIterator.IncOperator;
+begin
+  Inc(PtrComp(FSpan), SizeOf(TAggSpanBin));
+end;
 
 { TAggScanLineBin }
 
@@ -153,14 +189,19 @@ begin
   Result := (PtrComp(FCurrentSpan) - PtrComp(FSpans)) div SizeOf(TAggSpanBin);
 end;
 
-function TAggScanLineBin.GetBegin: Pointer;
+function TAggScanLineBin.GetBegin: TAggCustomSpan;
 begin
-  Result := PAggSpanBin(PtrComp(FSpans) + SizeOf(TAggSpanBin));
+  Result := TConstIterator.Create(Self);
 end;
 
-function TAggScanLineBin.GetSizeOfSpan: Cardinal;
+{function TAggScanLineBin.GetIsPlainSpan: Boolean;
+begin
+  Result := False;
+end;}
+
+{function TAggScanLineBin.GetSizeOfSpan: Cardinal;
 begin
   Result := SizeOf(TAggSpanBin);
-end;
+end;}
 
 end.

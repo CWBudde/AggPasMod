@@ -4,7 +4,7 @@ unit AggScanlineUnpacked;
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
 //    Maintained by Christian-W. Budde (Christian@savioursofsoul.de)          //
-//    Copyright (c) 2012-2015                                                      //
+//    Copyright (c) 2012-2015                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -117,6 +117,19 @@ type
 
   TAggScanLineUnpacked8 = class(TAggCustomScanLine)
   private
+    type
+      TConstIterator = class(TAggCustomSpan)
+      private
+        FSpan: PAggSpanUnpacked8;
+      protected
+        function GetX: Integer; override;
+        function GetLength: Integer; override;
+      public
+        constructor Create(aScanline: TAggScanLineUnpacked8);
+        function Covers: PInt8u; override;
+        procedure IncOperator; override;
+      end;
+  private
     FMinX: Integer;
     FMaxLength: Cardinal;
     FLastX, FY: Integer;
@@ -127,14 +140,14 @@ type
     function GetY: Integer; override;
     function GetNumSpans: Cardinal; override;
 
-    function GetSizeOfSpan: Cardinal; override;
+    //function GetSizeOfSpan: Cardinal; override;
   public
     constructor Create; virtual;
     destructor Destroy; override;
 
     procedure Reset(MinX, MaxX: Integer); override;
     procedure ResetSpans; override;
-    function GetBegin: Pointer; override;
+    function GetBegin: TAggCustomSpan; override;
 
     procedure Finalize(Y: Integer); override;
     procedure AddCell(X: Integer; Cover: Cardinal); override;
@@ -154,6 +167,34 @@ type
 
 implementation
 
+{ TAggScanLineUnpacked8.TConstIterator }
+
+function TAggScanLineUnpacked8.TConstIterator.Covers: PInt8u;
+begin
+  Result := FSpan.Covers;
+end;
+
+constructor TAggScanLineUnpacked8.TConstIterator.Create(
+  aScanline: TAggScanLineUnpacked8);
+begin
+  inherited Create;
+  FSpan := PAggSpanUnpacked8(PtrComp(aScanline.FSpans) + SizeOf(TAggSpanUnpacked8));
+end;
+
+function TAggScanLineUnpacked8.TConstIterator.GetLength: Integer;
+begin
+  Result := FSpan.Len;
+end;
+
+function TAggScanLineUnpacked8.TConstIterator.GetX: Integer;
+begin
+  Result := FSpan.X;
+end;
+
+procedure TAggScanLineUnpacked8.TConstIterator.IncOperator;
+begin
+  Inc(PtrComp(FSpan), SizeOf(TAggSpanUnpacked8));
+end;
 
 { TAggScanLineUnpacked8 }
 
@@ -280,16 +321,16 @@ begin
   Result := (PtrComp(FCurrentSpan) - PtrComp(FSpans)) div SizeOf(TAggSpanUnpacked8);
 end;
 
-function TAggScanLineUnpacked8.GetBegin: Pointer;
+function TAggScanLineUnpacked8.GetBegin: TAggCustomSpan;
 begin
-  Result := PAggSpanUnpacked8(PtrComp(FSpans) + SizeOf(TAggSpanUnpacked8));
+  //Result := PAggSpanUnpacked8(PtrComp(FSpans) + SizeOf(TAggSpanUnpacked8));
+  Result := TConstIterator.Create(Self);
 end;
 
-function TAggScanLineUnpacked8.GetSizeOfSpan;
+{function TAggScanLineUnpacked8.GetSizeOfSpan;
 begin
   Result := SizeOf(TAggSpanUnpacked8);
-end;
-
+end;}
 
 { TAggScanLineUnpacked8AlphaMask }
 
@@ -309,24 +350,29 @@ end;
 
 procedure TAggScanLineUnpacked8AlphaMask.Finalize(Y: Integer);
 var
-  Span: PAggSpanUnpacked8;
-  Ss, Count: Cardinal;
+  //Span: PAggSpanUnpacked8;
+  //Ss: Cardinal;
+  Span: TAggCustomSpan;
+  Count: Cardinal;
 begin
   inherited Finalize(Y);
 
   if FAlphaMask <> nil then
   begin
     Span := GetBegin;
-    Ss := SizeOfSpan;
+    //Ss := SizeOfSpan;
     Count := NumSpans;
 
     repeat
       FAlphaMask.CombineHSpan(Span.X, Y, Span.Covers, Span.Len);
 
-      Inc(PtrComp(Span), Ss);
+      //Inc(PtrComp(Span), Ss);
+      Span.IncOperator;
       Dec(Count);
 
     until Count = 0;
+
+    Span.Free;
   end;
 end;
 

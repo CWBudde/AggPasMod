@@ -4,7 +4,7 @@ unit AggScanLineStorageBin;
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
 //    Maintained by Christian-W. Budde (Christian@savioursofsoul.de)          //
-//    Copyright (c) 2012-2015                                                      //
+//    Copyright (c) 2012-2015                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -49,7 +49,7 @@ type
   end;
 
   TAggScanLineStorageBin = class;
-  TAggEmbeddedScanLineBin = class;
+  {TAggEmbeddedScanLineBin = class;
 
   TAggConstIteratorBin = class(TAggCustomSpan)
   private
@@ -63,29 +63,44 @@ type
     function Len: Integer; virtual;
 
     procedure IncOperator; virtual;
-  end;
+  end;}
 
-  TAggEmbeddedScanLineBin = class(TAggCustomScanLine)
+  TAggEmbeddedScanLineBin = class(TAggEmbeddedScanLine)
+  private
+    type
+      TConstIterator = class(TAggCustomSpan)
+      private
+        FStorage: TAggScanLineStorageBin;
+        FSpanIndex: Cardinal;
+        FSpan: TAggSpanData;
+      protected
+        function GetX: Integer; override;
+        function GetLength: Integer; override;
+      public
+        constructor Create(ScanLine: TAggEmbeddedScanLineBin);
+        procedure IncOperator; override;
+      end;
   private
     FStorage: TAggScanLineStorageBin;
     FScanLine: TAggScanLineData;
 
     FScanLineIndex: Cardinal;
 
-    FResult: TAggConstIteratorBin;
+    //FResult: TAggConstIteratorBin;
   protected
     function GetY: Integer; override;
     function GetNumSpans: Cardinal; override;
 
-    function GetSizeOfSpan: Cardinal; override;
-    function GetIsPlainSpan: Boolean; override;
-    function GetIsEmbedded: Boolean; override;
+    //function GetSizeOfSpan: Cardinal; override;
+    //function GetIsPlainSpan: Boolean; override;
+    //function GetIsEmbedded: Boolean; override;
   public
     constructor Create(Storage: TAggScanLineStorageBin);
+    destructor Destroy; override;
 
     procedure Reset(MinX, MaxX: Integer); override;
 
-    function GetBegin: Pointer; override;
+    function GetBegin: TAggCustomSpan; override;
 
     procedure Setup(ScanLineIndex: Cardinal); override;
   end;
@@ -102,10 +117,10 @@ type
     FCurrentScanLine: Cardinal;
   protected
     // Iterate ScanLines interface
-    function GetMinX: Integer; override;
-    function GetMinY: Integer; override;
-    function GetMaxX: Integer; override;
-    function GetMaxY: Integer; override;
+    function GetMinX: Integer; virtual;// override;
+    function GetMinY: Integer; virtual;// override;
+    function GetMaxX: Integer; virtual;// override;
+    function GetMaxY: Integer; virtual;// override;
   public
     constructor Create;
     destructor Destroy; override;
@@ -114,11 +129,12 @@ type
     procedure Prepare(U: Cardinal); override;
     procedure Render(ScanLine: TAggCustomScanLine); override;
 
-    function RewindScanLines: Boolean; override;
-    function SweepScanLine(ScanLine: TAggCustomScanLine): Boolean; override;
+    function RewindScanLines: Boolean; virtual;// override;
+    function SweepScanLine(ScanLine: TAggCustomScanLine): Boolean; overload; virtual;// override;
 
     // Specialization for embedded_ScanLine
-    function SweepScanLineEm(ScanLine: TAggCustomScanLine): Boolean; override;
+    //function SweepScanLineEm(ScanLine: TAggCustomScanLine): Boolean; virtual;// override;
+    function SweepScanLine(ScanLine: TAggEmbeddedScanLine): Boolean; overload; virtual;// override;
 
     function ByteSize: Cardinal;
     procedure WriteInt32(Dst: PInt8u; Val: Int32);
@@ -126,9 +142,14 @@ type
 
     function ScanLineByIndex(I: Cardinal): PAggScanLineData;
     function SpanByIndex(I: Cardinal): PAggSpanData;
+  public
+    property MinimumX: Integer read GetMinX;
+    property MinimumY: Integer read GetMinY;
+    property MaximumX: Integer read GetMaxX;
+    property MaximumY: Integer read GetMaxY;
   end;
 
-  TAggEmbeddedScanLineA = class;
+  {TAggEmbeddedScanLineA = class;
 
   TAggConstIteratorA = class(TAggCustomSpan)
   private
@@ -144,9 +165,24 @@ type
     procedure IncOperator; virtual;
 
     function ReadInt32: Integer;
-  end;
+  end;}
 
-  TAggEmbeddedScanLineA = class(TAggCustomScanLine)
+  TAggEmbeddedScanLineA = class(TAggEmbeddedScanLine)
+  private
+    type
+      TConstIterator = class(TAggCustomSpan)
+      private
+        FInternalData: PInt8u;
+        FSpan: TAggSpanData;
+        FDeltaX: Integer;
+        function ReadInt32: Integer;
+      protected
+        function GetX: Integer; override;
+        function GetLength: Integer; override;
+      public
+        constructor Create(ScanLine: TAggEmbeddedScanLineA);
+        procedure IncOperator; override;
+      end;
   private
     FInternalData: PInt8u;
     FY: Integer;
@@ -155,20 +191,21 @@ type
 
     FDeltaX: Integer;
 
-    FResult: TAggConstIteratorA;
+    //FResult: TAggConstIteratorA;
   protected
     function GetY: Integer; override;
     function GetNumSpans: Cardinal; override;
 
-    function GetSizeOfSpan: Cardinal; override;
-    function GetIsPlainSpan: Boolean; override;
-    function GetIsEmbedded: Boolean; override;
+    //function GetSizeOfSpan: Cardinal; override;
+    //function GetIsPlainSpan: Boolean; override;
+    //function GetIsEmbedded: Boolean; override;
   public
     constructor Create;
+    destructor Destroy; override;
 
     procedure Reset(MinX, MaxX: Integer); override;
 
-    function GetBegin: Pointer; override;
+    function GetBegin: TAggCustomSpan; override;
 
     function ReadInt32: Integer;
     procedure Init(Ptr: PInt8u; Dx, Dy: Integer); override;
@@ -198,15 +235,15 @@ type
     function SweepScanLine(ScanLine: TAggCustomScanLine): Boolean; override;
 
     // Specialization for embedded_ScanLine
-    function SweepScanLineEm(ScanLine: TAggCustomScanLine): Boolean; override;
+    //function SweepScanLineEm(ScanLine: TAggCustomScanLine): Boolean; override;
+    function SweepScanLine(ScanLine: TAggEmbeddedScanLine): Boolean; override;
   end;
 
 implementation
 
-
 { TAggConstIteratorBin }
 
-constructor TAggConstIteratorBin.Create;
+{constructor TAggConstIteratorBin.Create(ScanLine: TAggEmbeddedScanLineBin);
 begin
   FStorage := ScanLine.FStorage;
   FSpanIndex := ScanLine.FScanLine.Start_Span;
@@ -229,8 +266,37 @@ begin
   Inc(FSpanIndex);
 
   FSpan := FStorage.SpanByIndex(FSpanIndex)^;
+end;}
+
+
+{ TAggEmbeddedScanLineBin.TConstIterator }
+
+constructor TAggEmbeddedScanLineBin.TConstIterator.Create(
+  ScanLine: TAggEmbeddedScanLineBin);
+begin
+  inherited Create;
+  FStorage := ScanLine.FStorage;
+  FSpanIndex := ScanLine.FScanLine.Start_Span;
+
+  FSpan := FStorage.SpanByIndex(FSpanIndex)^;
 end;
 
+function TAggEmbeddedScanLineBin.TConstIterator.GetLength: Integer;
+begin
+  Result := FSpan.Len;
+end;
+
+function TAggEmbeddedScanLineBin.TConstIterator.GetX: Integer;
+begin
+  Result := FSpan.X;
+end;
+
+procedure TAggEmbeddedScanLineBin.TConstIterator.IncOperator;
+begin
+  Inc(FSpanIndex);
+
+  FSpan := FStorage.SpanByIndex(FSpanIndex)^;
+end;
 
 { TAggEmbeddedScanLineBin }
 
@@ -255,34 +321,38 @@ begin
   Result := FScanLine.NumSpans;
 end;
 
+destructor TAggEmbeddedScanLineBin.Destroy;
+begin
+  inherited;
+end;
+
 function TAggEmbeddedScanLineBin.GetBegin;
 begin
-  FResult := TAggConstIteratorBin.Create(@Self);
-
-  Result := FResult;
+  //FResult := TAggConstIteratorBin.Create(@Self);
+  //Result := FResult;
+  Result := TConstIterator.Create(Self);
 end;
 
-function TAggEmbeddedScanLineBin.GetSizeOfSpan;
+{function TAggEmbeddedScanLineBin.GetSizeOfSpan;
 begin
   Result := SizeOf(TAggSpanData);
-end;
+end;}
 
-function TAggEmbeddedScanLineBin.GetIsPlainSpan;
+{function TAggEmbeddedScanLineBin.GetIsPlainSpan;
 begin
   Result := False;
-end;
+end;}
 
-function TAggEmbeddedScanLineBin.GetIsEmbedded;
+{function TAggEmbeddedScanLineBin.GetIsEmbedded;
 begin
   Result := True;
-end;
+end;}
 
 procedure TAggEmbeddedScanLineBin.Setup;
 begin
   FScanLineIndex := ScanLineIndex;
   FScanLine := FStorage.ScanLineByIndex(FScanLineIndex)^;
 end;
-
 
 { TAggScanLineStorageBin }
 
@@ -333,10 +403,9 @@ var
   ScanLineData  : TAggScanLineData;
   NumSpans: Cardinal;
 
-  SpanData : PAggSpanData;
+  //SpanData : PAggSpanData;
+  //Ss: Cardinal;
   Span: TAggCustomSpan;
-
-  Ss: Cardinal;
   Sp: TAggSpanData;
 begin
   Y := ScanLine.Y;
@@ -353,7 +422,7 @@ begin
 
   NumSpans := ScanLineData.NumSpans;
 
-  SpanData := nil;
+  {SpanData := nil;
   Span := nil;
 
   if ScanLine.IsPlainSpan then
@@ -363,10 +432,11 @@ begin
     Ss := ScanLine.SizeOfSpan;
   end
   else
-    Span := ScanLine.GetBegin;
+    Span := ScanLine.GetBegin;}
+  Span := ScanLine.GetBegin;
 
   repeat
-    if SpanData <> nil then
+    {if SpanData <> nil then
     begin
       Sp.X := SpanData.X;
       Sp.Len := SpanData.Len;
@@ -375,7 +445,9 @@ begin
     begin
       Sp.X := Span.X;
       Sp.Len := Span.Len;
-    end;
+    end;}
+    Sp.X := Span.X;
+    Sp.Len := Span.Len;
 
     FSpans.Add(@Sp);
 
@@ -393,11 +465,14 @@ begin
     if NumSpans = 0 then
       Break;
 
-    if SpanData <> nil then
+    {if SpanData <> nil then
       Inc(PtrComp(SpanData), Ss)
     else
-      Span.IncOperator;
+      Span.IncOperator;}
+    Span.IncOperator;
   until False;
+
+  Span.Free;
 
   FScanLines.Add(@ScanLineData);
 end;
@@ -475,8 +550,9 @@ begin
   Result := True;
 end;
 
-function TAggScanLineStorageBin.SweepScanLineEm(
-  ScanLine: TAggCustomScanLine): Boolean;
+//function TAggScanLineStorageBin.SweepScanLineEm(ScanLine: TAggCustomScanLine): Boolean;
+function TAggScanLineStorageBin.SweepScanLine(
+  ScanLine: TAggEmbeddedScanLine): Boolean;
 begin
   repeat
     if FCurrentScanLine >= FScanLines.Size then
@@ -591,10 +667,9 @@ begin
     Result := @FFakeSpan;
 end;
 
-
 { TAggConstIteratorA }
 
-constructor TAggConstIteratorA.Create;
+{constructor TAggConstIteratorA.Create(ScanLine: TAggEmbeddedScanLineA);
 begin
   FInternalData := ScanLine.FInternalData;
   FDeltaX := ScanLine.FDeltaX;
@@ -629,8 +704,48 @@ begin
   Inc(PtrComp(FInternalData), SizeOf(Int8u));
   TInt32Int8uAccess(Result).Values[3] := FInternalData^;
   Inc(PtrComp(FInternalData), SizeOf(Int8u));
+end;}
+
+{ TAggEmbeddedScanLineA.TConstIterator }
+
+constructor TAggEmbeddedScanLineA.TConstIterator.Create(
+  ScanLine: TAggEmbeddedScanLineA);
+begin
+  inherited Create;
+  FInternalData := ScanLine.FInternalData;
+  FDeltaX := ScanLine.FDeltaX;
+
+  FSpan.X := ReadInt32 + FDeltaX;
+  FSpan.Len := ReadInt32;
 end;
 
+function TAggEmbeddedScanLineA.TConstIterator.GetLength: Integer;
+begin
+  Result := FSpan.Len;
+end;
+
+function TAggEmbeddedScanLineA.TConstIterator.GetX: Integer;
+begin
+  Result := FSpan.X;
+end;
+
+procedure TAggEmbeddedScanLineA.TConstIterator.IncOperator;
+begin
+  FSpan.X := ReadInt32 + FDeltaX;
+  FSpan.Len := ReadInt32;
+end;
+
+function TAggEmbeddedScanLineA.TConstIterator.ReadInt32: Integer;
+begin
+  TInt32Int8uAccess(Result).Values[0] := FInternalData^;
+  Inc(PtrComp(FInternalData), SizeOf(Int8u));
+  TInt32Int8uAccess(Result).Values[1] := FInternalData^;
+  Inc(PtrComp(FInternalData), SizeOf(Int8u));
+  TInt32Int8uAccess(Result).Values[2] := FInternalData^;
+  Inc(PtrComp(FInternalData), SizeOf(Int8u));
+  TInt32Int8uAccess(Result).Values[3] := FInternalData^;
+  Inc(PtrComp(FInternalData), SizeOf(Int8u));
+end;
 
 { TAggEmbeddedScanLineA }
 
@@ -656,27 +771,32 @@ begin
   Result := FNumSpans;
 end;
 
+destructor TAggEmbeddedScanLineA.Destroy;
+begin
+  inherited;
+end;
+
 function TAggEmbeddedScanLineA.GetBegin;
 begin
-  FResult := TAggConstIteratorA.Create(Self);
-
-  Result := FResult;
+  //FResult := TAggConstIteratorA.Create(Self);
+  //Result := FResult;
+  Result := TConstIterator.Create(Self);
 end;
 
-function TAggEmbeddedScanLineA.GetSizeOfSpan: Cardinal;
+{function TAggEmbeddedScanLineA.GetSizeOfSpan: Cardinal;
 begin
   Result := SizeOf(TAggSpanData);
-end;
+end;}
 
-function TAggEmbeddedScanLineA.GetIsPlainSpan: Boolean;
+{function TAggEmbeddedScanLineA.GetIsPlainSpan: Boolean;
 begin
   Result := False;
-end;
+end;}
 
-function TAggEmbeddedScanLineA.GetIsEmbedded: Boolean;
+{function TAggEmbeddedScanLineA.GetIsEmbedded: Boolean;
 begin
   Result := True;
-end;
+end;}
 
 function TAggEmbeddedScanLineA.ReadInt32: Integer;
 begin
@@ -697,7 +817,6 @@ begin
   FNumSpans := Cardinal(ReadInt32);
   FDeltaX := Dx;
 end;
-
 
 { TAggSerializedScanLinesAdaptorBin }
 
@@ -750,6 +869,8 @@ end;
 
 function TAggSerializedScanLinesAdaptorBin.ReadInt32: Integer;
 begin
+  Result := 0;
+
   TInt32Int8uAccess(Result).Values[0] := FInternalData^;
   Inc(PtrComp(FInternalData), SizeOf(Int8u));
   TInt32Int8uAccess(Result).Values[1] := FInternalData^;
@@ -840,7 +961,9 @@ begin
   Result := True;
 end;
 
-function TAggSerializedScanLinesAdaptorBin.SweepScanLineEm(ScanLine: TAggCustomScanLine): Boolean;
+//function TAggSerializedScanLinesAdaptorBin.SweepScanLineEm(ScanLine: TAggCustomScanLine): Boolean;
+function TAggSerializedScanLinesAdaptorBin.SweepScanLine(
+  ScanLine: TAggEmbeddedScanLine): Boolean;
 var
   NumSpans: Integer;
 begin

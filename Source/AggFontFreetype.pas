@@ -1431,14 +1431,13 @@ end;
 
 procedure TAggFontEngineFreetypeBase.UpdateSignature;
 var
-  NameLength, GammaHash, I: Cardinal;
+  GammaHash, I: Cardinal;
   GammaTable: array [0..CAggAntiAliasingNum - 1] of Int8u;
   MatrixData: TAggParallelogram;
   Str: string;
 begin
   if (FCurFace <> nil) and (Length(FFaceName) <> 0) then
   begin
-    NameLength := Length(FFaceName);
 
     GammaHash := 0;
 

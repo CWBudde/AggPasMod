@@ -4,7 +4,7 @@ unit AggRendererRasterText;
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
 //    Maintained by Christian-W. Budde (Christian@savioursofsoul.de)          //
-//    Copyright (c) 2012-2015                                                      //
+//    Copyright (c) 2012-2015                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -74,16 +74,29 @@ type
 
   TAggScanLineSingleSpan = class(TAggCustomScanLine)
   private
+    type
+      TConstIterator = class(TAggCustomSpan)
+      private
+        FSpan: PAggConstSpan;
+      protected
+        function GetX: Integer; override;
+        function GetLength: Integer; override;
+        function Covers: PInt8u; override;
+      public
+        constructor Create(aScanline: TAggScanLineSingleSpan);
+        procedure IncOperator; override;
+      end;
+  private
     FY: Integer;
     FSpan: TAggConstSpan;
   protected
     function GetY: Integer; override;
     function GetNumSpans: Cardinal; override;
-    function GetSizeOfSpan: Cardinal; override;
+    //function GetSizeOfSpan: Cardinal; override;
   public
     constructor Create(X, Y: Integer; Len: Cardinal; Covers: PInt8u);
 
-    function GetBegin: Pointer; override;
+    function GetBegin: TAggCustomSpan; override;
   end;
 
   TAggRendererRasterHorizontalText = class
@@ -170,7 +183,6 @@ begin
   end;
 end;
 
-
 { TAggRendererRasterVerticalTextSolid }
 
 constructor TAggRendererRasterVerticalTextSolid.Create(Ren: TAggRendererBase; Glyph: TAggGlyphRasterBin);
@@ -232,7 +244,6 @@ begin
   end;
 end;
 
-
 { TAggConstSpan }
 
 procedure TAggConstSpan.Initialize(X: Integer; Len: Cardinal; Covers: PInt8u);
@@ -242,6 +253,34 @@ begin
   Self.Covers := Covers;
 end;
 
+{ TAggScanLineSingleSpan.TConstIterator }
+
+function TAggScanLineSingleSpan.TConstIterator.Covers: PInt8u;
+begin
+  Result := FSpan.Covers;
+end;
+
+constructor TAggScanLineSingleSpan.TConstIterator.Create(
+  aScanline: TAggScanLineSingleSpan);
+begin
+  inherited Create;
+  FSpan := @aScanline.FSpan;
+end;
+
+function TAggScanLineSingleSpan.TConstIterator.GetLength: Integer;
+begin
+  Result := FSpan.Len;
+end;
+
+function TAggScanLineSingleSpan.TConstIterator.GetX: Integer;
+begin
+  Result := FSpan.X;
+end;
+
+procedure TAggScanLineSingleSpan.TConstIterator.IncOperator;
+begin
+  inherited;
+end;
 
 { TAggScanLineSingleSpan }
 
@@ -263,16 +302,16 @@ begin
   Result := 1;
 end;
 
-function TAggScanLineSingleSpan.GetBegin: Pointer;
+function TAggScanLineSingleSpan.GetBegin: TAggCustomSpan;
 begin
-  Result := @FSpan;
+  //Result := @FSpan;
+  Result := TConstIterator.Create(Self);
 end;
 
-function TAggScanLineSingleSpan.GetSizeOfSpan: Cardinal;
+{function TAggScanLineSingleSpan.GetSizeOfSpan: Cardinal;
 begin
   Result := SizeOf(TAggConstSpan);
-end;
-
+end;}
 
 { TAggRendererRasterHorizontalText }
 
