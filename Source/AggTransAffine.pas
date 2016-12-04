@@ -4,7 +4,7 @@ unit AggTransAffine;
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
 //    Maintained by Christian-W. Budde (Christian@savioursofsoul.de)          //
-//    Copyright (c) 2012-2015                                                      //
+//    Copyright (c) 2012-2015                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -589,8 +589,6 @@ begin
 end;
 
 procedure TAggTransAffine.PreMultiply(M: TAggTransAffine);
-var
-  T: TAggTransAffine;
 begin
   Transform := @M.Transform;
   Transform2x2 := @M.Transform2x2;

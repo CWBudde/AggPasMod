@@ -4,7 +4,7 @@ unit AggScanLineBooleanAlgebra;
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
 //    Maintained by Christian-W. Budde (Christian@savioursofsoul.de)          //
-//    Copyright (c) 2012-2015                                                      //
+//    Copyright (c) 2012-2015                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -40,10 +40,14 @@ type
 
   TAggBoolScanLineFunctor = class;
 
-  TAggBoolScanLineFunctor1 = procedure(This: TAggBoolScanLineFunctor;
+  {TAggBoolScanLineFunctor1 = procedure(This: TAggBoolScanLineFunctor;
     Span: PAggSpanRecord; X: Integer; Len: Cardinal; Sl: TAggCustomScanLine);
   TAggBoolScanLineFunctor2 = procedure(This: TAggBoolScanLineFunctor; Span1,
-    Span2: PAggSpanRecord; X: Integer; Len: Cardinal; Sl: TAggCustomScanLine);
+    Span2: PAggSpanRecord; X: Integer; Len: Cardinal; Sl: TAggCustomScanLine);}
+  TAggBoolScanLineFunctor1 = procedure(This: TAggBoolScanLineFunctor;
+    Span: TAggCustomSpan; X: Integer; Len: Cardinal; Sl: TAggCustomScanLine);
+  TAggBoolScanLineFunctor2 = procedure(This: TAggBoolScanLineFunctor; Span1,
+    Span2: TAggCustomSpan; X: Integer; Len: Cardinal; Sl: TAggCustomScanLine);
   TAggBoolScanLineFormula = function(This: TAggBoolScanLineFunctor;
     A, B: Cardinal): Cardinal;
 
@@ -647,12 +651,14 @@ end;
 procedure BoolScanLineAddSpansAndRender(Sl1, Sl: TAggCustomScanLine;
   Ren: TAggCustomRendererScanLine; AddSpan: TAggBoolScanLineFunctor);
 var
-  Ss, NumSpans: Cardinal;
-  Span: PAggSpanRecord;
+  //Ss: Cardinal;
+  //Span: PAggSpanRecord;
+  NumSpans: Cardinal;
+  Span: TAggCustomSpan;
 begin
   Sl.ResetSpans;
 
-  Ss := Sl1.SizeOfSpan;
+  //Ss := Sl1.SizeOfSpan;
   Span := Sl1.GetBegin;
   NumSpans := Sl1.NumSpans;
 
@@ -664,8 +670,11 @@ begin
     if NumSpans = 0 then
       Break;
 
-    Inc(PtrComp(Span), Ss);
+    //Inc(PtrComp(Span), Ss);
+    Span.IncOperator;
   until False;
+
+  Span.Free;
 
   Sl.Finalize(Sl1.Y);
   Ren.Render(Sl);
@@ -682,9 +691,11 @@ const
   CInvalidB = $FFFFFFF;
   CInvalidE = CInvalidB - 1;
 var
-  Num1, Num2, Ss1, Ss2: Cardinal;
+  Num1, Num2: Cardinal;
   Xb1, Xb2, Xe1, Xe2, Xb, Xe, Len: Integer;
-  Span1, Span2: PAggSpanRecord;
+  //Ss1, Ss2: Cardinal;
+  //Span1, Span2: PAggSpanRecord;
+  Span1, Span2: TAggCustomSpan;
 begin
   Sl.ResetSpans;
 
@@ -697,11 +708,14 @@ begin
   Xe1 := CInvalidE;
   Xe2 := CInvalidE;
 
+  Span1 := nil;
+  Span2 := nil;
+
   // Initialize Span1 if there are Spans
   if Num1 <> 0 then
   begin
     Span1 := Sl1.GetBegin;
-    Ss1 := Sl1.SizeOfSpan;
+    //Ss1 := Sl1.SizeOfSpan;
     Xb1 := Span1.X;
     Xe1 := Xb1 + Abs(Span1.Len) - 1;
 
@@ -712,7 +726,7 @@ begin
   if Num2 <> 0 then
   begin
     Span2 := Sl2.GetBegin;
-    Ss2 := Sl2.SizeOfSpan;
+    //Ss2 := Sl2.SizeOfSpan;
     Xb2 := Span2.X;
     Xe2 := Xb2 + Abs(Span2.Len) - 1;
 
@@ -724,7 +738,8 @@ begin
     if (Num1 <> 0) and (Xb1 > Xe1) then
     begin
       Dec(Num1);
-      Inc(PtrComp(Span1), Ss1);
+      //Inc(PtrComp(Span1), Ss1);
+      Span1.IncOperator;
 
       Xb1 := Span1.X;
       Xe1 := Xb1 + Abs(Span1.Len) - 1;
@@ -734,7 +749,8 @@ begin
     if (Num2 <> 0) and (Xb2 > Xe2) then
     begin
       Dec(Num2);
-      Inc(PtrComp(Span2), Ss2);
+      //Inc(PtrComp(Span2), Ss2);
+      Span2.IncOperator;
 
       Xb2 := Span2.X;
       Xe2 := Xb2 + Abs(Span2.Len) - 1;
@@ -824,6 +840,12 @@ begin
       end;
 
   until False;
+
+  if assigned(Span1) then
+    Span1.Free;
+
+  if assigned(Span2) then
+    Span2.Free;
 end;
 
 // Unite the ScanLine shapes. Here the "ScanLine Generator"
@@ -943,9 +965,11 @@ procedure BoolScanLineIntersecTAggScanLines(Sl1, Sl2, Sl: TAggCustomScanLine;
   CombineSpans: TAggBoolScanLineFunctor);
 var
   Num1, Num2  : Cardinal;
-  Span1, Span2: PAggSpanRecord;
+  //Span1, Span2: PAggSpanRecord;
+  Span1, Span2: TAggCustomSpan;
 
-  Xb1, Xb2, Xe1, Xe2, Ss1, Ss2: Integer;
+  Xb1, Xb2, Xe1, Xe2: Cardinal;
+  //Ss1, Ss2: Integer;
 
   Advance_Span1, Advance_both: Boolean;
 
@@ -963,9 +987,9 @@ begin
     Exit;
 
   Span1 := Sl1.GetBegin;
-  Ss1 := Sl1.SizeOfSpan;
+  //Ss1 := Sl1.SizeOfSpan;
   Span2 := Sl2.GetBegin;
-  Ss2 := Sl2.SizeOfSpan;
+  //Ss2 := Sl2.SizeOfSpan;
 
   while (Num1 <> 0) and (Num2 <> 0) do
   begin
@@ -1000,26 +1024,33 @@ begin
       Dec(Num2);
 
       if Num1 <> 0 then
-        Inc(PtrComp(Span1), Ss1);
+        //Inc(PtrComp(Span1), Ss1);
+        Span1.IncOperator;
 
       if Num2 <> 0 then
-        Inc(PtrComp(Span2), Ss2);
+        //Inc(PtrComp(Span2), Ss2);
+        Span2.IncOperator;
     end
     else if Advance_Span1 then
     begin
       Dec(Num1);
 
       if Num1 <> 0 then
-        Inc(PtrComp(Span1), Ss1);
+        //Inc(PtrComp(Span1), Ss1);
+        Span1.IncOperator;
     end
     else
     begin
       Dec(Num2);
 
       if Num2 <> 0 then
-        Inc(PtrComp(Span2), Ss2);
+        //Inc(PtrComp(Span2), Ss2);
+        Span2.IncOperator;
     end;
   end;
+
+  Span1.Free;
+  Span2.Free;
 end;
 
 // Intersect the ScanLine shapes. Here the "ScanLine Generator"

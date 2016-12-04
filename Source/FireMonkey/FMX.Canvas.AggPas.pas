@@ -2677,6 +2677,7 @@ var
   Curves: TAggConvCurve;
   Contour: TAggConvContour;
   ContourTransform: TAggConvTransform;
+  RenBin: TAggRendererScanLineBinSolid;
 begin
   X := aTextRect.Left;
   Y := aTextRect.Top - aAscend;
@@ -2693,6 +2694,7 @@ begin
 
   Curves.ApproximationScale := 2;
   Contour.AutoDetectOrientation := False;
+  RenBin := TAggRendererScanLineBinSolid.Create(FRendererBase);
   try
     i := 0;
     while i < Length(aText) do
@@ -2706,20 +2708,23 @@ begin
         aFontCacheManager.AddKerning(@X, @Y);
        {$ENDIF}
 
-        aFontCacheManager.InitEmbeddedAdaptors(Glyph, X, Y);
-
         case Glyph.DataType of
-          {TODO:
           gdMono:
             begin
+              aFontCacheManager.InitEmbeddedAdaptors(Glyph,
+                FTransform.M4 + X, FTransform.M5 + Y);
+
               RenBin.SetColor(CRgba8Black);
 
               RenderScanLines(aFontCacheManager.MonoAdaptor,
                 aFontCacheManager.MonoScanLine, RenBin);
-            end;}
+            end;
 
           gdGray8:
             begin
+              aFontCacheManager.InitEmbeddedAdaptors(Glyph,
+                FTransform.M4 + X, FTransform.M5 + Y);
+
               FRendererSolid.SetColor(CRgba8Black);
 
               RenderScanLines(aFontCacheManager.Gray8Adaptor,
@@ -2728,6 +2733,8 @@ begin
 
           gdOutline:
             begin
+              aFontCacheManager.InitEmbeddedAdaptors(Glyph, X, Y);
+
               FRasterizer.Reset;
 
               {if Abs(FSliderWeight.Value) <= 0.01 then
@@ -2751,6 +2758,7 @@ begin
       Inc(i);
     end;
   finally
+    RenBin.Free;
     ContourTransform.Free;
     Curves.Free;
     Contour.Free;
@@ -4711,7 +4719,7 @@ begin
     else
       B := 400;
 
-    FFontEngine.CreateFont(FontFamily, grOutline, FontSize, 0, B, Italic)
+    FFontEngine.CreateFont(FontFamily, {grNativeMono}grNativeGray8{grOutline}, FontSize, 0, B, Italic)
   end;
   {$ENDIF}
 end;

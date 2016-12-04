@@ -4,7 +4,7 @@ unit AggConvCurve;
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
 //    Maintained by Christian-W. Budde (Christian@savioursofsoul.de)          //
-//    Copyright (c) 2012-2015                                                      //
+//    Copyright (c) 2012-2015                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -79,6 +79,8 @@ type
     constructor Create(Source: TAggVertexSource; C3: TAggCurve3 = nil;
       C4: TAggCurve4 = nil);
     destructor Destroy; override;
+
+    procedure Reset; override;
 
     procedure Rewind(PathID: Cardinal); override;
     function Vertex(X, Y: PDouble): Cardinal; override;
@@ -166,6 +168,11 @@ end;
 function TAggConvCurve.GetCuspLimit: Double;
 begin
   Result := FCurve4.CuspLimit;
+end;
+
+procedure TAggConvCurve.Reset;
+begin
+  inherited;
 end;
 
 procedure TAggConvCurve.Rewind(PathID: Cardinal);
