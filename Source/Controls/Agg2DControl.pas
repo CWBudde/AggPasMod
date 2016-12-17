@@ -69,8 +69,10 @@ type
   protected
     procedure Paint; override;
     procedure Resize; override;
+
     property Buffer: TAgg2DControlBuffer read FBuffer;
     property Agg2D: TAgg2D read FAgg2D;
+    property PixelMap: TPixelMap read FPixelMap;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -91,6 +93,7 @@ type
   public
     property Buffer;
     property Agg2D;
+    property PixelMap;
   published
     property Align;
     property Anchors;
