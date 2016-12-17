@@ -1,4 +1,6 @@
+//
 // AggPas 2.4 RM3 pixel format definition file
+//
 
 procedure BlendPixRgbGamma(Gamma: TAggGamma; P: PInt8u;
   Cr, Cg, Cb, Alpha: Integer; Cover: Cardinal = 0);

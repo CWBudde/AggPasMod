@@ -1,4 +1,6 @@
+//
 // AggPas 2.4 RM3 pixel format definition file
+//
 
 function MakePixel555Gamma(R, G, B: Cardinal): Int16u;
 begin

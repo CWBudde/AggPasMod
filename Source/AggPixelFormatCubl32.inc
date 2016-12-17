@@ -1,4 +1,6 @@
+//
 // AggPas 2.4 RM3 pixel format definition file
+//
 
 procedure CublCopyPixel(This: TAggPixelFormatProcessor; X, Y: Integer;
   C: PAggColor);

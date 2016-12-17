@@ -1,4 +1,6 @@
+//
 // AggPas 2.4 RM3 pixel format definition file
+//
 
 procedure Alpha32CopyHorizontalLine(This: TAggPixelFormatProcessor; X,
   Y: Integer; Len: Cardinal; C: PAggColor);
