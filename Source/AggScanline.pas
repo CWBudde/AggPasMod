@@ -4,7 +4,7 @@ unit AggScanLine;
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
 //    Maintained by Christian-W. Budde (Christian@savioursofsoul.de)          //
-//    Copyright (c) 2012-2015                                                      //
+//    Copyright (c) 2012-2015                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -51,9 +51,9 @@ type
 
   TAggCustomScanLine = class
   protected
-    function GetSizeOfSpan: Cardinal; virtual; abstract;
-    function GetIsPlainSpan: Boolean; virtual;
-    function GetIsEmbedded: Boolean; virtual;
+    //function GetSizeOfSpan: Cardinal; virtual; abstract;
+    //function GetIsPlainSpan: Boolean; virtual;
+    //function GetIsEmbedded: Boolean; virtual;
     function GetNumSpans: Cardinal; virtual; abstract;
     function GetY: Integer; virtual; abstract;
   public
@@ -66,20 +66,25 @@ type
       virtual; abstract;
     procedure AddSpan(X: Integer; Len, Cover: Cardinal); virtual; abstract;
 
-    function GetBegin: Pointer; virtual; abstract;
+    function GetBegin: TAggCustomSpan; virtual; abstract;
 
-    procedure Init(Ptr: PInt8u; Dx, Dy: Integer); virtual; abstract;
-    procedure Setup(ScanLineIndex: Cardinal); virtual; abstract;
+    //procedure Init(Ptr: PInt8u; Dx, Dy: Integer); virtual; abstract;
+    //procedure Setup(ScanLineIndex: Cardinal); virtual; abstract;
 
-    property IsPlainSpan: Boolean read GetIsPlainSpan;
-    property IsEmbedded: Boolean read GetIsEmbedded;
+    //property IsPlainSpan: Boolean read GetIsPlainSpan;
+    //property IsEmbedded: Boolean read GetIsEmbedded;
     property NumSpans: Cardinal read GetNumSpans;
-    property SizeOfSpan: Cardinal read GetSizeOfSpan;
+    //property SizeOfSpan: Cardinal read GetSizeOfSpan;
     property Y: Integer read GetY;
   end;
 
-implementation
+  TAggEmbeddedScanLine = class(TAggCustomScanline)
+  public
+    procedure Init(Ptr: PInt8u; Dx, Dy: Integer); virtual; abstract;
+    procedure Setup(ScanLineIndex: Cardinal); virtual; abstract;
+  end;
 
+implementation
 
 { TAggCustomSpan }
 
@@ -102,17 +107,16 @@ procedure TAggCustomSpan.IncOperator;
 begin
 end;
 
-
 { TAggCustomScanLine }
 
-function TAggCustomScanLine.GetIsPlainSpan: Boolean;
+{function TAggCustomScanLine.GetIsPlainSpan: Boolean;
 begin
   Result := True;
-end;
+end;}
 
-function TAggCustomScanLine.GetIsEmbedded: Boolean;
+{function TAggCustomScanLine.GetIsEmbedded: Boolean;
 begin
   Result := False;
-end;
+end;}
 
 end.

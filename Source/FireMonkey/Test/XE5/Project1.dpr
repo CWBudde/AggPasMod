@@ -70,7 +70,10 @@ uses
   AggBitsetIterator in '..\..\..\AggBitsetIterator.pas',
   AggConvContour in '..\..\..\AggConvContour.pas',
   AggVcgenContour in '..\..\..\AggVcgenContour.pas',
-  AggFontWin32TrueType in '..\..\..\AggFontWin32TrueType.pas';
+  AggFontWin32TrueType in '..\..\..\AggFontWin32TrueType.pas',
+  AggScanlineBooleanAlgebra in '..\..\..\AggScanlineBooleanAlgebra.pas',
+  AggRendererRasterText in '..\..\..\AggRendererRasterText.pas',
+  AggGlyphRasterBin in '..\..\..\AggGlyphRasterBin.pas';
 
 {$R *.res}
 

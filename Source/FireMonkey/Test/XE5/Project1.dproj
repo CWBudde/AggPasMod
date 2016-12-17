@@ -165,6 +165,9 @@
         <DCCReference Include="..\..\..\AggConvContour.pas"/>
         <DCCReference Include="..\..\..\AggVcgenContour.pas"/>
         <DCCReference Include="..\..\..\AggFontWin32TrueType.pas"/>
+        <DCCReference Include="..\..\..\AggScanlineBooleanAlgebra.pas"/>
+        <DCCReference Include="..\..\..\AggRendererRasterText.pas"/>
+        <DCCReference Include="..\..\..\AggGlyphRasterBin.pas"/>
         <None Include="..\..\..\..\AggPasMod\Source\AggCompiler.inc"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>

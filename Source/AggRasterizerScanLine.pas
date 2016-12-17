@@ -4,7 +4,7 @@ unit AggRasterizerScanLine;
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
 //    Maintained by Christian-W. Budde (Christian@savioursofsoul.de)          //
-//    Copyright (c) 2012-2015                                                      //
+//    Copyright (c) 2012-2015                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -73,8 +73,9 @@ type
   TAggRasterizerScanline = class(TAggCustomBoundsRasterizerScanLine)
   public
     procedure Gamma(AGammaFunction: TAggCustomVertexSource); virtual; abstract;
-    function SweepScanLine(Sl: TAggCustomScanLine): Boolean; virtual; abstract;
-    function SweepScanLineEm(Sl: TAggCustomScanLine): Boolean; virtual; abstract;
+    function SweepScanLine(Sl: TAggCustomScanLine): Boolean; overload; virtual; abstract;
+    //function SweepScanLineEm(Sl: TAggCustomScanLine): Boolean; virtual; abstract;
+    function SweepScanLine(Sl: TAggEmbeddedScanLine): Boolean; overload; virtual; abstract;
   end;
 
 implementation

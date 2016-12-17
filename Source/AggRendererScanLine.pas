@@ -4,7 +4,7 @@ unit AggRendererScanLine;
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
 //    Maintained by Christian-W. Budde (Christian@savioursofsoul.de)          //
-//    Copyright (c) 2012-2015                                                      //
+//    Copyright (c) 2012-2015                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -41,7 +41,7 @@ uses
   AggRasterizerCompoundAA;
 
 type
-  TAggCustomRendererScanLine = class(TAggRasterizerScanLine)
+  TAggCustomRendererScanLine = class// class(TAggRasterizerScanLine)
   public
     procedure Prepare(U: Cardinal); virtual; abstract;
     procedure Render(Sl: TAggCustomScanLine); virtual; abstract;
@@ -153,10 +153,12 @@ procedure TAggRendererScanLineAA.Render(Sl: TAggCustomScanLine);
 var
   Y, Xmin, Xmax, X, Len: Integer;
 
-  NumSpans, Ss: Cardinal;
+  NumSpans: Cardinal;
+  //SS: Cardinal;
 
-  Span  : PAggSpanRecord;
-  Solid : Boolean;
+  //Span  : PAggSpanRecord;
+  Span: TAggCustomSpan;
+  Solid: Boolean;
   Covers: PInt8u;
 begin
   Y := Sl.Y;
@@ -172,7 +174,7 @@ begin
       NumSpans := Sl.NumSpans;
 
       Span := Sl.GetBegin;
-      Ss := Sl.SizeOfSpan;
+      //Ss := Sl.SizeOfSpan;
 
       repeat
         X := Span.X;
@@ -216,13 +218,15 @@ begin
         if NumSpans = 0 then
           Break;
 
-        Inc(PtrComp(Span), Ss);
+        //Inc(PtrComp(Span), Ss);
+        Span.IncOperator;
       until False;
+
+      Span.Free;
     end;
 
   until not FRen.NextClipBox;
 end;
-
 
 { TAggRendererScanLineAASolid }
 
@@ -250,28 +254,28 @@ end;
 procedure TAggRendererScanLineAASolid.Render(Sl: TAggCustomScanLine);
 var
   X, Y: Integer;
-
-  NumSpans, Ss: Cardinal;
-
-  SpanRecord : PAggSpanRecord;
+  //Ss: Cardinal;
+  //SpanRecord : PAggSpanRecord;
+  NumSpans: Cardinal;
   Span: TAggCustomSpan;
 begin
   Y := Sl.Y;
 
   NumSpans := Sl.NumSpans;
 
-  SpanRecord := nil;
-  Span := nil;
+  //SpanRecord := nil;
+  //Span := nil;
 
-  if Sl.IsPlainSpan then
-  begin
-    SpanRecord := Sl.GetBegin;
-    Ss := Sl.SizeOfSpan;
-  end
-  else
-    Span := Sl.GetBegin;
+  //if Sl.IsPlainSpan then
+  //begin
+  //  SpanRecord := Sl.GetBegin;
+  //  Ss := Sl.SizeOfSpan;
+  //end
+  //else
+  //  Span := Sl.GetBegin;
+  Span := Sl.GetBegin;
 
-  if SpanRecord <> nil then
+  {if SpanRecord <> nil then
     repeat
       X := SpanRecord.X;
 
@@ -290,7 +294,7 @@ begin
       Inc(PtrComp(SpanRecord), Ss);
     until False
   else
-    begin
+    begin}
       repeat
         X := Span.X;
 
@@ -309,10 +313,9 @@ begin
         Span.IncOperator;
       until False;
 
-      Span.Free;
-    end;
+  Span.Free;
+    {end;}
 end;
-
 
 { TAggRendererScanLineBinSolid }
 
@@ -338,13 +341,14 @@ end;
 
 procedure TAggRendererScanLineBinSolid.Render(Sl: TAggCustomScanLine);
 var
-  SpanPl : PAggSpanRecord;
+  //SpanPl: PAggSpanRecord;
+  //Ss: Cardinal;
   Span: TAggCustomSpan;
-  NumSpans, Ss: Cardinal;
+  NumSpans: Cardinal;
 begin
   NumSpans := Sl.NumSpans;
 
-  SpanPl := nil;
+  {SpanPl := nil;
   Span := nil;
 
   if Sl.IsPlainSpan then
@@ -353,9 +357,10 @@ begin
     Ss := Sl.SizeOfSpan;
   end
   else
-    Span := Sl.GetBegin;
+    Span := Sl.GetBegin;}
+  Span := Sl.GetBegin;
 
-  if SpanPl <> nil then
+  {if SpanPl <> nil then
     repeat
       if SpanPl.Len < 0 then
         FRen.BlendHorizontalLine(SpanPl.X, Sl.Y, SpanPl.X - 1 - SpanPl.Len,
@@ -371,7 +376,7 @@ begin
 
       Inc(PtrComp(SpanPl), Ss);
     until False
-  else
+  else}
     repeat
       if Span.Len < 0 then
         FRen.BlendHorizontalLine(Span.X, Sl.Y, Span.X - 1 - Span.Len,
@@ -387,22 +392,25 @@ begin
 
       Span.IncOperator;
     until False;
-end;
 
+  Span.Free;
+end;
 
 procedure RenderScanLineAASolid(Sl: TAggCustomScanLine; Ren: TAggRendererBase;
   Color: PAggColor);
 var
   Y, X: Integer;
-  NumSpans, Ss: Cardinal;
-  Span: PAggSpanRecord;
+  NumSpans: Cardinal;
+  //Ss: Cardinal;
+  //Span: PAggSpanRecord;
+  Span: TAggCustomSpan;
 begin
   Assert(Ren is TAggRendererBase);
 
   Y := Sl.Y;
   NumSpans := Sl.NumSpans;
   Span := Sl.GetBegin;
-  Ss := Sl.SizeOfSpan;
+  //Ss := Sl.SizeOfSpan;
 
   repeat
     X := Span.X;
@@ -417,16 +425,21 @@ begin
     if NumSpans = 0 then
       Break;
 
-    Inc(PtrComp(Span), Ss);
+    //Inc(PtrComp(Span), Ss);
+    Span.IncOperator;
   until False;
+
+  Span.Free;
 end;
 
 procedure RenderScanLinesAASolid(Ras: TAggRasterizerScanLine;
   Sl: TAggCustomScanLine; Ren: TAggRendererBase; Color: PAggColor);
 var
   Y, X: Integer;
-  NumSpans, Ss: Cardinal;
-  Span: PAggSpanRecord;
+  NumSpans: Cardinal;
+  //Ss: Cardinal;
+  //Span: PAggSpanRecord;
+  Span: TAggCustomSpan;
 begin
   Assert(Ren is TAggRendererBase);
 
@@ -438,7 +451,7 @@ begin
     begin
       Y := Sl.Y;
       NumSpans := Sl.NumSpans;
-      Ss := Sl.SizeOfSpan;
+      //Ss := Sl.SizeOfSpan;
       Span := Sl.GetBegin;
 
       repeat
@@ -455,8 +468,11 @@ begin
         if NumSpans = 0 then
           Break;
 
-        Inc(PtrComp(Span), Ss);
+        //Inc(PtrComp(Span), Ss);
+        Span.IncOperator;
       until False;
+
+      Span.Free;
     end;
   end;
 end;
@@ -466,13 +482,16 @@ procedure RenderScanLinesCompound(Ras: TAggRasterizerCompoundAA;
   Alloc: TAggSpanAllocator; StyleHandler: TAggCustomStyleHandler);
 var
   MinX, Len: Integer;
-  NumSpans, NumStyles, Style, I, SsAntiAlias, SsBin: Cardinal;
+  NumSpans, NumStyles, Style, I: Cardinal;
+  //SsAntiAlias, SsBin: Cardinal;
   ColorSpan, MixBuffer, Colors, ClrSpan: PAggColor;
   C: TAggColor;
   Solid: Boolean;
-  SpanAA : PAggSpanRecord;
-  SpanBin: PAggSpanBin;
-  Covers  : PInt8u;
+  //SpanAA: PAggSpanRecord;
+  //SpanBin: PAggSpanBin;
+  SpanAA: TAggCustomSpan;
+  SpanBin: TAggCustomSpan;
+  Covers: PInt8u;
 begin
   Assert(Ren is TAggRendererBase);
 
@@ -504,7 +523,7 @@ begin
           begin
             // Arbitrary Span generator
             SpanAA := ScanLineAA.GetBegin;
-            SsAntiAlias := ScanLineAA.SizeOfSpan;
+            //SsAntiAlias := ScanLineAA.SizeOfSpan;
             NumSpans := ScanLineAA.NumSpans;
 
             repeat
@@ -519,8 +538,11 @@ begin
               if NumSpans = 0 then
                 Break;
 
-              Inc(PtrComp(SpanAA), SsAntiAlias);
+              //Inc(PtrComp(SpanAA), SsAntiAlias);
+              SpanAA.IncOperator;
             until False;
+
+            SpanAA.Free;
           end;
         end
         else
@@ -529,7 +551,7 @@ begin
         begin
           // Clear the Spans of the MixBuffer
           SpanBin := SlBin.GetBegin;
-          SsBin := SlBin.SizeOfSpan;
+          //SsBin := SlBin.SizeOfSpan;
           NumSpans := SlBin.NumSpans;
 
           repeat
@@ -541,8 +563,11 @@ begin
             if NumSpans = 0 then
               Break;
 
-            Inc(PtrComp(SpanBin), SsBin);
+            //Inc(PtrComp(SpanBin), SsBin);
+            SpanBin.IncOperator;
           until False;
+
+          SpanBin.Free;
 
           I := 0;
 
@@ -554,7 +579,7 @@ begin
             if Ras.SweepScanLine(ScanLineAA, I) then
             begin
               SpanAA := ScanLineAA.GetBegin;
-              SsAntiAlias := ScanLineAA.SizeOfSpan;
+              //SsAntiAlias := ScanLineAA.SizeOfSpan;
               NumSpans := ScanLineAA.NumSpans;
 
               if Solid then
@@ -584,9 +609,11 @@ begin
                   if NumSpans = 0 then
                     Break;
 
-                  Inc(PtrComp(SpanAA), SsAntiAlias);
+                  //Inc(PtrComp(SpanAA), SsAntiAlias);
+                  SpanAA.IncOperator;
 
                 until False
+
               else
                 // Arbitrary Span generator
                 repeat
@@ -618,9 +645,12 @@ begin
                   if NumSpans = 0 then
                     Break;
 
-                  Inc(PtrComp(SpanAA), SsAntiAlias);
+                  //Inc(PtrComp(SpanAA), SsAntiAlias);
+                  SpanAA.IncOperator;
 
                 until False;
+
+              SpanAA.Free;
             end;
 
             Inc(I);
@@ -628,7 +658,7 @@ begin
 
           // Emit the blended result as a color hSpan
           SpanBin := SlBin.GetBegin;
-          SsBin := SlBin.SizeOfSpan;
+          //SsBin := SlBin.SizeOfSpan;
           NumSpans := SlBin.NumSpans;
 
           repeat
@@ -641,8 +671,11 @@ begin
             if NumSpans = 0 then
               Break;
 
-            Inc(PtrComp(SpanBin), SsBin);
+            //Inc(PtrComp(SpanBin), SsBin);
+            SpanBin.IncOperator;
           until False;
+
+          SpanBin.Free;
         end; // if ras.SweepScanLine(SlBin ,-1 )
 
       NumStyles := Ras.SweepStyles;
@@ -655,12 +688,14 @@ procedure RenderScanLinesCompoundLayered(Ras: TAggRasterizerCompoundAA;
   StyleHandler: TAggCustomStyleHandler);
 var
   MinX, Len, ScanLineStart, Sl_y: Integer;
-  NumSpans, NumStyles, Style, SsAntiAlias, ScanLineLen, I, Cover: Cardinal;
+  NumSpans, NumStyles, Style, ScanLineLen, I, Cover: Cardinal;
+  //SsAntiAlias: Cardinal;
   ColorSpan, MixBuffer, Colors, ClrSpan: PAggColor;
   Solid: Boolean;
   C: TAggColor;
   CoverBuffer, SourceCovers, DestCovers: PCover;
-  SpanAA: PAggSpanRecord;
+  //SpanAA: PAggSpanRecord;
+  SpanAA: TAggCustomSpan;
 begin
   Assert(Ren is TAggRendererBase);
 
@@ -694,7 +729,7 @@ begin
             // Arbitrary Span generator
             SpanAA := ScanLineAA.GetBegin;
             NumSpans := ScanLineAA.NumSpans;
-            SsAntiAlias := ScanLineAA.SizeOfSpan;
+            //SsAntiAlias := ScanLineAA.SizeOfSpan;
 
             repeat
               Len := SpanAA.Len;
@@ -708,9 +743,12 @@ begin
               if NumSpans = 0 then
                 Break;
 
-              Inc(PtrComp(SpanAA), SsAntiAlias);
+              //Inc(PtrComp(SpanAA), SsAntiAlias);
+              SpanAA.IncOperator;
 
             until False;
+
+            SpanAA.Free;
           end;
 
         end
@@ -742,7 +780,7 @@ begin
               SpanAA := ScanLineAA.GetBegin;
               NumSpans := ScanLineAA.NumSpans;
               Sl_y := ScanLineAA.Y;
-              SsAntiAlias := ScanLineAA.SizeOfSpan;
+              //SsAntiAlias := ScanLineAA.SizeOfSpan;
 
               if Solid then
                 // Just solid fill
@@ -783,7 +821,9 @@ begin
                   if NumSpans = 0 then
                     Break;
 
-                  Inc(PtrComp(SpanAA), SsAntiAlias);
+                  //Inc(PtrComp(SpanAA), SsAntiAlias);
+                  SpanAA.IncOperator;
+
                 until False
               else
                 // Arbitrary Span generator
@@ -826,9 +866,12 @@ begin
                   if NumSpans = 0 then
                     Break;
 
-                  Inc(PtrComp(SpanAA), SsAntiAlias);
+                  //Inc(PtrComp(SpanAA), SsAntiAlias);
+                  SpanAA.IncOperator;
 
                 until False;
+
+              SpanAA.Free;
             end;
 
             Inc(I);
