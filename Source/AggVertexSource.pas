@@ -47,12 +47,12 @@ type
 
   TAggVertexSource = class(TAggCustomVertexSource)
   protected
-    //function GetPathID(Index: Cardinal): Cardinal; virtual; abstract;
+    function GetPathID(Index: Cardinal): Cardinal; virtual;
   public
     procedure RemoveAll; virtual;
     procedure AddVertex(X, Y: Double; Cmd: Cardinal); virtual;
 
-    //property PathID[Index: Cardinal]: Cardinal read GetPathID;
+    property PathID[Index: Cardinal]: Cardinal read GetPathID;
   end;
 
 implementation
@@ -80,6 +80,11 @@ end;
 
 
 { TAggVertexSource }
+
+function TAggVertexSource.GetPathID(Index: Cardinal): Cardinal;
+begin
+  Result := 0;
+end;
 
 procedure TAggVertexSource.RemoveAll;
 begin

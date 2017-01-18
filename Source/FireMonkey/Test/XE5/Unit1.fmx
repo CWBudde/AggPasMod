@@ -13,6 +13,7 @@ object Form1: TForm1
   DesignerHeight = 0
   DesignerDeviceName = ''
   DesignerOrientation = 0
+  DesignerOSVersion = ''
   object TabControl1: TTabControl
     Align = alClient
     Height = 476.000000000000000000
@@ -472,6 +473,7 @@ object Form1: TForm1
         Width = 73.000000000000000000
       end
       object Memo1: TMemo
+        Touch.InteractiveGestures = [igPan, igLongTap, igDoubleTap]
         Height = 129.000000000000000000
         Position.X = 431.000000000000000000
         Position.Y = 139.000000000000000000
