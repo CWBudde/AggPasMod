@@ -1183,7 +1183,8 @@ end;
 function TAggFontEngineWin32TrueTypeBase.GetDescender: Double;
 begin
   if FTextMetricValid then
-    Result := FTextMetric.tmDescent
+    // Sign conform Freetype
+    Result := -FTextMetric.tmDescent
   else
     Result := FHeight;
 end;

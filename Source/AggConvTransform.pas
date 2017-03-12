@@ -37,7 +37,7 @@ type
     FSource: TAggVertexSource;
     FTrans: TAggTransAffine;
   protected
-    //function GetPathID(Index: Cardinal): Cardinal; override;
+    function GetPathID(Index: Cardinal): Cardinal; override;
     function GetPathCount: Cardinal; override;
   public
     constructor Create(Source: TAggVertexSource; Tr: TAggTransAffine);
@@ -67,10 +67,10 @@ begin
   Result := FSource.PathCount;
 end;
 
-{function TAggConvTransform.GetPathID(Index: Cardinal): Cardinal;
+function TAggConvTransform.GetPathID(Index: Cardinal): Cardinal;
 begin
   Result := FSource.PathID[Index];
-end;}
+end;
 
 procedure TAggConvTransform.Rewind(PathID: Cardinal);
 begin

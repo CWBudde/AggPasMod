@@ -164,7 +164,6 @@
         <DCCReference Include="..\..\..\AggBitsetIterator.pas"/>
         <DCCReference Include="..\..\..\AggConvContour.pas"/>
         <DCCReference Include="..\..\..\AggVcgenContour.pas"/>
-        <DCCReference Include="..\..\..\AggFontWin32TrueType.pas"/>
         <DCCReference Include="..\..\..\AggScanlineBooleanAlgebra.pas"/>
         <DCCReference Include="..\..\..\AggRendererRasterText.pas"/>
         <DCCReference Include="..\..\..\AggGlyphRasterBin.pas"/>

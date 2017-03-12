@@ -43,7 +43,7 @@ type
     procedure SetApproximationScale(Value: Double);
   protected
     procedure CalculateNumSteps; virtual; abstract;
-    //function GetPathID(Index: Cardinal): Cardinal; override;
+    function GetPathID(Index: Cardinal): Cardinal; override;
   public
     constructor Create; virtual;
 
@@ -104,10 +104,10 @@ begin
   FApproximationScale := 1.0;
 end;
 
-{function TAggCustomEllipse.GetPathID(Index: Cardinal): Cardinal;
+function TAggCustomEllipse.GetPathID(Index: Cardinal): Cardinal;
 begin
   Result := 0;
-end;}
+end;
 
 procedure TAggCustomEllipse.Rewind(PathID: Cardinal);
 begin
