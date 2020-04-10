@@ -51,7 +51,7 @@ type
 
   {$IFDEF FPC}
   Int64u = Qword;
-  {$ELSE }
+  {$ELSE}
   Int64u = System.Int64;
   {$ENDIF}
 
@@ -68,7 +68,7 @@ type
   (* Pascal Pointer Computation Type *)
   {$IFDEF CPU64}
   PtrComp = System.Int64;
-  {$ELSE }
+  {$ELSE}
   PtrComp = Integer;
   {$ENDIF}
 
@@ -137,7 +137,7 @@ type
   {$IFDEF XML_LARGE_SIZE} // Use large integers for file/stream positions.
   TXmlIndex = Int64;
   TXmlSize = Int64u;
-  {$ELSE }
+  {$ELSE}
   TXmlIndex = LongInt;
   TXmlSize = LongWord;
   {$ENDIF}

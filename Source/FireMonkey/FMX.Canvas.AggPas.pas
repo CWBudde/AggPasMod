@@ -3,8 +3,8 @@ unit FMX.Canvas.AggPas;
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
-//    Maintained by Christian-W. Budde (Christian@pcjv.de)          //
-//    Copyright (c) 2012-2017                                                 //
+//    Maintained by Christian-W. Budde (Christian@pcjv.de)                    //
+//    Copyright (c) 2012-2020                                                 //
 //                                                                            //
 //  Based on:                                                                 //
 //    Pascal port by Milan Marusinec alias Milano (milan@marusinec.sk)        //
@@ -185,7 +185,7 @@ type
 
   {$IFDEF AGG2D_USE_FREETYPE}
   TAggFontEngine = TAggFontEngineFreetypeInt32;
-  {$ELSE }
+  {$ELSE}
   TAggFontEngine = TAggFontEngineWin32TrueTypeInt32;
   {$ENDIF}
 

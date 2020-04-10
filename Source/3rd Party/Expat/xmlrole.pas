@@ -111,7 +111,7 @@ type
     xrIgnoreSect = xrTextDecl + 1,
     xrInnerParamEntityRef = xrIgnoreSect + 1,
     xrParamEntityRef = xrInnerParamEntityRef + 1
-{$ELSE }
+{$ELSE}
     xrParamEntityRef = xrComment + 1
 {$ENDIF}
   );

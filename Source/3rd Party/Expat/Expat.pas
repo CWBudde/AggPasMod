@@ -798,7 +798,7 @@ type
 
 {$IFDEF XML_UNICODE}
   IntChar = Int16u;
-{$ELSE }
+{$ELSE}
   IntChar = AnsiChar;
 {$ENDIF}
 
@@ -810,7 +810,7 @@ type
 const
 {$IFDEF XML_UNICODE}
   CXmlEncodeMax = CXmlUTF16EncodeMax;
-{$ELSE }
+{$ELSE}
   CXmlEncodeMax = CXmlUTF8EncodeMax;
 {$ENDIF}
 
@@ -840,7 +840,7 @@ function CharHash(H: Int32u; C: TXmlChar): Int32u;  {$IFDEF SUPPORTS_INLINE}
 begin
 {$IFDEF XML_UNICODE}
   Result := (H * $F4243) xor Int16u(C);
-{$ELSE }
+{$ELSE}
   Result := (H * $F4243) xor Int8u(C);
 {$ENDIF}
 end;
@@ -849,7 +849,7 @@ function MUSRasterizerConverterERT(Enc: PEncoding; S: PAnsiChar): Integer;
 begin
 {$IFDEF XML_UNICODE}
   Result := Integer(not Boolean(Enc.IsUtf16) or Boolean(Int32u(S) and 1));
-{$ELSE }
+{$ELSE}
   Result := Integer(not Boolean(Enc.IsUtf8));
 {$ENDIF}
 end;
@@ -893,7 +893,7 @@ procedure XmlConvert(Enc: PEncoding; FromP, FromLim, ToP, ToLim: Pointer);
 begin
 {$IFDEF XML_UNICODE}
   XmlUtf16Convert(Enc, FromP, FromLim, ToP, ToLim);
-{$ELSE }
+{$ELSE}
   XmlUtf8Convert(Enc, FromP, FromLim, ToP, ToLim);
 {$ENDIF}
 end;
@@ -902,7 +902,7 @@ function XmlEncode(CharNumber: Integer; Buf: Pointer): Integer;
 begin
 {$IFDEF XML_UNICODE}
   Result := XmlUtf16Encode(CharNumber, Buf);
-{$ELSE }
+{$ELSE}
   Result := XmlUtf8Encode(CharNumber, Buf);
 {$ENDIF}
 end;
@@ -1058,7 +1058,7 @@ var
   Ok: Integer;
 begin
 {$IFDEF XML_UNICODE {..}
-{$ELSE }
+{$ELSE}
   S := Pointer(Parser.ProtocolEncodingName);
 {$ENDIF}
 

@@ -3,7 +3,7 @@ unit AggBoundingRect;
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //  Anti-Grain Geometry (modernized Pascal fork, aka 'AggPasMod')             //
-//    Maintained by Christian-W. Budde (Christian@pcjv.de)          //
+//    Maintained by Christian-W. Budde (Christian@pcjv.de)                    //
 //    Copyright (c) 2012-2017a                                                 //
 //                                                                            //
 //  Based on:                                                                 //

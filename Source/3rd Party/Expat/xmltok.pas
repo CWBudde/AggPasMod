@@ -130,7 +130,7 @@ type
 const
 {$IFDEF XML_DTD}
   CXmlNumStates = 4;
-{$ELSE }
+{$ELSE}
   CXmlNumStates = 3;
 {$ENDIF}
 
@@ -272,7 +272,7 @@ function MinBPC(Enc: PEncoding): Integer; {$IFDEF SUPPORTS_INLINE} inline; {$END
 begin
 {$IFDEF XML_MIN_SIZE}
   Result := Enc.MinBytesPerChar;
-{$ELSE }
+{$ELSE}
   Result := 1;
 {$ENDIF}
 end;
@@ -436,7 +436,7 @@ function ByteType(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 {$IFDEF XML_MIN_SIZE}
   Result := PNormalEncoding(Enc).ByteType(Enc, P);
-{$ELSE }
+{$ELSE}
   Result := PNormalEncoding(Enc).Type_[Int8u(P^)];
 {$ENDIF}
 end;
@@ -445,7 +445,7 @@ function ByteToASCII(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 {$IFDEF XML_MIN_SIZE}
   Result := PNormalEncoding(Enc).ByteToAscii(Enc, P);
-{$ELSE }
+{$ELSE}
   Result := PByte(P)^;
 {$ENDIF}
 end;
@@ -454,7 +454,7 @@ function CharMatches(Enc: PEncoding; P: PAnsiChar; C: Integer): Integer;
 begin
 {$IFDEF XML_MIN_SIZE}
   Result := PNormalEncoding(Enc).CharMatches(Enc, P, C);
-{$ELSE }
+{$ELSE}
   Result := Integer(PByte(P)^ = C);
 {$ENDIF}
 end;
@@ -499,7 +499,7 @@ function IsNameCharMinBPC(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 {$IFDEF XML_MIN_SIZE}
   Result := PNormalEncoding(Enc).IsNameMin(Enc, P);
-{$ELSE }
+{$ELSE}
   Result := 0;
 {$ENDIF}
 end;
@@ -508,7 +508,7 @@ function IsNMSTRT_CharMinBPC(Enc: PEncoding; P: PAnsiChar): Integer;
 begin
 {$IFDEF XML_MIN_SIZE}
   Result := PNormalEncoding(Enc).IsNmstrtMin(Enc, P);
-{$ELSE }
+{$ELSE}
   Result := 0;
 {$ENDIF}
 end;
@@ -3053,7 +3053,7 @@ begin
         Inc(PtrComp(Ptr), MinBPC(Enc));
       end;
 
-    BT_DIGIT, BT_NAME, BT_MINUS {$IFDEF XML_NS} , BT_COLON: {$ELSE }: {$ENDIF}
+    BT_DIGIT, BT_NAME, BT_MINUS {$IFDEF XML_NS} , BT_COLON: {$ELSE}: {$ENDIF}
       begin
         Tok := xt_NMTOKEN;
 
