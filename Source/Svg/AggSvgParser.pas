@@ -68,6 +68,8 @@ type
     procedure ParsePoly(Attr: PPAnsiChar; CloseFlag: Boolean);
     procedure ParseRect(Attr: PPAnsiChar);
     procedure ParseLine(Attr: PPAnsiChar);
+    procedure ParseCircle(Attr: PPAnsiChar);
+    procedure ParseEllipse(Attr: PPAnsiChar);
     procedure ParseStyle(Str: PAnsiChar);
     procedure ParseTransform(Str: PAnsiChar);
 
@@ -314,8 +316,12 @@ begin
   else if CompareStr(AnsiString(El), 'polyline') = 0 then
     This.ParsePoly(Attr, False)
   else if CompareStr(AnsiString(El), 'polygon') = 0 then
-    This.ParsePoly(Attr, True);
-
+    This.ParsePoly(Attr, True)
+  else if CompareStr(AnsiString(El), 'circle') = 0 then
+    This.ParseCircle(Attr)
+  else if CompareStr(AnsiString(El), 'ellipse') = 0 then
+    This.ParseEllipse(Attr)
+  ;
   // else
   // if StrComp(PAnsiChar(El), '<OTHER_ELEMENTS>') = 0 then
   // begin
@@ -751,11 +757,14 @@ procedure TParser.ParseRect(Attr: PPAnsiChar);
 var
   I: Integer;
   X, Y, W, H: Double;
+  RX, RY: Double;
 begin
   X := 0.0;
   Y := 0.0;
   W := 0.0;
   H := 0.0;
+  RX:= 0.0;
+  RY:= 0.0;
 
   FPath.BeginPath;
 
@@ -787,8 +796,15 @@ begin
         H := ParseDouble(AggBasics.PPAnsiChar(PtrComp(Attr) + (I + 1) *
           SizeOf(PAnsiChar))^);
 
-      // rx - to be implemented
-      // ry - to be implemented
+      if CompareStr(AnsiString(PPAnsiChar(PtrComp(Attr) + I * SizeOf(PAnsiChar))^),
+        'rx') = 0 then
+        RX := ParseDouble(AggBasics.PPAnsiChar(PtrComp(Attr) + (I + 1) *
+          SizeOf(PAnsiChar))^);
+
+      if CompareStr(AnsiString(PPAnsiChar(PtrComp(Attr) + I * SizeOf(PAnsiChar))^),
+        'ry') = 0 then
+        RY := ParseDouble(AggBasics.PPAnsiChar(PtrComp(Attr) + (I + 1) *
+          SizeOf(PAnsiChar))^);
     end;
 
     Inc(I, 2);
@@ -802,11 +818,29 @@ begin
     if H < 0.0 then
       raise TSvgException.CreateFmt(RCStrParseRectInvalidHeight, [H]);
 
-    FPath.MoveTo(X, Y);
-    FPath.LineTo(X + W, Y);
-    FPath.LineTo(X + W, Y + H);
-    FPath.LineTo(X, Y + H);
-    FPath.CloseSubpath;
+    if (RX = 0.0) and (RY = 0.0) then
+    begin
+      FPath.MoveTo(X, Y);
+      FPath.LineTo(X + W, Y);
+      FPath.LineTo(X + W, Y + H);
+      FPath.LineTo(X, Y + H);
+      FPath.CloseSubpath;
+    end
+    else
+    begin
+      if RX = 0.0 then RX:= RY;
+      if RY = 0.0 then RY:= RX;
+
+      FPath.MoveTo(X, Y + RY);
+      FPath.Arc   (RX, RY, 90, False, True, X + RX, Y);           //Left Top
+      FPath.LineTo(X + W - RX, Y);
+      FPath.Arc   (RX, RY, 90, False, True, X + W, Y + RY);       //Right Top
+      FPath.LineTo(X + W, Y + H - RY);
+      FPath.Arc   (RX, RY, 90, False, True, X + W - RX, Y + H);   //Right Bot
+      FPath.LineTo(X + RX, Y + H);
+      FPath.Arc   (RX, RY, 90, False, True, X, Y + H - RY);       //Left Bot
+      FPath.CloseSubpath;
+    end;
   end;
 
   FPath.EndPath;
@@ -858,6 +892,98 @@ begin
 
   FPath.MoveTo(X1, Y1);
   FPath.LineTo(X2, Y2);
+  FPath.EndPath;
+end;
+
+procedure TParser.ParseCircle(Attr: PPAnsiChar);
+var
+  I: Integer;
+  CX, CY, R: Double;
+begin
+  CX := 0.0;
+  CY := 0.0;
+  R  := 0.0;
+
+  FPath.BeginPath;
+
+  I := 0;
+
+  while PPAnsiChar(PtrComp(Attr) + I * SizeOf(PAnsiChar))^ <> nil do
+  begin
+    if not ParseAttr(AggBasics.PPAnsiChar(PtrComp(Attr) + I *
+      SizeOf(PAnsiChar))^, AggBasics.PPAnsiChar(PtrComp(Attr) + (I + 1) *
+      SizeOf(PAnsiChar))^) then
+    begin
+      if CompareStr(AnsiString(PPAnsiChar(PtrComp(Attr) + I * SizeOf(PAnsiChar))^),
+        'cx') = 0 then
+        CX := ParseDouble(AggBasics.PPAnsiChar(PtrComp(Attr) + (I + 1) *
+          SizeOf(PAnsiChar))^);
+
+      if CompareStr(AnsiString(PPAnsiChar(PtrComp(Attr) + I * SizeOf(PAnsiChar))^),
+        'cy') = 0 then
+        CY := ParseDouble(AggBasics.PPAnsiChar(PtrComp(Attr) + (I + 1) *
+          SizeOf(PAnsiChar))^);
+
+      if CompareStr(AnsiString(PPAnsiChar(PtrComp(Attr) + I * SizeOf(PAnsiChar))^),
+        'r') = 0 then
+        R := ParseDouble(AggBasics.PPAnsiChar(PtrComp(Attr) + (I + 1) *
+          SizeOf(PAnsiChar))^);
+    end;
+
+    Inc(I, 2);
+  end;
+
+  FPath.MoveTo(CX - R, CY);
+  FPath.Arc(R, R, 360, True, True, 0, 0.0001, True);
+  FPath.EndPath;
+end;
+
+procedure TParser.ParseEllipse(Attr: PPAnsiChar);
+var
+  I: Integer;
+  CX, CY, RX, RY: Double;
+begin
+  CX := 0.0;
+  CY := 0.0;
+  RX := 0.0;
+  RY := 0.0;
+
+  FPath.BeginPath;
+
+  I := 0;
+
+  while PPAnsiChar(PtrComp(Attr) + I * SizeOf(PAnsiChar))^ <> nil do
+  begin
+    if not ParseAttr(AggBasics.PPAnsiChar(PtrComp(Attr) + I *
+      SizeOf(PAnsiChar))^, AggBasics.PPAnsiChar(PtrComp(Attr) + (I + 1) *
+      SizeOf(PAnsiChar))^) then
+    begin
+      if CompareStr(AnsiString(PPAnsiChar(PtrComp(Attr) + I * SizeOf(PAnsiChar))^),
+        'cx') = 0 then
+        CX := ParseDouble(AggBasics.PPAnsiChar(PtrComp(Attr) + (I + 1) *
+          SizeOf(PAnsiChar))^);
+
+      if CompareStr(AnsiString(PPAnsiChar(PtrComp(Attr) + I * SizeOf(PAnsiChar))^),
+        'cy') = 0 then
+        CY := ParseDouble(AggBasics.PPAnsiChar(PtrComp(Attr) + (I + 1) *
+          SizeOf(PAnsiChar))^);
+
+      if CompareStr(AnsiString(PPAnsiChar(PtrComp(Attr) + I * SizeOf(PAnsiChar))^),
+        'rx') = 0 then
+        RX := ParseDouble(AggBasics.PPAnsiChar(PtrComp(Attr) + (I + 1) *
+          SizeOf(PAnsiChar))^);
+
+      if CompareStr(AnsiString(PPAnsiChar(PtrComp(Attr) + I * SizeOf(PAnsiChar))^),
+        'ry') = 0 then
+        RY := ParseDouble(AggBasics.PPAnsiChar(PtrComp(Attr) + (I + 1) *
+          SizeOf(PAnsiChar))^);
+    end;
+
+    Inc(I, 2);
+  end;
+
+  FPath.MoveTo(CX - RX, CY);
+  FPath.Arc(RX, RY, 360, True, True, 0, 0.0001, True);
   FPath.EndPath;
 end;
 

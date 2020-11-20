@@ -161,6 +161,8 @@ type
       overload; // C, c
     procedure Curve4(X2, Y2, X, Y: Double; Rel: Boolean = False); overload;
     // S, s
+    procedure Arc(Rx, Ry, Angle: Double; LargeArcFlag, SweepFlag: Boolean;
+      Dx, Dy: Double; Rel: Boolean = False);
 
     procedure CloseSubpath; // Z, z
 
@@ -549,6 +551,16 @@ begin
     FStorage.Curve4Relative(X2, Y2, X, Y)
   else
     FStorage.Curve4(X2, Y2, X, Y);
+end;
+
+procedure TPathRenderer.Arc(Rx, Ry, Angle: Double; LargeArcFlag, SweepFlag: Boolean;
+  Dx, Dy: Double; Rel: Boolean = False);
+begin
+  Angle:= Deg2Rad(Angle);
+  if Rel then
+    FStorage.ArcRelative(RX, RY, Angle, LargeArcFlag, SweepFlag, Dx, Dy)
+  else
+    FStorage.ArcTo(RX, RY, Angle, LargeArcFlag, SweepFlag, Dx, Dy);
 end;
 
 procedure TPathRenderer.CloseSubpath;
