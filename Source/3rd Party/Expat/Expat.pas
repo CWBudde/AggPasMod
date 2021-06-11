@@ -2477,7 +2477,7 @@ begin
     Parser.EventEndPtr := Next;
 
     case Tok of
-      TXmlTok(-Integer(xtProlog_S)):
+      xtBreak: 
         begin
           if @Parser.DefaultHandler <> nil then
           begin

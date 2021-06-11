@@ -53,6 +53,8 @@ type
 
   PXmlTok = ^TXmlTok;
   TXmlTok = (
+  { The break token }
+    xtBreak = -15, 
   { The following token may be returned ByteType XmlContentTok }
     xtTrailingRSQB = -5, { ] or ]] at the end of the scan, might be
     start of illegal ]]> sequence }
