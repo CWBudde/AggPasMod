@@ -77,6 +77,9 @@ type
     procedure Clear(C: PAggColor); overload;
     procedure Clear(C: TAggRgba8); overload;
 
+    procedure Fill(C: PAggColor); overload;
+    procedure Fill(C: TAggRgba8); overload;
+	
     procedure CopyPixel(X, Y: Integer; C: PAggColor); virtual;
     procedure BlendPixel(X, Y: Integer; C: PAggColor; Cover: Int8u); virtual;
     function Pixel(X, Y: Integer): TAggColor; virtual;
@@ -337,8 +340,7 @@ var
 begin
   if (Width > 0) and (Height > 0) then
     for Y := 0 to GetHeight - 1 do
-      FPixelFormatProcessor.CopyHorizontalLine(FPixelFormatProcessor, 0, Y,
-        Width, C);
+      FPixelFormatProcessor.CopyHorizontalLine(FPixelFormatProcessor, 0, Y, Width, C);
 end;
 
 procedure TAggRendererBase.Clear(C: TAggRgba8);
@@ -349,8 +351,27 @@ begin
   AggColor.Rgba8 := C;
   if (Width > 0) and (Height > 0) then
     for Y := 0 to Height - 1 do
-      FPixelFormatProcessor.CopyHorizontalLine(FPixelFormatProcessor, 0, Y,
-        Width, @AggColor);
+      FPixelFormatProcessor.CopyHorizontalLine(FPixelFormatProcessor, 0, Y, Width, @AggColor);
+end;
+
+procedure TAggRendererBase.Fill(C: PAggColor);
+var
+  Y: Cardinal;
+begin
+  if (Width > 0) and (Height > 0) then
+    for Y := 0 to GetHeight - 1 do
+      FPixelFormatProcessor.BlendHorizontalLine(FPixelFormatProcessor, 0, Y, Width, C, CAggCoverMask);
+end;
+
+procedure TAggRendererBase.Fill(C: TAggRgba8);
+var
+  AggColor: TAggColor;
+  Y: Cardinal;
+begin
+  AggColor.Rgba8 := C;
+  if (Width > 0) and (Height > 0) then
+    for Y := 0 to Height - 1 do
+      FPixelFormatProcessor.BlendHorizontalLine(FPixelFormatProcessor, 0, Y, Width, @AggColor, CAggCoverMask);
 end;
 
 procedure TAggRendererBase.CopyPixel(X, Y: Integer; C: PAggColor);

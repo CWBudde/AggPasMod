@@ -30,8 +30,8 @@ uses
   AggBasics,
   AggArray,
   AggRasterizerCellsAA,
-  AggRasterizerScanline,
-  AggRasterizerScanlineClip,
+  AggRasterizerScanLine,
+  AggRasterizerScanLineClip,
   AggVertexSource,
   AggScanLine;
 

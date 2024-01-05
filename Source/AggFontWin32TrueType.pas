@@ -34,7 +34,9 @@ interface
 {$I AggCompiler.inc}
 
 uses
-  Windows, SysUtils, Math,
+  Windows,
+  SysUtils,
+  Math,
   AggBasics,
   AggArray,
   AggBitsetIterator,

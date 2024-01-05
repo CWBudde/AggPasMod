@@ -2,8 +2,7 @@
 // AggPas 2.4 RM3 pixel format definition file
 //
 
-procedure BlendPixBgraPre(P: PAggOrderBgra; Cr, Cg, Cb, Alpha: Cardinal);
-  overload;
+procedure BlendPixBgraPre(P: PAggOrderBgra; Cr, Cg, Cb, Alpha: Cardinal); overload;
 {$IFDEF PUREPASCAL}
 begin
   Alpha := CAggBaseMask - Alpha;
@@ -11,8 +10,7 @@ begin
   P^.R := Int8u(((P^.R * Alpha) shr CAggBaseShift) + Cr);
   P^.G := Int8u(((P^.G * Alpha) shr CAggBaseShift) + Cg);
   P^.B := Int8u(((P^.B * Alpha) shr CAggBaseShift) + Cb);
-  P^.A := Int8u(CAggBaseMask - ((Alpha * (CAggBaseMask - P^.A)) shr
-    CAggBaseShift));
+  P^.A := Int8u(CAggBaseMask - ((Alpha * (CAggBaseMask - P^.A)) shr CAggBaseShift));
 {$ELSE}
 asm
 {$IFDEF AGG_CPU_386}
@@ -109,8 +107,7 @@ begin
   P^.R := Int8u((P^.R * Alpha + Cr * Cover) shr CAggBaseShift);
   P^.G := Int8u((P^.G * Alpha + Cg * Cover) shr CAggBaseShift);
   P^.B := Int8u((P^.B * Alpha + Cb * Cover) shr CAggBaseShift);
-  P^.A := Int8u(CAggBaseMask - ((Alpha * (CAggBaseMask - P^.A)) shr
-    CAggBaseShift));
+  P^.A := Int8u(CAggBaseMask - ((Alpha * (CAggBaseMask - P^.A)) shr CAggBaseShift));
 end;
 
 procedure CopyOrBlendPixBgraPre(P: PAggOrderBgra; Cr, Cg, Cb,

@@ -32,6 +32,8 @@ interface
 
 {$I AggCompiler.inc}
 
+{$packrecords c}
+
 uses
   AggBasics;
 
@@ -45,18 +47,14 @@ const
 {$ENDIF}
 
 {$IFDEF AGG_LINUX }
-  CAggFreeTypeLibrary = 'freetype.so';
+  CAggFreeTypeLibrary = 'libfreetype.so';
   CAggFreeTypePrefix = '';
 {$ENDIF}
 
 {$IFDEF AGG_MACOSX }
-  CAggFreeTypeLibrary = 'libfreetype';
-  CAggFreeTypePrefix = '';
-{$ENDIF}
-
-{$IFDEF MACOS}
   CAggFreeTypeLibrary = 'libfreetype.dylib';
-  CAggFreeTypePrefix = '_';
+  CAggFreeTypePrefix = '';
+  {$linklib freetype}
 {$ENDIF}
 
   CAggFreeTypeCurveTagOn = 1;
@@ -94,10 +92,16 @@ type
   TAggFreeTypeInt = Longint;
   TAggFreeTypeUInt = Longword;
   TAggFreeTypeInt32 = Longint;
+  {$if defined(cpu64) and not(defined(win64) and defined(cpux86_64))} 
+  TAggFreeTypeLong = int64;
+  TAggFreeTypeULong = qword;
+  TAggFreeTypePos = int64;
+  {$ELSE}   
   TAggFreeTypeLong = Longint;
   TAggFreeTypeULong = Longword;
-  TAggFreeTypeFixed = Longint;
   TAggFreeTypePos = Longint;
+  {$ENDIF}  
+  TAggFreeTypeFixed = TAggFreeTypeLong;
   TAggFreeTypeError = Longint;
   TAggFreeTypeFixed26Dot6 = Longint;
 

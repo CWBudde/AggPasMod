@@ -35,7 +35,7 @@ interface
 {$I AggCompiler.inc}
 
 uses
-  Gpc,
+  GPC,
   AggBasics,
   AggArray,
   AggVertexSource;

@@ -58,13 +58,11 @@ type
     FHeight: Cardinal; // Height in pixels
     function GetStrideAbs: Cardinal;
   public
-    constructor Create; overload;
-    constructor Create(ABuffer: PInt8u; AWidth, AHeight: Cardinal;
-      AStride: Integer); overload;
+    constructor Create(); overload;
+    constructor Create(ABuffer: PInt8u; AWidth, AHeight: Cardinal; AStride: Integer); overload;
     destructor Destroy; override;
 
-    procedure Attach(ABuffer: PInt8u; AWidth, AHeight: Cardinal;
-      AStride: Integer);
+    procedure Attach(ABuffer: PInt8u; AWidth, AHeight: Cardinal; AStride: Integer);
 
     function RowXY(X, Y: Integer; Len: Cardinal): PInt8u; virtual;
     function Row(Y: Cardinal): PInt8u; virtual;
@@ -109,7 +107,7 @@ end;
 
 { TAggRenderingBuffer }
 
-constructor TAggRenderingBuffer.Create;
+constructor TAggRenderingBuffer.Create();
 begin
   FBuffer := nil;
   FRows := nil;
@@ -121,8 +119,7 @@ begin
   inherited;
 end;
 
-constructor TAggRenderingBuffer.Create(ABuffer: PInt8u;
-  AWidth, AHeight: Cardinal; AStride: Integer);
+constructor TAggRenderingBuffer.Create(ABuffer: PInt8u; AWidth, AHeight: Cardinal; AStride: Integer);
 begin
   Create;
   Attach(ABuffer, AWidth, AHeight, AStride);
@@ -134,8 +131,7 @@ begin
   inherited;
 end;
 
-procedure TAggRenderingBuffer.Attach(ABuffer: PInt8u; AWidth, AHeight: Cardinal;
-  AStride: Integer);
+procedure TAggRenderingBuffer.Attach(ABuffer: PInt8u; AWidth, AHeight: Cardinal; AStride: Integer);
 var
   RowsPointer: PPInt8u;
   RowPointer: PInt8u;

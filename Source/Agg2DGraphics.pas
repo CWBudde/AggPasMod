@@ -44,8 +44,7 @@ implementation
 procedure TAgg2DGraphics.Attach(Bitmap: TBitmap);
 begin
   Bitmap.PixelFormat := TPixelFormat.pf32bit;
-  Attach(Bitmap.ScanLine[Bitmap.Height - 1], Bitmap.Width, Bitmap.Height,
-    -Bitmap.Width * 4);
+  Attach(Bitmap.ScanLine[Bitmap.Height - 1], Bitmap.Width, Bitmap.Height, -Bitmap.Width * 4);
 end;
 
 end.

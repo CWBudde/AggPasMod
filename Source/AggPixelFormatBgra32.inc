@@ -2,8 +2,7 @@
 // AggPas 2.4 RM3 pixel format definition file
 //
 
-procedure BlendPixBgra(P: PAggOrderBgra; Cr, Cg, Cb, Alpha: Integer;
-  Cover: Cardinal = 0);
+procedure BlendPixBgra(P: PAggOrderBgra; Cr, Cg, Cb, Alpha: Integer; Cover: Cardinal = 0);
 {$IFDEF PUREPASCAL}
 begin
   P^.R := ((Cr - P^.R) * Alpha + (P^.R shl CAggBaseShift)) shr CAggBaseShift;
