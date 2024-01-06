@@ -8,9 +8,9 @@ program Rasterizers2;
 {-$DEFINE AntiAliasedOutlineRenderer}
 
 { DEFINE AGG_GRAY8 }
-{$DEFINE AGG_BGR24 }
+{ DEFINE AGG_BGR24 }
 { DEFINE AGG_Rgb24 }
-{ DEFINE AGG_BGRA32 }
+{$DEFINE AGG_BGRA32 }
 { DEFINE AGG_RgbA32 }
 { DEFINE AGG_ARGB32 }
 { DEFINE AGG_ABGR32 }
@@ -24,7 +24,18 @@ uses
   Math,
   SysUtils,
 
-  AggPlatformSupport, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
 
   AggBasics in '..\..\Source\AggBasics.pas',
 
@@ -713,9 +724,9 @@ begin
                 FCheckBoxTest.Status := False;
                 ForceRedraw;
 
-                DisplayMessage(Format('Aliased=%1.2fms, Anti-Aliased=%1.2fms, '
+                DisplayMessage(PAnsiChar(Format('Aliased=%1.2fms, Anti-Aliased=%1.2fms, '
                   + 'ScanLine=%1.2fms, Image-Pattern=%1.2fms'#0, [T2, T3, T4,
-                  T5]));
+                  T5])));
 
                 // Free AGG resources
 

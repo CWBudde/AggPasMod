@@ -223,6 +223,7 @@ type
 
     procedure Reset; override;
     procedure AutoClose(Flag: Boolean);
+    procedure SetClipping (Value : Boolean);
     procedure SetClipBox(X1, Y1, X2, Y2: Double); override;
     procedure SetClipBox(Rect: TRectDouble); override;
 
@@ -1074,6 +1075,11 @@ begin
   FOutline.Reset;
 
   FStatus := siStatusInitial;
+end;
+
+procedure TAggRasterizerScanLineAA.SetClipping (Value : Boolean);
+begin
+  FClipping := Value;
 end;
 
 procedure TAggRasterizerScanLineAA.SetClipBox(X1, Y1, X2, Y2: Double);

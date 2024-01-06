@@ -26,8 +26,24 @@ interface
 
 {$I AggCompiler.inc}
 
-// With this define uncommented you can use FreeType font engine
-{-$DEFINE AGG2D_USE_FREETYPE}
+{.$DEFINE AGG2D_USE_RASTERFONTS }
+{$DEFINE AGG2D_USE_FREETYPE }
+{.$DEFINE AGG2D_USE_WINFONTS }
+
+{$IFDEF AGG2D_USE_RASTERFONTS}
+  {$UNDEF AGG2D_USE_FREETYPE}
+  {$UNDEF AGG2D_USE_WINFONTS}
+{$ENDIF}
+
+{$IFDEF AGG2D_USE_FREETYPE}
+  {$UNDEF AGG2D_USE_WINFONTS}
+  {$UNDEF AGG2D_USE_RASTERFONTS}
+{$ENDIF}
+
+{$IFDEF AGG2D_USE_WINFONTS}
+  {$UNDEF AGG2D_USE_FREETYPE}
+  {$UNDEF AGG2D_USE_RASTERFONTS}
+{$ENDIF}
 
 uses
   AggBasics,
@@ -51,7 +67,7 @@ uses
   AggSpanAllocator,
   AggRasterizerScanLineAA,
   AggGammaFunctions,
-  AggScanlineUnpacked,
+  AggScanLineUnpacked,
   AggArc,
   AggBezierArc,
   AggRoundedRect,
@@ -64,47 +80,92 @@ uses
   AggImageFilters,
   AggVertexSource,
   AggRenderScanLines,
-
-{$IFDEF AGG2D_USE_FREETYPE}
+  AggBlur,
+  {$IFDEF AGG2D_USE_FREETYPE}
   AggFontFreeType,
-{$ELSE}
+  {$ENDIF}
+  {$IFDEF AGG2D_USE_WINFONTS}
   AggFontWin32TrueType,
   Windows,
+  {$ENDIF}
+  {$IFDEF AGG2D_USE_RASTERFONTS}
+  AggEmbeddedRasterFonts ,
+  AggGlyphRasterBin ,
+  AggRendererRasterText ,
+  {$ENDIF}
+  Math,
+  SysUtils;
+
+{$IFDEF AGG2D_USE_RASTERFONTS}
+type
+  TFontRecord = record
+    Font: PInt8u;
+    Name: AnsiString;
+  end;
+
+const
+  Fonts: array [0..34] of TFontRecord = (
+    (Font: @CAggGse4x6; name: 'Gse4x6'),
+    (Font: @CAggGse4x8; name: 'Gse4x8'),
+    (Font: @CAggGse5x7; name: 'Gse5x7'),
+    (Font: @CAggGse5x9; name: 'Gse5x9'),
+    (Font: @CAggGse6x9; name: 'Gse6x9'),
+    (Font: @CAggGse6x12; name: 'Gse6x12'),
+    (Font: @CAggGse7x11; name: 'Gse7x11'),
+    (Font: @CAggGse7x11Bold; name: 'Gse7x11Bold'),
+    (Font: @CAggGse7x15; name: 'Gse7x15'),
+    (Font: @CAggGse7x15Bold; name: 'Gse7x15Bold'),
+    (Font: @CAggGse8x16; name: 'Gse8x16'),
+    (Font: @CAggGse8x16Bold; name: 'Gse8x16Bold'),
+    (Font: @CAggMcs11Prop; name: 'Mcs11Prop'),
+    (Font: @CAggMcs11PropCondensed; name: 'Mcs11PropCondensed'),
+    (Font: @CAggMcs12Prop; name: 'Mcs12Prop'),
+    (Font: @CAggMcs13Prop; name: 'Mcs13Prop'),
+    (Font: @CAggMcs5x10Mono; name: 'Mcs5x10Mono'),
+    (Font: @CAggMcs5x11Mono; name: 'Mcs5x11Mono'),
+    (Font: @CAggMcs6x10Mono; name: 'Mcs6x10Mono'),
+    (Font: @CAggMcs6x11Mono; name: 'Mcs6x11Mono'),
+    (Font: @CAggMcs7x12MonoHigh; name: 'Mcs7x12MonoHigh'),
+    (Font: @CAggMcs7x12MonoLow; name: 'Mcs7x12MonoLow'),
+    (Font: @CAggVerdana12; name: 'Verdana12'),
+    (Font: @CAggVerdana12Bold; name: 'Verdana12Bold'),
+    (Font: @CAggVerdana13; name: 'Verdana13'),
+    (Font: @CAggVerdana13Bold; name: 'Verdana13Bold'),
+    (Font: @CAggVerdana14; name: 'Verdana14'),
+    (Font: @CAggVerdana14Bold; name: 'Verdana14Bold'),
+    (Font: @CAggVerdana16; name: 'Verdana16'),
+    (Font: @CAggVerdana16Bold; name: 'Verdana16Bold'),
+    (Font: @CAggVerdana17; name: 'Verdana17'),
+    (Font: @CAggVerdana17Bold; name: 'Verdana17Bold'),
+    (Font: @CAggVerdana18; name: 'Verdana18'),
+    (Font: @CAggVerdana18Bold; name: 'Verdana18Bold'),
+    (Font: nil; name: ''));
+
+  DefaultRasterFontName : AnsiString =  'Verdana14';
+
 {$ENDIF}
-  Math;
+
 
 type
   TAggPixelFormat = (pfRGBA, pfBGRA);
   PAggColorRgba8 = ^TAggColorRgba8;
   TAggColorRgba8 = TAggRgba8;
-
   TAggFontRasterizer = TAggGray8Adaptor;
-
   TAggFontScanLine = TAggGray8ScanLine;
-
-{$IFDEF AGG2D_USE_FREETYPE }
+  {$IFDEF AGG2D_USE_FREETYPE }
   TAggFontEngine = TAggFontEngineFreetypeInt32;
-{$ELSE}
+  {$ENDIF}
+  {$IFDEF AGG2D_USE_WINFONTS}
   TAggFontEngine = TAggFontEngineWin32TrueTypeInt32;
-{$ENDIF}
-
+  {$ENDIF}
   TAggGradient = (grdSolid, grdLinear, grdRadial);
   TAggDirection = (dirCW, dirCCW);
-
   TAggTextAlignmentHorizontal = (tahLeft, tahRight, tahCenter);
   TAggTextAlignmentVertical = (tavTop, tavBottom, tavCenter);
-
-  TAggDrawPathFlag = (dpfFillOnly, dpfStrokeOnly, dpfFillAndStroke,
-    dpfFillWithHorizontalLineColor);
-
-  TAggViewportOption = (voAnisotropic, voXMinYMin, voXMidYMin, voXMaxYMin,
-    voXMinYMid, voXMidYMid, voXMaxYMid, voXMinYMax, voXMidYMax, voXMaxYMax);
-
-  TAggImageFilterType = (ifNoFilter, ifBilinear, ifHanning, ifHermite, ifQuadric,
-    ifBicubic, ifCatrom, ifSpline16, ifSpline36, ifBlackman144);
-
+  TAggDrawPathFlag = (dpfFillOnly, dpfStrokeOnly, dpfFillAndStroke, dpfFillWithHorizontalLineColor);
+  TAggViewportOption = (voAnisotropic, voXMinYMin, voXMidYMin, voXMaxYMin, voXMinYMid, voXMidYMid, voXMaxYMid, voXMinYMax, voXMidYMax, voXMaxYMax);
+  TAggImageFilterType = (ifNoFilter, ifBilinear, ifHanning, ifHermite, ifQuadric, ifBicubic, ifCatrom, ifSpline16, ifSpline36, ifBlackman144);
   TAggImageResample = (irNever, irAlways, irOnZoomOut);
-
   TAggFontCache = (fcRaster, fcVector);
 
   PAggTransformations = ^TAggTransformations;
@@ -115,20 +176,16 @@ type
   TAgg2DImage = class
   private
     FRenderingBuffer: TAggRenderingBuffer;
+    FPixelFormat: TAggPixelFormat;
     function GetWidth: Integer;
     function GetHeight: Integer;
     function GetScanLine(Index: Cardinal): Pointer;
   public
-    constructor Create(Buffer: PInt8u; AWidth, AHeight: Cardinal;
-      Stride: Integer);
+    constructor Create(Buffer: PInt8u; AWidth, AHeight: Cardinal; Stride: Integer; PixelFormat: TAggPixelFormat = pfBGRA);
     destructor Destroy; override;
-
-    procedure Attach(Buffer: PInt8u; AWidth, AHeight: Cardinal;
-      Stride: Integer);
-
+    procedure Attach(Buffer: PInt8u; AWidth, AHeight: Cardinal; Stride: Integer);
     procedure PreMultiply;
     procedure DeMultiply;
-
     property ScanLine[Index: Cardinal]: Pointer read GetScanLine;
     property Width: Integer read GetWidth;
     property Height: Integer read GetHeight;
@@ -141,96 +198,75 @@ type
   public
     constructor Create(Alpha, Gamma: Double);
     destructor Destroy; override;
-
     function FuncOperatorGamma(X: Double): Double; override;
   end;
 
   TAgg2D = class
   private
     FRenderingBuffer: TAggRenderingBuffer;
-
     FRendererBase: TAggRendererBase;
     FRendererBaseComp: TAggRendererBase;
     FRendererBasePre: TAggRendererBase;
     FRendererBaseCompPre: TAggRendererBase;
-
     FRendererSolid: TAggRendererScanLineAASolid;
     FRendererSolidComp: TAggRendererScanLineAASolid;
-
     FAllocator: TAggSpanAllocator;
     FClipBox: TRectDouble;
-
     FBlendMode: TAggBlendMode;
     FImageBlendMode: TAggBlendMode;
-
     FScanLine: TAggScanLineUnpacked8;
     FRasterizer: TAggRasterizerScanLineAA;
-
     FMasterAlpha: Double;
     FAntiAliasGamma: Double;
-
     FFillGradient: TAggPodAutoArray;
     FLineGradient: TAggPodAutoArray;
-
     FLineCap: TAggLineCap;
     FLineJoin: TAggLineJoin;
-
     FFillGradientFlag: TAggGradient;
     FLineGradientFlag: TAggGradient;
-
     FFillGradientMatrix: TAggTransAffine;
     FLineGradientMatrix: TAggTransAffine;
-
     FFillGradientD1: Double;
     FLineGradientD1: Double;
     FFillGradientD2: Double;
     FLineGradientD2: Double;
-
     FTextAngle: Double;
-
     FTextAlignX: TAggTextAlignmentHorizontal;
     FTextAlignY: TAggTextAlignmentVertical;
-
     FTextHints: Boolean;
     FFontHeight: Double;
     FFontAscent: Double;
     FFontDescent: Double;
     FFontCacheType: TAggFontCache;
-
     FImageFilter: TAggImageFilterType;
     FImageResample: TAggImageResample;
     FImageFilterLUT: TAggImageFilter;
-
     FFillGradientInterpolator: TAggSpanInterpolatorLinear;
     FLineGradientInterpolator: TAggSpanInterpolatorLinear;
-
     FLinearGradientFunction: TAggGradientX;
     FRadialGradientFunction: TAggGradientCircle;
-
     FLineWidth: Double;
     FEvenOddFlag: Boolean;
-
     FPath: TAggPathStorage;
     FTransform: TAggTransAffine;
-
     FConvCurve : TAggConvCurve;
     FConvDash: TAggConvDash;
     FConvStroke: TAggConvStroke;
-
     FPathTransform: TAggConvTransform;
     FStrokeTransform: TAggConvTransform;
-
-{$IFNDEF AGG2D_USE_FREETYPE}
+    {$IFDEF AGG2D_USE_WINFONTS}
     FFontDC: HDC;
-{$ENDIF}
-
+    {$ENDIF}
+    {$IF DEFINED(AGG2D_USE_FREETYPE) OR DEFINED(AGG2D_USE_WINFONTS)}
     FFontEngine: TAggFontEngine;
     FFontCacheManager: TAggFontCacheManager;
-
-    // Other Pascal-specific members
+    {$ENDIF}
+    {$IFDEF AGG2D_USE_RASTERFONTS}
+    FFontGlyph: TAggGlyphRasterBin;
+    FFontFlipY: Boolean;
+    {$ENDIF}
     FGammaNone: TAggGammaNone;
     FGammaAgg2D: TAgg2DRasterizerGamma;
-
     FImageFilterBilinear: TAggImageFilterBilinear;
     FImageFilterHanning: TAggImageFilterHanning;
     FImageFilterHermite: TAggImageFilterHermite;
@@ -243,20 +279,13 @@ type
 
     procedure Render(AFillColor: Boolean); overload;
     procedure Render(Ras: TAggFontRasterizer; Sl: TAggFontScanLine); overload;
-
     procedure AddLine(X1, Y1, X2, Y2: Double);
     procedure AddEllipse(Cx, Cy, Rx, Ry: Double; Dir: TAggDirection); overload;
-    procedure AddEllipse(Center, Radius: TPointDouble; Dir: TAggDirection);
-      overload;
-
-    procedure RenderImage(Img: TAgg2DImage; X1, Y1, X2, Y2: Integer;
-      Parl: PDouble); overload;
-    procedure RenderImage(Img: TAgg2DImage; Rect: TRectInteger;
-      Parl: PDouble); overload;
+    procedure AddEllipse(Center, Radius: TPointDouble; Dir: TAggDirection); overload;
+    procedure RenderImage(Img: TAgg2DImage; X1, Y1, X2, Y2: Integer; Parl: PDouble); overload;
+    procedure RenderImage(Img: TAgg2DImage; Rect: TRectInteger; Parl: PDouble); overload;
     procedure SetImageFilter(F: TAggImageFilterType);
-
     function GetFlipText: Boolean;
-
     procedure SetImageResample(F: TAggImageResample); overload;
     procedure SetTextHints(Value: Boolean); overload;
     procedure SetLineCap(Cap: TAggLineCap); overload;
@@ -276,16 +305,13 @@ type
     FImageBlendColor: TAggColorRgba8;
     FFillColor: TAggColorRgba8;
     FLineColor: TAggColorRgba8;
-
     FPixelFormat: TAggPixelFormat;
     FPixelFormatProc: TAggPixelFormatProcessor;
     FPixelFormatComp: TAggPixelFormatProcessor;
     FPixelFormatPre: TAggPixelFormatProcessor;
     FPixelFormatCompPre: TAggPixelFormatProcessor;
-
     procedure UpdateApproximationScale;
     procedure UpdateRasterizerGamma;
-
     property RenderingBuffer: TAggRenderingBuffer read FRenderingBuffer;
     property RendererBase: TAggRendererBase read FRendererBase;
     property RendererBaseComp: TAggRendererBase read FRendererBaseComp;
@@ -295,213 +321,120 @@ type
     property Path: TAggPathStorage read FPath;
   public
     constructor Create(PixelFormat: TAggPixelFormat = pfBGRA); overload; virtual;
-    constructor Create(Buffer: PInt8u; Width, Height: Cardinal;
-      Stride: Integer; PixelFormat: TAggPixelFormat = pfBGRA); overload; virtual;
+    constructor Create(Buffer: PInt8u; Width, Height: Cardinal; Stride: Integer; PixelFormat: TAggPixelFormat = pfBGRA); overload; virtual;
     destructor Destroy; override;
-
-    // Setup
-    procedure Attach(Buffer: PInt8u; Width, Height: Cardinal;
-     Stride: Integer); overload;
-    procedure Attach(Img: TAgg2DImage); overload;
-
+    procedure Attach(Buffer: PInt8u; Width, Height: Cardinal; Stride: Integer); overload;
+    procedure Attach(Img: TAgg2DImage); overload;	
     procedure ClipBox(X1, Y1, X2, Y2: Double); overload;
     function ClipBox: TRectDouble; overload;
-
     procedure ClearAll(C: TAggColorRgba8); overload;
     procedure ClearAll(R, G, B: Cardinal; A: Cardinal = 255); overload;
-
+    procedure FillAll(C: TAggColorRgba8); overload;
+    procedure FillAll(R, G, B: Cardinal; A: Cardinal = 255); overload;
     procedure ClearClipBox(C: TAggColorRgba8); overload;
     procedure ClearClipBox(R, G, B: Cardinal; A: Cardinal = 255); overload;
-
-    // Conversions
     procedure WorldToScreen(X, Y: PDouble); overload;
     procedure WorldToScreen(var X, Y: Double); overload;
     procedure ScreenToWorld(X, Y: PDouble); overload;
     procedure ScreenToWorld(var X, Y: Double); overload;
     function WorldToScreen(Scalar: Double): Double; overload;
     function ScreenToWorld(Scalar: Double): Double; overload;
-
     procedure AlignPoint(X, Y: PDouble); overload;
     procedure AlignPoint(var X, Y: Double); overload;
-
     function InBox(WorldX, WorldY: Double): Boolean; overload;
     function InBox(World: TPointDouble): Boolean; overload;
-
-    // General Attributes
     procedure SetFillColor(R, G, B: Cardinal; A: Cardinal = 255); overload;
     procedure SetLineColor(R, G, B: Cardinal; A: Cardinal = 255); overload;
     procedure SetImageBlendColor(R, G, B: Cardinal; A: Cardinal = 255); overload;
     procedure NoFill;
     procedure NoLine;
-
-    procedure FillLinearGradient(X1, Y1, X2, Y2: Double; C1, C2: TAggColorRgba8;
-      Profile: Double = 1);
-    procedure LineLinearGradient(X1, Y1, X2, Y2: Double; C1, C2: TAggColorRgba8;
-      Profile: Double = 1);
-
-    procedure FillRadialGradient(X, Y, R: Double; C1, C2: TAggColorRgba8;
-      Profile: Double = 1); overload;
-    procedure LineRadialGradient(X, Y, R: Double; C1, C2: TAggColorRgba8;
-      Profile: Double = 1); overload;
-
+    procedure FillLinearGradient(X1, Y1, X2, Y2: Double; C1, C2: TAggColorRgba8; Profile: Double = 1);
+    procedure LineLinearGradient(X1, Y1, X2, Y2: Double; C1, C2: TAggColorRgba8; Profile: Double = 1);
+    procedure FillRadialGradient(X, Y, R: Double; C1, C2: TAggColorRgba8; Profile: Double = 1); overload;
+    procedure LineRadialGradient(X, Y, R: Double; C1, C2: TAggColorRgba8; Profile: Double = 1); overload;
     procedure FillRadialGradient(X, Y, R: Double; C1, C2, C3: TAggColorRgba8); overload;
     procedure LineRadialGradient(X, Y, R: Double; C1, C2, C3: TAggColorRgba8); overload;
-
     procedure FillRadialGradient(X, Y, R: Double); overload;
     procedure LineRadialGradient(X, Y, R: Double); overload;
-
     procedure RemoveAllDashes;
     procedure AddDash(DashLength, GapLength: Double);
-
-    // Transformations
     function GetTransformations: TAggTransformations;
     procedure SetTransformations(var Tr: TAggTransformations); overload;
     procedure SetTransformations(V0, V1, V2, V3, V4, V5: Double); overload;
     procedure ResetTransformations;
-
     procedure Affine(Tr: TAggTransAffine); overload;
     procedure Affine(var Tr: TAggTransformations); overload;
-
     procedure Rotate(Angle: Double);
     procedure Scale(Sx, Sy: Double);
     procedure Skew(Sx, Sy: Double);
     procedure Translate(X, Y: Double);
-
     procedure Parallelogram(X1, Y1, X2, Y2: Double; Para: PDouble);
-
-    procedure Viewport(WorldX1, WorldY1, WorldX2, WorldY2, ScreenX1, ScreenY1,
-      ScreenX2, ScreenY2: Double; Opt: TAggViewportOption = voXMidYMid); overload;
-    procedure Viewport(World, Screen: TRectDouble; Opt: TAggViewportOption =
-      voXMidYMid); overload;
-
-    // Basic Shapes
-    procedure Line(X1, Y1, X2, Y2: Double);
+    procedure Viewport(WorldX1, WorldY1, WorldX2, WorldY2, ScreenX1, ScreenY1, ScreenX2, ScreenY2: Double; Opt: TAggViewportOption = voXMidYMid); overload;
+    procedure Viewport(World, Screen: TRectDouble; Opt: TAggViewportOption = voXMidYMid); overload;
+    procedure Line(X1, Y1, X2, Y2: Double; AFixAlignment: Boolean = False); overload;
     procedure Triangle(X1, Y1, X2, Y2, X3, Y3: Double);
-    procedure Rectangle(X1, Y1, X2, Y2: Double);
-
+    procedure Rectangle(X1, Y1, X2, Y2: Double; AFixAlignment: Boolean = False); overload;
     procedure RoundedRect(X1, Y1, X2, Y2, R: Double); overload;
     procedure RoundedRect(Rect: TRectDouble; R: Double); overload;
     procedure RoundedRect(X1, Y1, X2, Y2, Rx, Ry: Double); overload;
     procedure RoundedRect(Rect: TRectDouble; Rx, Ry: Double); overload;
-    procedure RoundedRect(X1, Y1, X2, Y2, RxBottom, RyBottom, RxTop,
-      RyTop: Double); overload;
-
+    procedure RoundedRect(X1, Y1, X2, Y2, RxBottom, RyBottom, RxTop, RyTop: Double); overload;
     procedure Ellipse(Cx, Cy, Rx, Ry: Double);
     procedure Circle(Cx, Cy, Radius: Double);
-
     procedure Arc(Cx, Cy, Rx, Ry, Start, Sweep: Double);
     procedure Star(Cx, Cy, R1, R2, StartAngle: Double; NumRays: Integer);
-
     procedure Curve(X1, Y1, X2, Y2, X3, Y3: Double); overload;
     procedure Curve(X1, Y1, X2, Y2, X3, Y3, X4, Y4: Double); overload;
-
-    procedure Polygon(Xy: PPointDouble; NumPoints: Integer;
-      Flag: TAggDrawPathFlag = dpfFillAndStroke);
+    procedure Polygon(Xy: PPointDouble; NumPoints: Integer; Flag: TAggDrawPathFlag = dpfFillAndStroke);
     procedure Polyline(Xy: PPointDouble; NumPoints: Integer);
-
-    // Text
-    procedure Font(FileName: PAnsiChar; Height: Double; Bold: Boolean = False;
-      Italic: Boolean = False; Ch: TAggFontCache = fcRaster; Angle: Double = 0);
-
+    procedure Font(FileName: PAnsiChar; Height: Double; Bold: Boolean = False; Italic: Boolean = False; Ch: TAggFontCache = fcRaster; Angle: Double = 0);
     function FontHeight: Double;
-
-    procedure TextAlignment(AlignX: TAggTextAlignmentHorizontal;
-      AlignY: TAggTextAlignmentVertical);
-
+    procedure TextAlignment(AlignX: TAggTextAlignmentHorizontal; AlignY: TAggTextAlignmentVertical);
     function TextWidth(Str: PAnsiChar): Double; overload;
     function TextWidth(Str: AnsiString): Double; overload;
-
-    procedure Text(X, Y: Double; Str: PAnsiChar; RoundOff: Boolean = False;
-      Ddx: Double = 0; Ddy: Double = 0); overload;
-    procedure Text(X, Y: Double; Str: AnsiString; RoundOff: Boolean = False;
-      Ddx: Double = 0; Ddy: Double = 0); overload;
-
-    // Path commands
+    procedure Text(X, Y: Double; Str: PAnsiChar; RoundOff: Boolean = False; Ddx: Double = 0; Ddy: Double = 0); overload;
+    procedure Text(X, Y: Double; Str: AnsiString; RoundOff: Boolean = False; Ddx: Double = 0; Ddy: Double = 0); overload;
     procedure ResetPath;
-
     procedure MoveTo(X, Y: Double);
     procedure MoveRel(Dx, Dy: Double);
-
     procedure LineTo(X, Y: Double);
     procedure LineRel(Dx, Dy: Double);
-
     procedure HorizontalLineTo(X: Double);
     procedure HorizontalLineRel(Dx: Double);
-
     procedure VerticalLineTo(Y: Double);
     procedure VerticalLineRel(Dy: Double);
-
-    procedure ArcTo(Rx, Ry, Angle: Double; LargeArcFlag, SweepFlag: Boolean;
-      X, Y: Double); overload;
-    procedure ArcRel(Rx, Ry, Angle: Double; LargeArcFlag, SweepFlag: Boolean;
-      Dx, Dy: Double); overload;
-
+    procedure ArcTo(Rx, Ry, Angle: Double; LargeArcFlag, SweepFlag: Boolean; X, Y: Double); overload;
+    procedure ArcRel(Rx, Ry, Angle: Double; LargeArcFlag, SweepFlag: Boolean; Dx, Dy: Double); overload;
     procedure QuadricCurveTo(XCtrl, YCtrl, XTo, YTo: Double); overload;
     procedure QuadricCurveRel(DxCtrl, DyCtrl, DxTo, DyTo: Double); overload;
     procedure QuadricCurveTo(XTo, YTo: Double); overload;
     procedure QuadricCurveRel(DxTo, DyTo: Double); overload;
-
-    procedure CubicCurveTo(XCtrl1, YCtrl1, XCtrl2, YCtrl2, XTo,
-      YTo: Double); overload;
-    procedure CubicCurveRel(DxCtrl1, DyCtrl1, DxCtrl2, DyCtrl2, DxTo,
-      DyTo: Double); overload;
+    procedure CubicCurveTo(XCtrl1, YCtrl1, XCtrl2, YCtrl2, XTo, YTo: Double); overload;
+    procedure CubicCurveRel(DxCtrl1, DyCtrl1, DxCtrl2, DyCtrl2, DxTo, DyTo: Double); overload;
     procedure CubicCurveTo(XCtrl2, YCtrl2, XTo, YTo: Double); overload;
     procedure CubicCurveRel(XCtrl2, YCtrl2, XTo, YTo: Double); overload;
-
     procedure ClosePolygon;
-
     procedure DrawPath(Flag: TAggDrawPathFlag = dpfFillAndStroke);
     procedure DrawPathNoTransform(Flag: TAggDrawPathFlag = dpfFillAndStroke);
-
-    // Image Transformations
-    procedure TransformImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2,
-      ImgY2: Integer; DstX1, DstY1, DstX2, DstY2: Double); overload;
-    procedure TransformImage(Img: TAgg2DImage; ImgRect: TRectInteger;
-      DstX1, DstY1, DstX2, DstY2: Double); overload;
-    procedure TransformImage(Img: TAgg2DImage; ImgRect: TRectInteger;
-      Destination: TRectDouble); overload;
-
-    procedure TransformImage(Img: TAgg2DImage;
-      DstX1, DstY1, DstX2, DstY2: Double); overload;
-    procedure TransformImage(Img: TAgg2DImage;
-      Destination: TRectDouble); overload;
-
-    procedure TransformImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2,
-      ImgY2: Integer; Parallelogram: PDouble); overload;
-    procedure TransformImage(Img: TAgg2DImage; ImgRect: TRectInteger;
-      Parallelogram: PDouble); overload;
-
+    procedure TransformImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer; DstX1, DstY1, DstX2, DstY2: Double); overload;
+    procedure TransformImage(Img: TAgg2DImage; ImgRect: TRectInteger; DstX1, DstY1, DstX2, DstY2: Double); overload;
+    procedure TransformImage(Img: TAgg2DImage; ImgRect: TRectInteger; Destination: TRectDouble); overload;
+    procedure TransformImage(Img: TAgg2DImage; DstX1, DstY1, DstX2, DstY2: Double); overload;
+    procedure TransformImage(Img: TAgg2DImage; Destination: TRectDouble); overload;
+    procedure TransformImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer; Parallelogram: PDouble); overload;
+    procedure TransformImage(Img: TAgg2DImage; ImgRect: TRectInteger; Parallelogram: PDouble); overload;
     procedure TransformImage(Img: TAgg2DImage; Parallelogram: PDouble); overload;
-
-    procedure TransformImagePath(Img: TAgg2DImage;
-      ImgX1, ImgY1, ImgX2, ImgY2: Integer;
-      DstX1, DstY1, DstX2, DstY2: Double); overload;
-
-    procedure TransformImagePath(Img: TAgg2DImage;
-      DstX1, DstY1, DstX2, DstY2: Double); overload;
-
-    procedure TransformImagePath(Img: TAgg2DImage;
-      ImgX1, ImgY1, ImgX2, ImgY2: Integer; Parallelogram: PDouble); overload;
-
-    procedure TransformImagePath(Img: TAgg2DImage;
-      Parallelogram: PDouble); overload;
-
-    // Image Blending (no transformations available)
-    procedure BlendImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer;
-      DstX, DstY: Double; Alpha: Cardinal = 255); overload;
-
-    procedure BlendImage(Img: TAgg2DImage; DstX, DstY: Double;
-      Alpha: Cardinal = 255); overload;
-
-    // Copy image directly, together with alpha-channel
-    procedure CopyImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer;
-      DstX, DstY: Double); overload;
-    procedure CopyImage(Img: TAgg2DImage; ImgRect: TRectInteger;
-      Destination: TPointDouble); overload;
-
+    procedure TransformImagePath(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer; DstX1, DstY1, DstX2, DstY2: Double); overload;
+    procedure TransformImagePath(Img: TAgg2DImage; DstX1, DstY1, DstX2, DstY2: Double); overload;
+    procedure TransformImagePath(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer; Parallelogram: PDouble); overload;
+    procedure TransformImagePath(Img: TAgg2DImage; Parallelogram: PDouble); overload;
+    procedure BlendImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer; DstX, DstY: Double; Alpha: Cardinal = 255); overload;
+    procedure BlendImage(Img: TAgg2DImage; DstX, DstY: Double; Alpha: Cardinal = 255); overload;
+    procedure CopyImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer; DstX, DstY: Double); overload;
+    procedure CopyImage(Img: TAgg2DImage; ImgRect: TRectInteger; Destination: TPointDouble); overload;
     procedure CopyImage(Img: TAgg2DImage; DstX, DstY: Double); overload;
     procedure CopyImage(Img: TAgg2DImage; Destination: TPointDouble); overload;
-
+    procedure Blur(RX, RY: Cardinal);
     property AntiAliasGamma: Double read FAntiAliasGamma write SetAntiAliasGamma;
     property ImageBlendColor: TAggColorRgba8 read FImageBlendColor write SetImageBlendColor;
     property FillColor: TAggColorRgba8 read FFillColor write SetFillColor;
@@ -518,7 +451,6 @@ type
     property VerticalTextAlignment: TAggTextAlignmentVertical read FTextAlignY write FTextAlignY;
     property ImageResample: TAggImageResample read FImageResample write SetImageResample;
     property Row[Y: Cardinal]: PInt8U read GetRow;
-
     property ImageBlendMode: TAggBlendMode read FImageBlendMode write SetImageBlendMode;
     property MasterAlpha: Double read FMasterAlpha write SetMasterAlpha;
   end;
@@ -527,40 +459,32 @@ type
   private
     FMode : TAggBlendMode;
     FColor: TAggColorRgba8;
-    FPixel: TAggPixelFormatProcessor; // FPixelFormatCompPre
+    FPixel: TAggPixelFormatProcessor;
   public
     constructor Create(BlendMode: TAggBlendMode; C: TAggColorRgba8; P: TAggPixelFormatProcessor);
-
     procedure Convert(Span: PAggColor; X, Y: Integer; Len: Cardinal); override;
   end;
 
 function OperatorIsEqual(C1, C2: PAggColorRgba8): Boolean;
 function OperatorIsNotEqual(C1, C2: PAggColorRgba8): Boolean;
-
-procedure Agg2DRendererRender(Gr: TAgg2D; RendererBase: TAggRendererBase;
-  RenSolid: TAggRendererScanLineAASolid; FillColor: Boolean); overload;
-
-procedure Agg2DRendererRender(Gr: TAgg2D; RendererBase: TAggRendererBase;
-  RenSolid: TAggRendererScanLineAASolid; Ras: TAggGray8Adaptor;
-  Sl: TAggGray8ScanLine); overload;
-
-procedure Agg2DRendererRenderImage(Gr: TAgg2D; Img: TAgg2DImage;
-  RendererBase: TAggRendererBase; Interpolator: TAggSpanInterpolatorLinear);
-
+procedure Agg2DRendererRender(Gr: TAgg2D; RendererBase: TAggRendererBase; RenSolid: TAggRendererScanLineAASolid; FillColor: Boolean); overload;
+procedure Agg2DRendererRender(Gr: TAgg2D; RendererBase: TAggRendererBase; RenSolid: TAggRendererScanLineAASolid; Ras: TAggGray8Adaptor; Sl: TAggGray8ScanLine); overload;
+procedure Agg2DRendererRenderImage(Gr: TAgg2D; Img: TAgg2DImage; RendererBase: TAggRendererBase; Interpolator: TAggSpanInterpolatorLinear);
 function Agg2DUsesFreeType: Boolean;
+function Agg2DUsesWin32TrueType: Boolean;
+function Agg2DUsesRasterType: Boolean;
 
 implementation
 
 var
-  GApproxScale: Double = 2;
-
+  GApproxScale: Double = 2.0;
 
 { TAgg2DImage }
 
-constructor TAgg2DImage.Create(Buffer: PInt8u; AWidth, AHeight: Cardinal;
-  Stride: Integer);
+constructor TAgg2DImage.Create(Buffer: PInt8u; AWidth, AHeight: Cardinal; Stride: Integer; PixelFormat: TAggPixelFormat = pfBGRA);
 begin
   FRenderingBuffer := TAggRenderingBuffer.Create(Buffer, AWidth, AHeight, Stride);
+  FPixelFormat := PixelFormat;
 end;
 
 destructor TAgg2DImage.Destroy;
@@ -593,7 +517,16 @@ procedure TAgg2DImage.PreMultiply;
 var
   PixelFormatProcessor: TAggPixelFormatProcessor;
 begin
-  PixelFormatRgba32(PixelFormatProcessor, FRenderingBuffer);
+  case FPixelFormat of
+    pfRGBA:
+      begin
+        PixelFormatRgba32(PixelFormatProcessor, FRenderingBuffer);
+      end;
+    pfBGRA:
+      begin
+        PixelFormatBgra32(PixelFormatProcessor, FRenderingBuffer);
+      end;
+  end;
   PixelFormatProcessor.PreMultiply;
 end;
 
@@ -601,10 +534,18 @@ procedure TAgg2DImage.DeMultiply;
 var
   PixelFormatProcessor: TAggPixelFormatProcessor;
 begin
-  PixelFormatRgba32(PixelFormatProcessor, FRenderingBuffer);
+  case FPixelFormat of
+    pfRGBA:
+      begin
+        PixelFormatRgba32(PixelFormatProcessor, FRenderingBuffer);
+      end;
+    pfBGRA:
+      begin
+        PixelFormatBgra32(PixelFormatProcessor, FRenderingBuffer);
+      end;
+  end;
   PixelFormatProcessor.DeMultiply;
 end;
-
 
 { TAgg2DRasterizerGamma }
 
@@ -627,7 +568,6 @@ begin
   Result := FAlpha.FuncOperatorGamma(FGamma.FuncOperatorGamma(X));
 end;
 
-
 { TAgg2D }
 
 constructor TAgg2D.Create(PixelFormat: TAggPixelFormat = pfBGRA);
@@ -641,20 +581,16 @@ begin
     pfRGBA:
       begin
         PixelFormatRgba32(FPixelFormatProc, FRenderingBuffer);
-        PixelFormatCustomBlendRgba(FPixelFormatComp, FRenderingBuffer,
-          @BlendModeAdaptorRgba, CAggOrderRgba);
+        PixelFormatCustomBlendRgba(FPixelFormatComp, FRenderingBuffer, @BlendModeAdaptorRgba, CAggOrderRgba);
         PixelFormatRgba32(FPixelFormatPre, FRenderingBuffer);
-        PixelFormatCustomBlendRgba(FPixelFormatCompPre, FRenderingBuffer,
-          @BlendModeAdaptorRgba, CAggOrderRgba);
+        PixelFormatCustomBlendRgba(FPixelFormatCompPre, FRenderingBuffer, @BlendModeAdaptorRgba, CAggOrderRgba);
       end;
     pfBGRA:
       begin
         PixelFormatBgra32(FPixelFormatProc, FRenderingBuffer);
-        PixelFormatCustomBlendRgba(FPixelFormatComp, FRenderingBuffer,
-          @BlendModeAdaptorRgba, CAggOrderBgra);
+        PixelFormatCustomBlendRgba(FPixelFormatComp, FRenderingBuffer, @BlendModeAdaptorRgba, CAggOrderBgra);
         PixelFormatBgra32(FPixelFormatPre, FRenderingBuffer);
-        PixelFormatCustomBlendRgba(FPixelFormatCompPre, FRenderingBuffer,
-          @BlendModeAdaptorRgba, CAggOrderBgra);
+        PixelFormatCustomBlendRgba(FPixelFormatCompPre, FRenderingBuffer, @BlendModeAdaptorRgba, CAggOrderBgra);
       end;
   end;
 
@@ -745,15 +681,20 @@ begin
   FPathTransform := TAggConvTransform.Create(FConvCurve, FTransform);
   FStrokeTransform := TAggConvTransform.Create(FConvStroke, FTransform);
 
-{$IFDEF AGG2D_USE_FREETYPE}
+  {$IFDEF AGG2D_USE_FREETYPE }
   FFontEngine := TAggFontEngineFreetypeInt32.Create;
-{$ELSE}
+  {$ENDIF }
+  {$IFDEF AGG2D_USE_WINFONTS}
   FFontDC := GetDC(0);
-
   FFontEngine := TAggFontEngineWin32TrueTypeInt32.Create(FFontDC);
-{$ENDIF}
-
+  {$ENDIF }
+  {$IF DEFINED(AGG2D_USE_FREETYPE) OR DEFINED(AGG2D_USE_WINFONTS)}
   FFontCacheManager := TAggFontCacheManager.Create(FFontEngine);
+  {$ENDIF}
+  {$IFDEF AGG2D_USE_RASTERFONTS}
+  FFontGlyph := TAggGlyphRasterBin.Create(nil);
+  FFontFlipY := False;
+  {$ENDIF}
 
   SetLineCap(FLineCap);
   SetLineJoin(FLineJoin);
@@ -765,7 +706,6 @@ begin
   Create(PixelFormat);
   Attach(Buffer, Width, Height, Stride);
 end;
-
 
 destructor TAgg2D.Destroy;
 begin
@@ -818,17 +758,21 @@ begin
   FConvDash.Free;
   FConvStroke.Free;
 
-  FFontEngine.Free;
-  FFontCacheManager.Free;
-
   FPixelFormatProc.Free;
   FPixelFormatComp.Free;
   FPixelFormatPre.Free;
   FPixelFormatCompPre.Free;
 
-{$IFNDEF AGG2D_USE_FREETYPE}
+  {$IF DEFINED(AGG2D_USE_FREETYPE) OR DEFINED(AGG2D_USE_WINFONTS)}
+  FFontEngine.Free;
+  FFontCacheManager.Free;
+  {$ENDIF}
+  {$IFDEF AGG2D_USE_WINFONTS}
   ReleaseDC(0, FFontDC);
-{$ENDIF}
+  {$ENDIF }
+  {$IFDEF AGG2D_USE_RASTERFONTS}
+  FFontGlyph.Free;
+  {$ENDIF}
 end;
 
 procedure TAgg2D.Attach(Buffer: PInt8u; Width, Height: Cardinal; Stride: Integer);
@@ -866,8 +810,7 @@ end;
 
 procedure TAgg2D.Attach(Img: TAgg2DImage);
 begin
-  Attach(Img.FRenderingBuffer.Buffer, Img.FRenderingBuffer.Width,
-    Img.FRenderingBuffer.Height, Img.FRenderingBuffer.Stride);
+  Attach(Img.FRenderingBuffer.Buffer, Img.FRenderingBuffer.Width, Img.FRenderingBuffer.Height, Img.FRenderingBuffer.Stride);
 end;
 
 procedure TAgg2D.ClipBox(X1, Y1, X2, Y2: Double);
@@ -904,14 +847,26 @@ begin
   ClearAll(Clr);
 end;
 
+procedure TAgg2D.FillAll(C: TAggColorRgba8);
+begin
+  FRendererBase.Fill(C);
+end;
+
+procedure TAgg2D.FillAll(R, G, B: Cardinal; A: Cardinal = 255);
+var
+  Clr: TAggColorRgba8;
+begin
+  Clr.Initialize(R, G, B, A);
+  FillAll(Clr);
+end;
+
 procedure TAgg2D.ClearClipBox(C: TAggColorRgba8);
 var
   Clr: TAggColor;
 begin
   Clr.FromRgba8(C);
 
-  FRendererBase.CopyBar(0, 0, FRendererBase.Width, FRendererBase.Height,
-    @Clr);
+  FRendererBase.CopyBar(0, 0, FRendererBase.Width, FRendererBase.Height, @Clr);
 end;
 
 procedure TAgg2D.ClearClipBox(R, G, B: Cardinal; A: Cardinal = 255);
@@ -1090,8 +1045,7 @@ begin
   SetLineColor(Clr);
 end;
 
-procedure TAgg2D.FillLinearGradient(X1, Y1, X2, Y2: Double;
-  C1, C2: TAggColorRgba8; Profile: Double = 1);
+procedure TAgg2D.FillLinearGradient(X1, Y1, X2, Y2: Double; C1, C2: TAggColorRgba8; Profile: Double = 1);
 var
   I, StartGradient, StopGradient: Integer;
   K, Angle: Double;
@@ -1148,8 +1102,7 @@ begin
   FFillColor.Initialize(0, 0, 0); // Set some real TAggColorRgba8
 end;
 
-procedure TAgg2D.LineLinearGradient(X1, Y1, X2, Y2: Double; C1, C2: TAggColorRgba8;
-  Profile: Double = 1);
+procedure TAgg2D.LineLinearGradient(X1, Y1, X2, Y2: Double; C1, C2: TAggColorRgba8; Profile: Double = 1);
 var
   I, StartGradient, StopGradient: Integer;
   K, Angle: Double;
@@ -1204,8 +1157,7 @@ begin
   FLineGradientFlag := grdLinear;
 end;
 
-procedure TAgg2D.FillRadialGradient(X, Y, R: Double; C1, C2: TAggColorRgba8;
-  Profile: Double = 1);
+procedure TAgg2D.FillRadialGradient(X, Y, R: Double; C1, C2: TAggColorRgba8; Profile: Double = 1);
 var
   I, StartGradient, StopGradient: Integer;
 
@@ -1263,8 +1215,7 @@ begin
   FFillColor.Initialize(0, 0, 0); // Set some real TAggColorRgba8
 end;
 
-procedure TAgg2D.LineRadialGradient(X, Y, R: Double; C1, C2: TAggColorRgba8;
-  Profile: Double = 1);
+procedure TAgg2D.LineRadialGradient(X, Y, R: Double; C1, C2: TAggColorRgba8; Profile: Double = 1);
 var
   I, StartGradient, StopGradient: Integer;
   K: Double;
@@ -1496,9 +1447,7 @@ procedure TAgg2D.Affine(var Tr: TAggTransformations);
 var
   Ta: TAggTransAffine;
 begin
-  Ta := TAggTransAffine.Create(Tr.AffineMatrix[0], Tr.AffineMatrix[1],
-    Tr.AffineMatrix[2], Tr.AffineMatrix[3], Tr.AffineMatrix[4],
-    Tr.AffineMatrix[5]);
+  Ta := TAggTransAffine.Create(Tr.AffineMatrix[0], Tr.AffineMatrix[1], Tr.AffineMatrix[2], Tr.AffineMatrix[3], Tr.AffineMatrix[4], Tr.AffineMatrix[5]);
   try
     Affine(Ta);
   finally
@@ -1548,8 +1497,7 @@ begin
   UpdateApproximationScale;
 end;
 
-procedure TAgg2D.Viewport(WorldX1, WorldY1, WorldX2, WorldY2, ScreenX1, ScreenY1,
-  ScreenX2, ScreenY2: Double; Opt: TAggViewportOption = voXMidYMid);
+procedure TAgg2D.Viewport(WorldX1, WorldY1, WorldX2, WorldY2, ScreenX1, ScreenY1, ScreenX2, ScreenY2: Double; Opt: TAggViewportOption = voXMidYMid);
 var
   Vp: TAggTransViewport;
   Mx: TAggTransAffine;
@@ -1661,11 +1609,24 @@ begin
   UpdateApproximationScale;
 end;
 
-procedure TAgg2D.Line(X1, Y1, X2, Y2: Double);
+procedure TAgg2D.Line(X1, Y1, X2, Y2: Double; AFixAlignment: Boolean);
+var
+  LX1, LY1, LX2, LY2: Double;
 begin
   FPath.RemoveAll;
 
-  AddLine(X1, Y1, X2, Y2);
+  LX1 := X1;
+  LY1 := Y1;
+  LX2 := X2;
+  LY2 := Y2;
+  
+  if AFixAlignment then
+  begin
+    AlignPoint(@LX1, @LY1);
+    AlignPoint(@LX2, @LY2);
+  end;
+ 
+  AddLine(LX1, LY1, LX2, LY2);
   DrawPath(dpfStrokeOnly);
 end;
 
@@ -1680,16 +1641,33 @@ begin
   DrawPath(dpfFillAndStroke);
 end;
 
-procedure TAgg2D.Rectangle(X1, Y1, X2, Y2: Double);
+procedure TAgg2D.Rectangle(X1, Y1, X2, Y2: Double; AFixAlignment: Boolean);
+var
+  LX1, LY1, LX2, LY2: Double;
 begin
   FPath.RemoveAll;
-  FPath.MoveTo(X1, Y1);
-  FPath.LineTo(X2, Y1);
-  FPath.LineTo(X2, Y2);
-  FPath.LineTo(X1, Y2);
+
+  LX1 := X1;
+  LY1 := Y1;
+  LX2 := X2;
+  LY2 := Y2;
+  
+  if AFixAlignment then
+  begin
+    AlignPoint(@LX1, @LY1);
+    AlignPoint(@LX2, @LY2);
+  end;
+
+  FPath.MoveTo(LX1, LY1);
+  FPath.LineTo(LX2, LY1);
+  FPath.LineTo(LX2, LY2);
+  FPath.LineTo(LX1, LY2);
   FPath.ClosePolygon;
 
-  DrawPath(dpfFillAndStroke);
+  if FFillColor.A = 0 then
+    DrawPath(dpfStrokeOnly)
+  else
+    DrawPath(dpfFillAndStroke);
 end;
 
 procedure TAgg2D.RemoveAllDashes;
@@ -1901,8 +1879,7 @@ begin
   DrawPath(dpfStrokeOnly);
 end;
 
-procedure TAgg2D.Polygon(XY: PPointDouble; NumPoints: Integer;
-  Flag: TAggDrawPathFlag = dpfFillAndStroke);
+procedure TAgg2D.Polygon(XY: PPointDouble; NumPoints: Integer; Flag: TAggDrawPathFlag = dpfFillAndStroke);
 begin
   FPath.RemoveAll;
   FPath.AddPoly(Xy, NumPoints);
@@ -1921,12 +1898,20 @@ end;
 
 procedure TAgg2D.SetFlipText(Value: Boolean);
 begin
+  {$IF DEFINED(AGG2D_USE_FREETYPE) OR DEFINED(AGG2D_USE_WINFONTS)}
   FFontEngine.FlipY := Value;
+  {$ENDIF}
+  {$IFDEF AGG2D_USE_RASTERFONTS}
+  FFontFlipY :=  Value;
+  {$ENDIF}
 end;
 
 function TAgg2D.GetFlipText: Boolean;
 begin
+  Result := False;
+  {$IF DEFINED(AGG2D_USE_FREETYPE) OR DEFINED(AGG2D_USE_WINFONTS)}
   Result := FFontEngine.FlipY;
+  {$ENDIF}
 end;
 
 function TAgg2D.GetRow(Y: Cardinal): PInt8U;
@@ -1934,29 +1919,35 @@ begin
   Result := FRenderingBuffer.Row(Y);
 end;
 
-procedure TAgg2D.Font(FileName: PAnsiChar; Height: Double; Bold: Boolean = False;
-  Italic: Boolean = False; Ch: TAggFontCache = fcRaster;
-  Angle: Double = 0);
+procedure TAgg2D.Font(FileName: PAnsiChar; Height: Double; Bold: Boolean = False; Italic: Boolean = False; Ch: TAggFontCache = fcRaster; Angle: Double = 0);
+{$IFDEF AGG2D_USE_WINFONTS}
 var
   B: Integer;
+{$ENDIF}
+{$IFDEF AGG2D_USE_RASTERFONTS}
+var
+  I: Integer;
+  RasterFont : PInt8u;
+{$ENDIF}
 begin
   FTextAngle := Angle;
   FFontHeight := Height;
   FFontCacheType := Ch;
 
-{$IFDEF AGG2D_USE_FREETYPE}
+  {$IFDEF AGG2D_USE_FREETYPE}
+  FFontEngine.Hinting := FTextHints;
+
   if Ch = fcVector then
     FFontEngine.LoadFont(PAnsiChar(FileName), 0, grOutline)
   else
     FFontEngine.LoadFont(PAnsiChar(FileName), 0, grAgggray8);
 
-  FFontEngine.Hinting := FTextHints;
-
   if Ch = fcVector then
     FFontEngine.SetHeight(Height)
   else
     FFontEngine.SetHeight(WorldToScreen(Height));
-{$ELSE}
+  {$ENDIF}
+  {$IFDEF AGG2D_USE_WINFONTS}
   FFontEngine.Hinting := FTextHints;
 
   if Bold then
@@ -1965,12 +1956,38 @@ begin
     B := 400;
 
   if Ch = fcVector then
-    FFontEngine.CreateFont(PAnsiChar(FileName), grOutline, Height, 0, B,
-      Italic)
+    FFontEngine.CreateFont(PAnsiChar(FileName), grOutline, Height, 0, B, Italic)
   else
-    FFontEngine.CreateFont(PAnsiChar(FileName), grAgggray8,
-      WorldToScreen(Height), 0, B, Italic);
-{$ENDIF}
+    FFontEngine.CreateFont(PAnsiChar(FileName), grAgggray8, WorldToScreen(Height), 0, B, Italic);
+  {$ENDIF}
+  {$IFDEF AGG2D_USE_RASTERFONTS}
+  RasterFont := nil;
+
+  for i := 0 to Length(Fonts) - 1 do
+  begin
+    if StrComp(PAnsiChar(Fonts[i].Name), FileName) = 0 then
+    begin
+      RasterFont := Fonts[i].Font;
+      Break;
+    end;
+  end;
+  if RasterFont = nil then
+  begin
+    for i := 0 to Length(Fonts) - 1 do
+    begin
+      if StrComp(PAnsiChar(Fonts[i].Name), PAnsiChar(DefaultRasterFontName)) = 0 then
+      begin
+        RasterFont := Fonts[i].Font;
+        Break;
+      end;
+    end;
+  end;
+  if RasterFont = nil then
+  begin
+    RasterFont := Fonts[0].Font;
+  end;
+  FFontGlyph.SetFont(RasterFont);
+  {$ENDIF}
 end;
 
 function TAgg2D.FontHeight: Double;
@@ -1988,6 +2005,9 @@ end;
 procedure TAgg2D.SetTextHints(Value: Boolean);
 begin
   FTextHints := Value;
+  {$IF DEFINED(AGG2D_USE_FREETYPE) OR DEFINED(AGG2D_USE_WINFONTS)}
+  FFontEngine.Hinting := FTextHints;
+  {$ENDIF}
 end;
 
 function TAgg2D.TextWidth(Str: PAnsiChar): Double;
@@ -1996,6 +2016,11 @@ var
   First: Boolean;
   Glyph: PAggGlyphCache;
 begin
+  Result := 0;
+
+  if (StrLen(Str) <= 0) then Exit;
+
+  {$IF DEFINED(AGG2D_USE_FREETYPE) OR DEFINED(AGG2D_USE_WINFONTS)}
   X := 0;
   Y := 0;
 
@@ -2023,6 +2048,10 @@ begin
     Result := X
   else
     Result := ScreenToWorld(X);
+  {$ENDIF}
+  {$IFDEF AGG2D_USE_RASTERFONTS}
+  Result := FFontGlyph.Width(Str);
+  {$ENDIF}
 end;
 
 function TAgg2D.TextWidth(Str: AnsiString): Double;
@@ -2032,6 +2061,11 @@ var
   Glyph: PAggGlyphCache;
   I: Integer;
 begin
+  Result := 0;
+
+  if Str = '' then Exit;
+
+  {$IF DEFINED(AGG2D_USE_FREETYPE) OR DEFINED(AGG2D_USE_WINFONTS)}
   X := 0;
   Y := 0;
 
@@ -2057,18 +2091,30 @@ begin
     Result := X
   else
     Result := ScreenToWorld(X);
+  {$ENDIF}
+  {$IFDEF AGG2D_USE_RASTERFONTS}
+  Result := FFontGlyph.Width(PAnsiChar(Str));
+  {$ENDIF}
 end;
 
-procedure TAgg2D.Text(X, Y: Double; Str: PAnsiChar; RoundOff: Boolean = False;
-  Ddx: Double = 0; Ddy: Double = 0);
+procedure TAgg2D.Text(X, Y: Double; Str: PAnsiChar; RoundOff: Boolean = False; Ddx: Double = 0; Ddy: Double = 0);
 var
   Asc: Double;
   Delta, Start: TPointDouble;
   Glyph: PAggGlyphCache;
   Mtx: TAggTransAffine;
-  I: Integer;
   Tr: TAggConvTransform;
+  CharLen: Integer;
+  CharId: LongWord;
+  First: Boolean;
+  {$IFDEF AGG2D_USE_RASTERFONTS}
+  Rt: TAggRendererRasterHorizontalTextSolid;
+  {$ENDIF}
 begin
+
+  if (StrLen(Str) <= 0) then Exit;
+
+  {$IF DEFINED(AGG2D_USE_FREETYPE) OR DEFINED(AGG2D_USE_WINFONTS)}
   Delta.X := 0;
   Delta.Y := 0;
 
@@ -2122,17 +2168,20 @@ begin
     if FFontCacheType = fcRaster then
       WorldToScreen(@Start.X, @Start.Y);
 
-    I := 0;
+    First:=true;
 
-    while PAnsiChar(PtrComp(Str) + I * SizeOf(AnsiChar))^ <> #0 do
+    while Str^ <> #0 do
     begin
-      Glyph := FFontCacheManager.Glyph
-        (Int32u(PAnsiChar(PtrComp(Str) + I * SizeOf(AnsiChar))^));
-
-      if Glyph <> nil then
+      CharId := UTF8CharToUnicode(Str, CharLen);
+      inc(Str, CharLen);
+      Glyph := FFontCacheManager.Glyph(CharId);
+      if Glyph <> NIL then
       begin
-        if I <> 0 then
+        if First then
+        begin
           FFontCacheManager.AddKerning(@X, @Y);
+          First:= False;
+        end;
 
         FFontCacheManager.InitEmbeddedAdaptors(Glyph, Start.X, Start.Y);
 
@@ -2140,37 +2189,90 @@ begin
         begin
           FPath.RemoveAll;
           FPath.AddPath(Tr, 0, False);
-
           DrawPath;
         end;
 
         if Glyph.DataType = gdGray8 then
         begin
-          Render(FFontCacheManager.Gray8Adaptor,
-            FFontCacheManager.Gray8ScanLine);
+          Render(FFontCacheManager.Gray8Adaptor, FFontCacheManager.Gray8ScanLine);
         end;
 
         Start.X := Start.X + Glyph.AdvanceX;
         Start.Y := Start.Y + Glyph.AdvanceY;
       end;
-      Inc(I);
     end;
   finally
     Tr.Free;
     Mtx.Free
   end;
+  {$ENDIF}
+  {$IFDEF AGG2D_USE_RASTERFONTS}
+  Delta.X := 0;
+  Delta.Y := 0;
+
+  case FTextAlignX of
+    tahCenter:
+      Delta.X := -TextWidth(Str) * 0.5;
+    tahRight:
+      Delta.X := -TextWidth(Str);
+  end;
+
+  Asc := FontHeight;
+
+  case FTextAlignY of
+    tavCenter:
+      Delta.Y := -Asc * 0.5;
+    tavTop:
+      Delta.Y := -Asc;
+  end;
+
+  if FFontFlipY then
+      Delta.Y := -Delta.Y;
+
+  Start.X := X + Delta.X;
+  Start.Y := Y + Delta.Y;
+
+  if RoundOff then
+  begin
+    Start.X := Trunc(Start.X);
+    Start.Y := Trunc(Start.Y);
+  end;
+
+  Start.X := Start.X + Ddx;
+  Start.Y := Start.Y + Ddy;
+
+  Rt := TAggRendererRasterHorizontalTextSolid.Create(FRendererBase, FFontGlyph);
+
+  try
+    if (FFontGlyph.GetFont() = nil) then
+        Font(PChar(DefaultRasterFontName),14);
+
+    Rt.SetColor(FFillColor);
+    Rt.RenderText(Start.X, Start.Y, Str, FFontFlipY);
+  finally
+    Rt.Free;
+  end;
+  {$ENDIF}
 end;
 
-procedure TAgg2D.Text(X, Y: Double; Str: AnsiString; RoundOff: Boolean; Ddx,
-  Ddy: Double);
+procedure TAgg2D.Text(X, Y: Double; Str: AnsiString; RoundOff: Boolean; Ddx, Ddy: Double);
 var
   Asc: Double;
   Delta, Start: TPointDouble;
   Glyph: PAggGlyphCache;
   Mtx: TAggTransAffine;
-  I: Integer;
   Tr: TAggConvTransform;
+  PStr : PChar;
+  CharLen: Integer;
+  CharId: LongWord;
+  First: Boolean;
+  {$IFDEF AGG2D_USE_RASTERFONTS}
+  Rt: TAggRendererRasterHorizontalTextSolid;
+  {$ENDIF}
 begin
+  if Str = '' then Exit;
+
+  {$IF DEFINED(AGG2D_USE_FREETYPE) OR DEFINED(AGG2D_USE_WINFONTS)}
   Delta.X := 0;
   Delta.Y := 0;
 
@@ -2193,7 +2295,6 @@ begin
   case FTextAlignY of
     tavCenter:
       Delta.Y := -Asc * 0.5;
-
     tavTop:
       Delta.Y := -Asc;
   end;
@@ -2224,14 +2325,21 @@ begin
     if FFontCacheType = fcRaster then
       WorldToScreen(@Start.X, @Start.Y);
 
-    for I := 1 to Length(Str) do
-    begin
-      Glyph := FFontCacheManager.Glyph(Int32u(Str[I]));
+    Pstr:=@Str[1 ];
+    First:= True;
 
-      if Glyph <> nil then
+    while PStr^ <> #0 do
+    begin
+      CharId := UTF8CharToUnicode(PStr, CharLen);
+      inc(PStr, CharLen);
+      Glyph := FFontCacheManager.Glyph(CharId);
+      if Glyph <> NIL then
       begin
-        if I <> 0 then
-          FFontCacheManager.AddKerning(@X, @Y);
+        if First then
+        begin
+          FFontCacheManager.AddKerning(@X ,@Y );
+          First:= False;
+        end;
 
         FFontCacheManager.InitEmbeddedAdaptors(Glyph, Start.X, Start.Y);
 
@@ -2239,7 +2347,6 @@ begin
         begin
           FPath.RemoveAll;
           FPath.AddPath(Tr, 0, False);
-
           DrawPath;
         end;
 
@@ -2257,6 +2364,54 @@ begin
     Tr.Free;
     Mtx.Free
   end;
+  {$ENDIF}
+  {$IFDEF AGG2D_USE_RASTERFONTS}
+  Delta.X := 0;
+  Delta.Y := 0;
+
+  case FTextAlignX of
+    tahCenter:
+      Delta.X := -TextWidth(Str) * 0.5;
+    tahRight:
+      Delta.X := -TextWidth(Str);
+  end;
+
+  Asc := FontHeight;
+
+  case FTextAlignY of
+    tavCenter:
+      Delta.Y := -Asc * 0.5;
+    tavTop:
+      Delta.Y := -Asc;
+  end;
+
+  if FFontFlipY then
+      Delta.Y := -Delta.Y;
+
+  Start.X := X + Delta.X;
+  Start.Y := Y + Delta.Y;
+
+  if RoundOff then
+  begin
+    Start.X := Trunc(Start.X);
+    Start.Y := Trunc(Start.Y);
+  end;
+
+  Start.X := Start.X + Ddx;
+  Start.Y := Start.Y + Ddy;
+
+  Rt := TAggRendererRasterHorizontalTextSolid.Create(FRendererBase, FFontGlyph);
+
+  try
+    if (FFontGlyph.GetFont() = nil) then
+        Font(PChar(DefaultRasterFontName),14);
+
+    Rt.SetColor(FFillColor);
+    Rt.RenderText(Start.X, Start.Y, PAnsiChar(Str), FFontFlipY);
+  finally
+    Rt.Free;
+  end;
+  {$ENDIF}
 end;
 
 procedure TAgg2D.ResetPath;
@@ -2304,14 +2459,12 @@ begin
   FPath.VerticalLineRelative(Dy);
 end;
 
-procedure TAgg2D.ArcTo(Rx, Ry, Angle: Double; LargeArcFlag, SweepFlag: Boolean;
-  X, Y: Double);
+procedure TAgg2D.ArcTo(Rx, Ry, Angle: Double; LargeArcFlag, SweepFlag: Boolean; X, Y: Double);
 begin
   FPath.ArcTo(Rx, Ry, Angle, LargeArcFlag, SweepFlag, X, Y);
 end;
 
-procedure TAgg2D.ArcRel(Rx, Ry, Angle: Double; LargeArcFlag, SweepFlag: Boolean;
-  Dx, Dy: Double);
+procedure TAgg2D.ArcRel(Rx, Ry, Angle: Double; LargeArcFlag, SweepFlag: Boolean; Dx, Dy: Double);
 begin
   FPath.ArcRelative(Rx, Ry, Angle, LargeArcFlag, SweepFlag, Dx, Dy);
 end;
@@ -2341,8 +2494,7 @@ begin
   FPath.Curve4(XCtrl1, YCtrl1, XCtrl2, YCtrl2, XTo, YTo);
 end;
 
-procedure TAgg2D.CubicCurveRel(DxCtrl1, DyCtrl1, DxCtrl2, DyCtrl2, DxTo,
-  DyTo: Double);
+procedure TAgg2D.CubicCurveRel(DxCtrl1, DyCtrl1, DxCtrl2, DyCtrl2, DxTo, DyTo: Double);
 begin
   FPath.Curve4Relative(DxCtrl1, DyCtrl1, DxCtrl2, DyCtrl2, DxTo, DyTo);
 end;
@@ -2493,8 +2645,7 @@ begin
   FImageResample := F;
 end;
 
-procedure TAgg2D.TransformImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2,
-  ImgY2: Integer; DstX1, DstY1, DstX2, DstY2: Double);
+procedure TAgg2D.TransformImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer; DstX1, DstY1, DstX2, DstY2: Double);
 var
   Parall: TAggParallelogram;
 begin
@@ -2515,8 +2666,7 @@ begin
   RenderImage(Img, ImgX1, ImgY1, ImgX2, ImgY2, @Parall[0]);
 end;
 
-procedure TAgg2D.TransformImage(Img: TAgg2DImage;
-  DstX1, DstY1, DstX2, DstY2: Double);
+procedure TAgg2D.TransformImage(Img: TAgg2DImage; DstX1, DstY1, DstX2, DstY2: Double);
 var
   Parall: TAggParallelogram;
 begin
@@ -2534,8 +2684,7 @@ begin
   Parall[4] := DstX2;
   Parall[5] := DstY2;
 
-  RenderImage(Img, 0, 0, Img.FRenderingBuffer.Width,
-    Img.FRenderingBuffer.Height, @Parall[0]);
+  RenderImage(Img, 0, 0, Img.FRenderingBuffer.Width, Img.FRenderingBuffer.Height, @Parall[0]);
 end;
 
 procedure TAgg2D.TransformImage(Img: TAgg2DImage; Destination: TRectDouble);
@@ -2556,56 +2705,31 @@ begin
   Parall[4] := Destination.X2;
   Parall[5] := Destination.Y2;
 
-  RenderImage(Img, 0, 0, Img.FRenderingBuffer.Width,
-    Img.FRenderingBuffer.Height, @Parall[0]);
+  RenderImage(Img, 0, 0, Img.FRenderingBuffer.Width, Img.FRenderingBuffer.Height, @Parall[0]);
 end;
 
-procedure TAgg2D.TransformImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer;
-  Parallelogram: PDouble);
+procedure TAgg2D.TransformImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer; Parallelogram: PDouble);
 begin
   ResetPath;
 
-  MoveTo(PDouble(PtrComp(Parallelogram))^,
-    PDouble(PtrComp(Parallelogram) + SizeOf(Double))^);
-
-  LineTo(PDouble(PtrComp(Parallelogram) + 2 * SizeOf(Double))^,
-    PDouble(PtrComp(Parallelogram) + 3 * SizeOf(Double))^);
-
-  LineTo(PDouble(PtrComp(Parallelogram) + 4 * SizeOf(Double))^,
-    PDouble(PtrComp(Parallelogram) + 5 * SizeOf(Double))^);
-
-  LineTo(PDouble(PtrComp(Parallelogram))^ +
-    PDouble(PtrComp(Parallelogram) + 4 * SizeOf(Double))^ -
-    PDouble(PtrComp(Parallelogram) + 2 * SizeOf(Double))^,
-    PDouble(PtrComp(Parallelogram) + SizeOf(Double))^ +
-    PDouble(PtrComp(Parallelogram) + 5 * SizeOf(Double))^ -
-    PDouble(PtrComp(Parallelogram) + 3 * SizeOf(Double))^);
+  MoveTo(PDouble(PtrComp(Parallelogram))^, PDouble(PtrComp(Parallelogram) + SizeOf(Double))^);
+  LineTo(PDouble(PtrComp(Parallelogram) + 2 * SizeOf(Double))^, PDouble(PtrComp(Parallelogram) + 3 * SizeOf(Double))^);
+  LineTo(PDouble(PtrComp(Parallelogram) + 4 * SizeOf(Double))^, PDouble(PtrComp(Parallelogram) + 5 * SizeOf(Double))^);
+  LineTo(PDouble(PtrComp(Parallelogram))^ + PDouble(PtrComp(Parallelogram) + 4 * SizeOf(Double))^ - PDouble(PtrComp(Parallelogram) + 2 * SizeOf(Double))^, PDouble(PtrComp(Parallelogram) + SizeOf(Double))^ + PDouble(PtrComp(Parallelogram) + 5 * SizeOf(Double))^ - PDouble(PtrComp(Parallelogram) + 3 * SizeOf(Double))^);
 
   ClosePolygon;
 
   RenderImage(Img, ImgX1, ImgY1, ImgX2, ImgY2, Parallelogram);
 end;
 
-procedure TAgg2D.TransformImage(Img: TAgg2DImage; ImgRect: TRectInteger;
-  Parallelogram: PDouble);
+procedure TAgg2D.TransformImage(Img: TAgg2DImage; ImgRect: TRectInteger; Parallelogram: PDouble);
 begin
   ResetPath;
 
-  MoveTo(PDouble(PtrComp(Parallelogram))^,
-    PDouble(PtrComp(Parallelogram) + SizeOf(Double))^);
-
-  LineTo(PDouble(PtrComp(Parallelogram) + 2 * SizeOf(Double))^,
-    PDouble(PtrComp(Parallelogram) + 3 * SizeOf(Double))^);
-
-  LineTo(PDouble(PtrComp(Parallelogram) + 4 * SizeOf(Double))^,
-    PDouble(PtrComp(Parallelogram) + 5 * SizeOf(Double))^);
-
-  LineTo(PDouble(PtrComp(Parallelogram))^ +
-    PDouble(PtrComp(Parallelogram) + 4 * SizeOf(Double))^ -
-    PDouble(PtrComp(Parallelogram) + 2 * SizeOf(Double))^,
-    PDouble(PtrComp(Parallelogram) + SizeOf(Double))^ +
-    PDouble(PtrComp(Parallelogram) + 5 * SizeOf(Double))^ -
-    PDouble(PtrComp(Parallelogram) + 3 * SizeOf(Double))^);
+  MoveTo(PDouble(PtrComp(Parallelogram))^, PDouble(PtrComp(Parallelogram) + SizeOf(Double))^);
+  LineTo(PDouble(PtrComp(Parallelogram) + 2 * SizeOf(Double))^, PDouble(PtrComp(Parallelogram) + 3 * SizeOf(Double))^);
+  LineTo(PDouble(PtrComp(Parallelogram) + 4 * SizeOf(Double))^, PDouble(PtrComp(Parallelogram) + 5 * SizeOf(Double))^);
+  LineTo(PDouble(PtrComp(Parallelogram))^ + PDouble(PtrComp(Parallelogram) + 4 * SizeOf(Double))^ - PDouble(PtrComp(Parallelogram) + 2 * SizeOf(Double))^, PDouble(PtrComp(Parallelogram) + SizeOf(Double))^ + PDouble(PtrComp(Parallelogram) + 5 * SizeOf(Double))^ - PDouble(PtrComp(Parallelogram) + 3 * SizeOf(Double))^);
 
   ClosePolygon;
 
@@ -2616,30 +2740,17 @@ procedure TAgg2D.TransformImage(Img: TAgg2DImage; Parallelogram: PDouble);
 begin
   ResetPath;
 
-  MoveTo(PDouble(Parallelogram)^, PDouble(PtrComp(Parallelogram) +
-    SizeOf(Double))^);
-
-  LineTo(PDouble(PtrComp(Parallelogram) + 2 * SizeOf(Double))^,
-    PDouble(PtrComp(Parallelogram) + 3 * SizeOf(Double))^);
-
-  LineTo(PDouble(PtrComp(Parallelogram) + 4 * SizeOf(Double))^,
-    PDouble(PtrComp(Parallelogram) + 5 * SizeOf(Double))^);
-
-  LineTo(PDouble(Parallelogram)^ +
-    PDouble(PtrComp(Parallelogram) + 4 * SizeOf(Double))^ -
-    PDouble(PtrComp(Parallelogram) + 2 * SizeOf(Double))^,
-    PDouble(PtrComp(Parallelogram) + SizeOf(Double))^ +
-    PDouble(PtrComp(Parallelogram) + 5 * SizeOf(Double))^ -
-    PDouble(PtrComp(Parallelogram) + 3 * SizeOf(Double))^);
+  MoveTo(PDouble(Parallelogram)^, PDouble(PtrComp(Parallelogram) + SizeOf(Double))^);
+  LineTo(PDouble(PtrComp(Parallelogram) + 2 * SizeOf(Double))^, PDouble(PtrComp(Parallelogram) + 3 * SizeOf(Double))^);
+  LineTo(PDouble(PtrComp(Parallelogram) + 4 * SizeOf(Double))^, PDouble(PtrComp(Parallelogram) + 5 * SizeOf(Double))^);
+  LineTo(PDouble(Parallelogram)^ + PDouble(PtrComp(Parallelogram) + 4 * SizeOf(Double))^ - PDouble(PtrComp(Parallelogram) + 2 * SizeOf(Double))^, PDouble(PtrComp(Parallelogram) + SizeOf(Double))^ + PDouble(PtrComp(Parallelogram) + 5 * SizeOf(Double))^ - PDouble(PtrComp(Parallelogram) + 3 * SizeOf(Double))^);
 
   ClosePolygon;
 
-  RenderImage(Img, 0, 0, Img.FRenderingBuffer.Width,
-    Img.FRenderingBuffer.Height, Parallelogram);
+  RenderImage(Img, 0, 0, Img.FRenderingBuffer.Width, Img.FRenderingBuffer.Height, Parallelogram);
 end;
 
-procedure TAgg2D.TransformImage(Img: TAgg2DImage; ImgRect: TRectInteger; DstX1,
-  DstY1, DstX2, DstY2: Double);
+procedure TAgg2D.TransformImage(Img: TAgg2DImage; ImgRect: TRectInteger; DstX1, DstY1, DstX2, DstY2: Double);
 var
   Parall: TAggParallelogram;
 begin
@@ -2653,8 +2764,7 @@ begin
   RenderImage(Img, ImgRect, @Parall[0]);
 end;
 
-procedure TAgg2D.TransformImage(Img: TAgg2DImage; ImgRect: TRectInteger;
-  Destination: TRectDouble);
+procedure TAgg2D.TransformImage(Img: TAgg2DImage; ImgRect: TRectInteger; Destination: TRectDouble);
 var
   Parall: TAggParallelogram;
 begin
@@ -2668,8 +2778,7 @@ begin
   RenderImage(Img, ImgRect, @Parall[0]);
 end;
 
-procedure TAgg2D.TransformImagePath(Img: TAgg2DImage;
-  ImgX1, ImgY1, ImgX2, ImgY2: Integer; DstX1, DstY1, DstX2, DstY2: Double);
+procedure TAgg2D.TransformImagePath(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer; DstX1, DstY1, DstX2, DstY2: Double);
 var
   Parall: TAggParallelogram;
 begin
@@ -2683,8 +2792,7 @@ begin
   RenderImage(Img, ImgX1, ImgY1, ImgX2, ImgY2, @Parall[0]);
 end;
 
-procedure TAgg2D.TransformImagePath(Img: TAgg2DImage;
-  DstX1, DstY1, DstX2, DstY2: Double);
+procedure TAgg2D.TransformImagePath(Img: TAgg2DImage; DstX1, DstY1, DstX2, DstY2: Double);
 var
   Parall: TAggParallelogram;
 begin
@@ -2695,24 +2803,20 @@ begin
   Parall[4] := DstX2;
   Parall[5] := DstY2;
 
-  RenderImage(Img, 0, 0, Img.FRenderingBuffer.Width,
-    Img.FRenderingBuffer.Height, @Parall[0]);
+  RenderImage(Img, 0, 0, Img.FRenderingBuffer.Width, Img.FRenderingBuffer.Height, @Parall[0]);
 end;
 
-procedure TAgg2D.TransformImagePath(Img: TAgg2DImage;
-  ImgX1, ImgY1, ImgX2, ImgY2: Integer; Parallelogram: PDouble);
+procedure TAgg2D.TransformImagePath(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer; Parallelogram: PDouble);
 begin
   RenderImage(Img, ImgX1, ImgY1, ImgX2, ImgY2, Parallelogram);
 end;
 
 procedure TAgg2D.TransformImagePath(Img: TAgg2DImage; Parallelogram: PDouble);
 begin
-  RenderImage(Img, 0, 0, Img.FRenderingBuffer.Width,
-    Img.FRenderingBuffer.Height, Parallelogram);
+  RenderImage(Img, 0, 0, Img.FRenderingBuffer.Width, Img.FRenderingBuffer.Height, Parallelogram);
 end;
 
-procedure TAgg2D.BlendImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer;
-  DstX, DstY: Double; Alpha: Cardinal = 255);
+procedure TAgg2D.BlendImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer; DstX, DstY: Double; Alpha: Cardinal = 255);
 var
   PixF: TAggPixelFormatProcessor;
   R: TRectInteger;
@@ -2722,15 +2826,12 @@ begin
   R := RectInteger(ImgX1, ImgY1, ImgX2, ImgY2);
 
   if FBlendMode = bmAlpha then
-    FRendererBasePre.BlendFrom(PixF, @R, Trunc(DstX) - ImgX1,
-      Trunc(DstY) - ImgY1, Alpha)
+    FRendererBasePre.BlendFrom(PixF, @R, Trunc(DstX) - ImgX1, Trunc(DstY) - ImgY1, Alpha)
   else
-    FRendererBaseCompPre.BlendFrom(PixF, @R, Trunc(DstX) - ImgX1,
-      Trunc(DstY) - ImgY1, Alpha);
+    FRendererBaseCompPre.BlendFrom(PixF, @R, Trunc(DstX) - ImgX1, Trunc(DstY) - ImgY1, Alpha);
 end;
 
-procedure TAgg2D.BlendImage(Img: TAgg2DImage; DstX, DstY: Double;
-  Alpha: Cardinal = 255);
+procedure TAgg2D.BlendImage(Img: TAgg2DImage; DstX, DstY: Double; Alpha: Cardinal = 255);
 var
   PixF: TAggPixelFormatProcessor;
 begin
@@ -2745,25 +2846,21 @@ begin
     FRendererBaseCompPre.BlendFrom(PixF, nil, Trunc(DstX), Trunc(DstY), Alpha);
 end;
 
-procedure TAgg2D.CopyImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer;
-  DstX, DstY: Double);
+procedure TAgg2D.CopyImage(Img: TAgg2DImage; ImgX1, ImgY1, ImgX2, ImgY2: Integer; DstX, DstY: Double);
 var
   R: TRectInteger;
 begin
   WorldToScreen(@DstX, @DstY);
   R := RectInteger(ImgX1, ImgY1, ImgX2, ImgY2);
 
-  FRendererBase.CopyFrom(Img.FRenderingBuffer, @R, Trunc(DstX) - ImgX1,
-    Trunc(DstY) - ImgY1);
+  FRendererBase.CopyFrom(Img.FRenderingBuffer, @R, Trunc(DstX) - ImgX1, Trunc(DstY) - ImgY1);
 end;
 
-procedure TAgg2D.CopyImage(Img: TAgg2DImage; ImgRect: TRectInteger;
-  Destination: TPointDouble);
+procedure TAgg2D.CopyImage(Img: TAgg2DImage; ImgRect: TRectInteger; Destination: TPointDouble);
 begin
   WorldToScreen(@Destination.X, @Destination.Y);
 
-  FRendererBase.CopyFrom(Img.FRenderingBuffer, @ImgRect,
-    Trunc(Destination.X) - ImgRect.X1, Trunc(Destination.Y) - ImgRect.Y1);
+  FRendererBase.CopyFrom(Img.FRenderingBuffer, @ImgRect, Trunc(Destination.X) - ImgRect.X1, Trunc(Destination.Y) - ImgRect.Y1);
 end;
 
 procedure TAgg2D.CopyImage(Img: TAgg2DImage; DstX, DstY: Double);
@@ -2777,8 +2874,15 @@ procedure TAgg2D.CopyImage(Img: TAgg2DImage; Destination: TPointDouble);
 begin
   WorldToScreen(@Destination.X, @Destination.Y);
 
-  FRendererBase.CopyFrom(Img.FRenderingBuffer, nil, Trunc(Destination.X),
-    Trunc(Destination.Y));
+  FRendererBase.CopyFrom(Img.FRenderingBuffer, nil, Trunc(Destination.X), Trunc(Destination.Y));
+end;
+
+procedure TAgg2D.Blur(RX, RY: Cardinal);
+begin
+  if ((FPixelFormat = pfRGBA) or (FPixelFormat = pfBGRA)) then
+  begin
+    StackBlurRgba32(@FPixelFormatProc, RX, RY);
+  end;
 end;
 
 procedure TAgg2D.Render(AFillColor: Boolean);
@@ -2818,8 +2922,7 @@ begin
   FRasterizer.Gamma(FGammaAgg2D);
 end;
 
-procedure TAgg2D.RenderImage(Img: TAgg2DImage; X1, Y1, X2, Y2: Integer;
-  Parl: PDouble);
+procedure TAgg2D.RenderImage(Img: TAgg2DImage; X1, Y1, X2, Y2: Integer; Parl: PDouble);
 var
   Mtx: TAggTransAffine;
   Interpolator: TAggSpanInterpolatorLinear;
@@ -2846,8 +2949,7 @@ begin
   end;
 end;
 
-procedure TAgg2D.RenderImage(Img: TAgg2DImage; Rect: TRectInteger;
-  Parl: PDouble);
+procedure TAgg2D.RenderImage(Img: TAgg2DImage; Rect: TRectInteger; Parl: PDouble);
 var
   Mtx: TAggTransAffine;
   Interpolator: TAggSpanInterpolatorLinear;
@@ -2875,11 +2977,9 @@ begin
   end;
 end;
 
-
 { TAggSpanConvImageBlend }
 
-constructor TAggSpanConvImageBlend.Create(BlendMode: TAggBlendMode; C: TAggColorRgba8;
-  P: TAggPixelFormatProcessor);
+constructor TAggSpanConvImageBlend.Create(BlendMode: TAggBlendMode; C: TAggColorRgba8; P: TAggPixelFormatProcessor);
 begin
   FMode := BlendMode;
   FColor := C;
@@ -2898,8 +2998,7 @@ begin
     S2 := PAggColorRgba8(Span);
 
     repeat
-      BlendModeAdaptorClipToDestinationRgbaPre(FPixel, FMode,
-        PInt8u(S2), FColor.R, FColor.G, FColor.B, CAggBaseMask, CAggCoverFull);
+      BlendModeAdaptorClipToDestinationRgbaPre(FPixel, FMode, PInt8u(S2), FColor.R, FColor.G, FColor.B, CAggBaseMask, CAggCoverFull);
 
       Inc(PtrComp(S2), SizeOf(TAggColorRgba8));
       Dec(L2);
@@ -2934,8 +3033,7 @@ begin
   Result := not OperatorIsEqual(C1, C2);
 end;
 
-procedure Agg2DRendererRender(Gr: TAgg2D; RendererBase: TAggRendererBase;
-  RenSolid: TAggRendererScanLineAASolid; FillColor: Boolean);
+procedure Agg2DRendererRender(Gr: TAgg2D; RendererBase: TAggRendererBase; RenSolid: TAggRendererScanLineAASolid; FillColor: Boolean);
 var
   Span: TAggSpanGradient;
   Ren : TAggRendererScanLineAA;
@@ -2945,9 +3043,7 @@ begin
     (not FillColor and (Gr.FLineGradientFlag = grdLinear)) then
     if FillColor then
     begin
-      Span := TAggSpanGradient.Create(Gr.FAllocator,
-        Gr.FFillGradientInterpolator, Gr.FLinearGradientFunction,
-        Gr.FFillGradient, Gr.FFillGradientD1, Gr.FFillGradientD2);
+      Span := TAggSpanGradient.Create(Gr.FAllocator, Gr.FFillGradientInterpolator, Gr.FLinearGradientFunction, Gr.FFillGradient, Gr.FFillGradientD1, Gr.FFillGradientD2);
       try
         Ren := TAggRendererScanLineAA.Create(RendererBase, Span);
         try
@@ -2961,9 +3057,7 @@ begin
     end
     else
     begin
-      Span := TAggSpanGradient.Create(Gr.FAllocator,
-        Gr.FLineGradientInterpolator, Gr.FLinearGradientFunction,
-        Gr.FLineGradient, Gr.FLineGradientD1, Gr.FLineGradientD2);
+      Span := TAggSpanGradient.Create(Gr.FAllocator, Gr.FLineGradientInterpolator, Gr.FLinearGradientFunction, Gr.FLineGradient, Gr.FLineGradientD1, Gr.FLineGradientD2);
       try
         Ren := TAggRendererScanLineAA.Create(RendererBase, Span);
         try
@@ -2975,13 +3069,10 @@ begin
         Span.Free;
       end;
     end
-  else if (FillColor and (Gr.FFillGradientFlag = grdRadial)) or
-    (not FillColor and (Gr.FLineGradientFlag = grdRadial)) then
+  else if (FillColor and (Gr.FFillGradientFlag = grdRadial)) or (not FillColor and (Gr.FLineGradientFlag = grdRadial)) then
     if FillColor then
     begin
-      Span := TAggSpanGradient.Create(Gr.FAllocator,
-        Gr.FFillGradientInterpolator, Gr.FRadialGradientFunction,
-        Gr.FFillGradient, Gr.FFillGradientD1, Gr.FFillGradientD2);
+      Span := TAggSpanGradient.Create(Gr.FAllocator, Gr.FFillGradientInterpolator, Gr.FRadialGradientFunction, Gr.FFillGradient, Gr.FFillGradientD1, Gr.FFillGradientD2);
       try
         Ren := TAggRendererScanLineAA.Create(RendererBase, Span);
         try
@@ -2995,9 +3086,7 @@ begin
     end
     else
     begin
-      Span := TAggSpanGradient.Create(Gr.FAllocator,
-        Gr.FLineGradientInterpolator, Gr.FRadialGradientFunction,
-        Gr.FLineGradient, Gr.FLineGradientD1, Gr.FLineGradientD2);
+      Span := TAggSpanGradient.Create(Gr.FAllocator, Gr.FLineGradientInterpolator, Gr.FRadialGradientFunction, Gr.FLineGradient, Gr.FLineGradientD1, Gr.FLineGradientD2);
       try
         Ren := TAggRendererScanLineAA.Create(RendererBase, Span);
         try
@@ -3021,9 +3110,7 @@ begin
   end;
 end;
 
-procedure Agg2DRendererRender(Gr: TAgg2D; RendererBase: TAggRendererBase;
-  RenSolid: TAggRendererScanLineAASolid; Ras: TAggGray8Adaptor;
-  Sl: TAggGray8ScanLine);
+procedure Agg2DRendererRender(Gr: TAgg2D; RendererBase: TAggRendererBase; RenSolid: TAggRendererScanLineAASolid; Ras: TAggGray8Adaptor; Sl: TAggGray8ScanLine);
 var
   Span: TAggSpanGradient;
   Ren : TAggRendererScanLineAA;
@@ -3031,9 +3118,7 @@ var
 begin
   if Gr.FFillGradientFlag = grdLinear then
   begin
-    Span := TAggSpanGradient.Create(Gr.FAllocator, Gr.FFillGradientInterpolator,
-      Gr.FLinearGradientFunction, Gr.FFillGradient, Gr.FFillGradientD1,
-      Gr.FFillGradientD2);
+    Span := TAggSpanGradient.Create(Gr.FAllocator, Gr.FFillGradientInterpolator, Gr.FLinearGradientFunction, Gr.FFillGradient, Gr.FFillGradientD1, Gr.FFillGradientD2);
     try
       Ren := TAggRendererScanLineAA.Create(RendererBase, Span);
       try
@@ -3047,9 +3132,7 @@ begin
   end
   else if Gr.FFillGradientFlag = grdRadial then
   begin
-    Span := TAggSpanGradient.Create(Gr.FAllocator, Gr.FFillGradientInterpolator,
-      Gr.FRadialGradientFunction, Gr.FFillGradient, Gr.FFillGradientD1,
-      Gr.FFillGradientD2);
+    Span := TAggSpanGradient.Create(Gr.FAllocator, Gr.FFillGradientInterpolator, Gr.FRadialGradientFunction, Gr.FFillGradient, Gr.FFillGradientD1, Gr.FFillGradientD2);
     try
       Ren := TAggRendererScanLineAA.Create(RendererBase, Span);
       try
@@ -3069,8 +3152,7 @@ begin
   end;
 end;
 
-procedure Agg2DRendererRenderImage(Gr: TAgg2D; Img: TAgg2DImage;
-  RendererBase: TAggRendererBase; Interpolator: TAggSpanInterpolatorLinear);
+procedure Agg2DRendererRenderImage(Gr: TAgg2D; Img: TAgg2DImage; RendererBase: TAggRendererBase; Interpolator: TAggSpanInterpolatorLinear);
 var
   Blend: TAggSpanConvImageBlend;
 
@@ -3085,19 +3167,16 @@ var
   Resample: Boolean;
   Sx, Sy: Double;
 begin
-  Blend := TAggSpanConvImageBlend.Create(Gr.FImageBlendMode,
-    Gr.FImageBlendColor, Gr.FPixelFormatCompPre);
+  Blend := TAggSpanConvImageBlend.Create(Gr.FImageBlendMode, Gr.FImageBlendColor, Gr.FPixelFormatCompPre);
   try
     if Gr.FImageFilter = ifNoFilter then
     begin
       Clr.Clear;
       case Gr.FPixelFormat of
         pfRGBA:
-          Sg := TAggSpanImageFilterRgbaNN.Create(Gr.FAllocator,
-            Img.FRenderingBuffer, @Clr, Interpolator, CAggOrderRgba);
+          Sg := TAggSpanImageFilterRgbaNN.Create(Gr.FAllocator, Img.FRenderingBuffer, @Clr, Interpolator, CAggOrderRgba);
         pfBGRA:
-          Sg := TAggSpanImageFilterRgbaNN.Create(Gr.FAllocator,
-            Img.FRenderingBuffer, @Clr, Interpolator, CAggOrderBgra);
+          Sg := TAggSpanImageFilterRgbaNN.Create(Gr.FAllocator, Img.FRenderingBuffer, @Clr, Interpolator, CAggOrderBgra);
       end;
       try
         Sc := TAggSpanConverter.Create(Sg, Blend);
@@ -3132,13 +3211,9 @@ begin
         Clr.Clear;
         case Gr.FPixelFormat of
           pfRGBA:
-            Sa := TAggSpanImageResampleRgbaAffine.Create(Gr.FAllocator,
-              Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT,
-              CAggOrderRgba);
+            Sa := TAggSpanImageResampleRgbaAffine.Create(Gr.FAllocator, Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT, CAggOrderRgba);
           pfBGRA:
-            Sa := TAggSpanImageResampleRgbaAffine.Create(Gr.FAllocator,
-              Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT,
-              CAggOrderBgra);
+            Sa := TAggSpanImageResampleRgbaAffine.Create(Gr.FAllocator, Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT, CAggOrderBgra);
         end;
         try
           Sc := TAggSpanConverter.Create(Sa, Blend);
@@ -3161,11 +3236,9 @@ begin
         Clr.Clear;
         case GR.FPixelFormat of
           pfRGBA:
-            Sb := TAggSpanImageFilterRgbaBilinear.Create(Gr.FAllocator,
-              Img.FRenderingBuffer, @Clr, Interpolator, CAggOrderRgba);
+            Sb := TAggSpanImageFilterRgbaBilinear.Create(Gr.FAllocator, Img.FRenderingBuffer, @Clr, Interpolator, CAggOrderRgba);
           pfBGRA:
-            Sb := TAggSpanImageFilterRgbaBilinear.Create(Gr.FAllocator,
-              Img.FRenderingBuffer, @Clr, Interpolator, CAggOrderBgra);
+            Sb := TAggSpanImageFilterRgbaBilinear.Create(Gr.FAllocator, Img.FRenderingBuffer, @Clr, Interpolator, CAggOrderBgra);
         end;
         try
           Sc := TAggSpanConverter.Create(Sb, Blend);
@@ -3188,13 +3261,9 @@ begin
         Clr.Clear;
         case GR.FPixelFormat of
           pfRGBA:
-            S2 := TAggSpanImageFilterRgba2x2.Create(Gr.FAllocator,
-              Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT,
-              CAggOrderRgba);
+            S2 := TAggSpanImageFilterRgba2x2.Create(Gr.FAllocator, Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT, CAggOrderRgba);
           pfBGRA:
-            S2 := TAggSpanImageFilterRgba2x2.Create(Gr.FAllocator,
-              Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT,
-              CAggOrderBgra);
+            S2 := TAggSpanImageFilterRgba2x2.Create(Gr.FAllocator, Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT, CAggOrderBgra);
         end;
         try
           Sc := TAggSpanConverter.Create(S2, Blend);
@@ -3217,13 +3286,9 @@ begin
         Clr.Clear;
         case GR.FPixelFormat of
           pfRGBA:
-            Si := TAggSpanImageFilterRgba.Create(Gr.FAllocator,
-              Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT,
-              CAggOrderRgba);
+            Si := TAggSpanImageFilterRgba.Create(Gr.FAllocator, Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT, CAggOrderRgba);
           pfBGRA:
-            Si := TAggSpanImageFilterRgba.Create(Gr.FAllocator,
-              Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT,
-              CAggOrderBgra);
+            Si := TAggSpanImageFilterRgba.Create(Gr.FAllocator, Img.FRenderingBuffer, @Clr, Interpolator, Gr.FImageFilterLUT, CAggOrderBgra);
         end;
         try
           Sc := TAggSpanConverter.Create(Si, Blend);
@@ -3249,11 +3314,29 @@ end;
 
 function Agg2DUsesFreeType: Boolean;
 begin
-{$IFDEF AGG2D_USE_FREETYPE}
+  {$IFDEF AGG2D_USE_FREETYPE}
   Result := True;
-{$ELSE}
+  {$ELSE}
   Result := False;
-{$ENDIF}
+  {$ENDIF}
+end;
+
+function Agg2DUsesWin32TrueType: Boolean;
+begin
+  {$IFDEF AGG2D_USE_WINFONTS}
+  Result := True;
+  {$ELSE}
+  Result := False;
+  {$ENDIF}
+end;
+
+function Agg2DUsesRasterType: Boolean;
+begin
+  {$IFDEF AGG2D_USE_RASTERFONTS}
+  Result := True;
+  {$ELSE}
+  Result := False;
+  {$ENDIF}
 end;
 
 end.

@@ -10,7 +10,18 @@ uses
   FastMM4,
   {$ENDIF}
 
-  AggPlatformSupport, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
 
   AggBasics in '..\..\Source\AggBasics.pas',
   AggMath in '..\..\Source\AggMath.pas',
@@ -26,7 +37,7 @@ uses
   AggRendererBase in '..\..\Source\AggRendererBase.pas',
   AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
   AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
-  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLineUnpacked in '..\..\Source\AggScanLineUnpacked.pas',
   AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
   AggConvTransform in '..\..\Source\AggConvTransform.pas',

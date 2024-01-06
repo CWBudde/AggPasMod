@@ -155,9 +155,7 @@ end;
 
 function TAggFontCache.FontIs(FontSignature: TAggBytes): Boolean;
 begin
-  Result := (Length(FFontSignature) = Length(FontSignature))
-        and (CompareMem(@FontSignature[0], @FFontSignature[0], Length(FontSignature)));
-
+  Result := (Length(FFontSignature) = Length(FontSignature)) and (CompareMem(@FontSignature[0], @FFontSignature[0], Length(FontSignature)));
   inherited;
 end;
 
@@ -168,8 +166,7 @@ begin
   Msb := (GlyphCode shr 8) and $FF;
 
   if FGlyphs[Msb] <> nil then
-    Result := PPAggGlyphCache(PtrComp(FGlyphs[Msb]) + (GlyphCode and $FF)
-      * SizeOf(PAggGlyphCache))^
+    Result := PPAggGlyphCache(PtrComp(FGlyphs[Msb]) + (GlyphCode and $FF) * SizeOf(PAggGlyphCache))^
   else
     Result := nil;
 end;

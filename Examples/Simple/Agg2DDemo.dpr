@@ -11,8 +11,19 @@ uses
   {$ENDIF}
   SysUtils,
 
-  AggPlatformSupport, // please add the path to this file manually
-  AggFileUtils, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
+
 
   AggBasics in '..\..\Source\AggBasics.pas',
   AggTransAffine in '..\..\Source\AggTransAffine.pas',
@@ -21,7 +32,7 @@ uses
 
 {-$DEFINE ViewportOptionAnisotropic}
 {-$DEFINE FontCacheRaster}
-{$DEFINE More}
+{-$DEFINE More}
 {$DEFINE UseTextHints}
 {-$DEFINE BlackBackground}
 {-$DEFINE UseClipBox}
@@ -57,28 +68,21 @@ type
     FGmText: AnsiString;
   public
     constructor Create(PixelFormat: TPixelFormat; FlipY: Boolean);
-    destructor Destroy; override;
-
-    procedure OnDraw; override;
-
-    procedure OnKey(X, Y: Integer; Key: Cardinal; Flags: TMouseKeyboardFlags);
-      override;
+    destructor Destroy(); override;
+    procedure OnDraw(); override;
+    procedure OnKey(X, Y: Integer; Key: Cardinal; Flags: TMouseKeyboardFlags); override;
   end;
-
 
 { TAggApplication }
 
 constructor TAggApplication.Create(PixelFormat: TPixelFormat; FlipY: Boolean);
 begin
   inherited Create(PixelFormat, FlipY);
-
   FGraphics := TAgg2D.Create;
   FTimer := TAgg2D.Create;
-
   FAngle := 0;
   FGamma := 1.4;
   FImage := 6;
-
   Str(FGamma: 0: 2, FGmText);
   FGmText := 'Gamma: ' + FGmText;
 end;
@@ -87,33 +91,24 @@ destructor TAggApplication.Destroy;
 begin
   FGraphics.Free;
   FTimer.Free;
-
   Finalize(FGmText);
-
   inherited;
 end;
 
 procedure TAggApplication.OnDraw;
 var
   Bounds: TRectDouble;
-
   Clr, C1, C2, C3: TAggColorRgba8;
-
   Img: TAgg2DImage;
-
   Parl: TAggParallelogram;
   Poly: array [0..11] of Double;
-
   Tm : Double;
   Fps: Integer;
-
   Timer, Rate: AnsiString;
 begin
   StartTimer;
 
-  FGraphics.Attach(RenderingBufferWindow.Buffer,
-    RenderingBufferWindow.Width, RenderingBufferWindow.Height,
-    RenderingBufferWindow.Stride);
+  FGraphics.Attach(RenderingBufferWindow.Buffer, RenderingBufferWindow.Width, RenderingBufferWindow.Height, RenderingBufferWindow.Stride);
 
   {$IFDEF BlackBackground}
   FGraphics.ClearAll(0, 0, 0);
@@ -128,8 +123,7 @@ begin
   FGraphics.FlipText := not CFlipY;
 
   {$IFDEF UseClipBox}
-  FGraphics.ClipBox(50, 50, RenderingBufferWindow.Width - 50,
-    RenderingBufferWindow.Height - 50);
+  FGraphics.ClipBox(50, 50, RenderingBufferWindow.Width - 50, RenderingBufferWindow.Height - 50);
   {$ENDIF}
 
   // Transformations - Rotate around (300, 300) to 5 degree
@@ -155,8 +149,7 @@ begin
   FGraphics.Font(PAnsiChar(GFontTimes), 14, False, False);
   FGraphics.SetFillColor(0, 0, 0);
   FGraphics.NoLine;
-  FGraphics.Text(100, 20, PAnsiChar('Regular Raster Text -- Fast, but can''t '
-    + 'be rotated'));{ }
+  FGraphics.Text(100, 20, PAnsiChar('Regular Raster Text -- Fast, but can''t ' + 'be rotated'));{ }
   {$ENDIF}
 
   // Outlined Text
@@ -374,8 +367,7 @@ begin
 
     2 : // Transform the rectangular part of the image to the destination
         // rectangle
-      FGraphics.TransformImage(Img, 60, 60, Img.Width - 60, Img.Height - 60,
-        450, 200, 595, 350);
+      FGraphics.TransformImage(Img, 60, 60, Img.Width - 60, Img.Height - 60, 450, 200, 595, 350);
 
     3 : // Transform the whole image to the destination parallelogram
       begin
@@ -399,8 +391,7 @@ begin
         Parl[4] := 575;
         Parl[5] := 350;
 
-        FGraphics.TransformImage(Img, 60, 60, Img.Width - 60, Img.Height - 60,
-          @Parl[0]);
+        FGraphics.TransformImage(Img, 60, 60, Img.Width - 60, Img.Height - 60, @Parl[0]);
       end;
 
 
@@ -421,8 +412,7 @@ begin
         FGraphics.MoveTo(450, 200);
         FGraphics.CubicCurveTo(595, 220, 575, 350, 595, 350);
         FGraphics.LineTo(470, 340);
-        FGraphics.TransformImagePath(Img, 60, 60, Img.Width - 60,
-          Img.Height - 60, 450, 200, 595, 350);
+        FGraphics.TransformImagePath(Img, 60, 60, Img.Width - 60, Img.Height - 60, 450, 200, 595, 350);
       end;
 
 
@@ -460,8 +450,7 @@ begin
         Parl[4] := 575;
         Parl[5] := 350;
 
-        FGraphics.TransformImagePath(Img, 60, 60, Img.Width - 60,
-          Img.Height - 60, @Parl[0]);
+        FGraphics.TransformImagePath(Img, 60, 60, Img.Width - 60, Img.Height - 60, @Parl[0]);
       end;
   end;
 
@@ -550,8 +539,7 @@ begin
   // ----------
   Tm := GetElapsedTime;
 
-  FTimer.Attach(RenderingBufferWindow.Buffer, RenderingBufferWindow.Width,
-    RenderingBufferWindow.Height, RenderingBufferWindow.Stride);
+  FTimer.Attach(RenderingBufferWindow.Buffer, RenderingBufferWindow.Width, RenderingBufferWindow.Height, RenderingBufferWindow.Stride);
 
   FTimer.AntiAliasGamma := 1.4;
 
@@ -574,8 +562,7 @@ begin
   FTimer.Text(350, 8, Timer);
 end;
 
-procedure TAggApplication.OnKey(X, Y: Integer; Key: Cardinal;
-  Flags: TMouseKeyboardFlags);
+procedure TAggApplication.OnKey(X, Y: Integer; Key: Cardinal; Flags: TMouseKeyboardFlags);
 begin
   if Key = Cardinal(kcF1) then
     DisplayMessage('"Quick and dirty prototype" of 2D drawing API for AGG.'#13#13
@@ -595,7 +582,7 @@ begin
     if FAngle < 0 then
       FAngle := 360 - CAngleStep;
 
-    ForceRedraw;
+    ForceRedraw();
   end;
 
   if Key = Cardinal(kcUp) then
@@ -605,7 +592,7 @@ begin
     if FAngle > 360 then
       FAngle := CAngleStep;
 
-    ForceRedraw;
+    ForceRedraw();
   end;
 
   if Key = Cardinal(kcRight) then
@@ -615,7 +602,7 @@ begin
     if FImage > 8 then
       FImage := 1;
 
-    ForceRedraw;
+    ForceRedraw();
   end;
 
   if Key = Cardinal(kcLeft) then
@@ -625,7 +612,7 @@ begin
     if FImage < 1 then
       FImage := 8;
 
-    ForceRedraw;
+    ForceRedraw();
   end;
 
   if Key = Cardinal(kcPadPlus) then
@@ -635,7 +622,7 @@ begin
     Str(FGamma: 0: 2, FGmText);
     FGmText := 'Gamma: ' + FGmText;
 
-    ForceRedraw;
+    ForceRedraw();
   end;
 
   if Key = Cardinal(kcPadMinus) then
@@ -645,13 +632,14 @@ begin
     Str(FGamma: 0: 2, FGmText);
     FGmText := 'Gamma: ' + FGmText;
 
-    ForceRedraw;
+    ForceRedraw();
   end;
 end;
 
 var
   ImageName, P, N, X: ShortString;
   Text: AnsiString;
+  App: TAggApplication;
 
 begin
   if Agg2DUsesFreeType then
@@ -661,9 +649,9 @@ begin
     GFontVerdana := 'verdana.ttf';
   end;
 
-  with TAggApplication.Create(pfBgra32, CFlipY) do
+  App := TAggApplication.Create(pfBgra32, CFlipY);
   try
-    Caption := 'Agg2DDemo (F1-Help)';
+    App.Caption := 'Agg2DDemo (F1-Help)';
 
     ImageName := 'spheres2';
 
@@ -676,19 +664,20 @@ begin
     end;
 {$ENDIF}
 
-    if not LoadImage(0, ImageName) then
+    if not App.LoadImage(0, ImageName) then
     begin
-      Text := 'File not found: ' + ImageName + ImageExtension;
+      Text := 'File not found: ' + ImageName + App.ImageExtension;
       if ImageName = 'spheres2' then
         Text := Text + #13#13 + 'Download http://www.antigrain.com/'
-          + ImageName + ImageExtension + #13 + 'or copy it from another ' +
-          'directory if available.';
-
-      DisplayMessage(Text);
+        + ImageName + App.ImageExtension + #13 + 'or copy it from another ' +
+        'directory if available.';
+        App.DisplayMessage(PChar(Text));
     end
-    else if Init(600, 600, [wfResize]) then
-      Run;
+    else if App.Init(600, 600, [wfResize]) then
+    begin
+      App.Run;
+    end;
   finally
-    Free;
+    App.Free;
   end;
 end.

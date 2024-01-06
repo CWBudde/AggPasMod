@@ -10,14 +10,25 @@ uses
   FastMM4,
   {$ENDIF}
 
-  AggPlatformSupport, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
 
   AggBasics in '..\..\Source\AggBasics.pas',
   AggMath in '..\..\Source\AggMath.pas',
 
   AggColor in '..\..\Source\AggColor.pas',
   AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
-  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
+  AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
 
   AggControl in '..\..\Source\Controls\AggControl.pas',
   AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
@@ -28,7 +39,7 @@ uses
   AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
   AggScanLine in '..\..\Source\AggScanLine.pas',
   AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
-  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLineUnpacked in '..\..\Source\AggScanLineUnpacked.pas',
   AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
   AggGammaFunctions in '..\..\Source\AggGammaFunctions.pas',
@@ -161,13 +172,12 @@ var
 begin
   Y := ScanLine.Y;
   NumSpans := ScanLine.NumSpans;
-  Span := ScanLine.GetBegin;
+  Span := PAggSpanUnpacked8(ScanLine.GetBegin);
 
   repeat
     X := Span.X;
     Covers := Span.Covers;
     NumPixel := Span.Len;
-
     repeat
       A := ShrInt32(Covers^ * FColor.Rgba8.A, 8);
 
@@ -180,7 +190,6 @@ begin
       Inc(X);
       Dec(NumPixel);
     until NumPixel = 0;
-
     Dec(NumSpans);
   until NumSpans = 0;
 end;
@@ -202,8 +211,7 @@ begin
   FY[2] := 310;
 
   FSlider[0] := TAggControlSlider.Create(80, 10, 600 - 10, 19, not FlipY);
-  FSlider[1] := TAggControlSlider.Create(80, 10 + 20, 600 - 10, 19 + 20,
-    not FlipY);
+  FSlider[1] := TAggControlSlider.Create(80, 10 + 20, 600 - 10, 19 + 20, not FlipY);
 
   FSlider[0].SetRange(8.0, 100.0);
   FSlider[0].NumSteps := 23;
@@ -222,7 +230,7 @@ begin
   FSlider[1].NoTransform;
 
   // Initialize structures
-  PixelFormatBgr24(FPixelformats, RenderingBufferWindow);
+  PixelFormatBgra32(FPixelformats, RenderingBufferWindow);
 end;
 
 destructor TAggApplication.Destroy;
@@ -444,7 +452,7 @@ begin
 end;
 
 begin
-  with TAggApplication.Create(pfBgr24, CFlipY) do
+  with TAggApplication.Create(pfBgra32, CFlipY) do
   try
     Caption := 'AGG Example. Anti-Aliasing Demo (F1-Help)';
 

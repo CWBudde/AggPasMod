@@ -421,6 +421,11 @@ function ShrInt32(I, Shift: Integer): Integer;
 
 procedure Fill32Bit(var X; Count: Cardinal; var Value);
 
+function UTF8CharToUnicode(p: PChar; out CharLen: longint): cardinal; {$IFDEF PUREPASCAL} {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF} {$ENDIF}
+function IntHex(I: Int64; Max: Byte = 0; Do_Low: Boolean = False): string; {$IFDEF PUREPASCAL} {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF} {$ENDIF}
+function BackLen(STW: string; Sz: Byte): string; {$IFDEF PUREPASCAL} {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF} {$ENDIF}
+function MakeStr(Ch: Char; Sz: Byte): string; {$IFDEF PUREPASCAL} {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF} {$ENDIF}
+
 implementation
 
 function AggGetMem(out Buf: Pointer; Sz: Cardinal): Boolean;
@@ -966,13 +971,6 @@ begin
   PPointer(B)^ := Temp;
 end;
 
-// bve
-{function MakeStr(Ch: AnsiChar; Sz: Byte): ShortString;
-begin
-  Result[0] := AnsiChar(Sz);
-
-  FillChar(Result[1], Sz, Ch);
-end;}
 function MakeStr(Ch: Char; Sz: Byte): string;
 begin
   Result := '';
@@ -980,50 +978,6 @@ begin
     Result := Result + Ch;
 end;
 
-// bve
-{function BackLen(STW: ShortString; Sz: Byte): ShortString;
-type
-  TSCAN = (SCAN_0, SCAN_1, SCAN_2, SCAN_3, SCAN_4, SCAN_5, SCAN_6, SCAN_7,
-    SCAN_8, SCAN_9, SCAN_A, SCAN_B, SCAN_C, SCAN_D, SCAN_E, SCAN_F, SCAN_G,
-    SCAN_H, SCAN_I, SCAN_J, SCAN_K, SCAN_L, SCAN_M, SCAN_N, SCAN_O, SCAN_P,
-    SCAN_Q, SCAN_R, SCAN_S, SCAN_T, SCAN_U, SCAN_V, SCAN_W, SCAN_X, SCAN_Y,
-    SCAN_Z);
-
-var
-  Pos, Wcb: Byte;
-  Scn     : TSCAN;
-begin
-  Result := '';
-
-  Wcb := Sz;
-  Pos := Length(STW);
-  Scn := SCAN_1;
-
-  while Wcb > 0 do
-  begin
-    case Scn of
-      SCAN_1:
-        if Pos > 0 then
-        begin
-          Result := STW[Pos] + Result;
-
-          Dec(Pos);
-
-        end
-        else
-        begin
-          Scn := SCAN_2;
-
-          Result := ' ' + Result;
-        end;
-
-      SCAN_2:
-        Result := ' ' + Result;
-    end;
-
-    Dec(Wcb);
-  end;
-end;}
 function BackLen(STW: string; Sz: Byte): string;
 type
   TSCAN = (SCAN_0, SCAN_1, SCAN_2, SCAN_3, SCAN_4, SCAN_5, SCAN_6, SCAN_7,
@@ -1068,65 +1022,6 @@ begin
   end;
 end;
 
-// bve
-{function IntHex(I: Int64; Max: Byte = 0; Do_Low: Boolean = False): ShortString;
-var
-  Str: ShortString;
-  Itm: Boolean;
-  Fcb: Byte;
-const
-  CLow: array [0..$F] of AnsiChar = '0123456789abcdef';
-  CHex: array [0..$F] of AnsiChar = '0123456789ABCDEF';
-begin
-  if Do_Low then
-    Str := CLow[I shr 60 and 15] + CLow[I shr 56 and 15] + CLow[I shr 52 and 15] +
-      CLow[I shr 48 and 15] + CLow[I shr 44 and 15] + CLow[I shr 40 and 15] +
-      CLow[I shr 36 and 15] + CLow[I shr 32 and 15] +
-
-      CLow[I shr 28 and 15] + CLow[I shr 24 and 15] + CLow[I shr 20 and 15] +
-      CLow[I shr 16 and 15] + CLow[I shr 12 and 15] + CLow[I shr 8 and 15] +
-      CLow[I shr 4 and 15] + CLow[I and 15]
-  else
-    Str := CHex[I shr 60 and 15] + CHex[I shr 56 and 15] + CHex[I shr 52 and 15] +
-      CHex[I shr 48 and 15] + CHex[I shr 44 and 15] + CHex[I shr 40 and 15] +
-      CHex[I shr 36 and 15] + CHex[I shr 32 and 15] +
-
-      CHex[I shr 28 and 15] + CHex[I shr 24 and 15] + CHex[I shr 20 and 15] +
-      CHex[I shr 16 and 15] + CHex[I shr 12 and 15] + CHex[I shr 8 and 15] +
-      CHex[I shr 4 and 15] + CHex[I and 15];
-
-  if Max > 0 then
-    if Length(Str) > Max then
-      Result := BackLen(Str, Max)
-    else if Length(Str) < Max then
-      Result := MakeStr('0', Max - Length(Str)) + Str
-    else
-      Result := Str
-
-  else
-  begin
-    Result := '';
-
-    Itm := False;
-
-    for Fcb := 1 to Length(Str) do
-      if Itm then
-        Result := Result + Str[Fcb]
-      else
-        case Str[Fcb] of
-          '0':
-          else
-          begin
-            Result := Str[Fcb];
-
-            Itm := True;
-          end;
-        end;
-
-    if Result = '' then
-      Result := '0';
-  end;
-end;}
 function IntHex(I: Int64; Max: Byte = 0; Do_Low: Boolean = False): string;
 var
   Str: string;
@@ -1185,6 +1080,59 @@ begin
       Result := '0';
   end;
 end;
+
+function UTF8CharToUnicode(p: PChar; out CharLen: LongInt): Cardinal;
+begin
+  if p = nil then
+  begin
+    Result := 0;
+    CharLen := 0;
+    exit;
+  end;
+  if Ord(p^) < $C0 then
+  begin
+    // regular single byte character (#0 is a normal char, this is pascal ;)
+  end
+  else if ((Ord(p^) and $E0) = $C0) then
+  begin
+    // could be double byte character
+    if (Ord(p[1]) and $C0) = $80 then
+    begin
+      Result := ((Ord(p^) and $1F) shl 6) or (Ord(p[1]) and $3F);
+      CharLen := 2;
+      exit;
+    end;
+  end
+  else if ((Ord(p^) and $F0) = $E0) then
+  begin
+    // could be triple byte character
+    if ((Ord(p[1]) and $C0) = $80) and ((Ord(p[2]) and $C0) = $80) then
+    begin
+      Result := ((Ord(p^) and $1F) shl 12) or ((Ord(p[1]) and $3F) shl 6) or
+        (Ord(p[2]) and $3F);
+      CharLen := 3;
+      exit;
+    end;
+  end
+  else if ((Ord(p^) and $F8) = $F0) then
+  begin
+    // could be 4 byte character
+    if ((Ord(p[1]) and $C0) = $80) and ((Ord(p[2]) and $C0) = $80) and
+      ((Ord(p[3]) and $C0) = $80) then
+    begin
+      Result := ((Ord(p^) and $0F) shl 18) or ((Ord(p[1]) and $3F) shl 12) or
+        ((Ord(p[2]) and $3F) shl 6) or (Ord(p[3]) and $3F);
+      CharLen := 4;
+      exit;
+    end;
+  end
+  else
+  begin
+    // invalid character
+  end;
+  Result := Ord(p^);
+  CharLen := 1;
+end;        
 
 function IntToDouble(I: Integer): Double;
 begin
@@ -1408,7 +1356,7 @@ asm
 end;
 
 procedure Fill32Bit(var X; Count: Cardinal; var Value);
-{$IFDEF PUREPASCAL}
+{$IF DEFINED(PUREPASCAL) OR DEFINED(AGG_CPU_PPC) OR (DEFINED(AGG_CPU_64) AND DEFINED(AGG_LINUX))}
 var
   I: Integer;
   P: PIntegerArray;
@@ -1439,9 +1387,6 @@ asm
         REP     STOSD    // Fill count dwords
 @Exit:
         POP     RDI
-{$ENDIF}
-{$IFDEF AGG_CPU_PPC}
-    yet undefined, please use PUREPASCAL implementation
 {$ENDIF}
 {$ENDIF}
 end;

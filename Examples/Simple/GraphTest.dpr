@@ -11,7 +11,18 @@ uses
   {$ENDIF}
   SysUtils,
 
-  AggPlatformSupport, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
 
   AggBasics in '..\..\Source\AggBasics.pas',
 
@@ -32,7 +43,7 @@ uses
   AggRasterizerOutline in '..\..\Source\AggRasterizerOutline.pas',
   AggScanLine in '..\..\Source\AggScanLine.pas',
   AggScanLinePacked in '..\..\Source\AggScanLinePacked.pas',
-  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLineUnpacked in '..\..\Source\AggScanLineUnpacked.pas',
   AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
   AggArray in '..\..\Source\AggArray.pas',
@@ -1473,7 +1484,7 @@ begin
             [Times[0], Times[1], Times[2], Times[3], Times[4]]);
         end;
 
-        DisplayMessage(Text);
+        DisplayMessage(PAnsiChar(Text));
 
         FCheckBoxBenchmark.Status := False;
         ForceRedraw;

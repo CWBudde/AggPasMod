@@ -1,4 +1,4 @@
-unit AggRasterizerScanlineClip;
+unit AggRasterizerScanLineClip;
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //

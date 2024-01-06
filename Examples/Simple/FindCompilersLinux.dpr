@@ -8,10 +8,17 @@ program FindCompilersLinux;
 //
 
 uses
-  SysUtils,
+
+  {$IFNDEF FPC}
+  Libc,
+  {$ELSE}
+  baseunix,
+  unix,
+  {$ENDIF}
   AggBasics,
-  AggFileUtils,
-  Libc;
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  SysUtils;
 
 {$I AggCompiler.inc}
 {$- }
@@ -22,7 +29,7 @@ type
   end;
 
 const
-  Cardinal(kcMax = 99;
+  CKeyMax = 99;
   CPoolMax = 65536;
   CMakeMax = 99;
 
@@ -78,7 +85,7 @@ begin
 
     Fname := Fname + #0;
 
-    Libc.Chmod(PAnsiChar(@Fname[1]), S_IRWXU or S_IRWXG or S_IROTH or S_IWOTH);
+    FpChmod(PAnsiChar(@Fname[1]), S_IRWXU or S_IRWXG or S_IROTH or S_IWOTH);
 
     if GPoolSize = Wr then
       Result := True;
@@ -93,7 +100,7 @@ begin
   begin
     Inc(GKeyLastX);
 
-    if Cmp_str(GKeyArray[GKeyLastX - 1].Key) = GKeyScanX then
+    if CompString(GKeyArray[GKeyLastX - 1].Key) = GKeyScanX then
     begin
       Val := GKeyArray[GKeyLastX - 1].Val;
       Result := True;
@@ -106,7 +113,7 @@ end;
 function FirstKey(Key: ShortString; var Val: ShortString): Boolean;
 begin
   GKeyLastX := 0;
-  GKeyScanX := Cmp_str(Key);
+  GKeyScanX := CompString(Key);
 
   Result := NextKey(Val);
 end;
@@ -121,7 +128,7 @@ var
 
   procedure Add_key;
   begin
-    if GKeyCount < Cardinal(kcMax then
+    if GKeyCount < CKeyMax then
     begin
       GKeyArray[GKeyCount].Key := Key;
       GKeyArray[GKeyCount].Val := Val;
@@ -304,7 +311,7 @@ begin
 
         FirstKey('target', Target);
 
-        if Cmp_str(Target) = Cmp_str('linux') then
+        if CompString(Target) = CompString('linux') then
           if WriteCompileScript(name, Ext) then
             Writeln('OK')
           else
@@ -329,7 +336,7 @@ var
 begin
   SpreadName(Found, File_path, File_name, File_ext);
 
-  if Cmp_str(File_ext) = Cmp_str('.dpr') then
+  if CompString(File_ext) = CompString('.dpr') then
     CreateCompileScript(File_name, File_ext);
 end;
 

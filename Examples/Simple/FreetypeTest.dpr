@@ -11,7 +11,18 @@ uses
   {$ENDIF}
   SysUtils,
 
-  AggPlatformSupport, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
 
   AggBasics in '..\..\Source\AggBasics.pas',
 
@@ -30,7 +41,7 @@ uses
   AggRendererPrimitives in '..\..\Source\AggRendererPrimitives.pas',
   AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
   AggScanLine in '..\..\Source\AggScanLine.pas',
-  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLineUnpacked in '..\..\Source\AggScanLineUnpacked.pas',
   AggScanLineBin in '..\..\Source\AggScanLineBin.pas',
   AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
@@ -214,8 +225,7 @@ begin
   FSliderGamma := TAggControlSlider.Create(260, 70, 635, 78, not FlipY);
   FCheckBoxHinting := TAggControlCheckBox.Create(160, 65, 'Hinting', not FlipY);
   FCheckBoxKerning := TAggControlCheckBox.Create(160, 80, 'Kerning', not FlipY);
-  FCheckBoxPerformance := TAggControlCheckBox.Create(160, 95,
-    'Test Performance', not FlipY);
+  FCheckBoxPerformance := TAggControlCheckBox.Create(160, 95, 'Test Performance', not FlipY);
 
   FFontEngine := TAggFontEngineFreetypeInt32.Create;
   FFontCacheManager := TAggFontCacheManager.Create(FFontEngine);
@@ -336,7 +346,7 @@ begin
 
   FContour.Width := -FSliderWeight.Value * FSliderHeight.Value * 0.05;
 
-  if FFontEngine.LoadFont(@GFontName[1], 0, Gren) then
+  if FFontEngine.LoadFont(GFontName, 0, Gren) then
   begin
     FFontEngine.Hinting := FCheckBoxHinting.Status;
     FFontEngine.SetHeight(FSliderHeight.Value);
@@ -618,9 +628,9 @@ begin
 
       T := GetElapsedTime;
 
-      DisplayMessage(Format('Glyphs=%u, Time=%.3fms, %.3f glyps/sec, %.3f ' +
+      DisplayMessage(PAnsiChar(Format('Glyphs=%u, Time=%.3fms, %.3f glyps/sec, %.3f ' +
         'microsecond/glyph', [NumGlyphs, T, (NumGlyphs / T) * 1000,
-        (T / NumGlyphs) * 1000]));
+        (T / NumGlyphs) * 1000])));
 
       FCheckBoxPerformance.Status := False;
 

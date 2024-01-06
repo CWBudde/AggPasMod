@@ -186,7 +186,7 @@ const
   Lim = AggColor.CAggBaseMask;
 var
   Pc1, Pc2, T: PAggRgbaCalc;
-  Nlen, Start, Vr, Vg, Vb, Va: Integer;
+  Nlen, Start: Integer;
   R, G, B, A: TAggDdaLineInterpolator;
   Span: PAggColor;
 begin
@@ -313,7 +313,7 @@ const
   Lim = AggColor.CAggBaseMask;
 var
   Pc1, Pc2, T: PAggRgbaCalc;
-  Nlen, Start, Vr, Vg, Vb, Va: Integer;
+  Nlen, Start: Integer;
   R, G, B, A: TAggDdaLineInterpolator;
 begin
   FRgba1.Calc(Y); // (FRgba1.FDelta.Y > 2) ? FRgba1.F1.Y : y);

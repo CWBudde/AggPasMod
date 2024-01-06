@@ -4,7 +4,7 @@ program Rasterizers;
 // Note: Press F1 key on run to see more info about this demo
 
 {$I AggCompiler.inc}
-{$DEFINE AGG_BGR24}
+{$DEFINE AGG_BGRA32}
 
 uses
   {$IFDEF USE_FASTMM4}
@@ -12,7 +12,18 @@ uses
   {$ENDIF}
   SysUtils,
 
-  AggPlatformSupport, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
 
   AggBasics in '..\..\Source\AggBasics.pas',
   AggMath in '..\..\Source\AggMath.pas',
@@ -425,8 +436,8 @@ begin
 
     UpdateWindow;
 
-    DisplayMessage(Format('Time Aliased=%.2fms '#13 +
-      'Time Anti-Aliased=%.2fms', [T1, T2]));
+    DisplayMessage(PAnsiChar(Format('Time Aliased=%.2fms '#13 +
+      'Time Anti-Aliased=%.2fms', [T1, T2])));
   end;
 end;
 

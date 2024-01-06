@@ -1,4 +1,4 @@
-unit AggScanlineUnpacked;
+unit AggScanLineUnpacked;
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //

@@ -39,25 +39,19 @@ type
     FX, FY, FAngle, FStart, FEnd, FScale, FDeltaAngle: Double;
     FCounterClockWise, FInitialized: Boolean;
     FPathCmd: Cardinal;
-
     procedure SetApproximationScale(Value: Double);
   protected
     procedure Normalize(A1, A2: Double; Ccw: Boolean);
   public
     constructor Create; overload;
-    constructor Create(X, Y, Rx, Ry, A1, A2: Double;
-      Ccw: Boolean = True); overload;
-
+    constructor Create(X, Y, Rx, Ry, A1, A2: Double; Ccw: Boolean = True); overload;
     procedure Init(X, Y, Rx, Ry, A1, A2: Double; Ccw: Boolean = True);
-
     procedure Rewind(PathID: Cardinal); override;
     function Vertex(X, Y: PDouble): Cardinal; override;
-
     property ApproximationScale: Double read FScale write SetApproximationScale;
   end;
 
 implementation
-
 
 { TAggArc }
 
@@ -71,12 +65,9 @@ begin
   FStart := 0;
   FEnd := 0;
   FDeltaAngle := 0;
-
   FCounterClockWise := False;
   FPathCmd := 0;
-
   FScale := 1;
-
   FInitialized := False;
 end;
 
@@ -126,11 +117,11 @@ begin
   if IsStop(FPathCmd) then
     Result := CAggPathCmdStop
 
-  else if (FAngle < FEnd - FDeltaAngle / 4) <> FCounterClockWise then
+  else if (FAngle < (FEnd - (FDeltaAngle / 4))) <> FCounterClockWise then
   begin
     SinCos(FEnd, Pnt.Y, Pnt.X);
-    X^ := FX + Pnt.X * FRadius.X;
-    Y^ := FY + Pnt.Y * FRadius.Y;
+    X^ := FX + (Pnt.X * FRadius.X);
+    Y^ := FY + (Pnt.Y * FRadius.Y);
 
     FPathCmd := CAggPathCmdStop;
 
@@ -139,8 +130,8 @@ begin
   else
   begin
     SinCos(FAngle, Pnt.Y, Pnt.X);
-    X^ := FX + Pnt.X * FRadius.X;
-    Y^ := FY + Pnt.Y * FRadius.Y;
+    X^ := FX + (Pnt.X * FRadius.X);
+    Y^ := FY + (Pnt.Y * FRadius.Y);
 
     FAngle := FAngle + FDeltaAngle;
 
@@ -156,7 +147,7 @@ var
   Ra: Double;
 begin
   Ra := (Abs(FRadius.X) + Abs(FRadius.Y)) * 0.5;
-  FDeltaAngle := ArcCos(Ra / (Ra + 0.125 / FScale)) * 2;
+  FDeltaAngle := ArcCos(Ra / (Ra + (0.125 / FScale))) * 2;
 
   if Ccw then
     while A2 < A1 do
