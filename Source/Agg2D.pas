@@ -93,7 +93,58 @@ uses
   AggGlyphRasterBin ,
   AggRendererRasterText ,
   {$ENDIF}
-  Math;
+  Math,
+  SysUtils;
+
+{$IFDEF AGG2D_USE_RASTERFONTS}
+type
+  TFontRecord = record
+    Font: PInt8u;
+    Name: AnsiString;
+  end;
+
+const
+  Fonts: array [0..34] of TFontRecord = (
+    (Font: @CAggGse4x6; name: 'Gse4x6'),
+    (Font: @CAggGse4x8; name: 'Gse4x8'),
+    (Font: @CAggGse5x7; name: 'Gse5x7'),
+    (Font: @CAggGse5x9; name: 'Gse5x9'),
+    (Font: @CAggGse6x9; name: 'Gse6x9'),
+    (Font: @CAggGse6x12; name: 'Gse6x12'),
+    (Font: @CAggGse7x11; name: 'Gse7x11'),
+    (Font: @CAggGse7x11Bold; name: 'Gse7x11Bold'),
+    (Font: @CAggGse7x15; name: 'Gse7x15'),
+    (Font: @CAggGse7x15Bold; name: 'Gse7x15Bold'),
+    (Font: @CAggGse8x16; name: 'Gse8x16'),
+    (Font: @CAggGse8x16Bold; name: 'Gse8x16Bold'),
+    (Font: @CAggMcs11Prop; name: 'Mcs11Prop'),
+    (Font: @CAggMcs11PropCondensed; name: 'Mcs11PropCondensed'),
+    (Font: @CAggMcs12Prop; name: 'Mcs12Prop'),
+    (Font: @CAggMcs13Prop; name: 'Mcs13Prop'),
+    (Font: @CAggMcs5x10Mono; name: 'Mcs5x10Mono'),
+    (Font: @CAggMcs5x11Mono; name: 'Mcs5x11Mono'),
+    (Font: @CAggMcs6x10Mono; name: 'Mcs6x10Mono'),
+    (Font: @CAggMcs6x11Mono; name: 'Mcs6x11Mono'),
+    (Font: @CAggMcs7x12MonoHigh; name: 'Mcs7x12MonoHigh'),
+    (Font: @CAggMcs7x12MonoLow; name: 'Mcs7x12MonoLow'),
+    (Font: @CAggVerdana12; name: 'Verdana12'),
+    (Font: @CAggVerdana12Bold; name: 'Verdana12Bold'),
+    (Font: @CAggVerdana13; name: 'Verdana13'),
+    (Font: @CAggVerdana13Bold; name: 'Verdana13Bold'),
+    (Font: @CAggVerdana14; name: 'Verdana14'),
+    (Font: @CAggVerdana14Bold; name: 'Verdana14Bold'),
+    (Font: @CAggVerdana16; name: 'Verdana16'),
+    (Font: @CAggVerdana16Bold; name: 'Verdana16Bold'),
+    (Font: @CAggVerdana17; name: 'Verdana17'),
+    (Font: @CAggVerdana17Bold; name: 'Verdana17Bold'),
+    (Font: @CAggVerdana18; name: 'Verdana18'),
+    (Font: @CAggVerdana18Bold; name: 'Verdana18Bold'),
+    (Font: nil; name: ''));
+
+  DefaultRasterFontName : AnsiString =  'Verdana14';
+
+{$ENDIF}
+
 
 type
   TAggPixelFormat = (pfRGBA, pfBGRA);
@@ -212,7 +263,7 @@ type
     {$ENDIF}
     {$IFDEF AGG2D_USE_RASTERFONTS}
     FFontGlyph: TAggGlyphRasterBin;
-    FFontFlip_Y: Boolean;
+    FFontFlipY: Boolean;
     {$ENDIF}
     FGammaNone: TAggGammaNone;
     FGammaAgg2D: TAgg2DRasterizerGamma;
@@ -642,7 +693,7 @@ begin
   {$ENDIF}
   {$IFDEF AGG2D_USE_RASTERFONTS}
   FFontGlyph := TAggGlyphRasterBin.Create(nil);
-  FFontFlip_Y := False;
+  FFontFlipY := False;
   {$ENDIF}
 
   SetLineCap(FLineCap);
@@ -1851,7 +1902,7 @@ begin
   FFontEngine.FlipY := Value;
   {$ENDIF}
   {$IFDEF AGG2D_USE_RASTERFONTS}
-  FFontFlip_Y :=  Value;
+  FFontFlipY :=  Value;
   {$ENDIF}
 end;
 
@@ -1872,6 +1923,11 @@ procedure TAgg2D.Font(FileName: PAnsiChar; Height: Double; Bold: Boolean = False
 {$IFDEF AGG2D_USE_WINFONTS}
 var
   B: Integer;
+{$ENDIF}
+{$IFDEF AGG2D_USE_RASTERFONTS}
+var
+  I: Integer;
+  RasterFont : PInt8u;
 {$ENDIF}
 begin
   FTextAngle := Angle;
@@ -1905,7 +1961,32 @@ begin
     FFontEngine.CreateFont(PAnsiChar(FileName), grAgggray8, WorldToScreen(Height), 0, B, Italic);
   {$ENDIF}
   {$IFDEF AGG2D_USE_RASTERFONTS}
+  RasterFont := nil;
 
+  for i := 0 to Length(Fonts) - 1 do
+  begin
+    if StrComp(PAnsiChar(Fonts[i].Name), FileName) = 0 then
+    begin
+      RasterFont := Fonts[i].Font;
+      Break;
+    end;
+  end;
+  if RasterFont = nil then
+  begin
+    for i := 0 to Length(Fonts) - 1 do
+    begin
+      if StrComp(PAnsiChar(Fonts[i].Name), PAnsiChar(DefaultRasterFontName)) = 0 then
+      begin
+        RasterFont := Fonts[i].Font;
+        Break;
+      end;
+    end;
+  end;
+  if RasterFont = nil then
+  begin
+    RasterFont := Fonts[0].Font;
+  end;
+  FFontGlyph.SetFont(RasterFont);
   {$ENDIF}
 end;
 
@@ -2145,7 +2226,7 @@ begin
       Delta.Y := -Asc;
   end;
 
-  if FFontFlip_Y then
+  if FFontFlipY then
       Delta.Y := -Delta.Y;
 
   Start.X := X + Delta.X;
@@ -2163,8 +2244,11 @@ begin
   Rt := TAggRendererRasterHorizontalTextSolid.Create(FRendererBase, FFontGlyph);
 
   try
+    if (FFontGlyph.GetFont() = nil) then
+        Font(PChar(DefaultRasterFontName),14);
+
     Rt.SetColor(FFillColor);
-    Rt.RenderText(Start.X, Start.Y, Str, FFontFlip_Y);
+    Rt.RenderText(Start.X, Start.Y, Str, FFontFlipY);
   finally
     Rt.Free;
   end;
@@ -2301,7 +2385,7 @@ begin
       Delta.Y := -Asc;
   end;
 
-  if FFontFlip_Y then
+  if FFontFlipY then
       Delta.Y := -Delta.Y;
 
   Start.X := X + Delta.X;
@@ -2319,8 +2403,11 @@ begin
   Rt := TAggRendererRasterHorizontalTextSolid.Create(FRendererBase, FFontGlyph);
 
   try
+    if (FFontGlyph.GetFont() = nil) then
+        Font(PChar(DefaultRasterFontName),14);
+
     Rt.SetColor(FFillColor);
-    Rt.RenderText(Start.X, Start.Y, PAnsiChar(Str), FFontFlip_Y);
+    Rt.RenderText(Start.X, Start.Y, PAnsiChar(Str), FFontFlipY);
   finally
     Rt.Free;
   end;
