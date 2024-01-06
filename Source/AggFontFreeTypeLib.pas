@@ -112,11 +112,11 @@ type
 
   PPAggFreeTypeLibrary = ^PAggFreeTypeLibrary;
   PAggFreeTypeLibrary = ^TAggFreeTypeLibrary;
-  TAggFreeTypeLibrary = packed record
+  TAggFreeTypeLibrary = record
   end;
 
   PAggFreeTypeSubglyph = ^TAggFreeTypeSubglyph;
-  TAggFreeTypeSubglyph = packed record // TODO
+  TAggFreeTypeSubglyph = record // TODO
   end;
 
   TAggFreeTypeBitmapSize = record
@@ -130,23 +130,23 @@ type
 
   TAggFreeTypeGenericFinalizer = procedure(AnObject: Pointer); cdecl;
 
-  TAggFreeTypeGeneric = packed record
+  TAggFreeTypeGeneric = record
     Data: Pointer;
     Finalizer: TAggFreeTypeGenericFinalizer;
   end;
 
   PAggFreeTypeBBox = ^TAggFreeTypeBBox;
-  TAggFreeTypeBBox = packed record
+  TAggFreeTypeBBox = record
     XMin, YMin, XMax, YMax: TAggFreeTypePos;
   end;
 
   PAggFreeTypeVector = ^TAggFreeTypeVector;
-  TAggFreeTypeVector = packed record
+  TAggFreeTypeVector = record
     X, Y: TAggFreeTypePos;
   end;
 
   PAggFreeTypeBitmap = ^TAggFreeTypeBitmap;
-  TAggFreeTypeBitmap = packed record
+  TAggFreeTypeBitmap = record
     Rows, Width, Pitch: TAggFreeTypeInt;
 
     Buffer: Pointer;
@@ -158,7 +158,7 @@ type
   end;
 
   PAggFreeTypeOutline = ^TAggFreeTypeOutline;
-  TAggFreeTypeOutline = packed record
+  TAggFreeTypeOutline = record
     NumContours, NumPoints: TAggFreeTypeShort;
 
     Points: PAggFreeTypeVector;
@@ -168,7 +168,7 @@ type
     Flags: TAggFreeTypeInt;
   end;
 
-  TAggFreeTypeGlyphMetrics = packed record
+  TAggFreeTypeGlyphMetrics = record
     Width, Height, HoriBearingX, HoriBearingY, HoriAdvance: TAggFreeTypePos;
     VertBearingX, VertBearingY, VertAdvance: TAggFreeTypePos;
   end;
@@ -177,7 +177,7 @@ type
   PAggFreeTypeFace = ^TAggFreeTypeFace;
 
   PAggFreeTypeGlyphSlot = ^TAggFreeTypeGlyphSlot;
-  TAggFreeTypeGlyphSlot = packed record
+  TAggFreeTypeGlyphSlot = record
     ALibrary: PAggFreeTypeLibrary;
 
     Face: PAggFreeTypeFace;
@@ -220,7 +220,7 @@ type
     // internal : FT_Size_Internal;
   end;
 
-  TAggFreeTypeFace = packed record
+  TAggFreeTypeFace = record
     NumFaces, FaceIndex, FaceFlags, StyleFlags, NumGlyphs: TAggFreeTypeLong;
     FamilyName, StyleName: PAggFreeTypeByte;
 
@@ -245,7 +245,7 @@ type
     Charmap: PAggFreeTypeCharmap;
   end;
 
-  TAggFreeTypeCharmap = packed record
+  TAggFreeTypeCharmap = record
     Face: PAggFreeTypeFace;
     Encoding: TAggFreeTypeEncoding;
 
@@ -253,7 +253,7 @@ type
   end;
 
   PAggFreeTypeSfntName = ^TAggFreeTypeSfntName;
-  TAggFreeTypeSfntName = packed record
+  TAggFreeTypeSfntName = record
     PlatformID: TAggFreeTypeUShort;
     EncodingID: TAggFreeTypeUShort;
     LanguageID: TAggFreeTypeUShort;

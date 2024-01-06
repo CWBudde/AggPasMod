@@ -11,13 +11,24 @@ uses
   {$ENDIF}
   Math,
 
-  AggPlatformSupport, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
 
   AggBasics in '..\..\Source\AggBasics.pas',
 
   AggColor in '..\..\Source\AggColor.pas',
   AggPixelFormat in '..\..\Source\AggPixelFormat.pas',
-  AggPixelFormatRgb in '..\..\Source\AggPixelFormatRgb.pas',
+  AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
 
   AggControl in '..\..\Source\Controls\AggControl.pas',
   AggSliderControl in '..\..\Source\Controls\AggSliderControl.pas',
@@ -28,7 +39,7 @@ uses
   AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
   AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
   AggScanLine in '..\..\Source\AggScanLine.pas',
-  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLineUnpacked in '..\..\Source\AggScanLineUnpacked.pas',
   AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
   AggConvStroke in '..\..\Source\AggConvStroke.pas',
@@ -164,7 +175,7 @@ var
   Ah: TAggArrowHead;
 begin
   // Initialize structures
-  PixelFormatBgr24(Pixf, RenderingBufferWindow);
+  PixelFormatBgra32(Pixf, RenderingBufferWindow);
 
   RendererBase := TAggRendererBase.Create(Pixf, True);
   try
@@ -416,7 +427,7 @@ begin
 end;
 
 begin
-  with TAggApplication.Create(pfBgr24, CFlipY) do
+  with TAggApplication.Create(pfBgra32, CFlipY) do
   try
     Caption := 'AGG Example. Line Join (F1-Help)';
 

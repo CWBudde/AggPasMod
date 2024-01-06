@@ -6,9 +6,9 @@ program MultiClip;
 {$I AggCompiler.inc}
 
 { DEFINE AGG_GRAY8 }
-{$DEFINE AGG_BGR24 }
+{ DEFINE AGG_BGR24 }
 { DEFINE AGG_Rgb24 }
-{ DEFINE AGG_BGRA32 }
+{$DEFINE AGG_BGRA32 }
 { DEFINE AGG_RgbA32 }
 { DEFINE AGG_ARGB32 }
 { DEFINE AGG_ABGR32 }
@@ -21,7 +21,18 @@ uses
   {$ENDIF}
   Math,
 
-  AggPlatformSupport, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
 
   AggBasics in '..\..\Source\AggBasics.pas',
   AggArray in '..\..\Source\AggArray.pas',
@@ -32,7 +43,7 @@ uses
   AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
   AggRasterizerOutlineAA in '..\..\Source\AggRasterizerOutlineAA.pas',
   AggScanLine in '..\..\Source\AggScanLine.pas',
-  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLineUnpacked in '..\..\Source\AggScanLineUnpacked.pas',
 
   AggRenderingBuffer in '..\..\Source\AggRenderingBuffer.pas',
   AggRendererBase in '..\..\Source\AggRendererBase.pas',

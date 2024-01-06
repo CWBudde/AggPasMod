@@ -32,7 +32,7 @@ uses
 
 {-$DEFINE ViewportOptionAnisotropic}
 {-$DEFINE FontCacheRaster}
-{$DEFINE More}
+{-$DEFINE More}
 {$DEFINE UseTextHints}
 {-$DEFINE BlackBackground}
 {-$DEFINE UseClipBox}

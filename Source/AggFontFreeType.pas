@@ -279,8 +279,7 @@ begin
   Result := Trunc(P * 64.0 + 0.5);
 end;
 
-function DecomposeFreeTypeOutline(Outline: PAggFreeTypeOutline; FlipY: Boolean;
-  Mtx: TAggTransAffine; Path: TAggCustomPathStorageInteger): Boolean;
+function DecomposeFreeTypeOutline(Outline: PAggFreeTypeOutline; FlipY: Boolean; Mtx: TAggTransAffine; Path: TAggCustomPathStorageInteger): Boolean;
 var
   V_last, V_control, V_start, Vec, V_middle, Vec1, Vec2: TAggFreeTypeVector;
 
@@ -308,10 +307,8 @@ begin
     Last := PAggFreeTypeShort(PtrComp(Outline.Contours) + N * SizeOf(TAggFreeTypeShort))^;
     Limit := PAggFreeTypeVector(PtrComp(Outline.Points) + Last * SizeOf(TAggFreeTypeVector));
 
-    V_start := PAggFreeTypeVector(PtrComp(Outline.Points) + First *
-      SizeOf(TAggFreeTypeVector))^;
-    V_last := PAggFreeTypeVector(PtrComp(Outline.Points) + Last *
-      SizeOf(TAggFreeTypeVector))^;
+    V_start := PAggFreeTypeVector(PtrComp(Outline.Points) + First * SizeOf(TAggFreeTypeVector))^;
+    V_last := PAggFreeTypeVector(PtrComp(Outline.Points) + Last * SizeOf(TAggFreeTypeVector))^;
 
     V_control := V_start;
 
@@ -1127,18 +1124,15 @@ begin
   FGlyphIndex := FreeTypeGetCharIndex(FCurFace, GlyphCode);
 
   if FHinting then
-    FLastError := FreeTypeLoadGlyph(FCurFace, FGlyphIndex,
-      CAggFreeTypeLoadDefault)
+    FLastError := FreeTypeLoadGlyph(FCurFace, FGlyphIndex, CAggFreeTypeLoadDefault)
   else
-    FLastError := FreeTypeLoadGlyph(FCurFace, FGlyphIndex,
-      CAggFreeTypeLoadNoHinting);
+    FLastError := FreeTypeLoadGlyph(FCurFace, FGlyphIndex, CAggFreeTypeLoadNoHinting);
 
   if FLastError = 0 then
     case FGlyphRendering of
       grNativeMono:
         begin
-          FLastError := FreeTypeRenderGlyph(FCurFace.Glyph,
-            CAggFreeTypeRenderModeMono);
+          FLastError := FreeTypeRenderGlyph(FCurFace.Glyph, CAggFreeTypeRenderModeMono);
 
           if FLastError = 0 then
           begin
@@ -1147,9 +1141,7 @@ begin
             else
               Fl := FCurFace.Glyph.BitmapTop;
 
-            DecomposeFreeTypeBitmapMono(@FCurFace.Glyph.Bitmap,
-              FCurFace.Glyph.BitmapLeft, Fl, FFlipY, FScanLineBin,
-              FScanLinesBin);
+            DecomposeFreeTypeBitmapMono(@FCurFace.Glyph.Bitmap, FCurFace.Glyph.BitmapLeft, Fl, FFlipY, FScanLineBin, FScanLinesBin);
 
             FBounds.X1 := FScanLinesBin.MinimumX;
             FBounds.Y1 := FScanLinesBin.MinimumY;
@@ -1166,8 +1158,7 @@ begin
 
       grNativeGray8:
         begin
-          FLastError := FreeTypeRenderGlyph(FCurFace.Glyph,
-            CAggFreeTypeRenderModeNormal);
+          FLastError := FreeTypeRenderGlyph(FCurFace.Glyph, CAggFreeTypeRenderModeNormal);
 
           if FLastError = 0 then
           begin
@@ -1176,9 +1167,7 @@ begin
             else
               Fl := FCurFace.Glyph.BitmapTop;
 
-            DecomposeFreeTypeBitmapGray8(@FCurFace.Glyph.Bitmap,
-              FCurFace.Glyph.BitmapLeft, Fl, FFlipY, FRasterizer,
-              FScanLineAA, FScanLinesAA);
+            DecomposeFreeTypeBitmapGray8(@FCurFace.Glyph.Bitmap, FCurFace.Glyph.BitmapLeft, Fl, FFlipY, FRasterizer, FScanLineAA, FScanLinesAA);
 
             FBounds.X1 := FScanLinesAA.MinimumX;
             FBounds.Y1 := FScanLinesAA.MinimumY;
@@ -1199,8 +1188,7 @@ begin
           begin
             FPath32.RemoveAll;
 
-            if DecomposeFreeTypeOutline(@FCurFace.Glyph.Outline, FFlipY,
-              FAffine, FPath32) then
+            if DecomposeFreeTypeOutline(@FCurFace.Glyph.Outline, FFlipY, FAffine, FPath32) then
             begin
               Bnd := FPath32.GetBoundingRect;
 
@@ -1223,8 +1211,7 @@ begin
           begin
             FPath16.RemoveAll;
 
-            if DecomposeFreeTypeOutline(@FCurFace.Glyph.Outline, FFlipY,
-              FAffine, FPath16) then
+            if DecomposeFreeTypeOutline(@FCurFace.Glyph.Outline, FFlipY, FAffine, FPath16) then
             begin
               Bnd := FPath16.GetBoundingRect;
 
@@ -1252,8 +1239,7 @@ begin
           begin
             FPath32.RemoveAll;
 
-            DecomposeFreeTypeOutline(@FCurFace.Glyph.Outline, FFlipY, FAffine,
-              FPath32);
+            DecomposeFreeTypeOutline(@FCurFace.Glyph.Outline, FFlipY, FAffine, FPath32);
 
             FRasterizer.AddPath(FCurves32);
           end
@@ -1261,8 +1247,7 @@ begin
           begin
             FPath16.RemoveAll;
 
-            DecomposeFreeTypeOutline(@FCurFace.Glyph.Outline, FFlipY, FAffine,
-              FPath16);
+            DecomposeFreeTypeOutline(@FCurFace.Glyph.Outline, FFlipY, FAffine, FPath16);
 
             FRasterizer.AddPath(FCurves16);
           end;
@@ -1294,8 +1279,7 @@ begin
           begin
             FPath32.RemoveAll;
 
-            DecomposeFreeTypeOutline(@FCurFace.Glyph.Outline, FFlipY, FAffine,
-              FPath32);
+            DecomposeFreeTypeOutline(@FCurFace.Glyph.Outline, FFlipY, FAffine, FPath32);
 
             FRasterizer.AddPath(FCurves32);
 
@@ -1304,8 +1288,7 @@ begin
           begin
             FPath16.RemoveAll;
 
-            DecomposeFreeTypeOutline(@FCurFace.Glyph.Outline, FFlipY, FAffine,
-              FPath16);
+            DecomposeFreeTypeOutline(@FCurFace.Glyph.Outline, FFlipY, FAffine, FPath16);
 
             FRasterizer.AddPath(FCurves16);
           end;
@@ -1464,9 +1447,7 @@ begin
       FFaceIndex, Integer(FGlyphRendering), FResolution, FHeight,
       FWidth, Integer(FHinting), Integer(FFlipY), GammaHash]);
 
-    if (FGlyphRendering = grOutline) or
-      (FGlyphRendering = grAggMono) or
-      (FGlyphRendering = grAggGray8) then
+    if (FGlyphRendering = grOutline) or (FGlyphRendering = grAggMono) or (FGlyphRendering = grAggGray8) then
     begin
       FAffine.StoreTo(@MatrixData);
 
@@ -1495,8 +1476,7 @@ begin
 
   while I < Length(FFaceNames) do
   begin
-    if (Length(Name) = Length(FFaceNames[I]))
-    and CompareMem(@Name[0], @FFaceNames[I][0], Length(Name)) then
+    if (Length(Name) = Length(FFaceNames[I])) and CompareMem(@Name[0], @FFaceNames[I][0], Length(Name)) then
     begin
       Result := I;
       Exit;

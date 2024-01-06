@@ -9,10 +9,10 @@ uses
   {$IFDEF USE_FASTMM4}
   FastMM4,
   {$ENDIF}
-  Windows,
   SysUtils,
-
-  AggPlatformSupport, // please add the path to this file manually
+  Windows,
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
 
   AggBasics in '..\..\Source\AggBasics.pas',
 
@@ -31,7 +31,7 @@ uses
   AggRendererPrimitives in '..\..\Source\AggRendererPrimitives.pas',
   AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
   AggScanLine in '..\..\Source\AggScanLine.pas',
-  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLineUnpacked in '..\..\Source\AggScanLineUnpacked.pas',
   AggScanLineBin in '..\..\Source\AggScanLineBin.pas',
   AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 

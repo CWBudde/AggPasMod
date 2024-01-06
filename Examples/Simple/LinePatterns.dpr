@@ -12,7 +12,18 @@ uses
   {$ENDIF}
   SysUtils,
 
-  AggPlatformSupport, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
 
   AggBasics in '..\..\Source\AggBasics.pas',
 
@@ -443,10 +454,10 @@ begin
     begin
       Ext := ImageExtension;
 
-      DisplayMessage(Format('There must be files 1%s...9%s'#13 +
+      DisplayMessage(PAnsiChar(Format('There must be files 1%s...9%s'#13 +
         'Download and unzip:'#13 +
         'http://www.antigrain.com/line_patterns.bmp.zip'#13 + 'or'#13 +
-        'http://www.antigrain.com/line_patterns.ppm.tar.gz'#13, [Ext, Ext]));
+        'http://www.antigrain.com/line_patterns.ppm.tar.gz'#13, [Ext, Ext])));
     end
     else if Init(500, 450, [wfResize]) then
       Run;

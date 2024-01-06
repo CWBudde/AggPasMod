@@ -29,8 +29,8 @@ interface
 uses
   AggBasics,
   AggVertexSource,
-  AggVpgen,
-  AggVpgenSegmentator;
+  AggVpGen,
+  AggVpGenSegmentator;
 
 type
   TAggConvAdaptorVpgen = class(TAggVertexSource)

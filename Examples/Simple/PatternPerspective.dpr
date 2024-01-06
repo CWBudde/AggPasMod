@@ -12,8 +12,18 @@ uses
   Math,
   SysUtils,
 
-  AggPlatformSupport, // please add the path to this file manually
-  AggFileUtils, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
 
   AggBasics in '..\..\Source\AggBasics.pas',
 
@@ -29,7 +39,7 @@ uses
   AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
   AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
   AggScanLine in '..\..\Source\AggScanLine.pas',
-  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLineUnpacked in '..\..\Source\AggScanLineUnpacked.pas',
   AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
   AggPathStorage in '..\..\Source\AggPathStorage.pas',
@@ -356,7 +366,7 @@ begin
 
       ForceRedraw;
 
-      DisplayMessage(Format('time=%.3f', [GetElapsedTime]));
+      DisplayMessage(PAnsiChar(Format('time=%.3f', [GetElapsedTime])));
     end;
 end;
 
@@ -371,7 +381,7 @@ procedure TAggApplication.OnKey(X, Y: Integer; Key: Cardinal;
   Flags: TMouseKeyboardFlags);
 begin
   if Key = Cardinal(kcF1) then
-    DisplayMessage('Pattern perspective transformations. Essentially it''s the '
+    DisplayMessage(PAnsiChar('Pattern perspective transformations. Essentially it''s the '
       + 'same as Demo "image_perspective", but working with a repeating '
       + 'pattern. Can be used for texturing.'#13#13
       + 'How to play with:'#13#13
@@ -379,7 +389,7 @@ begin
       + 'Click the left mouse outside the pattern to run the performance '
       + 'test.'#13#13
       + 'Note: F2 key saves current "screenshot" file in this demo''s '
-      + 'directory.');
+      + 'directory.'));
 end;
 
 var
@@ -410,7 +420,7 @@ begin
           + ImageName + ImageExtension + #13 + 'or copy it from another ' +
           'directory if available.';
 
-      DisplayMessage(Text);
+      DisplayMessage(PAnsiChar(Text));
     end
     else if Init(600, 600, [wfResize]) then
       Run;

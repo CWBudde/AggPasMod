@@ -6,9 +6,9 @@ program Circles;
 {$I AggCompiler.inc}
 
 { DEFINE AGG_GRAY8 }
-{$DEFINE AGG_BGR24 }
+{ DEFINE AGG_BGR24 }
 { DEFINE AGG_Rgb24 }
-{ DEFINE AGG_BGRA32 }
+{$DEFINE AGG_BGRA32 }
 { DEFINE AGG_RgbA32 }
 { DEFINE AGG_ARGB32 }
 { DEFINE AGG_ABGR32 }
@@ -24,7 +24,18 @@ uses
   {$ENDIF}
   SysUtils,
 
-  AggPlatformSupport, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
 
   AggBasics in '..\..\Source\AggBasics.pas',
   AggMath in '..\..\Source\AggMath.pas',

@@ -12,8 +12,18 @@ uses
   Math,
   SysUtils,
 
-  AggPlatformSupport, // please add the path to this file manually
-  AggFileUtils, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
 
   AggBasics in '..\..\Source\AggBasics.pas',
 
@@ -29,7 +39,7 @@ uses
   AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
   AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
   AggScanLine in '..\..\Source\AggScanLine.pas',
-  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLineUnpacked in '..\..\Source\AggScanLineUnpacked.pas',
   AggRenderScanLines in '..\..\Source\AggRenderScanLines.pas',
 
   AggPathStorage in '..\..\Source\AggPathStorage.pas',
@@ -349,7 +359,7 @@ begin
       ForceRedraw;
 
   if mkfMouseRight in Flags then
-    DisplayMessage(Format('%d %d', [X, Y]));
+    DisplayMessage(PAnsiChar(Format('%d %d', [X, Y])));
 end;
 
 procedure TAggApplication.OnMouseButtonUp(X, Y: Integer;
@@ -407,7 +417,7 @@ begin
           + ImageName + ImageExtension + #13 + 'or copy it from another '
           + 'directory if available.';
 
-      DisplayMessage(Text);
+      DisplayMessage(PAnsiChar(Text));
     end
     else if Init(600, 600, [wfResize]) then
       Run;

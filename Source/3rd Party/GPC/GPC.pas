@@ -38,8 +38,8 @@ Copyright: (C) Advanced Interfaces Group,
 
 interface
 
-uses
-  Windows;
+//uses
+//  Windows;
 
 // ===========================================================================
 // Constants

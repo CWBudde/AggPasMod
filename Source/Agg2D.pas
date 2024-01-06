@@ -27,7 +27,7 @@ interface
 {$I AggCompiler.inc}
 
 {.$DEFINE AGG2D_USE_RASTERFONTS }
-{.$DEFINE AGG2D_USE_FREETYPE }
+{$DEFINE AGG2D_USE_FREETYPE }
 {.$DEFINE AGG2D_USE_WINFONTS }
 
 {$IFDEF AGG2D_USE_RASTERFONTS}
@@ -2027,7 +2027,6 @@ var
   CharId: LongWord;
   First: Boolean;
   {$IFDEF AGG2D_USE_RASTERFONTS}
-  Color: TAggColor;
   Rt: TAggRendererRasterHorizontalTextSolid;
   {$ENDIF}
 begin
@@ -2164,8 +2163,7 @@ begin
   Rt := TAggRendererRasterHorizontalTextSolid.Create(FRendererBase, FFontGlyph);
 
   try
-    Color.FromRgba8(FFillColor);
-    Rt.SetColor(Color);
+    Rt.SetColor(FFillColor);
     Rt.RenderText(Start.X, Start.Y, Str, FFontFlip_Y);
   finally
     Rt.Free;
@@ -2185,7 +2183,6 @@ var
   CharId: LongWord;
   First: Boolean;
   {$IFDEF AGG2D_USE_RASTERFONTS}
-  Color: TAggColor;
   Rt: TAggRendererRasterHorizontalTextSolid;
   {$ENDIF}
 begin
@@ -2322,8 +2319,7 @@ begin
   Rt := TAggRendererRasterHorizontalTextSolid.Create(FRendererBase, FFontGlyph);
 
   try
-    Color.FromRgba8(FFillColor);
-    Rt.SetColor(Color);
+    Rt.SetColor(FFillColor);
     Rt.RenderText(Start.X, Start.Y, PAnsiChar(Str), FFontFlip_Y);
   finally
     Rt.Free;

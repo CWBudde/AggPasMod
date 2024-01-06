@@ -4,18 +4,29 @@ program PatternFill;
 // Note: Press F1 key on run to see more info about this demo
 
 {$I AggCompiler.inc}
-{$DEFINE AGG_BGR24 }
+{$DEFINE AGG_BGRA32 }
 
 uses
   {$IFDEF USE_FASTMM4}
   FastMM4,
   {$ENDIF}
 
-  AggPlatformSupport, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
 
   AggBasics in '..\..\Source\AggBasics.pas',
   AggMath in '..\..\Source\AggMath.pas',
-  AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
+  //AggPixelFormatRgba in '..\..\Source\AggPixelFormatRgba.pas',
 
   AggControl in '..\..\Source\Controls\AggControl.pas',
   AggRadioBoxControl in '..\..\Source\Controls\AggRadioBoxControl.pas',
@@ -492,7 +503,7 @@ begin
 end;
 
 begin
-  with TAggApplication.Create(pfBgr24, CFlipY) do
+  with TAggApplication.Create(pfBgra32, CFlipY) do
   try
     Caption := 'AGG Example. Pattern Filling (F1-Help)';
 

@@ -11,8 +11,18 @@ uses
   {$ENDIF}
   SysUtils,
 
-  AggPlatformSupport, // please add the path to this file manually
-  AggFileUtils, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
 
   AggBasics in '..\..\Source\AggBasics.pas',
   AggArray in '..\..\Source\AggArray.pas',
@@ -26,7 +36,7 @@ uses
   AggConvCurve in '..\..\Source\AggConvCurve.pas',
   AggConvStroke in '..\..\Source\AggConvStroke.pas',
   AggGsvText in '..\..\Source\AggGsvText.pas',
-  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLineUnpacked in '..\..\Source\AggScanLineUnpacked.pas',
   AggScanLineBin in '..\..\Source\AggScanLineBin.pas',
   AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
   AggRasterizerOutlineAA in '..\..\Source\AggRasterizerOutlineAA.pas',
@@ -840,7 +850,7 @@ begin
         Str := Str + #13#13 + 'Download http://www.antigrain.com/' + FileName
           + #13 + 'or copy it from another directory if available.';
 
-      DisplayMessage(Str);
+      DisplayMessage(PAnsiChar(Str));
     end
     else if Init(655, 520, [wfResize]) then
     begin

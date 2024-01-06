@@ -6,6 +6,7 @@ program GammaCorrection;
 {$I AggCompiler.inc}
 
 {$DEFINE AGG_BGR24 }
+{ DEFINE AGG_BGRA }
 { DEFINE AGG_Rgb24 }
 { DEFINE AGG_Rgb565 }
 { DEFINE AGG_Rgb555 }
@@ -15,7 +16,18 @@ uses
   FastMM4,
   {$ENDIF}
 
-  AggPlatformSupport, // please add the path to this file manually
+  {$IFDEF AGG_WINDOWS}
+  AggPlatformSupport in '..\..\Source\Platform\win\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\win\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_LINUX}
+  AggPlatformSupport in '..\..\Source\Platform\linux\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\linux\AggFileUtils.pas',
+  {$ENDIF}
+  {$IFDEF AGG_MACOSX}
+  AggPlatformSupport in '..\..\Source\Platform\mac\AggPlatformSupport.pas',
+  AggFileUtils in '..\..\Source\Platform\mac\AggFileUtils.pas',
+  {$ENDIF}
 
   AggBasics in '..\..\Source\AggBasics.pas',
 
@@ -24,7 +36,7 @@ uses
 
   AggRasterizerScanLineAA in '..\..\Source\AggRasterizerScanLineAA.pas',
   AggScanLine in '..\..\Source\AggScanLine.pas',
-  AggScanlineUnpacked in '..\..\Source\AggScanlineUnpacked.pas',
+  AggScanLineUnpacked in '..\..\Source\AggScanLineUnpacked.pas',
 
   AggRendererBase in '..\..\Source\AggRendererBase.pas',
   AggRendererScanLine in '..\..\Source\AggRendererScanLine.pas',
